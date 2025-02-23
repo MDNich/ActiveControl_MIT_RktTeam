@@ -1,15 +1,13 @@
 # Active Stabilization Development Roadmap
 ## Process
 1. Choose a control surface configuration
-2. Choose the degrees of freedom to use
-
+2. Choose the degrees of freedom to use\
 2a. Investigate 'spin can' for use with wings/canards
-
-4. Choose a rough rocket dimension sketch
-5. Develop a simulator to test control algorithm
-6. Use simulator to refine algorithm parameters
-7. Manufacture for use on a real rocket
-8. (Ideally) Test in a wind tunnel.
+3. Choose a rough rocket dimension sketch
+4. Develop a simulator to test control algorithm
+5. Use simulator to refine algorithm parameters
+6. Manufacture for use on a real rocket
+7. (Ideally) Test in a wind tunnel.
 
 ## Control Surfaces
 
