@@ -19,7 +19,7 @@ Factors to take into consideration:
 3. Shearing off of canards/wings should they be employed
 4. Instabilities induced by the addition of canards/wings.
 
-# Spin Can
+### Spin Can
 Presented at the NAR by Jim Jarvis at vNARCON 2023, the [Spin Can](https://www.youtube.com/watch?v=00kFDRk2Cwg) can be used to mitigate effects of turbulence (?) - investigation with CFD required.
 
 ## Choosing a toy rocket
