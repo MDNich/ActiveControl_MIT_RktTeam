@@ -67,6 +67,7 @@ with orhelper.OpenRocketInstance(os.environ['CLASSPATH'], 'OFF') as instance:
 	ax.legend(loc='upper left')
 	ax2.legend(loc='upper right')
 	plt.savefig(figPath)
+	plt.show()
 
 
 

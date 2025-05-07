@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='utf-8'?>
+<openrocket version="1.9" creator="OpenRocket 23.09">
+  <rocket>
+    <name>fuseeCanards</name>
+    <id>c0210507-e6d4-4bf7-bbe3-58e848233578</id>
+    <axialoffset method="absolute">0.0</axialoffset>
+    <position type="absolute">0.0</position>
+    <motorconfiguration configid="2360eb6c-7013-4e30-bbee-c43459fc5cd4" default="true">
+      <stage number="0" active="true"/>
+    </motorconfiguration>
+    <referencetype>maximum</referencetype>
+
+    <subcomponents>
+      <stage>
+        <name>Sustainer</name>
+        <id>55c468e6-2fda-4030-93a7-3152e35ecc91</id>
+
+        <subcomponents>
+          <nosecone>
+            <name>Ogive</name>
+            <id>23065e1b-b520-4bdc-9e94-ab3749d81e22</id>
+            <finish>normal</finish>
+            <material type="bulk" density="680.0">Cardboard</material>
+            <length>0.15000000000000002</length>
+            <thickness>0.002</thickness>
+            <shape>ogive</shape>
+            <shapeparameter>1.0</shapeparameter>
+            <aftradius>0.025</aftradius>
+            <aftshoulderradius>0.0</aftshoulderradius>
+            <aftshoulderlength>0.0</aftshoulderlength>
+            <aftshoulderthickness>0.0</aftshoulderthickness>
+            <aftshouldercapped>false</aftshouldercapped>
+            <isflipped>false</isflipped>
+          </nosecone>
+
+          <bodytube>
+            <name>Tube du corps</name>
+            <id>8d8704db-9a98-438b-814c-adc01a1c1ff7</id>
+            <finish>normal</finish>
+            <material type="bulk" density="680.0">Cardboard</material>
+            <length>0.2</length>
+            <thickness>0.002</thickness>
+            <radius>auto 0.025</radius>
+
+            <subcomponents>
+              <trapezoidfinset>
+                <name>Ailerons Trapézoïdaux</name>
+                <id>1c588be2-4ece-4b0e-ba8c-922be35051e6</id>
+                <instancecount>4</instancecount>
+                <fincount>4</fincount>
+                <radiusoffset method="surface">0.0</radiusoffset>
+                <angleoffset method="relative">0.0</angleoffset>
+                <rotation>0.0</rotation>
+                <axialoffset method="bottom">0.0</axialoffset>
+                <position type="bottom">0.0</position>
+                <finish>normal</finish>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <thickness>0.003</thickness>
+                <crosssection>square</crosssection>
+                <cant>14.999999999999998</cant>
+                <filletradius>0.0</filletradius>
+                <filletmaterial type="bulk" density="680.0">Cardboard</filletmaterial>
+                <rootchord>0.063</rootchord>
+                <tipchord>0.006</tipchord>
+                <sweeplength>0.07425260560248895</sweeplength>
+                <height>0.03</height>
+              </trapezoidfinset>
+            </subcomponents>
+          </bodytube>
+
+          <bodytube>
+            <name>Tube du corps</name>
+            <id>822f1354-10c3-46df-86e1-15b72586e777</id>
+            <finish>normal</finish>
+            <material type="bulk" density="680.0">Cardboard</material>
+            <length>0.6</length>
+            <thickness>0.002</thickness>
+            <radius>auto 0.025</radius>
+            <motormount>
+              <ignitionevent>automatic</ignitionevent>
+              <ignitiondelay>0.0</ignitiondelay>
+              <overhang>0.0</overhang>
+              <motor configid="2360eb6c-7013-4e30-bbee-c43459fc5cd4">
+                <type>reload</type>
+                <manufacturer>Cesaroni Technology</manufacturer>
+                <digest>fbb5ad1187bf93c58d8649041d2ce3c5</digest>
+                <designation>150G50-15A</designation>
+                <diameter>0.038</diameter>
+                <length>0.127</length>
+                <delay>6.0</delay>
+              </motor>
+              <ignitionconfiguration configid="2360eb6c-7013-4e30-bbee-c43459fc5cd4">
+                <ignitionevent>automatic</ignitionevent>
+                <ignitiondelay>0.0</ignitiondelay>
+              </ignitionconfiguration>
+            </motormount>
+
+            <subcomponents>
+              <trapezoidfinset>
+                <name>Ailerons Trapézoïdaux</name>
+                <id>f6633e19-ac51-4776-a5c0-bf599f0c7ef5</id>
+                <instancecount>4</instancecount>
+                <fincount>4</fincount>
+                <radiusoffset method="surface">0.0</radiusoffset>
+                <angleoffset method="relative">0.0</angleoffset>
+                <rotation>0.0</rotation>
+                <axialoffset method="bottom">0.0</axialoffset>
+                <position type="bottom">0.0</position>
+                <finish>normal</finish>
+                <material type="bulk" density="680.0">Cardboard</material>
+                <thickness>0.003</thickness>
+                <crosssection>square</crosssection>
+                <cant>0.0</cant>
+                <filletradius>0.0</filletradius>
+                <filletmaterial type="bulk" density="680.0">Cardboard</filletmaterial>
+                <rootchord>0.12</rootchord>
+                <tipchord>0.048</tipchord>
+                <sweeplength>0.1139500073222791</sweeplength>
+                <height>0.07400000000000001</height>
+              </trapezoidfinset>
+            </subcomponents>
+          </bodytube>
+        </subcomponents>
+      </stage>
+    </subcomponents>
+  </rocket>
+
+  <simulations>
+    <simulation status="notsimulated">
+      <name>Simulation 1</name>
+      <simulator>RK4Simulator</simulator>
+      <calculator>BarrowmanCalculator</calculator>
+      <conditions>
+        <configid>2360eb6c-7013-4e30-bbee-c43459fc5cd4</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model="isa"/>
+        <timestep>0.05</timestep>
+      </conditions>
+      <extension extensionid="net.sf.openrocket.simulation.extension.example.AirStart">
+      </extension>
+    </simulation>
+  </simulations>
+  <photostudio>
+  </photostudio>
+</openrocket>
