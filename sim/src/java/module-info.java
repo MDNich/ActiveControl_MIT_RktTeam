@@ -1,1 +1,0 @@
-../../../clone/openrocket/core/src/main/java/module-info.java

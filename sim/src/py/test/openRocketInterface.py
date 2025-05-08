@@ -55,19 +55,26 @@ with orhelper.OpenRocketInstance(os.environ['CLASSPATH'], 'OFF') as instance:
 	f.write(str(vel.tolist()))
 	f.close()
 	orhelper.logger.info("File Saved at {}".format(writePath))
+	logger = logging.getLogger()
+	logger.setLevel(level=logging.ERROR)
+
 
 
 	import matplotlib.pyplot as plt
 
 
 	fig, ax = plt.subplots()
-	ax.plot(t,pR,label="Pitch Rate",color='blue')
-	ax2 = ax.twinx()
-	ax2.plot(t,vel,label="Velocity",color='red')
-	ax.legend(loc='upper left')
-	ax2.legend(loc='upper right')
+	#ax.plot(t,pR,label="Pitch Rate",color='blue')
+	#ax2 = ax.twinx()
+	ax.plot(t,vel,label="Velocity",color='red')
+	ax.legend()
+	#ax2.legend(loc='upper right')
 	plt.savefig(figPath)
 	plt.show()
+
+
+
+	logger.setLevel(level=logging.INFO)
 
 
 

@@ -67,4 +67,4 @@ class ColorHandler(logging.StreamHandler):
         }
 
         color = msg_colors.get(record.levelno, "magenta")
-        self.stream.write(str(record.msg) + "\n", color)
+        self.stream.write("[PYTHON] " + str(record.msg) + "\n", color)

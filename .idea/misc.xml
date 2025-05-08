@@ -4,6 +4,9 @@
     <option name="sdkName" value="Python 3.12" />
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/clone/openrocket-release-24.12.RC.01" />
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_22" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>

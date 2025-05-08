@@ -1,0 +1,79 @@
+name: openrocket
+adopt-info: openrocket
+grade: stable
+summary: A free, fully featured model rocket simulator.
+description: |
+  OpenRocket is a free, fully featured model rocket simulator that allows you
+  to design and simulate your rockets before actually building and flying them.
+
+  The main features include:
+
+    * Six-degree-of-freedom flight simulation
+    * Automatic design optimization
+    * Realtime simulated altitude, velocity and acceleration display
+    * Staging and clustering support
+    * Cross-platform (Java-based)
+    * Read more about it on OpenRocket.info
+license: GPL-3.0
+base: core18
+confinement: strict
+
+plugs:
+  dot-java-user-prefs-openrocket:
+    interface: personal-files
+    read:
+      - $HOME/.java/.userPrefs/OpenRocket
+  dot-openrocket:
+    interface: personal-files
+    write:
+      - $HOME/.openrocket
+
+architectures:
+  - build-on: [amd64]
+  - build-on: [arm64]
+  - build-on: [armhf]
+  - build-on: [ppc64el]
+  - build-on: [s390x]
+
+apps:
+  openrocket:
+    command: bin/launcher
+    plugs:
+      - home
+      - network
+      - cups-control
+      - opengl
+      - dot-java-user-prefs-openrocket
+      - dot-openrocket
+    environment:
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-17-openjdk-$SNAP_ARCH"
+
+parts:
+  openrocket:
+    plugin: gradle
+    source: .
+    build-packages:
+      - openjdk-17-jdk
+    override-pull: |
+      craftctl default
+      version=$(grep 'version =' build.gradle | awk '{print $3}' | tr -d "'")
+      craftctl set version="$version"
+    override-build: |
+      craftctl default
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cp build/libs/OpenRocket-*.jar $CRAFT_PART_INSTALL/OpenRocket.jar
+    stage-packages:
+      - openjdk-17-jre
+      - ca-certificates
+      - ca-certificates-java
+    prime:
+      - -usr/lib/jvm/java-*/lib/security/cacerts
+      - -usr/lib/jvm/java-*/jre/lib/security/cacerts
+      - -usr/lib/jvm/java-*/lib/security/blacklisted.certs
+
+  launcher:
+    plugin: dump
+    source: snap/local
+    source-type: local
+    organize:
+      launcher: bin/launcher

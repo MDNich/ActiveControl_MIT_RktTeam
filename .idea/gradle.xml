@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/clone/openrocket" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/clone/openrocket" />
-            <option value="$PROJECT_DIR$/clone/openrocket/core" />
-            <option value="$PROJECT_DIR$/clone/openrocket/swing" />
+            <option value="$PROJECT_DIR$/clone/openrocket-release-24.12.RC.01" />
+            <option value="$PROJECT_DIR$/clone/openrocket-release-24.12.RC.01/core" />
+            <option value="$PROJECT_DIR$/clone/openrocket-release-24.12.RC.01/swing" />
           </set>
         </option>
       </GradleProjectSettings>

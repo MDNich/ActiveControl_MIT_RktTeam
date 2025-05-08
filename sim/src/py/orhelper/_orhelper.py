@@ -50,14 +50,15 @@ class OpenRocketInstance:
         jpype.startJVM(jvm_path, "-ea", f"-Djava.class.path={self.jar_path}")
 
         # ----- Java imports -----
-        self.openrocket = jpype.JPackage("net").sf.openrocket
+        self.openrocket = jpype.JPackage("info").openrocket.core
+        self.openrocketSwing = jpype.JPackage("info").openrocket.swing
         guice = jpype.JPackage("com").google.inject.Guice
         LoggerFactory = jpype.JPackage("org").slf4j.LoggerFactory
         Logger = jpype.JPackage("ch").qos.logback.classic.Logger
         # -----
 
         # Effectively a minimally viable translation of openrocket.startup.SwingStartup
-        gui_module = self.openrocket.startup.GuiModule()
+        gui_module = self.openrocketSwing.startup.GuiModule()
         plugin_module = self.openrocket.plugin.PluginModule()
 
         injector = guice.createInjector(gui_module, plugin_module)
@@ -198,9 +199,9 @@ class AbstractSimulationListener:
 
     def clone(self):
         return jpype.JProxy((
-            jpype.JPackage("net").sf.openrocket.simulation.listeners.SimulationListener,
-            jpype.JPackage("net").sf.openrocket.simulation.listeners.SimulationEventListener,
-            jpype.JPackage("net").sf.openrocket.simulation.listeners.SimulationComputationListener,
+            jpype.JPackage("info").openrocket.core.simulation.listeners.SimulationListener,
+            jpype.JPackage("info").openrocket.core.simulation.listeners.SimulationEventListener,
+            jpype.JPackage("info").openrocket.core.simulation.listeners.SimulationComputationListener,
             jpype.java.lang.Cloneable,),
             inst=copy(self))
 
