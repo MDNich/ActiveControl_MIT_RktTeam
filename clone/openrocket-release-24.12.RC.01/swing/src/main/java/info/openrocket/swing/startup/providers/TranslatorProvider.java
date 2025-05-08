@@ -44,7 +44,7 @@ public class TranslatorProvider implements Provider<Translator> {
 			Locale l = getUserLocale();
 			if (l != null) {
 				log.info("Setting user-selected locale " + l);
-				log.info("Hehe boi we're in business");
+				log.info("Hehe boiii we're in business");
 				Locale.setDefault(l);
 			} else {
 				log.info("Using default locale " + Locale.getDefault());

@@ -80,7 +80,6 @@ public class SwingStartup {
 		if (!ignoreJRE && !checkJREVersion()) {
 			return;
 		}
-		
 		// Check that we're not running headless
 		log.info("Checking for graphics head");
 		checkHead();
