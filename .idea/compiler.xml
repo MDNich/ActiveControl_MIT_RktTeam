@@ -2,15 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="info.openrocket" target="17" />
-      <module name="info.openrocket.core" target="17" />
-      <module name="info.openrocket.core.main" target="17" />
-      <module name="info.openrocket.core.test" target="17" />
-      <module name="info.openrocket.main" target="17" />
-      <module name="info.openrocket.swing" target="17" />
-      <module name="info.openrocket.swing.main" target="17" />
-      <module name="info.openrocket.swing.test" target="17" />
-      <module name="info.openrocket.test" target="17" />
       <module name="openrocket-release-24.12.RC.01.info.openrocket.core.main" target="17" />
       <module name="openrocket-release-24.12.RC.01.info.openrocket.core.test" target="17" />
       <module name="openrocket-release-24.12.RC.01.info.openrocket.swing.main" target="17" />
