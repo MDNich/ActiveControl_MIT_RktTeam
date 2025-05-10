@@ -40,7 +40,7 @@ public class FlightConfiguration implements FlightConfigurableParameter<FlightCo
 	public static String DEFAULT_CONFIG_NAME = "[{motors}]";
 	private final RocketDescriptor descriptor = Application.getInjector().getInstance(RocketDescriptor.class);
 
-	protected final Rocket rocket;
+	public final Rocket rocket;
 	protected final FlightConfigurationId fcid;
 
 	private static int configurationInstanceCount = 0;
