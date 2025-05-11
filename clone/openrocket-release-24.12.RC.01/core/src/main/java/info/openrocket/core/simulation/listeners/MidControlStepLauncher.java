@@ -25,6 +25,8 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 	public static SimulationStatus iniStat = null;
 	public static SimulationStatus finStat = null;
 
+	public static double theTimeStep = 0.0025;
+	public static double wantedTimeStep = 0.0025;
 
 	private static double iniTimeStep = 0;
 	private static double finTimeStep = 0;
@@ -51,7 +53,7 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 	public void postStep(SimulationStatus status) throws SimulationException {
 		finStat = status.clone();
 		finTimeStep = status.getSimulationTime();
-		System.out.println("Flight data branch is " + ( datStorage == null ? "null" : "not null" ));
+		//System.out.println("Flight data branch is " + ( datStorage == null ? "null" : "not null" ));
 		if(datStorage != null) {
 			finStat.setFlightDataBranch(datStorage);
 		}
@@ -60,7 +62,7 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 		}
 
 		double delta = finTimeStep - iniTimeStep;
-		System.out.println("Delta: " + delta);
+		//System.out.println("Delta: " + delta);
 		throw new SimulationException("One step only, delta " + delta);
 	}
 }

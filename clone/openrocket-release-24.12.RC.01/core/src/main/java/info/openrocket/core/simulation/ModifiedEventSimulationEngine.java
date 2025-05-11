@@ -109,16 +109,16 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				currentStatus.setWarnings(flightData.getWarningSet());
 				FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
 				flightData.addBranch(dataBranch);
-				System.out.println("!! WARNING !! \nTHIS IS THE CUSTOM SIMULATION ENGINE\nIT MOST DEFINITELY HAS BUGS\nBEWARE");
-				System.out.println(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
+				log.info("!! WARNING !! \nTHIS IS THE CUSTOM SIMULATION ENGINE\nIT MOST DEFINITELY HAS BUGS\nBEWARE");
+				log.info(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
 				simulateLoop(simulationConditions);
 				
 				dataBranch.immute();
-				System.out.println(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
+				log.info(String.format("<<Finished simulating branch: %s    curTime:%s    finTime:%s",
 									   dataBranch.getName(),
 									   currentStatus.getSimulationTime(),
 									   dataBranch.getLast(FlightDataType.TYPE_TIME)));
-				
+
 				
 				// Did the branch generate any data?
 				if (dataBranch.getLength() == 0) {
@@ -160,8 +160,8 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 			
 			// Start the simulation
 			while (handleEvents(simulationConditions)) {
-				System.out.println("Simulation Step Start");
-				System.out.println("Simulation time: " + currentStatus.getSimulationTime());
+				//System.out.println("Simulation Step Start");
+				//System.out.println("Simulation time: " + currentStatus.getSimulationTime());
 
 				// Take the step
 				double oldAlt = currentStatus.getRocketPosition().z;

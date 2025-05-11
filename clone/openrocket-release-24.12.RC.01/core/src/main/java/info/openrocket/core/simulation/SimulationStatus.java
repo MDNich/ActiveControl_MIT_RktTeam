@@ -53,7 +53,7 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	
 	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
 
-	private SimulationConditions simulationConditions;
+	public SimulationConditions simulationConditions;
 	private FlightConfiguration configuration;
 	private FlightDataBranch flightDataBranch;
 

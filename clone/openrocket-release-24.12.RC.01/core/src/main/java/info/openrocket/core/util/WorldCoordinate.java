@@ -28,6 +28,15 @@ public class WorldCoordinate {
 		this.alt = alt;
 	}
 
+	public WorldCoordinate sub(WorldCoordinate second) {
+		return new WorldCoordinate(this.lat - second.lat, this.lon - second.lon, this.alt - second.alt);
+	}
+
+
+	public WorldCoordinate clone() {
+		return new WorldCoordinate(this.lat, this.lon, this.alt);
+	}
+
 	/**
 	 * Returns the altitude.
 	 */
@@ -83,5 +92,6 @@ public class WorldCoordinate {
 	public int hashCode() {
 		return ((int) (1000 * (lat + lon + alt)));
 	}
+
 
 }

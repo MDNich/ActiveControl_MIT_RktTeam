@@ -320,4 +320,19 @@ public class Quaternion {
 	}
 
 
+	public Coordinate getAxis() {
+		double s = Math.sqrt(1 - w * w);
+		if (s < 0.001) {
+			return new Coordinate(1, 0, 0);
+		}
+		 else {
+			return new Coordinate(x / s,y / s, z / s);
+		}
+	}
+
+	public double getAngle() {
+		return 2.0 * Math.acos(w);
+	}
+
+
 }

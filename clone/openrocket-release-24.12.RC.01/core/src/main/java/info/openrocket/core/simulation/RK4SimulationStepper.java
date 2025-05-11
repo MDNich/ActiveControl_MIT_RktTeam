@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import info.openrocket.core.logging.SimulationAbort;
+import info.openrocket.core.simulation.listeners.MidControlStepLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,9 @@ import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Quaternion;
 import info.openrocket.core.util.Rotation2D;
 import info.openrocket.core.util.WorldCoordinate;
+
+import static info.openrocket.core.simulation.listeners.MidControlStepLauncher.theTimeStep;
+import static info.openrocket.core.simulation.listeners.MidControlStepLauncher.wantedTimeStep;
 
 public class RK4SimulationStepper extends AbstractSimulationStepper {
 	
@@ -140,8 +144,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		double[] dt = new double[8];
 		Arrays.fill(dt, Double.MAX_VALUE);
 
+
 		// If the user selected a really small timestep, use MIN_TIME_STEP instead.
 		dt[0] = MathUtil.max(status.getSimulationConditions().getTimeStep(), MIN_TIME_STEP);
+		dt[0] = MathUtil.max(wantedTimeStep,MIN_TIME_STEP);
 		dt[1] = maxTimeStep;
 		dt[2] = status.getSimulationConditions().getMaximumAngleStep() / store.lateralPitchRate;
 		dt[3] = Math.abs(MAX_ROLL_STEP_ANGLE / store.flightConditions.getRollRate());
@@ -163,8 +169,11 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 				limitingValue = i;
 			}
 		}
+		//System.out.println("User desired time step " + dt[0]);
+		//System.out.println("Min time step " + MIN_TIME_STEP);
+		//System.out.println("Selected time step " + store.timeStep + " (limiting factor " + limitingValue + ")");
 
-		log.trace("Selected time step " + store.timeStep + " (limiting factor " + limitingValue + ")");
+		theTimeStep = store.timeStep;
 
 		// If our selected time step is too close to our next scheduled event,
 		// (passed in as maxTimeStep) adjust
