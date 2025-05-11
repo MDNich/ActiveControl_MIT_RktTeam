@@ -53,12 +53,12 @@ def runOneStep(or_obj, flightConfig, sim, startParamDict,timeStep=0.0025,verbose
     propDict = startParamDict
 
     if(verbose):
-        logging.warning("== INITIAL CONDITIONS ==")
+        print("== INITIAL CONDITIONS ==")
         for key in propDict.keys():
-            logging.info("Key {}:".format(key))
-            logging.info(propDict[key])
+            print("Key {}:".format(key))
+            print(propDict[key])
 
-        logging.warning("== END INITIAL CONDITIONS ==")
+        print("== END INITIAL CONDITIONS ==")
 
     # Set according to propdict.
     theStartingSimulationStatus.setRocketPosition(propDict["position"])
@@ -83,11 +83,11 @@ def runOneStep(or_obj, flightConfig, sim, startParamDict,timeStep=0.0025,verbose
         # sim
         sim.simulate(listener_array)
         if(verbose):
-            logging.warning("Simulation finished")
+            print("Simulation finished")
     except Exception as e:
         if(verbose):
-            logging.error("Java Error: {}".format(str(e)))
-            logging.error("Caught it !")
+            print("Java Error: {}".format(str(e)))
+            print("Caught it !")
 
     theEndingSimulationStatus = listenerClass.getFinStat()
     #theEndingSimulationStatus.storeData()
@@ -131,11 +131,11 @@ def runOneStep(or_obj, flightConfig, sim, startParamDict,timeStep=0.0025,verbose
     }
 
     if(verbose):
-        logging.warning("== FINAL CONDITIONS ==")
+        print("== FINAL CONDITIONS ==")
         for key in outDict.keys():
-            logging.info("Key {}:".format(key))
-            logging.info(outDict[key])
-        logging.warning("== END FINAL CONDITIONS ==")
+            print("Key {}:".format(key))
+            print(outDict[key])
+        print("== END FINAL CONDITIONS ==")
 
 
     # calculate deltas

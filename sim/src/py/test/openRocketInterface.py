@@ -58,11 +58,26 @@ datPath = 'dat/simResults/canard1_out_long.csv'
 figPath = 'dat/simResults/canard1_out_long.pdf'
 
 
+
+#rktObj.getTopmostStage().
+
+
+
+
+#exit(0)
+
+
+
+
+
 verboseMode = False
 
-dataImport = True
+dataImport = False
 
-
+if dataImport:
+	logging.error("READING FROM A FILE: {}".format(datPath))
+else:
+	logging.error("RUNNING A NEW SIMULATION")
 
 import pandas as pd
 if dataImport:
@@ -129,7 +144,7 @@ else:
 	vertVelTime = [initialPropDict["velocityZ"]]
 
 	runTime = 80 # s
-	prefDt = 0.001 # s/cycle
+	prefDt = 0.0025 # s/cycle
 	likelyDt = 0.0024
 	dtList = []
 	or_obj.simulation.listeners.MidControlStepLauncher.theTimeStep = prefDt
@@ -236,15 +251,12 @@ ax.legend(ncol=1)
 
 ax2 = ax.twinx()
 ax2.plot(times,np.array(vertVelTime),color='blue')#,label="Vert Velocity",color='blue')
-#ax2.hlines(y=0,xmin=times[0],xmax=times[-1],color='b',linestyle="dotted")
 ax2.set_ylim(0,200)
-#ax.legend()
 
 ax2.spines['right'].set_color('b')
 ax2.spines['left'].set_color('r')
 ax2.yaxis.label.set_color('b')
 ax.yaxis.label.set_color('r')
-ax2.tick_params(axis='y', colors='b')
 ax.tick_params(axis='y', colors='r')
 
 ax.set_ylabel("Height (m)")

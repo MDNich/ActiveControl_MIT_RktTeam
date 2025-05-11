@@ -173,7 +173,12 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		//System.out.println("Min time step " + MIN_TIME_STEP);
 		//System.out.println("Selected time step " + store.timeStep + " (limiting factor " + limitingValue + ")");
 
-		theTimeStep = store.timeStep;
+		// try to hardcode
+		store.timeStep = theTimeStep;
+		//theTimeStep = store.timeStep;
+		status.getSimulationConditions().setTimeStep(theTimeStep);
+
+
 
 		// If our selected time step is too close to our next scheduled event,
 		// (passed in as maxTimeStep) adjust
