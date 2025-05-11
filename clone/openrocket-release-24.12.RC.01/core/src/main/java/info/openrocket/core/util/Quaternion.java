@@ -305,4 +305,19 @@ public class Quaternion {
 		return String.format("Quaternion[%f,%f,%f,%f,norm=%f]", w, x, y, z, this.norm());
 	}
 
+	/**
+	 * Print the rotation axis and angle represented by this quaternion.
+	 * The angle is in radians.
+	 */
+	public String printAxisAngle() {
+		double angle = 2.0 * Math.acos(w);
+		double s = Math.sqrt(1 - w * w);
+		if (s < 0.001) {
+			return "Axis: [1.0, 0.0, 0.0], Angle: " + angle;
+		} else {
+			return "Axis: [" + x / s + ", " + y / s + ", " + z / s + "], Angle: " + angle;
+		}
+	}
+
+
 }

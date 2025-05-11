@@ -1,41 +1,33 @@
 package info.openrocket.core.simulation;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
-import info.openrocket.core.logging.SimulationAbort;
-import info.openrocket.core.motor.ThrustCurveMotor;
-import info.openrocket.core.simulation.exception.SimulationCalculationException;
-import info.openrocket.core.simulation.listeners.MidControlStepLauncher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.l10n.Translator;
+import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
-import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.motor.MotorConfiguration;
 import info.openrocket.core.motor.MotorConfigurationId;
-import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
-import info.openrocket.core.rocketcomponent.FlightConfiguration;
-import info.openrocket.core.rocketcomponent.FlightConfigurationId;
-import info.openrocket.core.rocketcomponent.MotorMount;
-import info.openrocket.core.rocketcomponent.RecoveryDevice;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
+import info.openrocket.core.motor.ThrustCurveMotor;
+import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.simulation.exception.SimulationCalculationException;
 import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.simulation.listeners.MidControlStepLauncher;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.simulation.listeners.system.OptimumCoastListener;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class BasicEventSimulationEngine implements SimulationEngine {
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+public class ModifiedEventSimulationEngine implements SimulationEngine {
 	
 	private static final Translator trans = Application.getTranslator();
-	private static final Logger log = LoggerFactory.getLogger(BasicEventSimulationEngine.class);
+	private static final Logger log = LoggerFactory.getLogger(ModifiedEventSimulationEngine.class);
 	
 	// TODO: MEDIUM: Allow selecting steppers
 	private final SimulationStepper flightStepper = new RK4SimulationStepper();
@@ -117,6 +109,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 				currentStatus.setWarnings(flightData.getWarningSet());
 				FlightDataBranch dataBranch = currentStatus.getFlightDataBranch();
 				flightData.addBranch(dataBranch);
+				System.out.println("!! WARNING !! \nTHIS IS THE CUSTOM SIMULATION ENGINE\nIT MOST DEFINITELY HAS BUGS\nBEWARE");
 				System.out.println(">>Starting simulation of branch: " + currentStatus.getFlightDataBranch().getName());
 				simulateLoop(simulationConditions);
 				
@@ -150,20 +143,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		// Initialize the simulation.
 
 		// Select the appropriate stepper:
-		//     On the ground: ground stepper
-		//     Tumbling: tumble stepper
-		//     At least one recovery device deployed: landing stepper
-		//     Otherwise: flight stepper
+		//    flight stepper
 
-		if (currentStatus.isLanded()) {
-			currentStepper = groundStepper;
-		} else if (currentStatus.isTumbling()) {
-			currentStepper = tumbleStepper;
-		} else if (!currentStatus.getDeployedRecoveryDevices().isEmpty()) {
-			currentStepper = landingStepper;
-		} else {
-			currentStepper = flightStepper;
-		}
+		currentStepper = flightStepper;
 
 		currentStatus = currentStepper.initialize(currentStatus);
 		double previousSimulationTime = currentStatus.getSimulationTime();
@@ -763,7 +745,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 		try {
 			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
 			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
-			BasicEventSimulationEngine coastEngine = new BasicEventSimulationEngine();
+			ModifiedEventSimulationEngine coastEngine = new ModifiedEventSimulationEngine();
 		
 			coastEngine.simulate(conds);
 			return coastEngine.getFlightData();

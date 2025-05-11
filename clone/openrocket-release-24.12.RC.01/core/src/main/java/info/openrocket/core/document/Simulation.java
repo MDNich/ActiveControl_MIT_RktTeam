@@ -5,7 +5,7 @@ import java.util.EventListener;
 import java.util.EventObject;
 import java.util.List;
 
-import info.openrocket.core.simulation.FlightEvent;
+import info.openrocket.core.simulation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,14 +18,6 @@ import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.FlightConfigurationId;
 import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.simulation.BasicEventSimulationEngine;
-import info.openrocket.core.simulation.DefaultSimulationOptionFactory;
-import info.openrocket.core.simulation.FlightData;
-import info.openrocket.core.simulation.RK4SimulationStepper;
-import info.openrocket.core.simulation.SimulationConditions;
-import info.openrocket.core.simulation.SimulationEngine;
-import info.openrocket.core.simulation.SimulationOptions;
-import info.openrocket.core.simulation.SimulationStepper;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.extension.SimulationExtension;
 import info.openrocket.core.simulation.listeners.SimulationListener;
@@ -478,13 +470,18 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 			
 			try {
-				simulator = simulationEngineClass.getConstructor().newInstance();
-			} catch (InstantiationException e) {
+				// simulator = simulationEngineClass.getConstructor().newInstance();
+				simulator = new ModifiedEventSimulationEngine();
+			//} catch (InstantiationException e) {
+			//	throw new IllegalStateException("Cannot instantiate simulator.", e);
+			//} catch (IllegalAccessException e) {
+			//	throw new IllegalStateException("Cannot access simulator instance?! BUG!", e);
+			//} catch (InvocationTargetException | NoSuchMethodException e) {
+			//
+			} catch (Exception e) {
+				System.out.println(e.toString());
+				System.out.println("Skill issue: simulator instantiation failed. Now what ?");
 				throw new IllegalStateException("Cannot instantiate simulator.", e);
-			} catch (IllegalAccessException e) {
-				throw new IllegalStateException("Cannot access simulator instance?! BUG!", e);
-			} catch (InvocationTargetException | NoSuchMethodException e) {
-				throw new RuntimeException(e);
 			}
 
 			SimulationConditions simulationConditions = options.toSimulationConditions();
@@ -499,11 +496,11 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 			
 			long t1, t2;
-			log.debug("Simulation: calling simulator");
+			log.info("Simulation: calling simulator");
 			t1 = System.currentTimeMillis();
 			simulator.simulate(simulationConditions);
 			t2 = System.currentTimeMillis();
-			log.debug("Simulation: returning from simulator, simulation took " + (t2 - t1) + "ms");
+			System.out.println("Simulation: returning from simulator, simulation took " + (t2 - t1) + "ms");
 
 		} catch (SimulationException e) {
 			throw e;

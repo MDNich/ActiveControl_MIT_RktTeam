@@ -78,16 +78,16 @@ public class SimulationStatus implements Cloneable, Monitorable {
 	private long simulationStartWallTime = Long.MIN_VALUE;
 
 	/** Set to true when a motor has ignited. */
-	private boolean motorIgnited = false;
+	public boolean motorIgnited = false;
 
 	/** Set to true when the rocket has risen from the ground. */
-	private boolean liftoff = false;
+	public boolean liftoff = false;
 
 	/** Set to true when the launch rod has been cleared. */
-	private boolean launchRodCleared = false;
+	public boolean launchRodCleared = false;
 
 	/** Set to true when apogee has been detected. */
-	private boolean apogeeReached = false;
+	public boolean apogeeReached = false;
 
 	/** Set to true to indicate the rocket is tumbling. */
 	private boolean tumbling = false;
@@ -224,6 +224,28 @@ public class SimulationStatus implements Cloneable, Monitorable {
 
 		this.modID = orig.modID;
 		this.modIDadd = orig.modIDadd;
+	}
+
+	/**
+	 * Copies selected simulation status data from the specified {@code SimulationStatus} object
+	 * to this instance. This method performs deep cloning for most fields, such as simulation
+	 * conditions and configuration, but performs shallow copying for others, like the flight
+	 * data branch. The {@code warnings} set is initialized as a new instance rather than cloned.
+	 * The method also transfers and updates collections and maps, such as recovery devices,
+	 * motor states, and extra data.
+	 *
+	 * @param orig the {@code SimulationStatus} object from which to copy data
+	 */
+	public void copySimStatParameters(SimulationStatus orig) {
+		this.position = orig.position;
+		this.worldPosition = orig.worldPosition;
+		this.velocity = orig.velocity;
+		this.orientation = orig.orientation;
+		this.rotationVelocity = orig.rotationVelocity;
+		this.motorIgnited = orig.motorIgnited;
+		this.liftoff = orig.liftoff;
+		this.launchRodCleared = orig.launchRodCleared;
+		this.apogeeReached = orig.apogeeReached;
 	}
 
 	public void setSimulationTime(double time) {

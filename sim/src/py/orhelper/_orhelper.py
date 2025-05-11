@@ -241,7 +241,7 @@ class Helper:
 
         if listeners is None:
             # this method takes in a vararg of SimulationListeners, which is just a fancy way of passing in an array, so
-            # we have to pass in an array of length 0 ..
+            # we have to pass in an array of length 0.
             listener_array = jpype.JArray(
                 self.openrocket.simulation.listeners.AbstractSimulationListener, 1
             )(0)

@@ -365,6 +365,10 @@ public final class Coordinate implements Cloneable, Serializable {
 	public String toPreciseString() {
 		return String.format("cm= %.8fg @[%.8f,%.8f,%.8f]", weight, x, y, z);
 	}
+
+	public String pythonOutputStr() {
+		return "x: " + x + ", y: " + y + ", z: " + z + ", w: " + weight;
+	}
 	
 	@Override
 	public Coordinate clone() {
