@@ -104,14 +104,28 @@ def calculateDeltDict(or_obj, dictNew, dictOld,toPrint=False):
         logging.info(changeInOrientationAngleDeg)
         logging.error("== END CHANGES ==")
 
-
+    orChg = changeInOrientation_java
+    orChgAxis = orChg.getAxis()
 
     deltaDict = {
         "position": changeInPosition_java, # Coordinate object
+        "positionX": changeInPosition_java.x, # Coordinate object
+        "positionY": changeInPosition_java.y, # Coordinate object
+        "positionZ": changeInPosition_java.z, # Coordinate object
         "worldPos": changeInWorldPosition_java, # WorldCoordinate object
         "velocity": changeInVelocity_java, # Coordinate object
+        "velocityX": changeInVelocity_java.x, # Coordinate object
+        "velocityY": changeInVelocity_java.y, # Coordinate object
+        "velocityZ": changeInVelocity_java.z, # Coordinate object
         "orient"  : changeInOrientation_java, # Quaternion object
+        "orientRotAxis"  : orChgAxis, # Quaternion object
+        "orientRotAxisX"  : orChgAxis.x, # Quaternion object
+        "orientRotAxisY"  : orChgAxis.y, # Quaternion object
+        "orientRotAxisZ"  : orChgAxis.z, # Quaternion object
         "rotVel"  : changeInRotationVelocity_java, # Coordinate object
+        "rotVelX"  : changeInRotationVelocity_java.x, # Coordinate object
+        "rotVelY"  : changeInRotationVelocity_java.y, # Coordinate object
+        "rotVelZ"  : changeInRotationVelocity_java.z, # Coordinate object
         "liftoff"  : not(dictNew["liftoff"] == dictOld["liftoff"]), # boolean
         "apogee"   : not(dictNew["apogee"] == dictOld["apogee"]), # boolean
         "motorIgn"   : not(dictNew["motorIgn"] == dictOld["motorIgn"]), # boolean

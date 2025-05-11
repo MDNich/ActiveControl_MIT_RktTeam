@@ -54,93 +54,166 @@ logging.info(flightConfig)
 sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
+datPath = 'dat/simResults/canard1_out_long.csv'
+figPath = 'dat/simResults/canard1_out_long.pdf'
+
 
 verboseMode = False
 
-
-# startParams
-alt0 = 10 # m
-v0x = 0.3 # m/s
-v0y = 0.1 # m/s
-v0z = 100 # m/s
-
-rotAxis = coordClass(0,0,1) # z axis, for now
-angle = 0.0
-
-omega0x = 0.0
-omega0y = 0.0
-omega0z = 0.0
+dataImport = True
 
 
-initialPropDict = {
-	"position": coordClass(0,0,alt0,12500), # Coordinate object
-	"positionPrint": coordClass(0,0,alt0,12500).pythonOutputStr(), # Coordinate object
-	"worldPos": worldCoordClass(28.61,-80.6,100.125), # WorldCoordinate object
-	"velocity": coordClass(v0x,v0y,v0z,0), # Coordinate object
-	"velocityPrint": coordClass(v0x,v0y,v0z,0).pythonOutputStr(), # Coordinate object
-	"orient"  : quatClass.rotation(rotAxis, angle), # Quaternion object
-	"orientPrint"  : quatClass.rotation(rotAxis, angle).printAxisAngle(), # Quaternion object
-	"rotVel"  : coordClass(omega0x,omega0y,omega0z), # Coordinate object
-	"liftoff"  : True, # boolean
-	"apogee"   : False, # boolean
-	"motorIgn" : True, # boolean
-	"lnchRdClr": True, # boolean
-}
 
-dictList = [initialPropDict]
-currenPropDict = initialPropDict.copy()
-times = [0]
-heightTime = [initialPropDict["position"].z]
-vertVelTime = [initialPropDict["velocity"].z]
+import pandas as pd
+if dataImport:
+	df = pd.read_csv(datPath)
 
-runTime = 30 # s
-prefDt = 0.001 # s/cycle
-likelyDt = 0.0025
-dtList = []
-or_obj.simulation.listeners.MidControlStepLauncher.theTimeStep = prefDt
-#theTimeStep
-nrunsPredict = int(runTime/likelyDt)
+	times = np.array(df["time"])
+	heightTime = np.array(df["positionZ"])
+	vertVelTime = np.array(df["velocityZ"])
+	motorEndLoc = np.argmax(vertVelTime)
+	motorEndTime = times[motorEndLoc]
 
-import time
-iniTime = time.time()
-logging.info("Begin simulation with {} timeSteps for total runTime of {} with dt {}.".format(nrunsPredict,runTime,prefDt))
-apogeeFound = False
 
-i = 0
-while not apogeeFound:
-	if(i%(int(nrunsPredict/10)) == 0):
-		print("approx " + str(int(i/nrunsPredict*100)) + "% done")
-		print("time " + str(times[-1]) + " s")
-	newParamDict, deltaDict = runOneStep(or_obj, flightConfig, sim, currenPropDict,timeStep=prefDt,verbose=verboseMode)
-	heightTime.append(newParamDict["position"].z)
-	vertVelTime.append(newParamDict["velocity"].z)
-	actualdt = or_obj.simulation.listeners.MidControlStepLauncher.theTimeStep
-	#print("Got actualdt {}".format(actualdt))
-	dtList.append(actualdt)
-	times.append(times[-1]+dtList[-1])
-	dictList.append(newParamDict.copy())
-	currenPropDict = newParamDict.copy()
-	if not apogeeFound:
-		if(np.abs(np.argmax(heightTime)-i) > 5):
-			logging.error("APOGEE REACHED at iter {} time {}".format(i,times[-1]))
-			apogeeFound = True
-	i += 1
-	if(times[-1] > 60):
-		break
-	#logging.warning("COMPLETED CYCLE {}.".format(i+1))
+else:
+	# startParams
+	alt0 = 10 # m
+	v0x = 0.3 # m/s
+	v0y = 0.1 # m/s
+	v0z = 100 # m/s
 
-endTime = time.time()
-logging.info("Finished in {} s.".format(endTime-iniTime))
-logging.info("Average time per cycle: {} ms.".format((endTime-iniTime)*1e3/i))
+	rotAxis = coordClass(0,0,1) # z axis, for now
+	angle = 0.0
 
-if(verboseMode):
-	logging.warning("=== FINAL RESULTS ===")
-	for key in dictList[-1].keys():
-		logging.info("Key {}:".format(key))
-		logging.info(dictList[-1][key])
-	logging.warning("=== END FINAL RESULTS ===")
+	omega0x = 0.0
+	omega0y = 0.0
+	omega0z = 0.0
 
-deltaDictFinal = calculateDeltDict(or_obj, dictList[-1], dictList[0],toPrint=True)
+
+	initialPropDict = {
+		"positionX" : 0,
+		"positionY" : 0,
+		"positionZ" : alt0,
+		"positionW" : 12500,
+		"position": coordClass(0,0,alt0,12500), # Coordinate object
+		"positionPrint": coordClass(0,0,alt0,12500).pythonOutputStr(), # Coordinate object
+		"worldPos": worldCoordClass(28.61,-80.6,100.125), # WorldCoordinate object
+		"velocityX": v0x, # Coordinate object
+		"velocityY": v0y, # Coordinate object
+		"velocityZ": v0z, # Coordinate object
+		"velocityW": 0, # Coordinate object
+		"velocity": coordClass(v0x,v0y,v0z,0), # Coordinate object
+		"velocityPrint": coordClass(v0x,v0y,v0z,0).pythonOutputStr(), # Coordinate object
+		"orientRotAxisX" : rotAxis.x,
+		"orientRotAxisY" : rotAxis.y,
+		"orientRotAxisZ" : rotAxis.z,
+		"orientRotAxis" : rotAxis,
+		"orientAngle" : angle,
+		"orient"  : quatClass.rotation(rotAxis, angle), # Quaternion object
+		"orientPrint"  : quatClass.rotation(rotAxis, angle).printAxisAngle(), # Quaternion object
+		"rotVelX"  : omega0x, # Coordinate object
+		"rotVelY"  : omega0y, # Coordinate object
+		"rotVelZ"  : omega0z, # Coordinate object
+		"rotVel"  : coordClass(omega0x,omega0y,omega0z), # Coordinate object
+		"liftoff"  : True, # boolean
+		"apogee"   : False, # boolean
+		"motorIgn" : True, # boolean
+		"lnchRdClr": True, # boolean
+		"time" : 0.0, # double
+	}
+
+	dictList = [initialPropDict]
+	currenPropDict = initialPropDict.copy()
+	times = [0]
+	heightTime = [initialPropDict["positionZ"]]
+	vertVelTime = [initialPropDict["velocityZ"]]
+
+	runTime = 80 # s
+	prefDt = 0.001 # s/cycle
+	likelyDt = 0.0024
+	dtList = []
+	or_obj.simulation.listeners.MidControlStepLauncher.theTimeStep = prefDt
+	#theTimeStep
+	nrunsPredict = int(runTime/likelyDt)
+
+	import time
+	iniTime = time.time()
+	logging.info("Begin simulation with {} timeSteps for total runTime of {} with dt {}.".format(nrunsPredict,runTime,prefDt))
+	apogeeFound = False
+	motorEnded = False
+	motorEndLoc = 0
+
+	i = 0
+	while not apogeeFound:
+		if(i%(int(nrunsPredict/10)) == 0):
+			print("approx " + str(int(np.round(i/nrunsPredict*10,0)*10)) + "% done, simulation time "+ str(times[-1]) + " s")
+		newParamDict, deltaDict = runOneStep(or_obj, flightConfig, sim, currenPropDict,timeStep=prefDt,verbose=verboseMode)
+		heightTime.append(newParamDict["position"].z)
+		vertVelTime.append(newParamDict["velocity"].z)
+		actualdt = or_obj.simulation.listeners.MidControlStepLauncher.theTimeStep
+		#print("Got actualdt {}".format(actualdt))
+		dtList.append(actualdt)
+		times.append(times[-1]+dtList[-1])
+		dictList[-1]["time"] = times[-1]
+		dictList.append(newParamDict.copy())
+		currenPropDict = newParamDict.copy()
+		if not apogeeFound:
+			if(np.abs(np.argmax(heightTime)-i) > 5):
+				logging.error("APOGEE REACHED at iter {} time {}".format(i,times[-1]))
+				apogeeFound = True
+
+		if not motorEnded:
+			if(np.abs(np.argmax(vertVelTime)-i) > 5):
+				logging.error("MOTOR ENDED at iter {} time {}".format(i-5,times[-1]))
+				motorEnded = True
+				motorEndLoc = i-5
+		i += 1
+		if(times[-1] > runTime):
+			break
+		#logging.warning("COMPLETED CYCLE {}.".format(i+1))
+
+	endTime = time.time()
+	logging.info("Finished in {} s.".format(endTime-iniTime))
+	logging.info("Average dt: {} s".format(np.mean(dtList)))
+	logging.info("Average time per cycle: {} ms.".format((endTime-iniTime)*1e3/i))
+
+	if(verboseMode):
+		logging.warning("=== FINAL RESULTS ===")
+		for key in dictList[-1].keys():
+			logging.info("Key {}:".format(key))
+			logging.info(dictList[-1][key])
+		logging.warning("=== END FINAL RESULTS ===")
+
+	deltaDictFinal = calculateDeltDict(or_obj, dictList[-1], dictList[0],toPrint=False)
+
+
+
+
+
+
+	df = pd.DataFrame(dictList)
+	df.to_csv(datPath, index=False)
+
+	"""
+	try:
+		f = open(datPath,"x")
+	except:
+		f = open(datPath,"w")
+	f.write(str(times))
+	f.write("\n")
+	f.write(str(heightTime))
+	f.write("\n")
+	f.write(str(vertVelTime))
+	f.close()"""
+	orhelper.logger.info("File Saved at {}".format(datPath))
+
+	times = np.array(times)
+	heightTime = np.array(heightTime)
+	vertVelTime = np.array(vertVelTime)
+
+
+
+
 
 
 
@@ -150,18 +223,21 @@ logger.setLevel(level=logging.ERROR)
 
 
 
-
 import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 ax.plot(times,np.array(heightTime),label="Height",color='red')
 ax.set_xlim(*ax.get_xlim())
-ax.set_ylim(*ax.get_ylim())
+ax.set_ylim(0,7500)
 ax.plot([-1],[-1],label="Vert Velocity", color='blue')
-
+ax.vlines(times[motorEndLoc],*ax.get_ylim(),color='green',linestyle="dotted",label='Motor End')
+ax.vlines(times[~np.isnan(np.array(times))][-1],*ax.get_ylim(),color='k',linestyle="dotted",label='Apogee')
+ax.legend(ncol=1)
 
 ax2 = ax.twinx()
 ax2.plot(times,np.array(vertVelTime),color='blue')#,label="Vert Velocity",color='blue')
+#ax2.hlines(y=0,xmin=times[0],xmax=times[-1],color='b',linestyle="dotted")
+ax2.set_ylim(0,200)
 #ax.legend()
 
 ax2.spines['right'].set_color('b')
@@ -174,10 +250,6 @@ ax.tick_params(axis='y', colors='r')
 ax.set_ylabel("Height (m)")
 ax2.set_ylabel("Vertical Velocity (m/s)")
 ax.set_xlabel("Time (s)")
-
-
-
-figPath = 'dat/simResults/canard1_out.pdf'
 plt.savefig(figPath)
 plt.show()
 
@@ -417,19 +489,6 @@ t = np.array(data[dT.TYPE_TIME].tolist())
 pR = np.array(data[dT.TYPE_PITCH_RATE].tolist())
 vel = np.array(data[dT.TYPE_VELOCITY_TOTAL].tolist())
 
-writePath = 'dat/simResults/canard1_out.txt'
-figPath = 'dat/simResults/canard1_out.pdf'
-try:
-	f = open(writePath,"x")
-except:
-	f = open(writePath,"w")
-f.write(str(t.tolist()))
-f.write("\n")
-f.write(str(pR.tolist()))
-f.write("\n")
-f.write(str(vel.tolist()))
-f.close()
-orhelper.logger.info("File Saved at {}".format(writePath))
 
 
 

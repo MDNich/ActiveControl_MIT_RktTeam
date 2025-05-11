@@ -93,15 +93,37 @@ def runOneStep(or_obj, flightConfig, sim, startParamDict,timeStep=0.0025,verbose
     #theEndingSimulationStatus.storeData()
     #datBranch = theEndingSimulationStatus.getFlightDataBranch()
 
+    pF = theEndingSimulationStatus.getRocketPosition()
+    vF =  theEndingSimulationStatus.getRocketVelocity()
+    orientQuat = theEndingSimulationStatus.getRocketOrientationQuaternion()
+    orientAx = orientQuat.getAxis()
+    rotVel = theEndingSimulationStatus.getRocketRotationVelocity()
+
+
+
     outDict = {
-        "position": theEndingSimulationStatus.getRocketPosition(), # Coordinate object
+        "position": pF, # Coordinate object
+        "positionX": pF.x, # Coordinate object
+        "positionY": pF.y, # Coordinate object
+        "positionZ": pF.z, # Coordinate object
         "positionPrint": theEndingSimulationStatus.getRocketPosition().pythonOutputStr(), # Coordinate object
         "worldPos": theEndingSimulationStatus.getRocketWorldPosition(), # WorldCoordinate object
-        "velocity": theEndingSimulationStatus.getRocketVelocity(), # Coordinate object
-        "velocityPrint": theEndingSimulationStatus.getRocketVelocity().pythonOutputStr(), # Coordinate object
-        "orient"  : theEndingSimulationStatus.getRocketOrientationQuaternion(), # Quaternion object
-        "orientPrint"  : theEndingSimulationStatus.getRocketOrientationQuaternion().printAxisAngle(), # Quaternion object
-        "rotVel"  : theEndingSimulationStatus.getRocketRotationVelocity(), # Coordinate object
+        "velocity": vF, # Coordinate object
+        "velocityX": vF.x, # Coordinate object
+        "velocityY": vF.y, # Coordinate object
+        "velocityZ": vF.z, # Coordinate object
+        "velocityPrint": vF.pythonOutputStr(), # Coordinate object
+        "orient"  : orientQuat, # Quaternion object
+        "orientRotAxis"  : orientAx, # Quaternion object
+        "orientRotAxisX"  : orientAx.x, # Quaternion object
+        "orientRotAxisY"  : orientAx.y, # Quaternion object
+        "orientRotAxisZ"  : orientAx.z, # Quaternion object
+        "orientAngle" : orientQuat.getAngle(),
+        "orientPrint"  : orientQuat.printAxisAngle(), # Quaternion object
+        "rotVel"  : rotVel, # Coordinate object
+        "rotVelX"  : rotVel.x, # Coordinate object
+        "rotVelY"  : rotVel.y, # Coordinate object
+        "rotVelZ"  : rotVel.z, # Coordinate object
         "liftoff"  : theEndingSimulationStatus.isLiftoff(), # boolean
         "apogee"   : theEndingSimulationStatus.isApogeeReached(), # boolean
         "motorIgn" : theEndingSimulationStatus.isMotorIgnited(), # boolean
