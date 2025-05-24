@@ -42,7 +42,7 @@ worldCoordClass = or_obj.util.WorldCoordinate
 quatClass = or_obj.util.Quaternion
 
 # Load rocket
-doc, rktObj = loadRocket(orh, 'canard1.ork')
+doc, rktObj = loadRocket(orh, 'canard3.ork')
 
 
 # load flight conf
@@ -54,8 +54,8 @@ logging.info(flightConfig)
 sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/canard1_out_long.csv'
-figPath = 'dat/simResults/canard1_out_long.pdf'
+datPath = 'dat/simResults/canard3_out.csv'
+figPath = 'dat/simResults/canard3_out.pdf'
 
 
 
@@ -64,7 +64,75 @@ figPath = 'dat/simResults/canard1_out_long.pdf'
 
 
 
-#exit(0)
+# Get all components, filter for fins.
+def get_fins(rocket):
+	fins = []
+	for component in rocket.iterator(True):  # True = depth-first search
+		if isinstance(component, jpype.JClass("info.openrocket.core.rocketcomponent.FinSet")):
+			fins.append(component)
+	return fins
+
+finList = get_fins(rktObj)
+print("Got Fins from Rocket:")
+for fin in finList:
+	print(f"""
+    Fin Name: {fin.getName()}
+    Number: {fin.getFinCount()}
+    Span: {fin.getSpan()} m
+    Thickness: {fin.getThickness()} m
+    Cant Angle: {fin.getCantAngle()} rad
+    """)
+
+
+finNames = [fin.getName() for fin in finList]
+index = 0
+theFinIndexToModify = -1
+for fni in finNames:
+	if fni == "FINS_TWIST":
+		theFinIndexToModify = index
+		break
+	index += 1
+
+finToPlayWith = finList[theFinIndexToModify]
+
+
+
+
+
+##### CONTROL ALGORITHM #####
+
+
+def giveNextControlStep(or_obj,doc,rktObj,pastPropDictArray,currentCantAngle):
+	### TODO: PID controller ???
+	kP = -1
+	kD = 0.01
+	kI = 0
+
+	lastCantAngle = pastPropDictArray[-1]["finCantAngleDeg"]
+	lastAngularVel = pastPropDictArray[-1]["rotVel"].z
+
+	desiredAngVel = 0
+	err = lastAngularVel-desiredAngVel
+
+	newCantAngle = err*kP #+ (currentCantAngle-lastCantAngle)*kD
+
+
+	return 0#newCantAngle
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -86,15 +154,19 @@ if dataImport:
 	times = np.array(df["time"])
 	heightTime = np.array(df["positionZ"])
 	vertVelTime = np.array(df["velocityZ"])
+	angularVelTime = np.array(df["rotVelZ"])
+	cantAngleTime = np.array(df["finCantAngleDeg"])
 	motorEndLoc = np.argmax(vertVelTime)
 	motorEndTime = times[motorEndLoc]
 
 
 else:
+	midCtrl = or_obj.simulation.listeners.MidControlStepLauncher
+
 	# startParams
 	alt0 = 10 # m
-	v0x = 0.3 # m/s
-	v0y = 0.1 # m/s
+	v0x = 0 # m/s
+	v0y = 0 # m/s
 	v0z = 100 # m/s
 
 	rotAxis = coordClass(0,0,1) # z axis, for now
@@ -102,7 +174,9 @@ else:
 
 	omega0x = 0.0
 	omega0y = 0.0
-	omega0z = 0.0
+	omega0z = 0
+
+	initialCantAngle = 0
 
 
 	initialPropDict = {
@@ -134,6 +208,7 @@ else:
 		"apogee"   : False, # boolean
 		"motorIgn" : True, # boolean
 		"lnchRdClr": True, # boolean
+		"finCantAngleDeg": True, # boolean
 		"time" : 0.0, # double
 	}
 
@@ -142,12 +217,20 @@ else:
 	times = [0]
 	heightTime = [initialPropDict["positionZ"]]
 	vertVelTime = [initialPropDict["velocityZ"]]
+	angularVelTime = [initialPropDict["rotVelZ"]]
+	cantAngleTime = [initialCantAngle]
 
-	runTime = 80 # s
-	prefDt = 0.0025 # s/cycle
+	runTime = 50 # s
+	prefDt = 0.01 # s/cycle
 	likelyDt = 0.0024
 	dtList = []
-	or_obj.simulation.listeners.MidControlStepLauncher.theTimeStep = prefDt
+
+
+
+	midCtrl.theTimeStep = prefDt
+	midCtrl.theFinsToModify = finToPlayWith
+	midCtrl.setCantOfFinDeg(initialCantAngle)
+
 	#theTimeStep
 	nrunsPredict = int(runTime/likelyDt)
 
@@ -162,10 +245,18 @@ else:
 	while not apogeeFound:
 		if(i%(int(nrunsPredict/10)) == 0):
 			print("approx " + str(int(np.round(i/nrunsPredict*10,0)*10)) + "% done, simulation time "+ str(times[-1]) + " s")
+
+		midCtrl.setCantOfFinDeg(giveNextControlStep(or_obj,doc,rktObj,dictList,cantAngleTime[-1]))
 		newParamDict, deltaDict = runOneStep(or_obj, flightConfig, sim, currenPropDict,timeStep=prefDt,verbose=verboseMode)
+
+
 		heightTime.append(newParamDict["position"].z)
 		vertVelTime.append(newParamDict["velocity"].z)
-		actualdt = or_obj.simulation.listeners.MidControlStepLauncher.theTimeStep
+		angularVelTime.append(newParamDict["rotVel"].z)
+		cantAngleTime.append(midCtrl.getCantOfFinDeg())
+		newParamDict["finCantAngleDeg"] = midCtrl.getCantOfFinDeg()
+		actualdt = midCtrl.theTimeStep
+
 		#print("Got actualdt {}".format(actualdt))
 		dtList.append(actualdt)
 		times.append(times[-1]+dtList[-1])
@@ -176,12 +267,14 @@ else:
 			if(np.abs(np.argmax(heightTime)-i) > 5):
 				logging.error("APOGEE REACHED at iter {} time {}".format(i,times[-1]))
 				apogeeFound = True
-
+		motorEndLoc = 0
 		if not motorEnded:
 			if(np.abs(np.argmax(vertVelTime)-i) > 5):
 				logging.error("MOTOR ENDED at iter {} time {}".format(i-5,times[-1]))
 				motorEnded = True
 				motorEndLoc = i-5
+
+
 		i += 1
 		if(times[-1] > runTime):
 			break
@@ -241,17 +334,20 @@ logger.setLevel(level=logging.ERROR)
 import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
-ax.plot(times,np.array(heightTime),label="Height",color='red')
+ax.plot(times,np.array(heightTime),label="Altitude",color='red')
 ax.set_xlim(*ax.get_xlim())
-ax.set_ylim(0,7500)
-ax.plot([-1],[-1],label="Vert Velocity", color='blue')
+#ax.set_ylim(0,7500)
+ax.plot([-1],[-1],label="Vertical Velocity", color='blue')
+#ax.plot([-1],[-1],label="Cant Angle", color='purple')
 ax.vlines(times[motorEndLoc],*ax.get_ylim(),color='green',linestyle="dotted",label='Motor End')
 ax.vlines(times[~np.isnan(np.array(times))][-1],*ax.get_ylim(),color='k',linestyle="dotted",label='Apogee')
 ax.legend(ncol=1)
 
 ax2 = ax.twinx()
-ax2.plot(times,np.array(vertVelTime),color='blue')#,label="Vert Velocity",color='blue')
-ax2.set_ylim(0,200)
+ax2.plot(times,np.array(vertVelTime),label="Vertical Vel",color='blue')
+#ax2.plot(times[::100],np.array(angularVelTime)[::100],color='blue')#,label="Vert Velocity",color='blue')
+#ax2.plot(times[::100],np.array(cantAngleTime)[::100],color='purple')#,label="Vert Velocity",color='blue')
+#ax2.set_ylim(0,200)
 
 ax2.spines['right'].set_color('b')
 ax2.spines['left'].set_color('r')
@@ -260,6 +356,7 @@ ax.yaxis.label.set_color('r')
 ax.tick_params(axis='y', colors='r')
 
 ax.set_ylabel("Height (m)")
+ax2.set_ylabel("Angular Velocity (rad/s)")
 ax2.set_ylabel("Vertical Velocity (m/s)")
 ax.set_xlabel("Time (s)")
 plt.savefig(figPath)

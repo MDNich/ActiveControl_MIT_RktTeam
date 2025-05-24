@@ -1,5 +1,6 @@
 package info.openrocket.core.simulation.listeners;
 
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
@@ -24,6 +25,8 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 
 	public static SimulationStatus iniStat = null;
 	public static SimulationStatus finStat = null;
+
+	public static FinSet theFinsToModify = null;
 
 	public static double theTimeStep = 0.0025;
 	public static double wantedTimeStep = 0.0025;
@@ -64,5 +67,17 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 		double delta = finTimeStep - iniTimeStep;
 		//System.out.println("Delta: " + delta);
 		throw new SimulationException("One step only, delta " + delta);
+	}
+
+
+	public static void setCantOfFinDeg(double newCant) {
+		theFinsToModify.setCantAngle(Math.PI/180*newCant);
+	}
+	public static void deltaCantOfFinDeg(double deltaCant) {
+		double newCant = getCantOfFinDeg() + deltaCant;
+		theFinsToModify.setCantAngle(Math.PI/180*newCant);
+	}
+	public static double getCantOfFinDeg() {
+		return theFinsToModify.getCantAngle()*180/Math.PI;
 	}
 }

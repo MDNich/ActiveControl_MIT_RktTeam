@@ -278,7 +278,15 @@ public final class Coordinate implements Cloneable, Serializable {
 		}
 		return new Coordinate(x / l, y / l, z / l, weight);
 	}
-	
+
+	public Coordinate scale(double factor) {
+		assert factor >= 0 : "factor must be non-negative";
+
+		if (factor == 1)
+			return this;
+
+		return new Coordinate(x * factor, y * factor, z * factor, weight);
+	}
 	
 	
 	
