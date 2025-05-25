@@ -45,14 +45,15 @@ def loadRocket(orh, orkName):
 
 def runOneStep(or_obj, flightConfig, sim, startParamDict,timeStep=0.0025,verbose=False):
     simStatClass = or_obj.simulation.SimulationStatus
-
+    midCtrl = or_obj.simulation.listeners.MidControlStepLauncher
+    print("ini prep")
     theStartingSimulationStatus = simStatClass(flightConfig, sim.getOptions().toSimulationConditions())
 
     theStartingSimulationStatus.simulationConditions.setTimeStep(timeStep)
 
     propDict = startParamDict
 
-    if(verbose):
+    if(True):
         print("== INITIAL CONDITIONS ==")
         for key in propDict.keys():
             print("Key {}:".format(key))
@@ -71,25 +72,11 @@ def runOneStep(or_obj, flightConfig, sim, startParamDict,timeStep=0.0025,verbose
     theStartingSimulationStatus.motorIgnited = propDict["motorIgn"]
     theStartingSimulationStatus.launchRodCleared = propDict["lnchRdClr"]
 
-    listenerClass = or_obj.simulation.listeners.MidControlStepLauncher
-    listenerClass.provideSimStat(theStartingSimulationStatus)
+    #midCtrl.provideSimStat(theStartingSimulationStatus)
 
-    listener_array = [listenerClass()]
 
-    try:
-        # Need to do this otherwise exact same numbers will be generated for each identical run
-        sim.getOptions().randomizeSeed()
-
-        # sim
-        sim.simulate(listener_array)
-        if(verbose):
-            print("Simulation finished")
-    except Exception as e:
-        if(verbose):
-            print("Java Error: {}".format(str(e)))
-            print("Caught it !")
-
-    theEndingSimulationStatus = listenerClass.getFinStat()
+    print("Getting final conditions")
+    theEndingSimulationStatus = midCtrl.getFinStat()
     #theEndingSimulationStatus.storeData()
     #datBranch = theEndingSimulationStatus.getFlightDataBranch()
 

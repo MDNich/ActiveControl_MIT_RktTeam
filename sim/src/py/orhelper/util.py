@@ -69,12 +69,8 @@ def calculateDeltDict(or_obj, dictNew, dictOld,toPrint=False):
     changeInPosition_java = dictNew["position"].clone().sub(dictOld["position"])
     changeInWorldPosition_java = dictNew["worldPos"].clone().sub(dictOld["worldPos"])
     changeInVelocity_java = dictNew["velocity"].clone().sub(dictOld["velocity"])
+    changeInOrientation_java = quatClass.rotation(dictNew["orient"].getAxis().sub(dictOld["orient"].getAxis()), dictNew["orient"].getAngle() - dictOld["orient"].getAngle())
     changeInOrientationAxis_java = dictNew["orient"].getAxis().sub(dictOld["orient"].getAxis())
-    try:
-        changeInOrientationAxis_java.normalize()
-    except:
-        changeInOrientationAxis_java = dictNew["orient"].getAxis()
-    changeInOrientation_java = quatClass.rotation(changeInOrientationAxis_java, dictNew["orient"].getAngle() - dictOld["orient"].getAngle())
     changeInOrientationAngle = dictNew["orient"].getAngle() - dictOld["orient"].getAngle()
     changeInRotationVelocity_java = dictNew["rotVel"].clone().sub(dictOld["rotVel"])
 

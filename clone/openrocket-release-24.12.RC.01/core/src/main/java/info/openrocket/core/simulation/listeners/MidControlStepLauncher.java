@@ -23,10 +23,10 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 	* lastAngularVel
 	*/
 
+	public static FinSet theFinsToModify = null;
+
 	public static SimulationStatus iniStat = null;
 	public static SimulationStatus finStat = null;
-
-	public static FinSet theFinsToModify = null;
 
 	public static double theTimeStep = 0.0025;
 	public static double wantedTimeStep = 0.0025;
@@ -36,9 +36,17 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 
 	public static FlightDataBranch datStorage;
 
+	public static boolean readyToProceed = false;
+	public static boolean datIsReadyToCollect = false;
+
 	public static void provideSimStat(SimulationStatus status) {
 		iniStat = status;
 	}
+
+	public static boolean checkReadyCollection() {
+		return datIsReadyToCollect;
+	}
+
 
 	public static SimulationStatus getFinStat() {
 		return finStat;
@@ -46,10 +54,19 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 
 	@Override
 	public void startSimulation(SimulationStatus status) throws SimulationException {
-		status.copySimStatParameters(iniStat);
-		status.setFlightDataBranch(datStorage);
+		//System.out.println("STARTING SIMULATION");
+		//status.copySimStatParameters(iniStat);
+		//status.setFlightDataBranch(datStorage);
 		super.startSimulation(status);
 		iniTimeStep = status.getSimulationTime();
+	}
+
+	@Override
+	public boolean preStep(SimulationStatus status) throws SimulationException {
+		// status.copySimStatParameters(iniStat);
+		// status.setFlightDataBranch(datStorage);
+		// iniTimeStep = status.getSimulationTime();
+		return super.preStep(status);
 	}
 
 	@Override
@@ -57,16 +74,30 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 		finStat = status.clone();
 		finTimeStep = status.getSimulationTime();
 		//System.out.println("Flight data branch is " + ( datStorage == null ? "null" : "not null" ));
-		if(datStorage != null) {
+		/*if(datStorage != null) {
 			finStat.setFlightDataBranch(datStorage);
 		}
 		else {
 			finStat.setFlightDataBranch(status.getFlightDataBranch());
-		}
+		}*/
+		theTimeStep = finTimeStep - iniTimeStep;
+		//System.out.println("[JAVA] READY FOR PYTHON");
+		datIsReadyToCollect = true;
+		//System.out.println("[JAVA] WAITING FOR PYTHON");
+		/*while(!readyToProceed){
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}*/
+		readyToProceed = false;
+		datIsReadyToCollect = false;
 
-		double delta = finTimeStep - iniTimeStep;
-		//System.out.println("Delta: " + delta);
-		throw new SimulationException("One step only, delta " + delta);
+
+
+		System.out.println("PROCEEDING TO NEXT STEP");
+		//throw new SimulationException("One step only, delta " + delta);
 	}
 
 

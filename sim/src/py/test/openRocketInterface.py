@@ -1,19 +1,19 @@
 #!/usr/local/python3
 
 # MUST BE RUN FROM TOP LEVEL WORKING DIRECTORY: 'sim'.
-
 import os
+from time import sleep
+
 import numpy as np
 import jpype
 from src.py.orhelper.util import *
 from src.py.orhelper.ORpy import *
 
 #os.chdir('../../../')
-
+import asyncio
 import src.py.orhelper._orhelper as orhelper
 from src.py.orhelper._enums import FlightDataType as dT
 from src.py.etc.logcoloring import ColorHandler
-
 from matplotlib import rcParams
 rcParams['font.family'] = 'serif'
 rcParams['font.sans-serif'] = ['Computer Modern']
@@ -32,6 +32,10 @@ logging.getLogger().addHandler(ColorHandler())
 os.environ['JAVA_HOME'] = '/opt/homebrew/Cellar/openjdk/23.0.2'
 os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 
+
+import threading
+
+
 # Start
 instance, orh, or_obj = startOR()
 
@@ -42,7 +46,7 @@ worldCoordClass = or_obj.util.WorldCoordinate
 quatClass = or_obj.util.Quaternion
 
 # Load rocket
-doc, rktObj = loadRocket(orh, 'canard3.ork')
+doc, rktObj = loadRocket(orh, 'canard1.ork')
 
 
 # load flight conf
@@ -54,14 +58,8 @@ logging.info(flightConfig)
 sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/canard3_out.csv'
-figPath = 'dat/simResults/canard3_out.pdf'
-
-
-
-#rktObj.getTopmostStage().
-
-
+datPath = 'dat/simResults/canard1_out_long.csv'
+figPath = 'dat/simResults/canard1_out_long.pdf'
 
 
 # Get all components, filter for fins.
@@ -76,12 +74,12 @@ finList = get_fins(rktObj)
 print("Got Fins from Rocket:")
 for fin in finList:
 	print(f"""
-    Fin Name: {fin.getName()}
-    Number: {fin.getFinCount()}
-    Span: {fin.getSpan()} m
-    Thickness: {fin.getThickness()} m
-    Cant Angle: {fin.getCantAngle()} rad
-    """)
+		Fin Name: {fin.getName()}
+		Number: {fin.getFinCount()}
+		Span: {fin.getSpan()} m
+		Thickness: {fin.getThickness()} m
+		Cant Angle: {fin.getCantAngle()} rad
+		""")
 
 
 finNames = [fin.getName() for fin in finList]
@@ -94,7 +92,6 @@ for fni in finNames:
 	index += 1
 
 finToPlayWith = finList[theFinIndexToModify]
-
 
 
 
@@ -126,19 +123,14 @@ def giveNextControlStep(or_obj,doc,rktObj,pastPropDictArray,currentCantAngle):
 
 
 
-
-
-
-
-
-
-
+#exit(0)
 
 
 
 
 
 verboseMode = False
+
 
 dataImport = False
 
@@ -154,29 +146,22 @@ if dataImport:
 	times = np.array(df["time"])
 	heightTime = np.array(df["positionZ"])
 	vertVelTime = np.array(df["velocityZ"])
-	angularVelTime = np.array(df["rotVelZ"])
-	cantAngleTime = np.array(df["finCantAngleDeg"])
 	motorEndLoc = np.argmax(vertVelTime)
 	motorEndTime = times[motorEndLoc]
 
-
 else:
-	midCtrl = or_obj.simulation.listeners.MidControlStepLauncher
-
 	# startParams
 	alt0 = 10 # m
 	v0x = 0 # m/s
 	v0y = 0 # m/s
-	v0z = 100 # m/s
+	v0z = 0 # m/s
 
 	rotAxis = coordClass(0,0,1) # z axis, for now
 	angle = 0.0
 
 	omega0x = 0.0
 	omega0y = 0.0
-	omega0z = 0
-
-	initialCantAngle = 0
+	omega0z = 0.0
 
 
 	initialPropDict = {
@@ -208,7 +193,6 @@ else:
 		"apogee"   : False, # boolean
 		"motorIgn" : True, # boolean
 		"lnchRdClr": True, # boolean
-		"finCantAngleDeg": True, # boolean
 		"time" : 0.0, # double
 	}
 
@@ -217,20 +201,14 @@ else:
 	times = [0]
 	heightTime = [initialPropDict["positionZ"]]
 	vertVelTime = [initialPropDict["velocityZ"]]
-	angularVelTime = [initialPropDict["rotVelZ"]]
-	cantAngleTime = [initialCantAngle]
 
-	runTime = 50 # s
-	prefDt = 0.01 # s/cycle
+	runTime = 80 # s
+	prefDt = 0.0001 # s/cycle
 	likelyDt = 0.0024
 	dtList = []
-
-
-
+	midCtrl = or_obj.simulation.listeners.MidControlStepLauncher
+	newCtrl = or_obj.simulation.listeners.NewControlStepListener
 	midCtrl.theTimeStep = prefDt
-	midCtrl.theFinsToModify = finToPlayWith
-	midCtrl.setCantOfFinDeg(initialCantAngle)
-
 	#theTimeStep
 	nrunsPredict = int(runTime/likelyDt)
 
@@ -240,23 +218,187 @@ else:
 	apogeeFound = False
 	motorEnded = False
 	motorEndLoc = 0
+	timeStep=prefDt
+	listener_array = [newCtrl()]
 
+
+	# provide initial conditions
+
+	simStatClass = or_obj.simulation.SimulationStatus
+
+	theNextSimulationStatus = simStatClass(flightConfig, sim.getOptions().toSimulationConditions())
+
+	theNextSimulationStatus.simulationConditions.setTimeStep(timeStep)
+
+	propDict = initialPropDict
+	theNextSimulationStatus.setRocketPosition(propDict["position"])
+	theNextSimulationStatus.setRocketWorldPosition(propDict["worldPos"])
+	theNextSimulationStatus.setRocketVelocity(propDict["velocity"])
+	theNextSimulationStatus.setRocketOrientationQuaternion(propDict["orient"])
+	theNextSimulationStatus.setRocketRotationVelocity(propDict["rotVel"])
+	theNextSimulationStatus.liftoff = propDict["liftoff"]
+	theNextSimulationStatus.apogeeReached = propDict["apogee"]
+	theNextSimulationStatus.motorIgnited = propDict["motorIgn"]
+	theNextSimulationStatus.launchRodCleared = propDict["lnchRdClr"]
+
+	if(verboseMode):
+		print("== INITIAL CONDITIONS ==")
+		for key in propDict.keys():
+			print("Key {}:".format(key))
+			print(propDict[key])
+		print("== END INITIAL CONDITIONS ==")
+
+	newCtrl.initialStat = theNextSimulationStatus
+
+
+
+	# Need to do this otherwise exact same numbers will be generated for each identical run
+	sim.getOptions().randomizeSeed()
+
+
+
+	simThread = threading.Thread(target=lambda: sim.simulate(listener_array))
+	simThread.start()
+
+	i = 0
+	import time
+	while simThread.is_alive():
+		# wait for data to be ready
+		# collect data
+		# let java know
+
+		print("ITER " + str(i))
+		print("[PYTHON] Waiting for java...")
+		while not newCtrl.readyToProceed.get():
+			time.sleep(0.0001)
+		print("[PYTHON] Collecting data")
+
+
+
+
+		print("Getting final conditions")
+		theEndingSimulationStatus = newCtrl.latestStatus
+		#theEndingSimulationStatus.storeData()
+		#datBranch = theEndingSimulationStatus.getFlightDataBranch()
+
+		pF = theEndingSimulationStatus.getRocketPosition()
+		vF =  theEndingSimulationStatus.getRocketVelocity()
+		orientQuat = theEndingSimulationStatus.getRocketOrientationQuaternion()
+		orientAx = orientQuat.getAxis()
+		rotVel = theEndingSimulationStatus.getRocketRotationVelocity()
+
+
+
+		outDict = {
+			"position": pF, # Coordinate object
+			"positionX": pF.x, # Coordinate object
+			"positionY": pF.y, # Coordinate object
+			"positionZ": pF.z, # Coordinate object
+			"positionPrint": theEndingSimulationStatus.getRocketPosition().pythonOutputStr(), # Coordinate object
+			"worldPos": theEndingSimulationStatus.getRocketWorldPosition(), # WorldCoordinate object
+			"velocity": vF, # Coordinate object
+			"velocityX": vF.x, # Coordinate object
+			"velocityY": vF.y, # Coordinate object
+			"velocityZ": vF.z, # Coordinate object
+			"velocityPrint": vF.pythonOutputStr(), # Coordinate object
+			"orient"  : orientQuat, # Quaternion object
+			"orientRotAxis"  : orientAx, # Quaternion object
+			"orientRotAxisX"  : orientAx.x, # Quaternion object
+			"orientRotAxisY"  : orientAx.y, # Quaternion object
+			"orientRotAxisZ"  : orientAx.z, # Quaternion object
+			"orientAngle" : orientQuat.getAngle(),
+			"orientPrint"  : orientQuat.printAxisAngle(), # Quaternion object
+			"rotVel"  : rotVel, # Coordinate object
+			"rotVelX"  : rotVel.x, # Coordinate object
+			"rotVelY"  : rotVel.y, # Coordinate object
+			"rotVelZ"  : rotVel.z, # Coordinate object
+			"liftoff"  : theEndingSimulationStatus.isLiftoff(), # boolean
+			"apogee"   : theEndingSimulationStatus.isApogeeReached(), # boolean
+			"motorIgn" : theEndingSimulationStatus.isMotorIgnited(), # boolean
+			"lnchRdClr": theEndingSimulationStatus.isLaunchRodCleared(), # boolean
+		}
+
+		if(verbose):
+			print("== FINAL CONDITIONS ==")
+			for key in outDict.keys():
+				print("Key {}:".format(key))
+				print(outDict[key])
+			print("== END FINAL CONDITIONS ==")
+
+		dictList.append(outDict.copy())
+
+		print("[PYTHON] Data Saved")
+		newCtrl.readyToProceed.engage()
+		i += 1
+
+
+
+
+
+
+
+
+	simThread.join()
+
+
+	data = orh.get_timeseries(sim, [dT.TYPE_ALTITUDE,dT.TYPE_VELOCITY_TOTAL,dT.TYPE_TIME])
+
+	t = np.array(data[dT.TYPE_TIME].tolist())
+	alt = np.array(data[dT.TYPE_ALTITUDE].tolist())
+	vel = np.array(data[dT.TYPE_VELOCITY_TOTAL].tolist())
+
+
+	logger = logging.getLogger()
+	logger.setLevel(level=logging.ERROR)
+
+	import matplotlib.pyplot as plt
+
+
+	fig, ax = plt.subplots()
+	ax.plot(t,alt,label="Altitude",color='blue')
+	ax2 = ax.twinx()
+	ax2.plot(t,vel,label="Velocity",color='red')
+	ax.legend(loc='upper left')
+	ax2.legend(loc='upper right')
+	plt.savefig(figPath)
+	plt.show()
+
+	logger.setLevel(level=logging.INFO)
+
+
+	exit(0)
+
+
+
+
+
+	exit(0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+	# sim
+	print("Started sim")
+	# the simulation will have run just one step; we need to save data before allowing it to continue.
 	i = 0
 	while not apogeeFound:
 		if(i%(int(nrunsPredict/10)) == 0):
 			print("approx " + str(int(np.round(i/nrunsPredict*10,0)*10)) + "% done, simulation time "+ str(times[-1]) + " s")
 
-		midCtrl.setCantOfFinDeg(giveNextControlStep(or_obj,doc,rktObj,dictList,cantAngleTime[-1]))
 		newParamDict, deltaDict = runOneStep(or_obj, flightConfig, sim, currenPropDict,timeStep=prefDt,verbose=verboseMode)
-
-
+		print("OneStep results saved")
 		heightTime.append(newParamDict["position"].z)
 		vertVelTime.append(newParamDict["velocity"].z)
-		angularVelTime.append(newParamDict["rotVel"].z)
-		cantAngleTime.append(midCtrl.getCantOfFinDeg())
-		newParamDict["finCantAngleDeg"] = midCtrl.getCantOfFinDeg()
-		actualdt = midCtrl.theTimeStep
-
+		actualdt = or_obj.simulation.listeners.MidControlStepLauncher.theTimeStep
 		#print("Got actualdt {}".format(actualdt))
 		dtList.append(actualdt)
 		times.append(times[-1]+dtList[-1])
@@ -267,19 +409,25 @@ else:
 			if(np.abs(np.argmax(heightTime)-i) > 5):
 				logging.error("APOGEE REACHED at iter {} time {}".format(i,times[-1]))
 				apogeeFound = True
-		motorEndLoc = 0
+
 		if not motorEnded:
 			if(np.abs(np.argmax(vertVelTime)-i) > 5):
 				logging.error("MOTOR ENDED at iter {} time {}".format(i-5,times[-1]))
 				motorEnded = True
 				motorEndLoc = i-5
-
-
 		i += 1
+
+
+
+
+
+
+
+		midCtrl.readyToProceed = True
+		print("Python says GO")
 		if(times[-1] > runTime):
 			break
-		#logging.warning("COMPLETED CYCLE {}.".format(i+1))
-
+	#logging.warning("COMPLETED CYCLE {}.".format(i+1))
 	endTime = time.time()
 	logging.info("Finished in {} s.".format(endTime-iniTime))
 	logging.info("Average dt: {} s".format(np.mean(dtList)))
@@ -303,16 +451,16 @@ else:
 	df.to_csv(datPath, index=False)
 
 	"""
-	try:
-		f = open(datPath,"x")
-	except:
-		f = open(datPath,"w")
-	f.write(str(times))
-	f.write("\n")
-	f.write(str(heightTime))
-	f.write("\n")
-	f.write(str(vertVelTime))
-	f.close()"""
+    try:
+        f = open(datPath,"x")
+    except:
+        f = open(datPath,"w")
+    f.write(str(times))
+    f.write("\n")
+    f.write(str(heightTime))
+    f.write("\n")
+    f.write(str(vertVelTime))
+    f.close()"""
 	orhelper.logger.info("File Saved at {}".format(datPath))
 
 	times = np.array(times)
@@ -334,20 +482,17 @@ logger.setLevel(level=logging.ERROR)
 import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
-ax.plot(times,np.array(heightTime),label="Altitude",color='red')
+ax.plot(times,np.array(heightTime),label="Height",color='red')
 ax.set_xlim(*ax.get_xlim())
-#ax.set_ylim(0,7500)
-ax.plot([-1],[-1],label="Vertical Velocity", color='blue')
-#ax.plot([-1],[-1],label="Cant Angle", color='purple')
+ax.set_ylim(0,7500)
+ax.plot([-1],[-1],label="Vert Velocity", color='blue')
 ax.vlines(times[motorEndLoc],*ax.get_ylim(),color='green',linestyle="dotted",label='Motor End')
 ax.vlines(times[~np.isnan(np.array(times))][-1],*ax.get_ylim(),color='k',linestyle="dotted",label='Apogee')
 ax.legend(ncol=1)
 
 ax2 = ax.twinx()
-ax2.plot(times,np.array(vertVelTime),label="Vertical Vel",color='blue')
-#ax2.plot(times[::100],np.array(angularVelTime)[::100],color='blue')#,label="Vert Velocity",color='blue')
-#ax2.plot(times[::100],np.array(cantAngleTime)[::100],color='purple')#,label="Vert Velocity",color='blue')
-#ax2.set_ylim(0,200)
+ax2.plot(times,np.array(vertVelTime),color='blue')#,label="Vert Velocity",color='blue')
+ax2.set_ylim(0,200)
 
 ax2.spines['right'].set_color('b')
 ax2.spines['left'].set_color('r')
@@ -356,7 +501,6 @@ ax.yaxis.label.set_color('r')
 ax.tick_params(axis='y', colors='r')
 
 ax.set_ylabel("Height (m)")
-ax2.set_ylabel("Angular Velocity (rad/s)")
 ax2.set_ylabel("Vertical Velocity (m/s)")
 ax.set_xlabel("Time (s)")
 plt.savefig(figPath)
@@ -373,7 +517,7 @@ logger.setLevel(level=logging.INFO)
 
 simStatClass = or_obj.simulation.SimulationStatus
 
-theStartingSimulationStatus = simStatClass(flightConfig, sim.getOptions().toSimulationConditions())
+theNextSimulationStatus = simStatClass(flightConfig, sim.getOptions().toSimulationConditions())
 
 coordClass = or_obj.util.Coordinate
 worldCoordClass = or_obj.util.WorldCoordinate
@@ -394,77 +538,77 @@ omega0z = 0.0
 
 
 propDict = {
-	"position0": coordClass(0,0,alt0,12500), # Coordinate object
-	"positionPrint0": coordClass(0,0,alt0,12500).pythonOutputStr(), # Coordinate object
-	"worldPos0": worldCoordClass(28.61,-80.6,100.125), # WorldCoordinate object
-	"velocity0": coordClass(v0x,v0y,v0z,0), # Coordinate object
-	"velocityPrint0": coordClass(v0x,v0y,v0z,0).pythonOutputStr(), # Coordinate object
-	"orient0"  : quatClass.rotation(rotAxis, angle), # Quaternion object
-	"orientPrint0"  : quatClass.rotation(rotAxis, angle).printAxisAngle(), # Quaternion object
-	"rotVel0"  : coordClass(omega0x,omega0y,omega0z), # Coordinate object
-	"liftoff"  : True, # boolean
-	"apogee"   : False, # boolean
-	"motorIgn" : True, # boolean
-	"lnchRdClr": True, # boolean
+    "position0": coordClass(0,0,alt0,12500), # Coordinate object
+    "positionPrint0": coordClass(0,0,alt0,12500).pythonOutputStr(), # Coordinate object
+    "worldPos0": worldCoordClass(28.61,-80.6,100.125), # WorldCoordinate object
+    "velocity0": coordClass(v0x,v0y,v0z,0), # Coordinate object
+    "velocityPrint0": coordClass(v0x,v0y,v0z,0).pythonOutputStr(), # Coordinate object
+    "orient0"  : quatClass.rotation(rotAxis, angle), # Quaternion object
+    "orientPrint0"  : quatClass.rotation(rotAxis, angle).printAxisAngle(), # Quaternion object
+    "rotVel0"  : coordClass(omega0x,omega0y,omega0z), # Coordinate object
+    "liftoff"  : True, # boolean
+    "apogee"   : False, # boolean
+    "motorIgn" : True, # boolean
+    "lnchRdClr": True, # boolean
 }
 logging.warning("== INITIAL CONDITIONS ==")
 for key in propDict.keys():
-	logging.info("Key {}:".format(key))
-	logging.info(propDict[key])
+    logging.info("Key {}:".format(key))
+    logging.info(propDict[key])
 
 logging.warning("== END INITIAL CONDITIONS ==")
 
 # Set according to propdict.
-theStartingSimulationStatus.setRocketPosition(propDict["position0"])
-theStartingSimulationStatus.setRocketWorldPosition(propDict["worldPos0"])
-theStartingSimulationStatus.setRocketVelocity(propDict["velocity0"])
-theStartingSimulationStatus.setRocketOrientationQuaternion(propDict["orient0"])
-theStartingSimulationStatus.setRocketRotationVelocity(propDict["rotVel0"])
-theStartingSimulationStatus.liftoff = propDict["liftoff"]
-theStartingSimulationStatus.apogeeReached = propDict["apogee"]
-theStartingSimulationStatus.motorIgnited = propDict["motorIgn"]
-theStartingSimulationStatus.launchRodCleared = propDict["lnchRdClr"]
+theNextSimulationStatus.setRocketPosition(propDict["position0"])
+theNextSimulationStatus.setRocketWorldPosition(propDict["worldPos0"])
+theNextSimulationStatus.setRocketVelocity(propDict["velocity0"])
+theNextSimulationStatus.setRocketOrientationQuaternion(propDict["orient0"])
+theNextSimulationStatus.setRocketRotationVelocity(propDict["rotVel0"])
+theNextSimulationStatus.liftoff = propDict["liftoff"]
+theNextSimulationStatus.apogeeReached = propDict["apogee"]
+theNextSimulationStatus.motorIgnited = propDict["motorIgn"]
+theNextSimulationStatus.launchRodCleared = propDict["lnchRdClr"]
 
 listenerClass = or_obj.simulation.listeners.MidControlStepLauncher
-listenerClass.provideSimStat(theStartingSimulationStatus)
+listenerClass.provideSimStat(theNextSimulationStatus)
 
 listener_array = [listenerClass()]
 
 try:
-	# Need to do this otherwise exact same numbers will be generated for each identical run
-	sim.getOptions().randomizeSeed()
+    # Need to do this otherwise exact same numbers will be generated for each identical run
+    sim.getOptions().randomizeSeed()
 
-	# sim
-	sim.simulate(listener_array)
-	logging.warning("Simulation finished")
+    # sim
+    sim.simulate(listener_array)
+    logging.warning("Simulation finished")
 except Exception as e:
-	logging.error("Java Error: {}".format(str(e)))
-	logging.error("Caught it !")
+    logging.error("Java Error: {}".format(str(e)))
+    logging.error("Caught it !")
 
 theEndingSimulationStatus = listenerClass.getFinStat()
 #theEndingSimulationStatus.storeData()
 #datBranch = theEndingSimulationStatus.getFlightDataBranch()
 
 outDict = {
-	"position1": theEndingSimulationStatus.getRocketPosition(), # Coordinate object
-	"positionPrint1": theEndingSimulationStatus.getRocketPosition().pythonOutputStr(), # Coordinate object
-	"worldPos1": theEndingSimulationStatus.getRocketWorldPosition(), # WorldCoordinate object
-	"velocity1": theEndingSimulationStatus.getRocketVelocity(), # Coordinate object
-	"velocityPrint1": theEndingSimulationStatus.getRocketVelocity().pythonOutputStr(), # Coordinate object
-	"orient1"  : theEndingSimulationStatus.getRocketOrientationQuaternion(), # Quaternion object
-	"orientPrint1"  : theEndingSimulationStatus.getRocketOrientationQuaternion().printAxisAngle(), # Quaternion object
-	"rotVel1"  : theEndingSimulationStatus.getRocketRotationVelocity(), # Coordinate object
-	"liftoff"  : theEndingSimulationStatus.isLiftoff(), # boolean
-	"apogee"   : theEndingSimulationStatus.isApogeeReached(), # boolean
-	"motorIgn" : theEndingSimulationStatus.isMotorIgnited(), # boolean
-	"lnchRdClr": theEndingSimulationStatus.isLaunchRodCleared(), # boolean
+    "position1": theEndingSimulationStatus.getRocketPosition(), # Coordinate object
+    "positionPrint1": theEndingSimulationStatus.getRocketPosition().pythonOutputStr(), # Coordinate object
+    "worldPos1": theEndingSimulationStatus.getRocketWorldPosition(), # WorldCoordinate object
+    "velocity1": theEndingSimulationStatus.getRocketVelocity(), # Coordinate object
+    "velocityPrint1": theEndingSimulationStatus.getRocketVelocity().pythonOutputStr(), # Coordinate object
+    "orient1"  : theEndingSimulationStatus.getRocketOrientationQuaternion(), # Quaternion object
+    "orientPrint1"  : theEndingSimulationStatus.getRocketOrientationQuaternion().printAxisAngle(), # Quaternion object
+    "rotVel1"  : theEndingSimulationStatus.getRocketRotationVelocity(), # Coordinate object
+    "liftoff"  : theEndingSimulationStatus.isLiftoff(), # boolean
+    "apogee"   : theEndingSimulationStatus.isApogeeReached(), # boolean
+    "motorIgn" : theEndingSimulationStatus.isMotorIgnited(), # boolean
+    "lnchRdClr": theEndingSimulationStatus.isLaunchRodCleared(), # boolean
 }
 
 
 logging.warning("== FINAL CONDITIONS ==")
 for key in outDict.keys():
-	logging.info("Key {}:".format(key))
-	logging.info(outDict[key])
+    logging.info("Key {}:".format(key))
+    logging.info(outDict[key])
 logging.warning("== END FINAL CONDITIONS ==")
 
 
@@ -523,62 +667,62 @@ Parameters to set :
 
 public SimulationStatus(FlightConfiguration configuration, SimulationConditions simulationConditions) {
 
-	this.simulationConditions = simulationConditions;
-	this.configuration = configuration;
+    this.simulationConditions = simulationConditions;
+    this.configuration = configuration;
 
-	this.time = 0;
-	this.position = this.simulationConditions.getLaunchPosition();
-	this.velocity = this.simulationConditions.getLaunchVelocity();
-	this.worldPosition = this.simulationConditions.getLaunchSite();
+    this.time = 0;
+    this.position = this.simulationConditions.getLaunchPosition();
+    this.velocity = this.simulationConditions.getLaunchVelocity();
+    this.worldPosition = this.simulationConditions.getLaunchSite();
 
-	// Initialize to roll angle with least stability w.r.t. the wind
-	Quaternion o;
-	FlightConditions cond = new FlightConditions(this.configuration);
-	double angle = -cond.getTheta() - (Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection());
-	o = Quaternion.rotation(new Coordinate(0, 0, angle));
+    // Initialize to roll angle with least stability w.r.t. the wind
+    Quaternion o;
+    FlightConditions cond = new FlightConditions(this.configuration);
+    double angle = -cond.getTheta() - (Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection());
+    o = Quaternion.rotation(new Coordinate(0, 0, angle));
 
-	// Launch rod angle and direction
-	o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
-	o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
-	
-	this.orientation = o;
-	this.rotationVelocity = Coordinate.NUL;
+    // Launch rod angle and direction
+    o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, this.simulationConditions.getLaunchRodAngle(), 0)));
+    o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
+    
+    this.orientation = o;
+    this.rotationVelocity = Coordinate.NUL;
 
-	/*
-	 * Calculate the effective launch rod length taking into account launch lugs.
-	 * If no lugs are found, assume a tower launcher of full length.
-	 */
-	double length = this.simulationConditions.getLaunchRodLength();
-	double lugPosition = Double.NaN;
-	for (RocketComponent c : this.configuration.getActiveComponents()) {
-		if (c instanceof LaunchLug) {
-			double pos = c.toAbsolute(new Coordinate(c.getLength()))[0].x;
-			if (Double.isNaN(lugPosition) || pos > lugPosition) {
-				lugPosition = pos;
-			}
-		}
-	}
-	if (!Double.isNaN(lugPosition)) {
-		double maxX = 0;
-		for (Coordinate c : this.configuration.getBounds()) {
-			if (c.x > maxX)
-				maxX = c.x;
-		}
-		if (maxX >= lugPosition) {
-			length = Math.max(0, length - (maxX - lugPosition));
-		}
-	}
-	this.effectiveLaunchRodLength = length;
+    /*
+     * Calculate the effective launch rod length taking into account launch lugs.
+     * If no lugs are found, assume a tower launcher of full length.
+     */
+    double length = this.simulationConditions.getLaunchRodLength();
+    double lugPosition = Double.NaN;
+    for (RocketComponent c : this.configuration.getActiveComponents()) {
+        if (c instanceof LaunchLug) {
+            double pos = c.toAbsolute(new Coordinate(c.getLength()))[0].x;
+            if (Double.isNaN(lugPosition) || pos > lugPosition) {
+                lugPosition = pos;
+            }
+        }
+    }
+    if (!Double.isNaN(lugPosition)) {
+        double maxX = 0;
+        for (Coordinate c : this.configuration.getBounds()) {
+            if (c.x > maxX)
+                maxX = c.x;
+        }
+        if (maxX >= lugPosition) {
+            length = Math.max(0, length - (maxX - lugPosition));
+        }
+    }
+    this.effectiveLaunchRodLength = length;
 
-	this.simulationStartWallTime = System.nanoTime();
+    this.simulationStartWallTime = System.nanoTime();
 
-	this.motorIgnited = false;
-	this.liftoff = false;
-	this.launchRodCleared = false;
-	this.apogeeReached = false;
+    this.motorIgnited = false;
+    this.liftoff = false;
+    this.launchRodCleared = false;
+    this.apogeeReached = false;
 
-	this.populateMotors();
-	this.warnings = new WarningSet();
+    this.populateMotors();
+    this.warnings = new WarningSet();
 }
 ```
 
@@ -597,13 +741,6 @@ data = orh.get_timeseries(sim, [dT.TYPE_PITCH_RATE,dT.TYPE_VELOCITY_TOTAL,dT.TYP
 t = np.array(data[dT.TYPE_TIME].tolist())
 pR = np.array(data[dT.TYPE_PITCH_RATE].tolist())
 vel = np.array(data[dT.TYPE_VELOCITY_TOTAL].tolist())
-
-
-
-
-
-
-
 
 
 
