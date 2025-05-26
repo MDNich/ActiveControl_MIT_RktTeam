@@ -305,6 +305,12 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				// calculated across all component instances
 				final AerodynamicForces componentForces = calculateComponentNonAxialForces(conditions, comp, calcObj,
 						contextList, warnings);
+				if(comp instanceof FinSet) {
+					FinSet finObj = (FinSet) comp;
+					//System.out.println("FOUND A FIN: Name " + finObj.getName() + " with angle " + finObj.getCantAngle()*180/Math.PI);
+					//System.out.println("FIN FORCE: " + componentForces.getCrollForce());
+				}
+
 
 				assemblyForces.merge(componentForces);
 			}

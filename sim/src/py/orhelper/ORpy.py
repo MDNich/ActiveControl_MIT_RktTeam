@@ -39,7 +39,7 @@ def startOR():
     return instance, orh, or_obj
 
 def loadRocket(orh, orkName):
-    doc = orh.load_doc('dat/ork/' + str(orkName))
+    doc = orh.load_doc('dat/ork/' + str(orkName)) # OpenRocketDocument java object
     rktObj = doc.getRocket()
     return doc, rktObj
 

@@ -48,6 +48,10 @@ quatClass = or_obj.util.Quaternion
 # Load rocket
 doc, rktObj = loadRocket(orh, 'canard1.ork')
 
+newCtrl = or_obj.simulation.listeners.NewControlStepListener
+
+newCtrl.theRocket = rktObj
+
 
 # load flight conf
 flightConfig = doc.getSelectedConfiguration()
@@ -207,7 +211,6 @@ else:
 	likelyDt = 0.0024
 	dtList = []
 	midCtrl = or_obj.simulation.listeners.MidControlStepLauncher
-	newCtrl = or_obj.simulation.listeners.NewControlStepListener
 	midCtrl.theTimeStep = prefDt
 	#theTimeStep
 	nrunsPredict = int(runTime/likelyDt)
@@ -257,7 +260,7 @@ else:
 
 	newCtrl.theFinsToModify = finToPlayWith
 	newCtrl.kP = 0
-	newCtrl.constFixed = 10
+	newCtrl.constFixed = 15
 
 
 

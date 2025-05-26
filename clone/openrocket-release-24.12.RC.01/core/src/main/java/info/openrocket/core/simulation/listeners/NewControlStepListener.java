@@ -1,10 +1,14 @@
 package info.openrocket.core.simulation.listeners;
 
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.Rocket;
+import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.ArrayList;
+
+import java.util.Iterator;
 
 /**
  * Simulation listener that launches a rocket from a specific altitude.
@@ -26,6 +30,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 	public static ArrayList<Double> pastOmegaZ;
 	public static ArrayList<Double> finCantLog;
+
+	public static Rocket theRocket;
 
 
 	public static double kP = 1;
@@ -64,9 +70,16 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		latestTimeStep = finTimeStep - initial;
 
 		//System.out.println("Controller Engaged");
+
+		theFinsToModify  = getTheFinsToModify(status);
+
 		setCantOfFinDeg(finCantController(status));
 		pastOmegaZ.add(status.getRocketRotationVelocity().z);
 		finCantLog.add(getCantOfFinDeg());
+
+		//System.out.println("viewed cant: " + theFinsToModify.getCantAngle()*180/Math.PI + " degrees");
+		status.getConfiguration().getRocket().fireComponentChangeEvent(4); // AERODYNAMIC
+
 		//System.out.println("Controller Disengaged");
 
 		//System.out.println("PROCEEDING TO NEXT STEP");
@@ -97,9 +110,26 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 		double rotVel = currentStat.getRocketRotationVelocity().z;
 		double err = desiredRotVel - rotVel;
-		System.out.println("cantAng: " + err*kP);
 		return err*kP + constFixed;
 	}
+
+
+	// don't worry about it
+	public static FinSet getTheFinsToModify(SimulationStatus status) {
+		ArrayList<FinSet> finSets = new ArrayList<>();
+		Rocket rocket = status.getConfiguration().getRocket();
+        for (Iterator<RocketComponent> it = rocket.iterator(true); it.hasNext(); ) {
+            RocketComponent component = it.next();
+
+			if(component instanceof FinSet) {
+				finSets.add((FinSet) component);
+			}
+
+
+        }
+		return finSets.get(0);
+	}
+
 
 
 

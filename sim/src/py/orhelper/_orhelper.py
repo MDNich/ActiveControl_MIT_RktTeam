@@ -222,9 +222,9 @@ class Helper:
     def load_doc(self, or_filename):
         """ Loads a .ork file and returns the corresponding openrocket document """
 
-        or_java_file = jpype.java.io.File(or_filename)
-        loader = self.openrocket.file.GeneralRocketLoader(or_java_file)
-        doc = loader.load()
+        or_java_file = jpype.java.io.File(or_filename) # Java File object
+        loader = self.openrocket.file.GeneralRocketLoader(or_java_file) # GeneralRocketLoader object
+        doc = loader.load() # OpenRocketDocument
         return doc
 
     def save_doc(self, or_filename, doc):
