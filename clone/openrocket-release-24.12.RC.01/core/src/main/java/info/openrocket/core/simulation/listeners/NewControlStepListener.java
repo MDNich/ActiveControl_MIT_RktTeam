@@ -4,6 +4,7 @@ import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
+import info.openrocket.core.util.ArrayList;
 
 /**
  * Simulation listener that launches a rocket from a specific altitude.
@@ -23,8 +24,21 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public static Flag datIsReadyToCollect;
 	public static Flag readyToProceed;
 
+	public static ArrayList<Double> pastOmegaZ;
+	public static ArrayList<Double> finCantLog;
+
+
+	public static double kP = 1;
+	public static double kI = 0;
+	public static double kD = 0;
+	public static double desiredRotVel = 0;
+	public static double constFixed = 10;
+
+
 	public NewControlStepListener() {
 		super();
+		pastOmegaZ = new ArrayList<>();
+		finCantLog = new ArrayList<>();
 		datIsReadyToCollect = new Flag();
 		readyToProceed = new Flag();
 	}
@@ -48,7 +62,16 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		latestStatus = status.clone();
 		double finTimeStep = status.getSimulationTime();
 		latestTimeStep = finTimeStep - initial;
-		System.out.println("[JAVA] READY FOR PYTHON");
+
+		//System.out.println("Controller Engaged");
+		setCantOfFinDeg(finCantController(status));
+		pastOmegaZ.add(status.getRocketRotationVelocity().z);
+		finCantLog.add(getCantOfFinDeg());
+		//System.out.println("Controller Disengaged");
+
+		//System.out.println("PROCEEDING TO NEXT STEP");
+
+		/*System.out.println("[JAVA] READY FOR PYTHON");
 		datIsReadyToCollect.engage();
 		System.out.println("[JAVA] WAITING FOR PYTHON");
 		while(!readyToProceed.get()){
@@ -63,9 +86,21 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 
-		System.out.println("PROCEEDING TO NEXT STEP");
+		*/
 		//throw new SimulationException("One step only, delta " + delta);
+
 	}
+
+
+	public static double finCantController(SimulationStatus currentStat) {
+		double previousCant = theFinsToModify.getCantAngle();
+
+		double rotVel = currentStat.getRocketRotationVelocity().z;
+		double err = desiredRotVel - rotVel;
+		System.out.println("cantAng: " + err*kP);
+		return err*kP + constFixed;
+	}
+
 
 
 	public static void setCantOfFinDeg(double newCant) {

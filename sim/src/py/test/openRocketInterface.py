@@ -255,12 +255,16 @@ else:
 	# Need to do this otherwise exact same numbers will be generated for each identical run
 	sim.getOptions().randomizeSeed()
 
+	newCtrl.theFinsToModify = finToPlayWith
+	newCtrl.kP = 0
+	newCtrl.constFixed = 10
+
 
 
 	simThread = threading.Thread(target=lambda: sim.simulate(listener_array))
 	simThread.start()
 
-	i = 0
+	"""i = 0
 	import time
 	while simThread.is_alive():
 		# wait for data to be ready
@@ -337,8 +341,12 @@ else:
 
 
 
-
+	"""
 	simThread.join()
+
+
+	omegaZ = np.array(newCtrl.pastOmegaZ)
+	finCantLog = np.array(newCtrl.finCantLog)
 
 
 	data = orh.get_timeseries(sim, [dT.TYPE_ALTITUDE,dT.TYPE_VELOCITY_TOTAL,dT.TYPE_TIME])
@@ -357,7 +365,8 @@ else:
 	fig, ax = plt.subplots()
 	ax.plot(t,alt,label="Altitude",color='blue')
 	ax2 = ax.twinx()
-	ax2.plot(t,vel,label="Velocity",color='red')
+	ax2.plot(t,omegaZ,label="Ang Velocity",color='red')
+	ax2.plot(t,finCantLog,label="Fin Cant",color='purple')
 	ax.legend(loc='upper left')
 	ax2.legend(loc='upper right')
 	plt.savefig(figPath)
