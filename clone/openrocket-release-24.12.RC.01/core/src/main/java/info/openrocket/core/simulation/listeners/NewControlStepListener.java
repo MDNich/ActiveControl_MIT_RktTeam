@@ -34,11 +34,21 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public static Rocket theRocket;
 
 
-	public static double kP = 1;
+	public static SimulationStatus lastStat = null;
+
+	public static double totErr = 0;
+
+
+	// THESE WILL BE MODIFIED FROM PYTHON
+	public static double kP = 0;
 	public static double kI = 0;
 	public static double kD = 0;
+	public static double kVelRocket = 0;
+	public static double kVel2Rocket = 0;
+	public static double kVel3Rocket = 0;
+	public static double kAccelRocket = 0;
 	public static double desiredRotVel = 0;
-	public static double constFixed = 10;
+	public static double constFixed = 0;
 
 
 	public NewControlStepListener() {
@@ -55,11 +65,13 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public void startSimulation(SimulationStatus status) throws SimulationException {
 		status.copySimStatParameters(initialStat);
 		super.startSimulation(status);
+		lastStat = status.clone();
 	}
 
 	@Override
 	public boolean preStep(SimulationStatus status) throws SimulationException {
 		initial = status.getSimulationTime();
+		lastStat = status.clone();
 		return super.preStep(status);
 	}
 
@@ -78,7 +90,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		finCantLog.add(getCantOfFinDeg());
 
 		//System.out.println("viewed cant: " + theFinsToModify.getCantAngle()*180/Math.PI + " degrees");
-		status.getConfiguration().getRocket().fireComponentChangeEvent(4); // AERODYNAMIC
+		//status.getConfiguration().getRocket().fireComponentChangeEvent(4); // AERODYNAMIC
 
 		//System.out.println("Controller Disengaged");
 
@@ -109,8 +121,24 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		double previousCant = theFinsToModify.getCantAngle();
 
 		double rotVel = currentStat.getRocketRotationVelocity().z;
+		double lastRotVel = lastStat.getRocketRotationVelocity().z;
+		double lastErr = desiredRotVel-lastRotVel;
 		double err = desiredRotVel - rotVel;
-		return err*kP + constFixed;
+		lastStat = currentStat.clone();
+		totErr += err;
+
+		double thrusting = constFixed;
+
+		thrusting += err*kP;
+		thrusting += (err-lastErr)*kD;
+		thrusting += totErr*kI;
+		thrusting += -1*rotVel*kVelRocket;
+		thrusting += -1*rotVel*Math.abs(rotVel)*kVel2Rocket;
+		thrusting += -1*rotVel*Math.abs(rotVel*rotVel)*kVel3Rocket;
+		thrusting += -1*(rotVel-lastRotVel)*kAccelRocket;
+
+		return thrusting;
+
 	}
 
 

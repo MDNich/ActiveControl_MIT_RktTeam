@@ -259,8 +259,19 @@ else:
 	sim.getOptions().randomizeSeed()
 
 	newCtrl.theFinsToModify = finToPlayWith
-	newCtrl.kP = 0
-	newCtrl.constFixed = 15
+
+	newCtrl.desiredRotVel = 2
+
+
+	newCtrl.kP = 3e-1
+	#newCtrl.kI = 1e-3
+	#newCtrl.kD = 0.1
+	newCtrl.constFixed = 0
+	if(newCtrl.desiredRotVel == 0):
+		newCtrl.kVelRocket = 3.5
+		newCtrl.kVel2Rocket = 1
+		newCtrl.kVel3Rocket = 2
+	#newCtrl.kAccelRocket = 1e-2
 
 
 
@@ -364,12 +375,15 @@ else:
 
 	import matplotlib.pyplot as plt
 
+	apogeeInd = alt.argmax()
+
+
 
 	fig, ax = plt.subplots()
-	ax.plot(t,alt,label="Altitude",color='blue')
+	ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
 	ax2 = ax.twinx()
-	ax2.plot(t,omegaZ,label="Ang Velocity",color='red')
-	ax2.plot(t,finCantLog,label="Fin Cant",color='purple')
+	ax2.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity",color='red')
+	ax2.plot(t[:apogeeInd],finCantLog[:apogeeInd],label="Fin Cant",color='purple')
 	ax.legend(loc='upper left')
 	ax2.legend(loc='upper right')
 	plt.savefig(figPath)
