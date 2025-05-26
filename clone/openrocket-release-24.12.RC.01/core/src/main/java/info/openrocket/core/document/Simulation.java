@@ -500,7 +500,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			t1 = System.currentTimeMillis();
 			simulator.simulate(simulationConditions);
 			t2 = System.currentTimeMillis();
-			System.out.println("Simulation: returning from simulator, simulation took " + (t2 - t1)/1000 + "ms");
+			System.out.println("Simulation: returning from simulator, simulation took " + (t2 - t1)/1000 + "s");
 
 		} catch (SimulationException e) {
 			throw e;

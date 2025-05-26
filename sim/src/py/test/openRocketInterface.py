@@ -260,10 +260,13 @@ else:
 
 	newCtrl.theFinsToModify = finToPlayWith
 
-	newCtrl.desiredRotVel = 2
+	newCtrl.desiredRotVel = 0
 
+	if(newCtrl.desiredRotVel == 0):
+		newCtrl.kP = 3e-1
+	else:
+		newCtrl.kP = 1
 
-	newCtrl.kP = 3e-1
 	#newCtrl.kI = 1e-3
 	#newCtrl.kD = 0.1
 	newCtrl.constFixed = 0
