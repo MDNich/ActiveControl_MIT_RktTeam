@@ -7,7 +7,7 @@ from PID_coefficients import find_PID
 # TODO: Rewrite this as a CLASS called Rocket_Controller
 
 # Define the rocket's parameters
-Jxx = 0.005  # Moment of inertia about the x-axis (get value from OpenRocket) [kg*m^2]
+Jxx = 0.000461  # Moment of inertia about the x-axis (get value from OpenRocket) [kg*m^2]
 C = 3.0 # Damping coefficient for subsonic case  [N*m*s/rad] (middle of the range value :P )
 
 # Define the "Plant" (rocket system) transfer function
@@ -75,6 +75,23 @@ def set_PID_coeffs(G_plant, gamma, s0, show):
         print(f"Gc_PID: {Gc_PID}")
 
     return Gc_PID
+
+
+def return_PID_coeffs(G_plant, gamma, s0, show):
+    '''
+    Computes P,I, and D gains to get the root locus to pass through desired CL poles
+
+    Areas to improve: Right now we are setting the ratio of the two zeros as a design choice.
+    Could have more freedom/better performance by not doing that
+    '''
+    Kd, Kp, Ki, z1_opt, K, Gc_PID = find_PID(G_plant, gamma, s0)
+
+    if show:
+        print("Results for G1:")
+        print(f"Kd: {Kd}, Kp: {Kp}, Ki: {Ki}, z1_opt: {z1_opt}, K: {K}")
+        print(f"Gc_PID: {Gc_PID}")
+
+    return Kp, Ki, Kd
 
 def get_CL_control_info(G, Gc, s0):
     '''

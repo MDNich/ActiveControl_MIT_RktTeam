@@ -22,6 +22,10 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public static SimulationStatus initialStat = null;
 	public static SimulationStatus latestStatus = null;
 	public static double latestTimeStep = -1;
+	public static double IdecayFactor = 1;
+	public static double servoStepCount = 1023.0;
+	public static double invVelSqCoeff = 1;
+	public static double iniVel = 10.0;
 
 	public static FinSet theFinsToModify = null;
 
@@ -66,6 +70,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		status.copySimStatParameters(initialStat);
 		super.startSimulation(status);
 		lastStat = status.clone();
+
 	}
 
 	@Override
@@ -84,8 +89,12 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		//System.out.println("Controller Engaged");
 
 		theFinsToModify  = getTheFinsToModify(status);
-
-		setCantOfFinDeg(finCantController(status));
+		if (status.getRocketVelocity().z > 20) {
+			setCantOfFinDeg(finCantController(status));
+		}
+		else {
+			setCantOfFinDeg(0);
+		}
 		pastOmegaZ.add(status.getRocketRotationVelocity().z);
 		finCantLog.add(getCantOfFinDeg());
 
@@ -119,24 +128,32 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 	public static double finCantController(SimulationStatus currentStat) {
 		double previousCant = theFinsToModify.getCantAngle();
-
+		double translatVel = currentStat.getRocketVelocity().length();
 		double rotVel = currentStat.getRocketRotationVelocity().z;
 		double lastRotVel = lastStat.getRocketRotationVelocity().z;
 		double lastErr = desiredRotVel-lastRotVel;
 		double err = desiredRotVel - rotVel;
 		lastStat = currentStat.clone();
-		totErr += err;
+		totErr = err + totErr*IdecayFactor;
 
 		double thrusting = constFixed;
 
 		thrusting += err*kP;
-		thrusting += (err-lastErr)*kD;
-		thrusting += totErr*kI;
-		thrusting += -1*rotVel*kVelRocket;
-		thrusting += -1*rotVel*Math.abs(rotVel)*kVel2Rocket;
-		thrusting += -1*rotVel*Math.abs(rotVel*rotVel)*kVel3Rocket;
-		thrusting += -1*(rotVel-lastRotVel)*kAccelRocket;
+		System.out.println(thrusting);
 
+		thrusting += (err-lastErr)*kD;
+		System.out.println(thrusting);
+		thrusting += totErr*kI;
+
+		//thrusting *= invVelSqCoeff*iniVel*iniVel/translatVel/translatVel;
+		thrusting += -1*rotVel*kVelRocket;
+		//thrusting += -1*rotVel*Math.abs(rotVel)*kVel2Rocket;
+		//thrusting += -1*rotVel*Math.abs(rotVel*rotVel)*kVel3Rocket;
+		//thrusting += -1*(rotVel-lastRotVel)*kAccelRocket;
+
+
+		System.out.println(thrusting);
+		System.out.println("----------------");
 		return thrusting;
 
 	}
@@ -162,7 +179,9 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 	public static void setCantOfFinDeg(double newCant) {
-		theFinsToModify.setCantAngle(Math.PI/180*newCant);
+		double stepSize = 30.0/servoStepCount;
+		double numStepsFromZero = (int) (newCant/stepSize);
+		theFinsToModify.setCantAngle(Math.PI/180*numStepsFromZero*stepSize);
 	}
 	public static void deltaCantOfFinDeg(double deltaCant) {
 		double newCant = getCantOfFinDeg() + deltaCant;

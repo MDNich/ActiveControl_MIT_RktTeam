@@ -3,7 +3,7 @@
 # MUST BE RUN FROM TOP LEVEL WORKING DIRECTORY: 'sim'.
 import os
 from time import sleep
-
+from Simplified_plant_dynamics import *
 import numpy as np
 import jpype
 from src.py.orhelper.util import *
@@ -165,7 +165,7 @@ else:
 
 	omega0x = 0.0
 	omega0y = 0.0
-	omega0z = 0.0
+	omega0z = 10.0
 
 
 	initialPropDict = {
@@ -229,6 +229,11 @@ else:
 
 	simStatClass = or_obj.simulation.SimulationStatus
 
+	simOptions = sim.getOptions()
+
+	simOptions.setWindTurbulenceIntensity(10)
+
+
 	theNextSimulationStatus = simStatClass(flightConfig, sim.getOptions().toSimulationConditions())
 
 	theNextSimulationStatus.simulationConditions.setTimeStep(timeStep)
@@ -252,7 +257,7 @@ else:
 		print("== END INITIAL CONDITIONS ==")
 
 	newCtrl.initialStat = theNextSimulationStatus
-
+	newCtrl.iniVel = v0z
 
 
 	# Need to do this otherwise exact same numbers will be generated for each identical run
@@ -261,6 +266,7 @@ else:
 	newCtrl.theFinsToModify = finToPlayWith
 
 	newCtrl.desiredRotVel = 0
+	newCtrl.IdecayFactor = 1
 
 	if(newCtrl.desiredRotVel == 0):
 		newCtrl.kP = 3e-1
@@ -276,7 +282,27 @@ else:
 		newCtrl.kVel3Rocket = 2
 	#newCtrl.kAccelRocket = 1e-2
 
+	# get PID coefficients from algorithm generating.
 
+	ts_des = 0.8 # Desired settling time of 0.5 seconds
+	Mp_des = 0.2 # Desired max peak of less than 20%
+	s0 = set_dominant_poles(ts_des, Mp_des)
+	print(f'Desired Poles: {s0} and its conjugate')
+
+	gamma = 2 # Assume ratio between two compensator zeros.  Between 1-3 said to be a heuristic range
+	kP, kI, kD = return_PID_coeffs(G_plant, gamma, s0, show=True)
+
+	newCtrl.kP = kP
+	newCtrl.kI = .75#kI/10
+	newCtrl.kD = kD
+	#newCtrl.kVelRocket = 1
+
+	newCtrl.servoStepCount = 4095.0
+
+	newCtrl.invVelSqCoeff = 5e6 # roughly maxvel^2
+
+	print("Calculated PID Coeffs P: {} I: {} D: {}".format(kP,kI,kD))
+	print("Setting PID Coeffs P: {} I: {} D: {}".format(newCtrl.kP,newCtrl.kI,newCtrl.kD))
 
 	simThread = threading.Thread(target=lambda: sim.simulate(listener_array))
 	simThread.start()
@@ -379,16 +405,37 @@ else:
 	import matplotlib.pyplot as plt
 
 	apogeeInd = alt.argmax()
+	np.set_printoptions(legacy='1.13')
+	print(finCantLog[:apogeeInd])
 
-
-
-	fig, ax = plt.subplots()
+	fig, axs = plt.subplots(nrows=2)
+	ax = axs[0]
+	ax2 = axs[1]
 	ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
-	ax2 = ax.twinx()
+	ax.set_xlim(*ax.get_xlim())
+	ax.set_ylim(*ax.get_ylim())
+	ax.plot([-1],[-1],label="Altitude",color='red')
+	ax0 = ax.twinx()
+	ax0.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='red')
+	#ax2 = ax.twinx()
 	ax2.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity",color='red')
-	ax2.plot(t[:apogeeInd],finCantLog[:apogeeInd],label="Fin Cant",color='purple')
+	ax2.set_ylabel("Ang Velocity")
+	ax3 = ax2.twinx()
+	ax3.plot(t[:apogeeInd],finCantLog[:apogeeInd],label="Fin Cant",color='purple')
+	ax3.set_ylabel("Fin Cant")
 	ax.legend(loc='upper left')
-	ax2.legend(loc='upper right')
+	ax.hlines(20,*ax.get_xlim(),color='k',linestyle='dotted')
+	#ax.vlines(t[apogeeInd],*ax.get_xlim(),color='k',linestyle='dotted')
+
+	maxLim2 = max(*np.abs(ax2.get_ylim()))
+	maxLim3 = max(*np.abs(ax3.get_ylim()))
+	ax2.set_ylim(-maxLim2,maxLim2)
+	ax3.set_ylim(-maxLim3,maxLim3)
+	ax2.set_xlim(*ax2.get_xlim())
+	ax2.hlines(0,*ax2.get_xlim(),color='k',linestyle='dotted')
+
+
+	#ax2.legend(loc='upper right')
 	plt.savefig(figPath)
 	plt.show()
 
