@@ -21,6 +21,8 @@ import info.openrocket.core.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static info.openrocket.core.simulation.listeners.NewControlStepListener.useRK6;
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -28,9 +30,10 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 	
 	private static final Translator trans = Application.getTranslator();
 	private static final Logger log = LoggerFactory.getLogger(ModifiedEventSimulationEngine.class);
+
 	
 	// TODO: MEDIUM: Allow selecting steppers
-	private final SimulationStepper flightStepper = new RK4SimulationStepper();
+	private final SimulationStepper flightStepper = useRK6 ? new RK6SimulationStepper() : new RK4SimulationStepper();
 	private final SimulationStepper landingStepper = new BasicLandingStepper();
 	private final SimulationStepper tumbleStepper = new BasicTumbleStepper();
 	private final SimulationStepper groundStepper = new GroundStepper();
@@ -157,6 +160,8 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 		try {
 
 			checkGeometry(currentStatus);
+
+			System.out.println("[JAVA] Confirmed start of simulation.");
 			
 			// Start the simulation
 			while (handleEvents(simulationConditions)) {
@@ -180,6 +185,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					if (maxStepTime > MathUtil.EPSILON) {
 						log.trace(
 								  "Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
+						System.out.print("[JAVA] Current simulation time: " + currentStatus.getSimulationTime() + "s                  \r");
 						currentStepper.step(currentStatus, maxStepTime);
 					}
 				}

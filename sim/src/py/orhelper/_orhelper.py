@@ -43,7 +43,7 @@ class OpenRocketInstance:
             self.or_log_level = log_level
 
     def __enter__(self):
-        jvm_path = jpype.getDefaultJVMPath()
+        jvm_path = os.environ['JAVA_HOME']#jpype.getDefaultJVMPath()
 
         logger.info(f"Starting JVM from {jvm_path} CLASSPATH={self.jar_path}")
 

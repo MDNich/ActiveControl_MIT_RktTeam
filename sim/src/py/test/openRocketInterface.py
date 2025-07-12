@@ -29,11 +29,13 @@ for handler in LOG.handlers:
 logging.getLogger().addHandler(ColorHandler())
 
 # match your system as needed.
-os.environ['JAVA_HOME'] = '/opt/homebrew/Cellar/openjdk/23.0.2'
+#os.environ['JAVA_HOME'] = '/opt/homebrew/Cellar/openjdk/23.0.2'
 os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 
 
 import threading
+
+VELMINTHRESH = 15
 
 
 # Start
@@ -206,9 +208,9 @@ else:
 	heightTime = [initialPropDict["positionZ"]]
 	vertVelTime = [initialPropDict["velocityZ"]]
 
-	runTime = 80 # s
-	prefDt = 0.0001 # s/cycle
-	likelyDt = 0.0024
+	runTime = 7 # s
+	prefDt = 1e-3 # s/cycle
+	likelyDt = prefDt
 	dtList = []
 	midCtrl = or_obj.simulation.listeners.MidControlStepLauncher
 	midCtrl.theTimeStep = prefDt
@@ -292,12 +294,14 @@ else:
 	gamma = 2 # Assume ratio between two compensator zeros.  Between 1-3 said to be a heuristic range
 	kP, kI, kD = return_PID_coeffs(G_plant, gamma, s0, show=True)
 
-	newCtrl.kP = kP
+	newCtrl.useRK6 = False
+	newCtrl.kP = 2#100#kP
 	newCtrl.kI = .75#kI/10
-	newCtrl.kD = kD
-	#newCtrl.kVelRocket = 1
+	newCtrl.kD = .226
+	newCtrl.kVelRocket = 0
 
 	newCtrl.servoStepCount = 4095.0
+	newCtrl.velMinThresh = VELMINTHRESH
 
 	newCtrl.invVelSqCoeff = 5e6 # roughly maxvel^2
 
@@ -386,17 +390,18 @@ else:
 
 	"""
 	simThread.join()
+	logging.info("Simulation done, plotting.")
 
 
 	omegaZ = np.array(newCtrl.pastOmegaZ)
 	finCantLog = np.array(newCtrl.finCantLog)
 
 
-	data = orh.get_timeseries(sim, [dT.TYPE_ALTITUDE,dT.TYPE_VELOCITY_TOTAL,dT.TYPE_TIME])
+	data = orh.get_timeseries(sim, [dT.TYPE_ALTITUDE,dT.TYPE_VELOCITY_Z,dT.TYPE_TIME])
 
 	t = np.array(data[dT.TYPE_TIME].tolist())
 	alt = np.array(data[dT.TYPE_ALTITUDE].tolist())
-	vel = np.array(data[dT.TYPE_VELOCITY_TOTAL].tolist())
+	vel = np.array(data[dT.TYPE_VELOCITY_Z].tolist())
 
 
 	logger = logging.getLogger()
@@ -408,23 +413,41 @@ else:
 	np.set_printoptions(legacy='1.13')
 	print(finCantLog[:apogeeInd])
 
-	fig, axs = plt.subplots(nrows=2)
+	fig, axs = plt.subplots(nrows=2,sharex='col')
 	ax = axs[0]
 	ax2 = axs[1]
 	ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
-	ax.set_xlim(*ax.get_xlim())
-	ax.set_ylim(*ax.get_ylim())
+	ax.set_xlim(t[0],t[apogeeInd-1])
+	ax.set_ylim(0,ax.get_ylim()[1])
 	ax.plot([-1],[-1],label="Altitude",color='red')
 	ax0 = ax.twinx()
 	ax0.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='red')
-	#ax2 = ax.twinx()
+	ax0.set_ylim(0,ax0.get_ylim()[1])
+
+	ax0.spines['right'].set_color('red')
+	ax0.spines['left'].set_color('blue')
+	ax0.yaxis.label.set_color('red')
+	ax.yaxis.label.set_color('blue')
+	ax0.tick_params(axis='y', colors='red')
+	ax.tick_params(axis='y', colors='blue')
+	ax.set_ylabel("Velocity (m/s)")
+	ax0.set_ylabel("Altitude (m)")
+	ax.hlines(VELMINTHRESH,*ax.get_xlim(),color='k',linestyle='dotted')
+
+
+
 	ax2.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity",color='red')
 	ax2.set_ylabel("Ang Velocity")
 	ax3 = ax2.twinx()
-	ax3.plot(t[:apogeeInd],finCantLog[:apogeeInd],label="Fin Cant",color='purple')
+	ax3.plot(t[:apogeeInd],finCantLog[:apogeeInd],label="Fin Cant",color='purple',alpha=0.7)
 	ax3.set_ylabel("Fin Cant")
-	ax.legend(loc='upper left')
-	ax.hlines(20,*ax.get_xlim(),color='k',linestyle='dotted')
+	ax3.spines['right'].set_color('purple')
+	ax3.spines['left'].set_color('red')
+	ax3.yaxis.label.set_color('purple')
+	ax2.yaxis.label.set_color('red')
+	ax2.tick_params(axis='y', colors='red')
+	ax3.tick_params(axis='y', colors='purple')
+	ax2.set_yscale('symlog',linthresh=1e-3)
 	#ax.vlines(t[apogeeInd],*ax.get_xlim(),color='k',linestyle='dotted')
 
 	maxLim2 = max(*np.abs(ax2.get_ylim()))
@@ -434,7 +457,7 @@ else:
 	ax2.set_xlim(*ax2.get_xlim())
 	ax2.hlines(0,*ax2.get_xlim(),color='k',linestyle='dotted')
 
-
+	ax2.set_xlabel("Time (s)")
 	#ax2.legend(loc='upper right')
 	plt.savefig(figPath)
 	plt.show()

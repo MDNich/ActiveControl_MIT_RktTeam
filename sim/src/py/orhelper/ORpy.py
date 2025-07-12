@@ -27,7 +27,7 @@ for handler in LOG.handlers:
 logging.getLogger().addHandler(ColorHandler())
 
 # match your system as needed.
-os.environ['JAVA_HOME'] = '/opt/homebrew/Cellar/openjdk/23.0.2'
+os.environ['JAVA_HOME'] = '/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/MacOS/libjli.dylib'
 os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 
 def startOR():

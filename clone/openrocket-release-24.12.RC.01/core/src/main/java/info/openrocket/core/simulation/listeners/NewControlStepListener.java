@@ -44,6 +44,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 	// THESE WILL BE MODIFIED FROM PYTHON
+	public static boolean useRK6 = true;
+	public static double velMinThresh = 20;
 	public static double kP = 0;
 	public static double kI = 0;
 	public static double kD = 0;
@@ -89,7 +91,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		//System.out.println("Controller Engaged");
 
 		theFinsToModify  = getTheFinsToModify(status);
-		if (status.getRocketVelocity().z > 20) {
+		if (status.getRocketVelocity().z > velMinThresh) {
 			setCantOfFinDeg(finCantController(status));
 		}
 		else {
@@ -97,6 +99,9 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		}
 		pastOmegaZ.add(status.getRocketRotationVelocity().z);
 		finCantLog.add(getCantOfFinDeg());
+
+		//System.out.println("Current altitude: " + status.getRocketPosition().z);
+		//System.out.println("Current vel: " + status.getRocketVelocity().length());
 
 		//System.out.println("viewed cant: " + theFinsToModify.getCantAngle()*180/Math.PI + " degrees");
 		//status.getConfiguration().getRocket().fireComponentChangeEvent(4); // AERODYNAMIC
@@ -121,7 +126,9 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 		*/
-		//throw new SimulationException("One step only, delta " + delta);
+		if (status.apogeeReached) {
+			throw new SimulationException("Apogee => done");
+		}
 
 	}
 
@@ -139,10 +146,10 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		double thrusting = constFixed;
 
 		thrusting += err*kP;
-		System.out.println(thrusting);
+		//System.out.println(thrusting);
 
 		thrusting += (err-lastErr)*kD;
-		System.out.println(thrusting);
+		//System.out.println(thrusting);
 		thrusting += totErr*kI;
 
 		//thrusting *= invVelSqCoeff*iniVel*iniVel/translatVel/translatVel;
@@ -152,8 +159,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		//thrusting += -1*(rotVel-lastRotVel)*kAccelRocket;
 
 
-		System.out.println(thrusting);
-		System.out.println("----------------");
+		//System.out.println(thrusting);
+		//System.out.println("----------------");
 		return thrusting;
 
 	}
