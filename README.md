@@ -44,8 +44,8 @@ This script uses `jpype` to launch the JVM and interface directly with the compi
 
 - **Control Java Variables:**  
   The script can set and get various simulation parameters in Java, such as:
-  - Time step size
-  - Controller gains and setpoints
+  - Time step size (variable `prefDt` in `openRocketInterface.py`)
+  - Controller gains and setpoints 
   - Initial conditions (e.g., launch angle, velocity)
   - Simulation duration and event triggers
 
@@ -53,25 +53,47 @@ This script uses `jpype` to launch the JVM and interface directly with the compi
   You can script multiple runs, parameter sweeps, or custom test scenarios by calling Java methods from Python.
 
 - **Graphing and Visualization:**  
-  The script collects simulation output (e.g., altitude, velocity, control surface deflections, error signals) and generates plots for analysis. Typical values graphed include:
-  - Altitude vs. time
-  - Velocity vs. time
-  - Control input vs. time
-  - Error signals and controller outputs
+  The script collects simulation output (e.g., altitude, velocity, control surface deflections, error signals) and generates plots for analysis. The default graph plots two panels, showing
+  - Altitude, Velocity vs. time
+  - Control output (fin cant) and rotational velocity vs. time
 
-## Directory Structure
+## Repository File Structure
 
-- `clone/openrocket-release-24.12.RC.01/`  
-  Main OpenRocket Java source and build files.
-- `sim/src/py/openRocketInterface.py`  
-  Python interface script for running and analyzing simulations.
-- `README.md`  
-  This file.
+This repository is organized as follows:
 
-## Notes
+- `README.md` 
+  Project documentation and usage instructions.
 
-- Only modify the files specified above for their respective purposes.
-- Ensure you have the required dependencies installed (Java, Python, `jpype`, plotting libraries).
-- For more details, see the documentation in the `docs/` or `doc/` directories.
+- `bib/`  
+  Reference materials and research papers.
+
+- `canard/`, `ctrl/`, `wing/`  
+  Subdirectories for specific rocket components, control models, and aerodynamic studies.
+
+- `clone/`  
+  Contains OpenRocket source code and related files:
+  - `openrocket/` and `openrocket-release-24.12.RC.01/`  
+    OpenRocket Java source, build scripts, and documentation.
+    `openrocket/` is a symlink to the openrocket version used, currently `openrocket-release-24.12.RC.01/`.
+
+- `land.tbd/`  
+  Landing simulation (tbd - i.e. in progress) documentation and related files.
+
+- `sim/`  
+  Main simulation code and data:
+  - `src/py/`  
+    Python scripts for simulation and Java-Python integration (e.g., `openRocketInterface.py`).
+ - `src/java/`  
+    A symlink to the Java source of the used openrocket distribution - for ease of navigation.
+  - `dat/`  
+    Simulation results and data output.
+
+- `stabil/`  
+  Additional files pertaining to the roll controller, mostly ideation.
+
+- `test/`  
+  Test scripts and utilities.
+
+Each directory contains files relevant to its purpose, such as source code, data, documentation, or research materials. The main simulation workflow is in the `sim/` directory, with integration to Java code in `clone/openrocket-release-24.12.RC.01/`.
 
 ---
