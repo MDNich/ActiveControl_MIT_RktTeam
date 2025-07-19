@@ -44,8 +44,8 @@ This script uses `jpype` to launch the JVM and interface directly with the compi
 
 - **Control Java Variables:**  
   The script can set and get various simulation parameters in Java, such as:
-  - Time step size
-  - Controller gains and setpoints
+  - Time step size (variable `prefDt` in `openRocketInterface.py`)
+  - Controller gains and setpoints 
   - Initial conditions (e.g., launch angle, velocity)
   - Simulation duration and event triggers
 
@@ -65,13 +65,5 @@ This script uses `jpype` to launch the JVM and interface directly with the compi
   Main OpenRocket Java source and build files.
 - `sim/src/py/openRocketInterface.py`  
   Python interface script for running and analyzing simulations.
-- `README.md`  
-  This file.
-
-## Notes
-
-- Only modify the files specified above for their respective purposes.
-- Ensure you have the required dependencies installed (Java, Python, `jpype`, plotting libraries).
-- For more details, see the documentation in the `docs/` or `doc/` directories.
 
 ---
