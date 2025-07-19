@@ -201,7 +201,7 @@ code in \texttt{clone/openrocket-release-24.12.RC.01/}.
 \section{Sample Output}
 \subsection{Setup}
 Below is a comparison of the \verb|RK4| and \verb|RK6| integration methods for controller stability. The control coefficients used are:
-\begin{multicols}{3}
+\begin{multicols}{4}
 \begin{itemize}
   \item $k_P=2.0$
   \item $k_I=0.75$
@@ -217,26 +217,23 @@ Note that fin cant is capped at 15$^\circ$ in the \verb|openrocket| framework.
 
 As a sample rocket, we use that described by the file `sim/dat/ork/canard1.ork`.
 \subsection{Results}
-Upon simulation with varying timesteps, it is possible to observe an ameliorated modeling of the controller. In the graphs below, at left is an \verb|RK4| simulation, and at right is an \verb|RK6| simulation.
-
-Note that in each graph, the angular velocity scale (bottom panel, left side) uses a \verb|linlog| scale that is logarithmic for values larger than $10^{-3}$ in absolute value and linear for values less than $10^{-3}$ in absolute value. Also note that the horizontal black dotted line in the upper panel denotes the minimum velocity threshold for controller engagement, noted above to be $15$ m/s.
+Upon simulation with varying timesteps, it is possible to observe an ameliorated modeling of the controller. In the graphs below, at left is an \verb|RK4| simulation, and at right is an \verb|RK6| simulation. Note that in each graph, the angular velocity scale (bottom panel, left side) uses a \verb|linlog| scale that is logarithmic for values larger than $10^{-3}$ in absolute value and linear for values less than $10^{-3}$ in absolute value. Also note that the horizontal black dotted line in the upper panel denotes the minimum velocity threshold for controller engagement, noted above to be $15$ m/s.
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.45\textwidth]{bib/figures_for_readme/RK4_dt_0p001.pdf}
-\includegraphics[width=0.45\textwidth]{bib/figures_for_readme/RK6_dt_0p001.pdf}
+\includegraphics[width=0.4\textwidth]{bib/figures_for_readme/RK4_dt_0p001.pdf}
+\includegraphics[width=0.4\textwidth]{bib/figures_for_readme/RK6_dt_0p001.pdf}
 \caption{$dt=10^{-3}$}
 \end{figure}
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.45\textwidth]{bib/figures_for_readme/RK4_dt_0p0001.pdf}
-\includegraphics[width=0.45\textwidth]{bib/figures_for_readme/RK6_dt_0p0001.pdf}
+\includegraphics[width=0.4\textwidth]{bib/figures_for_readme/RK4_dt_0p0001.pdf}
+\includegraphics[width=0.4\textwidth]{bib/figures_for_readme/RK6_dt_0p0001.pdf}
 \caption{$dt=10^{-4}$}
 \end{figure}
-
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.45\textwidth]{bib/figures_for_readme/RK4_dt_0p00001.pdf}
-\includegraphics[width=0.45\textwidth]{bib/figures_for_readme/RK6_dt_0p00001.pdf}
+\includegraphics[width=0.4\textwidth]{bib/figures_for_readme/RK4_dt_0p00001.pdf}
+\includegraphics[width=0.4\textwidth]{bib/figures_for_readme/RK6_dt_0p00001.pdf}
 \caption{$dt=10^{-5}$}
 \end{figure}
 
