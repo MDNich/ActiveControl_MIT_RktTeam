@@ -57,11 +57,43 @@ This script uses `jpype` to launch the JVM and interface directly with the compi
   - Altitude, Velocity vs. time
   - Control output (fin cant) and rotational velocity vs. time
 
-## Directory Structure
+## Repository File Structure
 
-- `clone/openrocket-release-24.12.RC.01/`  
-  Main OpenRocket Java source and build files.
-- `sim/src/py/openRocketInterface.py`  
-  Python interface script for running and analyzing simulations.
+This repository is organized as follows:
+
+- `README.md` 
+  Project documentation and usage instructions.
+
+- `bib/`  
+  Reference materials and research papers.
+
+- `canard/`, `ctrl/`, `wing/`  
+  Subdirectories for specific rocket components, control models, and aerodynamic studies.
+
+- `clone/`  
+  Contains OpenRocket source code and related files:
+  - `openrocket/` and `openrocket-release-24.12.RC.01/`  
+    OpenRocket Java source, build scripts, and documentation.
+    `openrocket/` is a symlink to the openrocket version used, currently `openrocket-release-24.12.RC.01/`.
+
+- `land.tbd/`  
+  Landing simulation (tbd - i.e. in progress) documentation and related files.
+
+- `sim/`  
+  Main simulation code and data:
+  - `src/py/`  
+    Python scripts for simulation and Java-Python integration (e.g., `openRocketInterface.py`).
+ - `src/java/`  
+    A symlink to the Java source of the used openrocket distribution - for ease of navigation.
+  - `dat/`  
+    Simulation results and data output.
+
+- `stabil/`  
+  Additional files pertaining to the roll controller, mostly ideation.
+
+- `test/`  
+  Test scripts and utilities.
+
+Each directory contains files relevant to its purpose, such as source code, data, documentation, or research materials. The main simulation workflow is in the `sim/` directory, with integration to Java code in `clone/openrocket-release-24.12.RC.01/`.
 
 ---
