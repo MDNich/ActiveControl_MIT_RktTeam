@@ -53,11 +53,9 @@ This script uses `jpype` to launch the JVM and interface directly with the compi
   You can script multiple runs, parameter sweeps, or custom test scenarios by calling Java methods from Python.
 
 - **Graphing and Visualization:**  
-  The script collects simulation output (e.g., altitude, velocity, control surface deflections, error signals) and generates plots for analysis. Typical values graphed include:
-  - Altitude vs. time
-  - Velocity vs. time
-  - Control input vs. time
-  - Error signals and controller outputs
+  The script collects simulation output (e.g., altitude, velocity, control surface deflections, error signals) and generates plots for analysis. The default graph plots two panels, showing
+  - Altitude, Velocity vs. time
+  - Control output (fin cant) and rotational velocity vs. time
 
 ## Directory Structure
 
