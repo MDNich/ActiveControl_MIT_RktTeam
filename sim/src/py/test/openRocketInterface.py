@@ -36,6 +36,12 @@ os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 import threading
 
 VELMINTHRESH = 15
+TURBULENCE = 5.0
+KP = 2
+KI = 0.75
+KD = 0.1
+figPath = 'dat/pdf/turb{}.pdf'.format(TURBULENCE)
+
 
 
 # Start
@@ -65,7 +71,7 @@ sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
 datPath = 'dat/simResults/canard1_out_long.csv'
-figPath = 'dat/simResults/canard1_out_long.pdf'
+#figPath = 'dat/simResults/canard1_out_long.pdf'
 
 
 # Get all components, filter for fins.
@@ -233,7 +239,7 @@ else:
 
 	simOptions = sim.getOptions()
 
-	simOptions.setWindTurbulenceIntensity(10)
+	simOptions.setWindTurbulenceIntensity(TURBULENCE)
 
 
 	theNextSimulationStatus = simStatClass(flightConfig, sim.getOptions().toSimulationConditions())
@@ -295,9 +301,9 @@ else:
 	kP, kI, kD = return_PID_coeffs(G_plant, gamma, s0, show=True)
 
 	newCtrl.useRK6 = False
-	newCtrl.kP = 2#100#kP
-	newCtrl.kI = .75#kI/10
-	newCtrl.kD = .226
+	newCtrl.kP = KP#2#100#kP
+	newCtrl.kI = KI#.75#kI/10
+	newCtrl.kD = KD#.1
 	newCtrl.kVelRocket = 0
 
 	newCtrl.servoStepCount = 4095.0
@@ -407,11 +413,22 @@ else:
 	logger = logging.getLogger()
 	logger.setLevel(level=logging.ERROR)
 
+
+
+
+	# SAVE DATA TO CSV
+
+
 	import matplotlib.pyplot as plt
 
 	apogeeInd = alt.argmax()
 	np.set_printoptions(legacy='1.13')
 	print(finCantLog[:apogeeInd])
+
+	dataArr = np.array([t[:apogeeInd],alt[:apogeeInd],vel[:apogeeInd],omegaZ[:apogeeInd],finCantLog[:apogeeInd]])
+	np.savetxt('dat/csv/run_turb{}.csv'.format(TURBULENCE), dataArr.T, delimiter=',', header='Time (s),Altitude (m),Velocity (m/s),Angular Velocity (rad/s),Fin Cant Angle (deg)', comments='')
+	print("Saved data to dat/csv/run_turb{}.csv".format(TURBULENCE))
+
 
 	fig, axs = plt.subplots(nrows=2,sharex='col')
 	ax = axs[0]
@@ -447,7 +464,7 @@ else:
 	ax2.yaxis.label.set_color('red')
 	ax2.tick_params(axis='y', colors='red')
 	ax3.tick_params(axis='y', colors='purple')
-	ax2.set_yscale('symlog',linthresh=1e-3)
+	ax2.set_yscale('symlog',linthresh=1e-2)
 	#ax.vlines(t[apogeeInd],*ax.get_xlim(),color='k',linestyle='dotted')
 
 	maxLim2 = max(*np.abs(ax2.get_ylim()))
@@ -459,8 +476,9 @@ else:
 
 	ax2.set_xlabel("Time (s)")
 	#ax2.legend(loc='upper right')
+
 	plt.savefig(figPath)
-	plt.show()
+	#plt.show()
 
 	logger.setLevel(level=logging.INFO)
 

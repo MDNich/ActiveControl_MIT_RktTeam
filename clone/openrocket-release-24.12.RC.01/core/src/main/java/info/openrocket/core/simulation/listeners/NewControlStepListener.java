@@ -91,7 +91,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		//System.out.println("Controller Engaged");
 
 		theFinsToModify  = getTheFinsToModify(status);
-		if (status.getRocketVelocity().z > velMinThresh) {
+		if (status.getRocketVelocity().length() > velMinThresh) {
 			setCantOfFinDeg(finCantController(status));
 		}
 		else {
@@ -134,6 +134,13 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 	public static double finCantController(SimulationStatus currentStat) {
+
+		double currentSpeed = currentStat.getRocketVelocity().length();
+		if(currentSpeed < velMinThresh) {
+			System.out.println("SHOULD NEVER GET HERE");
+			return 0;
+		}
+
 		double previousCant = theFinsToModify.getCantAngle();
 		double translatVel = currentStat.getRocketVelocity().length();
 		double rotVel = currentStat.getRocketRotationVelocity().z;
@@ -142,6 +149,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		double err = desiredRotVel - rotVel;
 		lastStat = currentStat.clone();
 		totErr = err + totErr*IdecayFactor;
+
 
 		double thrusting = constFixed;
 
