@@ -36,11 +36,12 @@ os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 5.0
+TURBULENCE = 10
 KP = 2
 KI = 0.75
 KD = 0.1
-figPath = 'dat/pdf/turb{}.pdf'.format(TURBULENCE)
+figPath = 'dat/pdf/turb{}_PID_KP{}_KI{}_KD{}.pdf'.format(TURBULENCE,KP,KI,KD)
+CSVSAVEPATH = 'dat/csv/run_turb{}_PID_KP{}_KI{}_KD{}.csv'.format(TURBULENCE,KP,KI,KD)
 
 
 
@@ -300,7 +301,7 @@ else:
 	gamma = 2 # Assume ratio between two compensator zeros.  Between 1-3 said to be a heuristic range
 	kP, kI, kD = return_PID_coeffs(G_plant, gamma, s0, show=True)
 
-	newCtrl.useRK6 = False
+	newCtrl.useRK6 = True
 	newCtrl.kP = KP#2#100#kP
 	newCtrl.kI = KI#.75#kI/10
 	newCtrl.kD = KD#.1
@@ -317,84 +318,6 @@ else:
 	simThread = threading.Thread(target=lambda: sim.simulate(listener_array))
 	simThread.start()
 
-	"""i = 0
-	import time
-	while simThread.is_alive():
-		# wait for data to be ready
-		# collect data
-		# let java know
-
-		print("ITER " + str(i))
-		print("[PYTHON] Waiting for java...")
-		while not newCtrl.readyToProceed.get():
-			time.sleep(0.0001)
-		print("[PYTHON] Collecting data")
-
-
-
-
-		print("Getting final conditions")
-		theEndingSimulationStatus = newCtrl.latestStatus
-		#theEndingSimulationStatus.storeData()
-		#datBranch = theEndingSimulationStatus.getFlightDataBranch()
-
-		pF = theEndingSimulationStatus.getRocketPosition()
-		vF =  theEndingSimulationStatus.getRocketVelocity()
-		orientQuat = theEndingSimulationStatus.getRocketOrientationQuaternion()
-		orientAx = orientQuat.getAxis()
-		rotVel = theEndingSimulationStatus.getRocketRotationVelocity()
-
-
-
-		outDict = {
-			"position": pF, # Coordinate object
-			"positionX": pF.x, # Coordinate object
-			"positionY": pF.y, # Coordinate object
-			"positionZ": pF.z, # Coordinate object
-			"positionPrint": theEndingSimulationStatus.getRocketPosition().pythonOutputStr(), # Coordinate object
-			"worldPos": theEndingSimulationStatus.getRocketWorldPosition(), # WorldCoordinate object
-			"velocity": vF, # Coordinate object
-			"velocityX": vF.x, # Coordinate object
-			"velocityY": vF.y, # Coordinate object
-			"velocityZ": vF.z, # Coordinate object
-			"velocityPrint": vF.pythonOutputStr(), # Coordinate object
-			"orient"  : orientQuat, # Quaternion object
-			"orientRotAxis"  : orientAx, # Quaternion object
-			"orientRotAxisX"  : orientAx.x, # Quaternion object
-			"orientRotAxisY"  : orientAx.y, # Quaternion object
-			"orientRotAxisZ"  : orientAx.z, # Quaternion object
-			"orientAngle" : orientQuat.getAngle(),
-			"orientPrint"  : orientQuat.printAxisAngle(), # Quaternion object
-			"rotVel"  : rotVel, # Coordinate object
-			"rotVelX"  : rotVel.x, # Coordinate object
-			"rotVelY"  : rotVel.y, # Coordinate object
-			"rotVelZ"  : rotVel.z, # Coordinate object
-			"liftoff"  : theEndingSimulationStatus.isLiftoff(), # boolean
-			"apogee"   : theEndingSimulationStatus.isApogeeReached(), # boolean
-			"motorIgn" : theEndingSimulationStatus.isMotorIgnited(), # boolean
-			"lnchRdClr": theEndingSimulationStatus.isLaunchRodCleared(), # boolean
-		}
-
-		if(verbose):
-			print("== FINAL CONDITIONS ==")
-			for key in outDict.keys():
-				print("Key {}:".format(key))
-				print(outDict[key])
-			print("== END FINAL CONDITIONS ==")
-
-		dictList.append(outDict.copy())
-
-		print("[PYTHON] Data Saved")
-		newCtrl.readyToProceed.engage()
-		i += 1
-
-
-
-
-
-
-
-	"""
 	simThread.join()
 	logging.info("Simulation done, plotting.")
 
@@ -426,7 +349,7 @@ else:
 	print(finCantLog[:apogeeInd])
 
 	dataArr = np.array([t[:apogeeInd],alt[:apogeeInd],vel[:apogeeInd],omegaZ[:apogeeInd],finCantLog[:apogeeInd]])
-	np.savetxt('dat/csv/run_turb{}.csv'.format(TURBULENCE), dataArr.T, delimiter=',', header='Time (s),Altitude (m),Velocity (m/s),Angular Velocity (rad/s),Fin Cant Angle (deg)', comments='')
+	np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time (s),Altitude (m),Velocity (m/s),Angular Velocity (rad/s),Fin Cant Angle (deg)', comments='')
 	print("Saved data to dat/csv/run_turb{}.csv".format(TURBULENCE))
 
 

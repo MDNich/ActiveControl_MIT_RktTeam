@@ -1,6 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import scipy.optimize as spopt
+
+def line(x,a,b):
+	return x*a + b
+
 
 turbs = np.arange(0,21,2.5)
 turbDatArr = []
@@ -64,5 +69,36 @@ ax2.yaxis.label.set_color('r')
 ax2.tick_params(axis='y', colors='red')
 ax21.tick_params(axis='y', colors='b')
 ax1.set_title("\\sc Variance of Launch Profile with Turbulence",pad=15)
+plt.show()
+
+
+fig,ax = plt.subplots()
+#ax.plot(finCantNoise,maxAlts,c='b')
+ax.scatter(finCantNoise,maxAlts,c='b')
+ax2 = ax.twinx()
+#ax2.plot(finCantNoise,maxVels,c='r')
+ax2.scatter(finCantNoise,maxVels,c='r')
+ax.set_xlabel('Fin Cant Noise (deg)')
+ax.set_xlim(0,10)
+ax2.tick_params(axis='y', colors='red')
+ax.tick_params(axis='y', colors='b')
+ax2.spines['right'].set_color('r')
+ax2.spines['left'].set_color('b')
+ax.yaxis.label.set_color('b')
+ax2.yaxis.label.set_color('r')
+
+lineRed,pcovRed = spopt.curve_fit(line,finCantNoise,maxVels)
+lineBlue,pcovBlue = spopt.curve_fit(line,finCantNoise,maxAlts)
+
+ax2.plot([0,10],[line(0,*lineRed),line(10,*lineRed)],c='r',label='$A(\\sigma_{\\rm fc})$:' + ' $a={}$, $b={}$'.format(*np.round(list(lineRed),2)))
+ax.plot([0,10],[line(0,*lineBlue),line(10,*lineBlue)],c='b',label='$V_{\\rm max}(\\sigma_{\\rm fc})$:' + ' $a={}$, $b={}$'.format(*np.round(list(lineBlue),2)))
+ax.legend(loc='upper left')
+ax2.legend(loc='upper right')
+ax.set_ylabel('Maxmium Altitude (m)')
+ax.set_ylim(100,500)
+ax2.set_ylabel('Maxmium Velocity (m/s)')
+ax2.set_ylim(50,100)
+ax.set_title("\\sc Regression of Altitude and Velocity with Varying Fin Cant Angle Distributions")
+
 plt.show()
 
