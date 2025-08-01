@@ -17,7 +17,7 @@ maxAngVel = []
 for turb in turbs:
 	if turb%1 == 0.0:
 		turb = int(turb)
-	turbDatArr.append(pd.read_csv('../../../dat/csv/run_turb{}.csv'.format(turb), sep=','))	
+	turbDatArr.append(pd.read_csv('../../../dat/demonstrator_1/csv/run_turb{}.csv'.format(turb), sep=','))
 	maxAlts.append(np.max(turbDatArr[-1]["Altitude (m)"]))
 	maxVels.append(np.max(turbDatArr[-1]["Velocity (m/s)"]))
 	finCantNoise.append(np.std(turbDatArr[-1]["Fin Cant Angle (deg)"]))

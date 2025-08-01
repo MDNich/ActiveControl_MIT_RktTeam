@@ -50,7 +50,7 @@ for runTrial in range(1,21):
     quatClass = or_obj.util.Quaternion
 
     # Load rocket
-    doc, rktObj = loadRocket(orh, 'canard1.ork')
+    doc, rktObj = loadRocket(orh, 'demonstrator_1.ork')
 
 
     # load flight conf
@@ -62,8 +62,8 @@ for runTrial in range(1,21):
     sim = doc.getSimulation(0)
     logging.warning("loaded document + simulation")
 
-    datPath = 'dat/simResults/canard1_out_{}.csv'.format(runTrial)
-    figPath = 'dat/simResults/canard1_out_{}.pdf'.format(runTrial)
+    datPath = 'dat/simResults/demonstrator_1_out_{}.csv'.format(runTrial)
+    figPath = 'dat/simResults/demonstrator_1_out_{}.pdf'.format(runTrial)
 
 
     verboseMode = True

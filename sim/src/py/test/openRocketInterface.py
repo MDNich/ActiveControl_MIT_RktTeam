@@ -36,12 +36,12 @@ os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 10
+TURBULENCE = 0
 KP = 2
 KI = 0.75
 KD = 0.1
-figPath = 'dat/pdf/turb{}_PID_KP{}_KI{}_KD{}.pdf'.format(TURBULENCE,KP,KI,KD)
-CSVSAVEPATH = 'dat/csv/run_turb{}_PID_KP{}_KI{}_KD{}.csv'.format(TURBULENCE,KP,KI,KD)
+figPath = 'dat/demonstrator_1/pdf/turb{}_PID_KP{}_KI{}_KD{}.pdf'.format(TURBULENCE,KP,KI,KD)
+CSVSAVEPATH = 'dat/demonstrator_1/csv/run_turb{}_PID_KP{}_KI{}_KD{}.csv'.format(TURBULENCE,KP,KI,KD)
 
 
 
@@ -55,7 +55,7 @@ worldCoordClass = or_obj.util.WorldCoordinate
 quatClass = or_obj.util.Quaternion
 
 # Load rocket
-doc, rktObj = loadRocket(orh, 'canard1.ork')
+doc, rktObj = loadRocket(orh, 'demonstrator_1.ork')
 
 newCtrl = or_obj.simulation.listeners.NewControlStepListener
 
@@ -71,8 +71,8 @@ logging.info(flightConfig)
 sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/canard1_out_long.csv'
-#figPath = 'dat/simResults/canard1_out_long.pdf'
+datPath = 'dat/simResults/demonstrator_1_out_long.csv'
+#figPath = 'dat/simResults/demonstrator_1_out_long.pdf'
 
 
 # Get all components, filter for fins.

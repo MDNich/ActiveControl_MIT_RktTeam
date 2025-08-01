@@ -215,7 +215,7 @@ The controller will thus use a PID controller (see below) when the rocket's vert
 \end{align}
 Note that fin cant is capped at 15$^\circ$ in the \verb|openrocket| framework.
 
-As a sample rocket, we use that described by the file `sim/dat/ork/canard1.ork`.
+As a sample rocket, we use that described by the file `sim/dat/ork/demonstrator_1.ork`.
 \subsection{Results}
 Upon simulation with varying timesteps, it is possible to observe an ameliorated modeling of the controller. In the graphs below, at left is an \verb|RK4| simulation, and at right is an \verb|RK6| simulation. Note that in each graph, the angular velocity scale (bottom panel, left side) uses a \verb|linlog| scale that is logarithmic for values larger than $10^{-3}$ in absolute value and linear for values less than $10^{-3}$ in absolute value. Also note that the horizontal black dotted line in the upper panel denotes the minimum velocity threshold for controller engagement, noted above to be $15$ m/s.
 \begin{figure}[H]

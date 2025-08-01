@@ -52,8 +52,8 @@ logging.info(flightConfig)
 sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/canard1_out_long.csv'
-figPath = 'dat/simResults/canard1_out_long.pdf'
+datPath = 'dat/simResults/demonstrator_1_out_long.csv'
+figPath = 'dat/simResults/demonstrator_1_out_long.pdf'
 
 
 # Get all components, filter for fins.
