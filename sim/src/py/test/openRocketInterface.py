@@ -36,12 +36,16 @@ os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 0
-KP = 2
-KI = 0.75
+TURBULENCE = 2
+KP = 10
+KI = 0#.1#0.75
 KD = 0.1
-figPath = 'dat/demonstrator_1/pdf/turb{}_PID_KP{}_KI{}_KD{}.pdf'.format(TURBULENCE,KP,KI,KD)
-CSVSAVEPATH = 'dat/demonstrator_1/csv/run_turb{}_PID_KP{}_KI{}_KD{}.csv'.format(TURBULENCE,KP,KI,KD)
+INI_ROT_VEL = 0
+DESIRED_ROT_VEL = -1
+overrideI = True
+getPID_from_plant = False
+figPath = 'dat/demonstrator_1/pdf/turb{}_PID_KP{}_KI{}_KD{}_desired{}_ini{}.pdf'.format(TURBULENCE,KP,KI,KD,DESIRED_ROT_VEL,INI_ROT_VEL)
+CSVSAVEPATH = 'dat/demonstrator_1/csv/run_turb{}_PID_KP{}_KI{}_KD{}_desired{}_ini{}.csv'.format(TURBULENCE,KP,KI,KD,DESIRED_ROT_VEL,INI_ROT_VEL)
 
 
 
@@ -174,7 +178,7 @@ else:
 
 	omega0x = 0.0
 	omega0y = 0.0
-	omega0z = 10.0
+	omega0z = INI_ROT_VEL#10.0
 
 
 	initialPropDict = {
@@ -274,7 +278,7 @@ else:
 
 	newCtrl.theFinsToModify = finToPlayWith
 
-	newCtrl.desiredRotVel = 0
+	newCtrl.desiredRotVel = DESIRED_ROT_VEL
 	newCtrl.IdecayFactor = 1
 
 	if(newCtrl.desiredRotVel == 0):
@@ -300,11 +304,25 @@ else:
 
 	gamma = 2 # Assume ratio between two compensator zeros.  Between 1-3 said to be a heuristic range
 	kP, kI, kD = return_PID_coeffs(G_plant, gamma, s0, show=True)
-
+	print("Obtained from PLANT dynamics: kP: {}, kI: {}, kD: {}".format(kP,kI,kD))
 	newCtrl.useRK6 = True
-	newCtrl.kP = KP#2#100#kP
-	newCtrl.kI = KI#.75#kI/10
-	newCtrl.kD = KD#.1
+
+	if overrideI:
+		kI = 0
+
+	if not getPID_from_plant:
+		print("Override: using PID coeffs kP: {}, kI: {}, kD: {}".format(KP,KI,KD))
+		newCtrl.kP = KP#2#100#kP
+		newCtrl.kI = KI#.75#kI/10
+		newCtrl.kD = KD#.1
+	else:
+		print("Using PID coefficients from plant dynamics.")
+
+		figPath = 'dat/demonstrator_1/pdf/turb{}_PID_KP{}_KI{}_KD{}_desired{}_ini{}.pdf'.format(TURBULENCE,*np.round([kP,kI,kD],2),DESIRED_ROT_VEL,INI_ROT_VEL)
+		CSVSAVEPATH = 'dat/demonstrator_1/csv/run_turb{}_PID_KP{}_KI{}_KD{}_desired{}_ini{}.csv'.format(TURBULENCE,*np.round([kP,kI,kD],2),DESIRED_ROT_VEL,INI_ROT_VEL)
+		newCtrl.kP = kP
+		newCtrl.kI = kI
+		newCtrl.kD = kD
 	newCtrl.kVelRocket = 0
 
 	newCtrl.servoStepCount = 4095.0
@@ -350,7 +368,7 @@ else:
 
 	dataArr = np.array([t[:apogeeInd],alt[:apogeeInd],vel[:apogeeInd],omegaZ[:apogeeInd],finCantLog[:apogeeInd]])
 	np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time (s),Altitude (m),Velocity (m/s),Angular Velocity (rad/s),Fin Cant Angle (deg)', comments='')
-	print("Saved data to dat/csv/run_turb{}.csv".format(TURBULENCE))
+	print("Saved data to {}".format(CSVSAVEPATH))
 
 
 	fig, axs = plt.subplots(nrows=2,sharex='col')
@@ -376,7 +394,7 @@ else:
 
 
 
-	ax2.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity",color='red')
+	ax2.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity (Rad/s)",color='red')
 	ax2.set_ylabel("Ang Velocity")
 	ax3 = ax2.twinx()
 	ax3.plot(t[:apogeeInd],finCantLog[:apogeeInd],label="Fin Cant",color='purple',alpha=0.7)
@@ -395,6 +413,7 @@ else:
 	ax2.set_ylim(-maxLim2,maxLim2)
 	ax3.set_ylim(-maxLim3,maxLim3)
 	ax2.set_xlim(*ax2.get_xlim())
+	ax2.set_ylim(-50,50)
 	ax2.hlines(0,*ax2.get_xlim(),color='k',linestyle='dotted')
 
 	ax2.set_xlabel("Time (s)")

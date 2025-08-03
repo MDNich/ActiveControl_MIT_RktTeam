@@ -7,8 +7,8 @@ from PID_coefficients import find_PID
 # TODO: Rewrite this as a CLASS called Rocket_Controller
 
 # Define the rocket's parameters
-Jxx = 0.000461  # Moment of inertia about the x-axis (get value from OpenRocket) [kg*m^2]
-C = 3.0 # Damping coefficient for subsonic case  [N*m*s/rad] (middle of the range value :P )
+Jxx = 0.0006  # Moment of inertia about the x-axis (get value from OpenRocket) [kg*m^2]
+C = 2.0 # Damping coefficient for subsonic case  [N*m*s/rad] (middle of the range value :P )
 
 # Define the "Plant" (rocket system) transfer function
 G_plant = tf([1], [Jxx, C, 0])
