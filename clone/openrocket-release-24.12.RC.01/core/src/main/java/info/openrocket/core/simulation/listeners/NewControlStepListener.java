@@ -3,12 +3,15 @@ package info.openrocket.core.simulation.listeners;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.ArrayList;
+import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.Quaternion;
 
 import java.util.Iterator;
+
+import static java.lang.Math.*;
 
 /**
  * Simulation listener that launches a rocket from a specific altitude.
@@ -17,6 +20,11 @@ import java.util.Iterator;
  * if defined, otherwise a default altitude of 1000 meters is used.
  */
 public class NewControlStepListener extends AbstractSimulationListener {
+
+
+
+
+
 
 
 	public static SimulationStatus initialStat = null;
@@ -33,6 +41,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public static Flag readyToProceed;
 
 	public static ArrayList<Double> pastOmegaZ;
+	public static ArrayList<Double> pastThetaZ;
 	public static ArrayList<Double> finCantLog;
 
 	public static Rocket theRocket;
@@ -40,26 +49,37 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 	public static SimulationStatus lastStat = null;
 
-	public static double totErr = 0;
+	public static double totErrVel = 0;
+	public static double totErrAng = 0;
 
 
 	// THESE WILL BE MODIFIED FROM PYTHON
 	public static boolean useRK6 = true;
 	public static double velMinThresh = 20;
-	public static double kP = 0;
-	public static double kI = 0;
-	public static double kD = 0;
+	public static double kP_VEL = 0;
+	public static double kP_ANG = 0;
+	public static double kI_VEL = 0;
+	public static double kI_ANG = 0;
+	public static double kD_VEL = 0;
+	public static double kD_ANG = 0;
 	public static double kVelRocket = 0;
 	public static double kVel2Rocket = 0;
 	public static double kVel3Rocket = 0;
 	public static double kAccelRocket = 0;
 	public static double desiredRotVel = 0;
+	public static double desiredRotAng = 0;
 	public static double constFixed = 0;
+
+
+
+	public static boolean velocityPIDon = true;
+	public static boolean positionPIDon = true;
 
 
 	public NewControlStepListener() {
 		super();
 		pastOmegaZ = new ArrayList<>();
+		pastThetaZ = new ArrayList<>();
 		finCantLog = new ArrayList<>();
 		datIsReadyToCollect = new Flag();
 		readyToProceed = new Flag();
@@ -98,34 +118,9 @@ public class NewControlStepListener extends AbstractSimulationListener {
 			setCantOfFinDeg(0);
 		}
 		pastOmegaZ.add(status.getRocketRotationVelocity().z);
+		pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
 		finCantLog.add(getCantOfFinDeg());
 
-		//System.out.println("Current altitude: " + status.getRocketPosition().z);
-		//System.out.println("Current vel: " + status.getRocketVelocity().length());
-
-		//System.out.println("viewed cant: " + theFinsToModify.getCantAngle()*180/Math.PI + " degrees");
-		//status.getConfiguration().getRocket().fireComponentChangeEvent(4); // AERODYNAMIC
-
-		//System.out.println("Controller Disengaged");
-
-		//System.out.println("PROCEEDING TO NEXT STEP");
-
-		/*System.out.println("[JAVA] READY FOR PYTHON");
-		datIsReadyToCollect.engage();
-		System.out.println("[JAVA] WAITING FOR PYTHON");
-		while(!readyToProceed.get()){
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		readyToProceed.disengage();
-		datIsReadyToCollect.disengage();
-
-
-
-		*/
 		if (status.apogeeReached) {
 			throw new SimulationException("Apogee => done");
 		}
@@ -140,35 +135,35 @@ public class NewControlStepListener extends AbstractSimulationListener {
 			System.out.println("SHOULD NEVER GET HERE");
 			return 0;
 		}
-
 		double previousCant = theFinsToModify.getCantAngle();
 		double translatVel = currentStat.getRocketVelocity().length();
 		double rotVel = currentStat.getRocketRotationVelocity().z;
+		double rotAng = toDegrees(toEulerAngles(currentStat.getRocketOrientationQuaternion()).z);
 		double lastRotVel = lastStat.getRocketRotationVelocity().z;
-		double lastErr = desiredRotVel-lastRotVel;
-		double err = desiredRotVel - rotVel;
+		double lastRotAng = toDegrees(toEulerAngles(lastStat.getRocketOrientationQuaternion()).z);
+		double lastErrVel = desiredRotVel - lastRotVel;
+		double lastErrAng = desiredRotAng - lastRotAng;
+		double errVel = desiredRotVel - rotVel;
+		double errAng = desiredRotAng - rotAng;
+
 		lastStat = currentStat.clone();
-		totErr = err + totErr*IdecayFactor;
-
-
 		double thrusting = constFixed;
 
-		thrusting += err*kP;
-		//System.out.println(thrusting);
+		if (velocityPIDon) {
+			totErrVel = errVel + totErrVel * IdecayFactor;
 
-		thrusting += (err-lastErr)*kD;
-		//System.out.println(thrusting);
-		thrusting += totErr*kI;
+			thrusting += errVel * kP_VEL;
+			thrusting += (errVel - lastErrVel) * kD_VEL;
+			thrusting += totErrVel * kI_VEL;
+		}
+		if (positionPIDon) {
+			totErrAng = errAng + totErrAng * IdecayFactor;
 
-		//thrusting *= invVelSqCoeff*iniVel*iniVel/translatVel/translatVel;
-		thrusting += -1*rotVel*kVelRocket;
-		//thrusting += -1*rotVel*Math.abs(rotVel)*kVel2Rocket;
-		//thrusting += -1*rotVel*Math.abs(rotVel*rotVel)*kVel3Rocket;
-		//thrusting += -1*(rotVel-lastRotVel)*kAccelRocket;
+			thrusting += errAng * kP_ANG;
+			thrusting += (errAng - lastErrAng) * kD_ANG;
+			thrusting += totErrAng * kI_ANG;
+		}
 
-
-		//System.out.println(thrusting);
-		//System.out.println("----------------");
 		return thrusting;
 
 	}
@@ -204,5 +199,29 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	}
 	public static double getCantOfFinDeg() {
 		return theFinsToModify.getCantAngle()*180/Math.PI;
+	}
+
+
+
+
+
+	public static Coordinate toEulerAngles(Quaternion q) {
+
+		// roll (x-axis rotation)
+		double sinr_cosp = 2 * (q.getW() * q.getX() + q.getY() * q.getZ());
+		double cosr_cosp = 1 - 2 * (q.getX() * q.getX() + q.getY() * q.getY());
+		double angleX = atan2(sinr_cosp, cosr_cosp);
+
+		// pitch (y-axis rotation)
+		double sinp = sqrt(1 + 2 * (q.getW() * q.getY() - q.getX() * q.getZ()));
+		double cosp = sqrt(1 - 2 * (q.getW() * q.getY() - q.getX() * q.getZ()));
+		double angleY = 2 * atan2(sinp, cosp) - PI / 2;
+
+		// yaw (z-axis rotation)
+		double siny_cosp = 2 * (q.getW() * q.getZ() + q.getX() * q.getY());
+		double cosy_cosp = 1 - 2 * (q.getY() * q.getY() + q.getZ() * q.getZ());
+		double angleZ = atan2(siny_cosp, cosy_cosp);
+
+		return new Coordinate(angleX, angleY, angleZ);
 	}
 }
