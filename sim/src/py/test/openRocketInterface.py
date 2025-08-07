@@ -36,7 +36,7 @@ os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 5
+TURBULENCE = 0
 # VEL PID
 KP_VEL = 7
 KI_VEL = 0#.1#0.75
@@ -51,7 +51,7 @@ DESIRED_ROT_VEL = 2
 DESIRED_ROT_ANG = 0
 overrideI = True
 getPID_from_plant = True
-useVelocityPID = True
+useVelocityPID = False
 usePositionPID = False
 USE_RK6 = True
 
@@ -73,8 +73,8 @@ if not useVelocityPID:
 	KI_VEL = 0
 	KD_VEL = 0
 
-figPath = 'dat/demonstrator_2/pdf/turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.pdf'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,DESIRED_ROT_ANG)
-CSVSAVEPATH = 'dat/demonstrator_2/csv/run_turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.csv'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,DESIRED_ROT_ANG)
+figPath = 'dat/demonstrator_3/pdf/turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.pdf'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,DESIRED_ROT_ANG)
+CSVSAVEPATH = 'dat/demonstrator_3/csv/run_turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.csv'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,DESIRED_ROT_ANG)
 
 
 # Start
@@ -87,7 +87,7 @@ worldCoordClass = or_obj.util.WorldCoordinate
 quatClass = or_obj.util.Quaternion
 
 # Load rocket
-doc, rktObj = loadRocket(orh, 'demonstrator_2.ork')
+doc, rktObj = loadRocket(orh, 'demonstrator_3.ork')
 
 newCtrl = or_obj.simulation.listeners.NewControlStepListener
 
@@ -100,11 +100,11 @@ logging.info("Motor identifier: ")
 logging.info(flightConfig)
 
 # load sim
-sim = doc.getSimulation(3)
+sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/demonstrator_2_out_long.csv'
-#figPath = 'dat/simResults/demonstrator_2_out_long.pdf'
+datPath = 'dat/simResults/demonstrator_3_out_long.csv'
+#figPath = 'dat/simResults/demonstrator_3_out_long.pdf'
 
 
 # Get all components, filter for fins.
@@ -297,8 +297,8 @@ if True:
 	else:
 		print("Using PID coefficients from plant dynamics.")
 
-		figPath = 'dat/demonstrator_2/pdf/turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.pdf'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,DESIRED_ROT_ANG)
-		CSVSAVEPATH = 'dat/demonstrator_2/csv/run_turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.csv'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,DESIRED_ROT_ANG)
+		figPath = 'dat/demonstrator_3/pdf/turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.pdf'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,DESIRED_ROT_ANG)
+		CSVSAVEPATH = 'dat/demonstrator_3/csv/run_turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.csv'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,DESIRED_ROT_ANG)
 		newCtrl.kP_ANG = KP_ANG_gen
 		newCtrl.kI_ANG = KI_ANG_gen
 		newCtrl.kD_ANG = KD_ANG_gen
