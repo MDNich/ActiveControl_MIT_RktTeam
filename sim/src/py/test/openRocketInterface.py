@@ -36,9 +36,9 @@ os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 0
+TURBULENCE = 5
 # VEL PID
-KP_VEL = 7
+KP_VEL = 10
 KI_VEL = 0#.1#0.75
 KD_VEL = 0.1
 # ANG PID
@@ -50,8 +50,8 @@ INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 2
 DESIRED_ROT_ANG = 0
 overrideI = True
-getPID_from_plant = True
-useVelocityPID = False
+getPID_from_plant = False
+useVelocityPID = True
 usePositionPID = False
 USE_RK6 = True
 
@@ -59,8 +59,8 @@ USE_RK6 = True
 
 if usePositionPID:
 	DESIRED_ROT_VEL = 0 # If using position PID, we want to stabilize at 0 rad/s, so no rotation.
-	if KP_VEL == 10:
-		KP_VEL = 7
+	#if KP_VEL == 10:
+	#	KP_VEL = 7
 
 
 if not usePositionPID:
@@ -150,7 +150,7 @@ import pandas as pd
 
 if True:
 	# startParams
-	alt0 = 10 # m
+	alt0 = 0.01 # m
 	v0x = 0 # m/s
 	v0y = 0 # m/s
 	v0z = 0 # m/s
@@ -297,11 +297,16 @@ if True:
 	else:
 		print("Using PID coefficients from plant dynamics.")
 
-		figPath = 'dat/demonstrator_3/pdf/turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.pdf'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,DESIRED_ROT_ANG)
-		CSVSAVEPATH = 'dat/demonstrator_3/csv/run_turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.csv'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,DESIRED_ROT_ANG)
-		newCtrl.kP_ANG = KP_ANG_gen
-		newCtrl.kI_ANG = KI_ANG_gen
-		newCtrl.kD_ANG = KD_ANG_gen
+		if usePositionPID:
+			figPath = 'dat/demonstrator_3/pdf/turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.pdf'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,DESIRED_ROT_ANG)
+			CSVSAVEPATH = 'dat/demonstrator_3/csv/run_turb{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_desiredPos{}.csv'.format(TURBULENCE,KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,DESIRED_ROT_ANG)
+
+			newCtrl.kP_ANG = KP_ANG_gen
+			newCtrl.kI_ANG = KI_ANG_gen
+			newCtrl.kD_ANG = KD_ANG_gen
+		else:
+			print("Controller set up but not engaged.")
+
 
 
 	newCtrl.servoStepCount = 4095.0
