@@ -55,6 +55,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 	// THESE WILL BE MODIFIED FROM PYTHON
 	public static boolean useRK6 = true;
+	public static boolean roundToNearest5 = true;
 	public static double velMinThresh = 20;
 	public static double kP_VEL = 0;
 	public static double kP_ANG = 0;
@@ -221,6 +222,12 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		double siny_cosp = 2 * (q.getW() * q.getZ() + q.getX() * q.getY());
 		double cosy_cosp = 1 - 2 * (q.getY() * q.getY() + q.getZ() * q.getZ());
 		double angleZ = atan2(siny_cosp, cosy_cosp);
+
+		if (roundToNearest5) {
+			angleX = round(angleX / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+			angleY = round(angleY / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+			angleZ = round(angleZ / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+		}
 
 		return new Coordinate(angleX, angleY, angleZ);
 	}

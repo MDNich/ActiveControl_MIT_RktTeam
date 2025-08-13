@@ -51,9 +51,10 @@ DESIRED_ROT_VEL = 2
 DESIRED_ROT_ANG = 0
 overrideI = True
 getPID_from_plant = False
-useVelocityPID = True
-usePositionPID = False
+useVelocityPID = False
+usePositionPID = True
 USE_RK6 = True
+ROUND_5 = True
 
 
 
@@ -262,6 +263,8 @@ if True:
 
 	newCtrl.velocityPIDon = useVelocityPID
 	newCtrl.positionPIDon = usePositionPID
+
+	newCtrl.roundToNearest5 = ROUND_5
 
 
 	newCtrl.constFixed = 0
