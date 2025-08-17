@@ -1,21 +1,7 @@
 import pandas as pd
 import numpy as np
+import os
 import matplotlib.pyplot as plt 
-
-def __main__():
-    # INPUTS:
-
-    KP, KI, KD = 1.0, 0.1, 0.01 # GAINS FETCHED FROM Simplified_plant_dynamics.py
-
-    Cn_alphas = [5.0, 4.5, 4.0, 3.5, 3.0] # Normal force to AoA slope [N*m/rad] FROM CFD, THEORY, OR TESTING
-    densities = [1.225, 0.9093, 0.7364, 0.5887, 0.4664]  # Air densities at different altitudes [kg/m^3]
-    velocities = [0, 50, 100, 150, 200]  # Gain schedule velocities [m/s] should correspond to the expected flight profile and CFD data
-    S = 0.1  # Control surface area [m^2]
-    y = 0.5  # Distance from the center of mass to the control surface [m]
-    n_control_surfaces = 2  # Number of control surfaces
-
-    # Generate the gain schedule
-    generate_PID_gains(KP, KI, KD, Cn_alphas, densities, velocities, S, y, n_control_surfaces)
 
 def generate_PID_gains(KP, KI, KD, Cn_alphas, densities, velocities, S, y, n_control_surfaces):
     '''
@@ -38,12 +24,20 @@ def generate_PID_gains(KP, KI, KD, Cn_alphas, densities, velocities, S, y, n_con
             kp_out = KP / Ka
             ki_out = KI / Ka
             kd_out = KD / Ka
-        gain_schedule.append([V, rho, kp_out, ki_out, kd_out])
+        gain_schedule.append([
+            V, 
+            rho, 
+            round(kp_out, 5), 
+            round(ki_out, 5), 
+            round(kd_out, 5)
+        ])
     gain_schedule = np.array(gain_schedule)
 
     # Save to CSV
     df = pd.DataFrame(gain_schedule, columns=['velocity', 'density', 'KP', 'KI', 'KD'])
-    df.to_csv('gain_schedule.csv', index=False)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_path = os.path.join(current_dir, 'gain_schedule.csv')
+    df.to_csv(csv_path, index=False)
     print("Gain schedule saved to gain_schedule.csv")
 
     return None
@@ -116,3 +110,18 @@ def plot_gain_schedule():
     '''
     Function to visualize the gain schedule.
     '''
+
+
+# INPUTS:
+
+KP, KI, KD = 10, 1, 5 # GAINS FETCHED FROM Simplified_plant_dynamics.py
+
+Cn_alphas = [5.0, 4.5, 4.0, 3.5, 3.0] # Normal force to AoA slope [N*m/rad] FROM CFD, THEORY, OR TESTING
+densities = [1.225, 0.9093, 0.7364, 0.5887, 0.4664]  # Air densities at different altitudes [kg/m^3]
+velocities = [0, 20, 40, 60, 80]  # Gain schedule velocities [m/s] should correspond to the expected flight profile and CFD data
+S = 0.001  # Control surface area [m^2]
+y = 0.2  # Distance from the center of mass to the control surface [m]
+n_control_surfaces = 2  # Number of control surfaces
+
+# Generate the gain schedule
+generate_PID_gains(KP, KI, KD, Cn_alphas, densities, velocities, S, y, n_control_surfaces)
