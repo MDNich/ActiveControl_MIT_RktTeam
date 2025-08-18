@@ -56,8 +56,6 @@ public class FinSetCalc extends RocketComponentCalc {
 	 * builds a calculator of aerodynamic forces a specified fin
 	 * @param component		The fin in consideration
 	 */
-	///why is this accepting RocketComponent when it rejects?
-	///why not put FinSet in the parameter instead?
 	public FinSetCalc(FinSet component) {
 		super(component);
 

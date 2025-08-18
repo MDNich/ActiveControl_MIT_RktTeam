@@ -36,7 +36,7 @@ os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 5
+TURBULENCE = 0
 # VEL PID
 KP_VEL = 10
 KI_VEL = 0#.1#0.75
@@ -47,14 +47,14 @@ KI_ANG = 0#.1#0.75
 KD_ANG = 0.1
 # OTHER PARAMS
 INI_ROT_VEL = 0
-DESIRED_ROT_VEL = 2
+DESIRED_ROT_VEL = 0
 DESIRED_ROT_ANG = 0
 overrideI = True
 getPID_from_plant = False
-useVelocityPID = False
-usePositionPID = True
+useVelocityPID = True
+usePositionPID = False
 USE_RK6 = True
-ROUND_5 = True
+ROUND_5 = False
 
 
 

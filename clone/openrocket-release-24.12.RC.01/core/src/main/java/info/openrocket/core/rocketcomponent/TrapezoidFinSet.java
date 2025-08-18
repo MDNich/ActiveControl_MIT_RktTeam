@@ -27,7 +27,7 @@ public class TrapezoidFinSet extends FinSet {
 	 *           |   /            |
 	 *           |  /             |
 	 *           | /              |  height
-	 *            /               |
+	 *           |/               |
 	 * __________/________________|_____________
 	 *                length
 	 *              == rootChord
