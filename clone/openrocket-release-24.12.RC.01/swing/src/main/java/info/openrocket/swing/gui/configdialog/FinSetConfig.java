@@ -76,6 +76,9 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		//// Fin tabs and Through-the-wall fin tabs
 		tabbedPane.insertTab(trans.get("FinSetConfig.tab.Fintabs"), null, finTabPanel(),
 				trans.get("FinSetConfig.tab.Through-the-wall"), 0);
+
+		tabbedPane.insertTab("Roll Tabs", null, finTabPanel_rollControl(),
+				"Roll Control-destined in-fin tabs.", 0);
 	}
 	
 	
@@ -192,16 +195,131 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			order.add(exportSVGBtn);
 		}
 	}
-	
+
 	private JPanel finTabPanel() {
 		JPanel panel = new JPanel(
 				new MigLayout("gap rel unrel, ins 25lp",
 						"[100lp::][65lp::][30lp::][200lp::]", ""));
 		//		JPanel panel = new JPanel(new MigLayout("fillx, align 20% 20%, gap rel unrel",
 		//				"[40lp][80lp::][30lp::][100lp::]",""));
-		
+
 		//// Through-the-wall fin tabs:
 		panel.add(new StyledLabel(trans.get("FinSetConfig.lbl.Through-the-wall"), Style.BOLD),
+				"spanx, wrap 30lp");
+
+		JLabel label;
+		DoubleModel length;
+		DoubleModel length2;
+		DoubleModel maxTabHeight;
+		DoubleModel length_2;
+		JSpinner spin;
+		JButton autoCalc;
+
+		length = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
+		maxTabHeight = new DoubleModel(component, "MaxTabHeight", 1, UnitGroup.UNITS_LENGTH, 0);
+		length2 = new DoubleModel(component, "Length", 0.5, UnitGroup.UNITS_LENGTH, 0);
+		length_2 = new DoubleModel(component, "Length", -0.5, UnitGroup.UNITS_LENGTH, 0);
+
+		register(length);
+		register(length2);
+		register(maxTabHeight);
+		register(length_2);
+
+		////  Tab length
+		//// Tab length:
+		label = new JLabel(trans.get("FinSetConfig.lbl.Tablength"));
+		//// The length of the fin tab.
+		label.setToolTipText(trans.get("FinSetConfig.ttip.Tablength"));
+		panel.add(label);
+
+		final DoubleModel tabLength = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
+		register(tabLength);
+
+		spin = new JSpinner(tabLength.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin, "growx 1");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+		panel.add(new UnitSelector(tabLength), "growx 1");
+		panel.add(new BasicSlider(tabLength.getSliderModel(DoubleModel.ZERO, length)),
+				"w 100lp, growx 5, wrap");
+
+
+		//// Tab height:
+		label = new JLabel(trans.get("FinSetConfig.lbl.Tabheight"));
+		//// The span-wise height of the fin tab.
+		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabheight"));
+		panel.add(label);
+
+		final DoubleModel tabHeightModel = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0, ((FinSet)component).getMaxTabHeight());
+		register(tabHeightModel);
+		component.addChangeListener( tabHeightModel );
+		spin = new JSpinner(tabHeightModel.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+		panel.add(new UnitSelector(tabHeightModel), "growx");
+		panel.add(new BasicSlider(tabHeightModel.getSliderModel(DoubleModel.ZERO, maxTabHeight)),
+				"w 100lp, growx 5, wrap");
+
+		////  Tab position:
+		label = new JLabel(trans.get("FinSetConfig.lbl.Tabposition"));
+		//// The position of the fin tab.
+		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
+		panel.add(label);
+
+		final DoubleModel tabOffset = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
+		register(tabOffset);
+		component.addChangeListener( tabOffset);
+		spin = new JSpinner(tabOffset.getSpinnerModel());
+		spin.setEditor(new SpinnerEditor(spin));
+		panel.add(spin, "growx");
+		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+		panel.add(new UnitSelector(tabOffset), "growx");
+		panel.add(new BasicSlider(tabOffset.getSliderModel(length_2, length2)), "w 100lp, growx 5, wrap");
+
+		//// relative to
+		label = new JLabel(trans.get("FinSetConfig.lbl.relativeto"));
+		panel.add(label, "right, gapright unrel");
+
+
+		final EnumModel<AxialMethod> tabOffsetMethod = new EnumModel<>(component, "TabOffsetMethod");
+		register(tabOffsetMethod);
+
+		JComboBox<AxialMethod> enumCombo = new JComboBox<>(tabOffsetMethod);
+
+		panel.add( enumCombo, "spanx 3, growx, wrap para");
+		order.add(enumCombo);
+
+		// Calculate fin tab height, length, and position
+		autoCalc = new JButton(trans.get("FinSetConfig.but.AutoCalc"));
+		autoCalc.setToolTipText(trans.get("FinSetConfig.but.AutoCalc.ttip"));
+
+		autoCalc.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				calculateAutoTab(tabOffsetMethod, tabOffset, tabLength, tabHeightModel);
+			}
+		});
+		panel.add(autoCalc, "skip 1, spanx");
+		order.add(autoCalc);
+
+		return panel;
+	}
+
+
+
+	private JPanel finTabPanel_rollControl() {
+		JPanel panel = new JPanel(
+				new MigLayout("gap rel unrel, ins 25lp",
+						"[100lp::][65lp::][30lp::][200lp::]", ""));
+		//		JPanel panel = new JPanel(new MigLayout("fillx, align 20% 20%, gap rel unrel",
+		//				"[40lp][80lp::][30lp::][100lp::]",""));
+		
+		//// In-fin fin tabs:
+		panel.add(new StyledLabel("In-fin tabs for Roll Control:", Style.BOLD),
 				"spanx, wrap 30lp");
 		
 		JLabel label;
