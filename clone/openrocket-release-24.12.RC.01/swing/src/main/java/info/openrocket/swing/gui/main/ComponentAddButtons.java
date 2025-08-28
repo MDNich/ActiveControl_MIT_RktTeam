@@ -24,30 +24,7 @@ import info.openrocket.core.preferences.ApplicationPreferences;
 
 import info.openrocket.core.document.OpenRocketDocument;
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.BodyComponent;
-import info.openrocket.core.rocketcomponent.BodyTube;
-import info.openrocket.core.rocketcomponent.Bulkhead;
-import info.openrocket.core.rocketcomponent.CenteringRing;
-import info.openrocket.core.rocketcomponent.EllipticalFinSet;
-import info.openrocket.core.rocketcomponent.EngineBlock;
-import info.openrocket.core.rocketcomponent.FreeformFinSet;
-import info.openrocket.core.rocketcomponent.InnerTube;
-import info.openrocket.core.rocketcomponent.LaunchLug;
-import info.openrocket.core.rocketcomponent.MassComponent;
-import info.openrocket.core.rocketcomponent.NoseCone;
-import info.openrocket.core.rocketcomponent.Parachute;
-import info.openrocket.core.rocketcomponent.ParallelStage;
-import info.openrocket.core.rocketcomponent.PodSet;
-import info.openrocket.core.rocketcomponent.RailButton;
-import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.ShockCord;
-import info.openrocket.core.rocketcomponent.Streamer;
-import info.openrocket.core.rocketcomponent.Transition;
-import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
-import info.openrocket.core.rocketcomponent.TubeCoupler;
-import info.openrocket.core.rocketcomponent.TubeFinSet;
+import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Pair;
@@ -124,6 +101,7 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new BodyComponentButton(Transition.class, trans.get("compaddbuttons.Transition")),
 				//// Trapezoidal
 				new ComponentButton(document, selectionModel, TrapezoidFinSet.class, trans.get("compaddbuttons.Trapezoidal")), // TODO: MEDIUM: freer fin placing
+				new ComponentButton(document, selectionModel, TabControlledTrapezoidFinSet.class, "TabCtrl\nTrapezoidal"), // TODO: MEDIUM: freer fin placing
 				//// Elliptical
 				new ComponentButton(document, selectionModel, EllipticalFinSet.class, trans.get("compaddbuttons.Elliptical")),
 				//// Freeform

@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerException;
 
 import info.openrocket.core.material.MaterialGroup;
 import info.openrocket.core.preferences.ApplicationPreferences;
+import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.swing.gui.components.SVGOptionPanel;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.main.BasicFrame;
@@ -35,12 +36,6 @@ import info.openrocket.core.file.svg.export.SVGBuilder;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.material.Material;
-import info.openrocket.core.rocketcomponent.CenteringRing;
-import info.openrocket.core.rocketcomponent.FinSet;
-import info.openrocket.core.rocketcomponent.FreeformFinSet;
-import info.openrocket.core.rocketcomponent.InnerTube;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.SymmetricComponent;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.unit.UnitGroup;
@@ -75,13 +70,17 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		tabbedPane.insertTab(trans.get("FinSetConfig.tab.Fintabs"), null, finTabPanel(),
 				trans.get("FinSetConfig.tab.Through-the-wall"), 0);
 
-		tabbedPane.insertTab("Roll Tabs", null, finTabPanel_rollControl(),
-				"Roll Control-destined in-fin tabs.", 0);
+        if (component instanceof TabControlledTrapezoidFinSet) {
+            tabbedPane.insertTab("Roll Tabs", null, finTabPanel_rollControl(),
+                    "Roll Control-destined in-fin tabs.", 0);
+        }
+
 	}
 	
 	
 	protected void addFinSetButtons() {
 		JButton convert = null;
+        JButton tabify = null;
 		
 		//// Convert buttons
 		if (!(component instanceof FreeformFinSet)) {
@@ -112,7 +111,38 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 				}
 			});
 		}
-		
+
+        if((component instanceof TrapezoidFinSet)){// & !(component instanceof TabControlledTrapezoidFinSet)) {
+            tabify = new JButton("Add Roll Control Tabs");
+            if (component instanceof TabControlledTrapezoidFinSet) {
+                tabify.setEnabled(false);
+            }
+            tabify.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    log.info(Markers.USER_MARKER, "Converting " + component.getComponentName() + " into tab-controlled fin set");
+
+                    // Do change in future for overall safety
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            //// Convert fin set
+                            document.addUndoPosition("Convert trapezoid fin set to tab-controlled one.");
+
+                            RocketComponent tabctrlled =
+                                    new TabControlledTrapezoidFinSet((TrapezoidFinSet) component);
+
+                            ComponentConfigDialog.showDialog(tabctrlled);
+
+                        }
+                    });
+
+                    ComponentConfigDialog.disposeDialog();
+                }
+            });
+
+        }
+
 		//// Split fins
 		split = new JButton(trans.get("FinSetConfig.but.Splitfins"));
 		//// Split the fin set into separate fins
@@ -187,7 +217,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			order.add(exportSVGBtn);
 		}
 		else {
-			addButtons(split, convert, exportSVGBtn);
+            if (!(component instanceof TrapezoidFinSet)) {
+                addButtons(split, convert, exportSVGBtn);
+            }
+            else {
+                addButtons(split, tabify, convert, exportSVGBtn);
+            }
 			order.add(split);
 			order.add(convert);
 			order.add(exportSVGBtn);
@@ -322,106 +357,83 @@ public abstract class FinSetConfig extends RocketComponentConfig {
         panel.setBorder(BorderFactory.createTitledBorder("In-fin tabs for Roll Control"));
 
 		//// In-fin fin tabs:
-		panel.add(new StyledLabel("Parameters:", Style.BOLD),"spanx, wrap 30lp");
+		panel.add(new StyledLabel("Parameters:", Style.BOLD),"spanx, wrap 10lp");
 		
 		JLabel label;
-		DoubleModel length;
-		DoubleModel length2;
-		DoubleModel maxTabHeight;
-		DoubleModel length_2;
+		DoubleModel tabSpan;
+		DoubleModel tabChord;
+		DoubleModel tabOffsetFromRoot;
+		DoubleModel tabAngle;
 		JSpinner spin;
 		JButton autoCalc;
 		
-		length = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0);
-		maxTabHeight = new DoubleModel(component, "MaxTabHeight", 1, UnitGroup.UNITS_LENGTH, 0);
-		length2 = new DoubleModel(component, "Length", 0.5, UnitGroup.UNITS_LENGTH, 0);
-		length_2 = new DoubleModel(component, "Length", -0.5, UnitGroup.UNITS_LENGTH, 0);
-		
-		register(length);
-		register(length2);
-		register(maxTabHeight);
-		register(length_2);
-		
+		tabSpan = new DoubleModel(component, "TabSpan", UnitGroup.UNITS_LENGTH, 0);
+		tabOffsetFromRoot = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH, 0);
+		tabChord = new DoubleModel(component, "TabChord", UnitGroup.UNITS_LENGTH, 0);
+		tabAngle = new DoubleModel(component, "TabAngle", UnitGroup.UNITS_LENGTH, 0);
+
+		register(tabSpan);
+		register(tabChord);
+		register(tabOffsetFromRoot);
+
 		////  Tab length
 		//// Tab length:
-		label = new JLabel("");
+		label = new JLabel("Tab Span:");
 		//// The length of the fin tab.
 		label.setToolTipText("");
 		panel.add(label);
-		
-		final DoubleModel tabLength = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
-		register(tabLength);
 
-		spin = new JSpinner(tabLength.getSpinnerModel());
+		spin = new JSpinner(tabSpan.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx 1");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
 		
-		panel.add(new UnitSelector(tabLength), "growx 1");
-		panel.add(new BasicSlider(tabLength.getSliderModel(DoubleModel.ZERO, length)),
+		panel.add(new UnitSelector(tabSpan), "growx 1");
+
+        TrapezoidFinSet trapObj = (TrapezoidFinSet) component;
+        double x_trail = trapObj.getRootChord() - trapObj.getTipChord() - trapObj.getSweep();
+        double trailingEdgeLength = trapObj.getHeight()*trapObj.getHeight() + x_trail*x_trail;
+        trailingEdgeLength = Math.sqrt(trailingEdgeLength);
+
+		panel.add(new BasicSlider(tabSpan.getSliderModel(DoubleModel.ZERO, trailingEdgeLength)),
 				"w 100lp, growx 5, wrap");
 		
 
 		//// Tab height:
-		label = new JLabel(trans.get("FinSetConfig.lbl.Tabheight"));
+		label = new JLabel("Tab Chord:");
 		//// The span-wise height of the fin tab.
-		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabheight"));
+		label.setToolTipText("");
 		panel.add(label);
 		
-		final DoubleModel tabHeightModel = new DoubleModel(component, "TabHeight", UnitGroup.UNITS_LENGTH, 0, ((FinSet)component).getMaxTabHeight());
-		register(tabHeightModel);
-		component.addChangeListener( tabHeightModel );
-		spin = new JSpinner(tabHeightModel.getSpinnerModel());
+		final DoubleModel tabChordModel = new DoubleModel(component, "TabChord", UnitGroup.UNITS_LENGTH, 0, trapObj.getTipChord());
+		register(tabChordModel);
+		component.addChangeListener( tabChordModel );
+		spin = new JSpinner(tabChordModel.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
-		panel.add(new UnitSelector(tabHeightModel), "growx");
-		panel.add(new BasicSlider(tabHeightModel.getSliderModel(DoubleModel.ZERO, maxTabHeight)),
+
+
+		panel.add(new UnitSelector(tabChordModel), "growx");
+		panel.add(new BasicSlider(tabChordModel.getSliderModel(DoubleModel.ZERO, 1.0/3.0*(trapObj.getTipChord()+trapObj.getRootChord()))),
 				"w 100lp, growx 5, wrap");
 		
 		////  Tab position:
-		label = new JLabel(trans.get("FinSetConfig.lbl.Tabposition"));
+		label = new JLabel("Tab Root Chord Offset:");
 		//// The position of the fin tab.
-		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
+		label.setToolTipText("");
 		panel.add(label);
 		
-		final DoubleModel tabOffset = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
-		register(tabOffset);
-		component.addChangeListener( tabOffset);
-		spin = new JSpinner(tabOffset.getSpinnerModel());
+		component.addChangeListener(tabOffsetFromRoot);
+		spin = new JSpinner(tabOffsetFromRoot.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
 		panel.add(spin, "growx");
 		order.add(((SpinnerEditor) spin.getEditor()).getTextField());
-		
-		panel.add(new UnitSelector(tabOffset), "growx");
-		panel.add(new BasicSlider(tabOffset.getSliderModel(length_2, length2)), "w 100lp, growx 5, wrap");
-		
-		//// relative to
-		label = new JLabel(trans.get("FinSetConfig.lbl.relativeto"));
-		panel.add(label, "right, gapright unrel");
-		
 
-		final EnumModel<AxialMethod> tabOffsetMethod = new EnumModel<>(component, "TabOffsetMethod");
-		register(tabOffsetMethod);
 
-		JComboBox<AxialMethod> enumCombo = new JComboBox<>(tabOffsetMethod);
-		
-		panel.add( enumCombo, "spanx 3, growx, wrap para");
-		order.add(enumCombo);
+		panel.add(new UnitSelector(tabOffsetFromRoot), "growx");
+		panel.add(new BasicSlider(tabOffsetFromRoot.getSliderModel(DoubleModel.ZERO, trailingEdgeLength)), "w 100lp, growx 5, wrap");
 
-		// Calculate fin tab height, length, and position
-		autoCalc = new JButton(trans.get("FinSetConfig.but.AutoCalc"));
-		autoCalc.setToolTipText(trans.get("FinSetConfig.but.AutoCalc.ttip"));
-		
-		autoCalc.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				calculateAutoTab(tabOffsetMethod, tabOffset, tabLength, tabHeightModel);
-			}
-		});
-		panel.add(autoCalc, "skip 1, spanx");
-    	order.add(autoCalc);
 
         masterPanel.add(panel,"top");
         masterPanel.add(showRollTabImage());

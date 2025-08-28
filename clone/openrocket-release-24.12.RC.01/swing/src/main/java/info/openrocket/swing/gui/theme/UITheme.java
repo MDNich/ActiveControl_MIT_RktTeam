@@ -150,6 +150,7 @@ public class UITheme {
         String getComponentIconBodyTube();
         String getComponentIconTransition();
         String getComponentIconTrapezoidFinSet();
+        String getComponentIconTabCtrlTrapezoidFinSet();
         String getComponentIconEllipticalFinSet();
         String getComponentIconFreeformFinSet();
         String getComponentIconTubeFinSet();
@@ -545,6 +546,11 @@ public class UITheme {
             public String getComponentIconTrapezoidFinSet() {
                 return "trapezoidfin";
             }
+            @Override
+            public String getComponentIconTabCtrlTrapezoidFinSet() {
+                return "trapezoidfin";
+            }
+
             @Override
             public String getComponentIconEllipticalFinSet() {
                 return "ellipticalfin";
@@ -960,6 +966,10 @@ public class UITheme {
             public String getComponentIconTrapezoidFinSet() {
                 return "trapezoidfin";
             }
+
+            @Override
+            public String getComponentIconTabCtrlTrapezoidFinSet() { return "tabctrltrapezoidfin"; }
+
             @Override
             public String getComponentIconEllipticalFinSet() {
                 return "ellipticalfin_dark";
@@ -1376,6 +1386,10 @@ public class UITheme {
             @Override
             public String getComponentIconTrapezoidFinSet() {
                 return DARK.getComponentIconTrapezoidFinSet();
+            }
+            @Override
+            public String getComponentIconTabCtrlTrapezoidFinSet() {
+                return DARK.getComponentIconTabCtrlTrapezoidFinSet();
             }
             @Override
             public String getComponentIconEllipticalFinSet() {
@@ -1800,6 +1814,10 @@ public class UITheme {
             @Override
             public String getComponentIconTrapezoidFinSet() {
                 return getCurrentTheme().getComponentIconTrapezoidFinSet();
+            }
+            @Override
+            public String getComponentIconTabCtrlTrapezoidFinSet() {
+                return getCurrentTheme().getComponentIconTabCtrlTrapezoidFinSet();
             }
             @Override
             public String getComponentIconEllipticalFinSet() {

@@ -20,6 +20,7 @@ repositories {
     mavenCentral()
     maven { url = "https://jitpack.io" }
     maven { url = "https://jogamp.org/deployment/maven/" }
+
 }
 
 checkstyle {
@@ -88,7 +89,7 @@ dependencies {
     implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.0'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
 
-    implementation group: 'org.jogamp.gluegen', name: 'gluegen-rt-main', version:'2.5.0'
+    implementation group: 'org.jogamp.gluegen', name: 'gluegen-rt', version: '2.5.0'
     implementation group: 'org.jogamp.jogl', name: 'jogl-all-main', version: '2.5.0'
 
     testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'

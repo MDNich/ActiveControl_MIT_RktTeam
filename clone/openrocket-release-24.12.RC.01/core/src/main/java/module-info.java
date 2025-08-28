@@ -27,8 +27,9 @@ open module info.openrocket.core {
 	requires org.commonmark;
 	requires org.locationtech.jts;
 	requires org.objectweb.asm.commons;
+    //requires info.openrocket.core;
 
-	// TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
+    // TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
 	exports info.openrocket.core.aerodynamics;
 	exports info.openrocket.core.aerodynamics.barrowman;
 	exports info.openrocket.core.appearance;

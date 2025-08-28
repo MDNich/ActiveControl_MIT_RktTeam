@@ -9,32 +9,12 @@ import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.swing.gui.util.GUIUtil;
 import info.openrocket.swing.gui.theme.UITheme;
 
 import info.openrocket.core.l10n.Translator;
-import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.BodyTube;
-import info.openrocket.core.rocketcomponent.Bulkhead;
-import info.openrocket.core.rocketcomponent.CenteringRing;
-import info.openrocket.core.rocketcomponent.EllipticalFinSet;
-import info.openrocket.core.rocketcomponent.EngineBlock;
-import info.openrocket.core.rocketcomponent.FreeformFinSet;
-import info.openrocket.core.rocketcomponent.InnerTube;
-import info.openrocket.core.rocketcomponent.LaunchLug;
-import info.openrocket.core.rocketcomponent.MassComponent;
 import info.openrocket.core.rocketcomponent.MassComponent.MassComponentType;
-import info.openrocket.core.rocketcomponent.NoseCone;
-import info.openrocket.core.rocketcomponent.Parachute;
-import info.openrocket.core.rocketcomponent.ParallelStage;
-import info.openrocket.core.rocketcomponent.PodSet;
-import info.openrocket.core.rocketcomponent.RailButton;
-import info.openrocket.core.rocketcomponent.ShockCord;
-import info.openrocket.core.rocketcomponent.Streamer;
-import info.openrocket.core.rocketcomponent.Transition;
-import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
-import info.openrocket.core.rocketcomponent.TubeCoupler;
-import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.startup.Application;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
@@ -52,6 +32,7 @@ public class ComponentIcons {
 	private static String bodyTube;
 	private static String transition;
 	private static String trapezoidFinSet;
+	private static String tabCtrlTrapezoidFinSet;
 	private static String ellipticalFinSet;
 	private static String freeformFinSet;
 	private static String tubeFinSet;
@@ -93,6 +74,7 @@ public class ComponentIcons {
 		load(transition, trans.get("ComponentIcons.Transition"), Transition.class);
 		//// Trapezoidal fin set
 		load(trapezoidFinSet, trans.get("ComponentIcons.Trapezoidalfinset"), TrapezoidFinSet.class);
+		load(tabCtrlTrapezoidFinSet, "Tab Controlled Trapezoidal Fin Set", TabControlledTrapezoidFinSet.class);
 		//// Elliptical fin set
 		load(ellipticalFinSet, trans.get("ComponentIcons.Ellipticalfinset"), EllipticalFinSet.class);
 		//// Freeform fin set
@@ -155,6 +137,7 @@ public class ComponentIcons {
 		bodyTube = GUIUtil.getUITheme().getComponentIconBodyTube();
 		transition = GUIUtil.getUITheme().getComponentIconTransition();
 		trapezoidFinSet = GUIUtil.getUITheme().getComponentIconTrapezoidFinSet();
+		tabCtrlTrapezoidFinSet = GUIUtil.getUITheme().getComponentIconTabCtrlTrapezoidFinSet();
 		ellipticalFinSet = GUIUtil.getUITheme().getComponentIconEllipticalFinSet();
 		freeformFinSet = GUIUtil.getUITheme().getComponentIconFreeformFinSet();
 		tubeFinSet = GUIUtil.getUITheme().getComponentIconTubeFinSet();
