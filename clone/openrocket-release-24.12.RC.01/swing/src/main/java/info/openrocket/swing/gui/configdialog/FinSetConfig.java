@@ -1,23 +1,21 @@
 package info.openrocket.swing.gui.configdialog;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SwingUtilities;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -312,15 +310,19 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 
 	private JPanel finTabPanel_rollControl() {
+        JPanel masterPanel = new JPanel(new MigLayout());
+
+
 		JPanel panel = new JPanel(
 				new MigLayout("gap rel unrel, ins 25lp",
 						"[100lp::][65lp::][30lp::][200lp::]", ""));
 		//		JPanel panel = new JPanel(new MigLayout("fillx, align 20% 20%, gap rel unrel",
 		//				"[40lp][80lp::][30lp::][100lp::]",""));
-		
+
+        panel.setBorder(BorderFactory.createTitledBorder("In-fin tabs for Roll Control"));
+
 		//// In-fin fin tabs:
-		panel.add(new StyledLabel("In-fin tabs for Roll Control:", Style.BOLD),
-				"spanx, wrap 30lp");
+		panel.add(new StyledLabel("Parameters:", Style.BOLD),"spanx, wrap 30lp");
 		
 		JLabel label;
 		DoubleModel length;
@@ -342,9 +344,9 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		
 		////  Tab length
 		//// Tab length:
-		label = new JLabel(trans.get("FinSetConfig.lbl.Tablength"));
+		label = new JLabel("");
 		//// The length of the fin tab.
-		label.setToolTipText(trans.get("FinSetConfig.ttip.Tablength"));
+		label.setToolTipText("");
 		panel.add(label);
 		
 		final DoubleModel tabLength = new DoubleModel(component, "TabLength", UnitGroup.UNITS_LENGTH, 0);
@@ -420,8 +422,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		});
 		panel.add(autoCalc, "skip 1, spanx");
     	order.add(autoCalc);
+
+        masterPanel.add(panel,"top");
+        masterPanel.add(showRollTabImage());
+        //panel.add(showRollTabImage(), "span, grow, wrap");
 		
-		return panel;
+		return masterPanel;
 	}
 
 	private void calculateAutoTab(EnumModel<AxialMethod> tabOffsetMethod, DoubleModel tabOffset, DoubleModel tabLength,
@@ -760,7 +766,36 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 	    return filletPanel;
 	}
 
-	/**
+
+
+    protected JPanel showRollTabImage(){
+
+        JPanel rollTabImagePanel = new JPanel(new FlowLayout());//"", "[][65lp::][30lp::]"));
+        //String tip = "Working Directory = " + System.getProperty("user.dir");
+        rollTabImagePanel.setBorder(BorderFactory.createTitledBorder("Layout of Roll Control Tabs"));
+        //rollTabImagePanel.add(new JLabel(tip));
+
+
+
+
+        BufferedImage myPicture = null;
+
+        try {
+            myPicture = ImageIO.read(new File("etc/tabCtrlLayout_invert.png"));
+        } catch (IOException e) {
+            System.out.println("Unable to load image :(");
+        }
+        JLabel picLabel = new JLabel(new ImageIcon(new ImageIcon(myPicture).getImage().getScaledInstance(400, 400,  Image.SCALE_DEFAULT)));
+        rollTabImagePanel.add(picLabel);
+
+
+        return rollTabImagePanel;
+    }
+
+
+
+
+    /**
 	 * Writes the FinSet object to an SVG file.
 	 *
 	 * @param finSet      the FinSet object to write to the SVG file
