@@ -6,45 +6,9 @@ import java.util.Locale;
 
 import info.openrocket.core.material.Material;
 import info.openrocket.core.preset.ComponentPreset;
-import info.openrocket.core.rocketcomponent.AxialStage;
-import info.openrocket.core.rocketcomponent.BodyComponent;
-import info.openrocket.core.rocketcomponent.BodyTube;
-import info.openrocket.core.rocketcomponent.Bulkhead;
-import info.openrocket.core.rocketcomponent.CenteringRing;
-import info.openrocket.core.rocketcomponent.DeploymentConfiguration;
+import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent;
-import info.openrocket.core.rocketcomponent.DesignType;
-import info.openrocket.core.rocketcomponent.EllipticalFinSet;
-import info.openrocket.core.rocketcomponent.EngineBlock;
-import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.ExternalComponent.Finish;
-import info.openrocket.core.rocketcomponent.FinSet;
-import info.openrocket.core.rocketcomponent.FreeformFinSet;
-import info.openrocket.core.rocketcomponent.InnerTube;
-import info.openrocket.core.rocketcomponent.LaunchLug;
-import info.openrocket.core.rocketcomponent.MassComponent;
-import info.openrocket.core.rocketcomponent.MassObject;
-import info.openrocket.core.rocketcomponent.NoseCone;
-import info.openrocket.core.rocketcomponent.Parachute;
-import info.openrocket.core.rocketcomponent.ParallelStage;
-import info.openrocket.core.rocketcomponent.PodSet;
-import info.openrocket.core.rocketcomponent.RadiusRingComponent;
-import info.openrocket.core.rocketcomponent.RailButton;
-import info.openrocket.core.rocketcomponent.RecoveryDevice;
-import info.openrocket.core.rocketcomponent.ReferenceType;
-import info.openrocket.core.rocketcomponent.RingComponent;
-import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.ShockCord;
-import info.openrocket.core.rocketcomponent.StageSeparationConfiguration;
-import info.openrocket.core.rocketcomponent.Streamer;
-import info.openrocket.core.rocketcomponent.StructuralComponent;
-import info.openrocket.core.rocketcomponent.SymmetricComponent;
-import info.openrocket.core.rocketcomponent.ThicknessRingComponent;
-import info.openrocket.core.rocketcomponent.Transition;
-import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
-import info.openrocket.core.rocketcomponent.TubeCoupler;
-import info.openrocket.core.rocketcomponent.TubeFinSet;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.ORColor;
 import info.openrocket.core.util.LineStyle;
@@ -72,6 +36,7 @@ class DocumentConfig {
 			constructors.put("transition", Transition.class.getConstructor());
 			constructors.put("nosecone", NoseCone.class.getConstructor());
 			constructors.put("trapezoidfinset", TrapezoidFinSet.class.getConstructor());
+			constructors.put("tabctrltrapezoidfinset", TabControlledTrapezoidFinSet.class.getConstructor());
 			constructors.put("ellipticalfinset", EllipticalFinSet.class.getConstructor());
 			constructors.put("freeformfinset", FreeformFinSet.class.getConstructor());
 			constructors.put("tubefinset", TubeFinSet.class.getConstructor());
@@ -300,6 +265,24 @@ class DocumentConfig {
 				Reflection.findMethod(TrapezoidFinSet.class, "setSweep", double.class)));
 		setters.put("TrapezoidFinSet:height", new DoubleSetter(
 				Reflection.findMethod(TrapezoidFinSet.class, "setHeight", double.class)));
+
+        // TabCtrlTrapezoidFinSet
+        setters.put("TabControlledTrapezoidFinSet:rootchord", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setRootChord", double.class)));
+        setters.put("TabControlledTrapezoidFinSet:tipchord", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setTipChord", double.class)));
+        setters.put("TabControlledTrapezoidFinSet:sweeplength", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setSweep", double.class)));
+        setters.put("TabControlledTrapezoidFinSet:height", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setHeight", double.class)));
+        setters.put("TabControlledTrapezoidFinSet:tabspan", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setTabSpan", double.class)));
+        setters.put("TabControlledTrapezoidFinSet:tabchord", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setTabChord", double.class)));
+        setters.put("TabControlledTrapezoidFinSet:taboffset", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setTabOffset", double.class)));
+        setters.put("TabControlledTrapezoidFinSet:tabangle", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setTabAngle", double.class)));
 		
 		// EllipticalFinSet
 		setters.put("EllipticalFinSet:rootchord", new DoubleSetter(
