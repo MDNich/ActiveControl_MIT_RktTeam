@@ -11,6 +11,7 @@ import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
 import info.openrocket.core.util.BugException;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.LinearInterpolator;
@@ -25,6 +26,14 @@ public class FinSetCalc extends RocketComponentCalc {
 	
 	/** Number of divisions in the fin chords. */
 	protected static final int DIVISIONS = 48;
+
+    protected boolean hasTabs = false;
+    public static final double CNALPHA = 1; // TODO: CFD
+    private double tabAngle = 0;
+    private double tabArea;
+    private double momentArm;
+
+
 	
 	protected double macLength = Double.NaN; // MAC length
 	protected double macLead = Double.NaN; // MAC leading edge position
@@ -51,13 +60,23 @@ public class FinSetCalc extends RocketComponentCalc {
 	private final int finCount;
 	private final double cantAngle;
 	private final FinSet.CrossSection crossSection;
-	
+
+
 	/**
 	 * builds a calculator of aerodynamic forces a specified fin
 	 * @param component		The fin in consideration
 	 */
 	public FinSetCalc(FinSet component) {
 		super(component);
+
+
+        if (component instanceof  TabControlledTrapezoidFinSet) {
+            this.hasTabs = true;
+            TabControlledTrapezoidFinSet tabFinSet = (TabControlledTrapezoidFinSet) component;
+            this.tabAngle = tabFinSet.getTabAngle();
+            this.tabArea = tabFinSet.getTabChord()*tabFinSet.getTabSpan();
+            this.momentArm = tabFinSet.getTabOffset() + tabFinSet.getTabSpan()/2;
+        }
 
 		this.thickness = component.getThickness();
 		this.bodyRadius = component.getBodyRadius();
@@ -71,6 +90,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		calculateFinGeometry(component);
 		calculatePoly();
 		calculateInterferenceFinCount(component);
+
 	}
 	
 	/*
@@ -196,6 +216,17 @@ public class FinSetCalc extends RocketComponentCalc {
 		//		}
 		forces.setCside(0);
 		forces.setCyaw(0);
+
+
+
+
+        // if tabs
+        if (this.hasTabs) {
+
+            double Q = 0.5 * conditions.getAtmosphericConditions().getDensity() * pow2(conditions.getVelocity());
+            double torquing_force = Q * CNALPHA * this.finCount * tabArea * Math.sin(tabAngle);
+            double moment = this.momentArm * torquing_force;
+        }
 		
 	}
 	

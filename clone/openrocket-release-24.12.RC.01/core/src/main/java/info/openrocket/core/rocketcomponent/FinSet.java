@@ -736,7 +736,7 @@ public abstract class FinSet extends ExternalComponent
 	 *
 	 * @return area centroid coordinates (weight is the area)
 	 */
-	private Coordinate calculateSinglePlanformCentroid(){
+    Coordinate calculateSinglePlanformCentroid(){
 		final Coordinate finLead = getFinFront();
 		final double xFinTrail = finLead.x+getLength();
 
@@ -1646,7 +1646,7 @@ public abstract class FinSet extends ExternalComponent
 		return buf;
 	}
 
-	private void calculateCM(){
+	protected void calculateCM(){
 		final Coordinate wettedCentroid = calculateSinglePlanformCentroid();
 		this.singlePlanformArea = wettedCentroid.weight;
 		final double wettedVolume = wettedCentroid.weight * thickness * crossSection.getRelativeVolume();
