@@ -1,6 +1,6 @@
 #!/usr/local/python3
 
-# MUST BE RUN FROM TOP LEVEL WORKI_VELNG DIRECTORY: 'sim'.
+# MUST BE RUN FROM TOP LEVEL WORKING DIRECTORY: 'sim'.
 import os
 from time import sleep
 from Simplified_plant_dynamics import *
