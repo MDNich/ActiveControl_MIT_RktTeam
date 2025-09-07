@@ -103,6 +103,10 @@ public class FinSetCalc extends RocketComponentCalc {
 			AerodynamicForces forces, WarningSet warnings) {
 		
 		warnings.addAll(geometryWarnings);
+
+        /*if (this.hasTabs) {
+            this.CNALPHA = this.CNALPHA; // adjust if CNAlpha depends on conditions
+        }*/
 		
 		if (finArea < MathUtil.EPSILON || macSpan < MathUtil.EPSILON) {
 			forces.setCm(0);
