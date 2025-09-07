@@ -11,3 +11,6 @@
 # INPUTS: S (control surface area) Ensure that the most up-to-date rocket geometry and CFD values are used.
 S = 0.1  # Control surface area [m^2]
 y = 0.5  # Distance from the center of mass to the control surface [m]
+
+
+# Todo: continue work.
