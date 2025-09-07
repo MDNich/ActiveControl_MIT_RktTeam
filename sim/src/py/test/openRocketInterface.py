@@ -35,7 +35,7 @@ os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 
 import threading
 
-VELMINTHRESH = 16
+VELMINTHRESH = 15
 TURBULENCE = 0
 # VEL PID
 KP_VEL = 10
