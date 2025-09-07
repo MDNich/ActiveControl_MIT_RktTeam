@@ -31,6 +31,7 @@ public class TabControlledTrapezoidFinSetSaver extends FinSetSaver {
         elements.add("<tabchord>" + fins.getTabChord() + "</tabchord>");
         elements.add("<taboffset>" + fins.getTabOffset() + "</taboffset>");
         elements.add("<tabangle>" + fins.getTabAngle() + "</tabangle>");
+        elements.add("<tabCNA>" + fins.getCNALPHA() + "</tabCNA>");
 
 	}
 

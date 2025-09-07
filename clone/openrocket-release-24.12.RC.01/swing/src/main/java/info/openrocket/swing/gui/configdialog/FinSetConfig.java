@@ -827,14 +827,14 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 
         BufferedImage myPicture = null;
-
+        JLabel picLabel;
         try {
             myPicture = ImageIO.read(new File("etc/tabCtrlLayout_invert.png"));
+            picLabel = new JLabel(new ImageIcon(new ImageIcon(myPicture).getImage().getScaledInstance(400, 400,  Image.SCALE_DEFAULT)));
+            rollTabImagePanel.add(picLabel);
         } catch (IOException e) {
             System.out.println("Unable to load image :(");
         }
-        JLabel picLabel = new JLabel(new ImageIcon(new ImageIcon(myPicture).getImage().getScaledInstance(400, 400,  Image.SCALE_DEFAULT)));
-        rollTabImagePanel.add(picLabel);
 
 
         return rollTabImagePanel;

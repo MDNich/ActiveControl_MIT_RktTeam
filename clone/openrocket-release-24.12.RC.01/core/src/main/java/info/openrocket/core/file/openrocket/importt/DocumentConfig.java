@@ -283,7 +283,9 @@ class DocumentConfig {
                 Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setTabOffset", double.class)));
         setters.put("TabControlledTrapezoidFinSet:tabangle", new DoubleSetter(
                 Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setTabAngle", double.class)));
-		
+		setters.put("TabControlledTrapezoidFinSet:tabCNA", new DoubleSetter(
+                Reflection.findMethod(TabControlledTrapezoidFinSet.class, "setCNALPHA", double.class)));
+
 		// EllipticalFinSet
 		setters.put("EllipticalFinSet:rootchord", new DoubleSetter(
 				Reflection.findMethod(EllipticalFinSet.class, "setLength", double.class)));
