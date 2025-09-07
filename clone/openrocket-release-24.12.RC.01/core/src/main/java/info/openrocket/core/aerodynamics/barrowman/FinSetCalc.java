@@ -70,12 +70,12 @@ public class FinSetCalc extends RocketComponentCalc {
 		super(component);
 
 
-        if (component instanceof  TabControlledTrapezoidFinSet) {
+        if (component instanceof TabControlledTrapezoidFinSet) {
             this.hasTabs = true;
             TabControlledTrapezoidFinSet tabFinSet = (TabControlledTrapezoidFinSet) component;
             this.tabAngle = tabFinSet.getTabAngle();
             this.tabArea = tabFinSet.getTabChord()*tabFinSet.getTabSpan();
-            this.momentArm = tabFinSet.getBodyRadius() +  tabFinSet.getTabOffset() + tabFinSet.getTabSpan()/2; // todo get rocket tube size
+            this.momentArm = tabFinSet.getBodyRadius() +  tabFinSet.getTabOffset() + tabFinSet.getTabSpan()/2;
             this.CNALPHA = tabFinSet.getCNALPHA();
         }
 
