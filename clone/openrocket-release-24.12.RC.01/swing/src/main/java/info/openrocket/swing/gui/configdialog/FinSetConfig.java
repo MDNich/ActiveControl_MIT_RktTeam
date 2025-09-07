@@ -364,17 +364,21 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		DoubleModel tabChord;
 		DoubleModel tabOffsetFromRoot;
 		DoubleModel tabAngle;
+		DoubleModel CNAlpha;
 		JSpinner spin;
 		JButton autoCalc;
 		
 		tabSpan = new DoubleModel(component, "TabSpan", UnitGroup.UNITS_LENGTH, 0);
 		tabOffsetFromRoot = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH, 0);
 		tabChord = new DoubleModel(component, "TabChord", UnitGroup.UNITS_LENGTH, 0);
-		tabAngle = new DoubleModel(component, "TabAngle", UnitGroup.UNITS_LENGTH, 0);
+		tabAngle = new DoubleModel(component, "TabAngle",UnitGroup.UNITS_ANGLE, -Math.PI/4, Math.PI/4);
+        CNAlpha = new DoubleModel(component, "CNALPHA",UnitGroup.UNITS_COEFFICIENT, 0, 5);
 
 		register(tabSpan);
 		register(tabChord);
 		register(tabOffsetFromRoot);
+		register(tabAngle);
+		register(CNAlpha);
 
 		////  Tab length
 		//// Tab length:
@@ -433,6 +437,38 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 		panel.add(new UnitSelector(tabOffsetFromRoot), "growx");
 		panel.add(new BasicSlider(tabOffsetFromRoot.getSliderModel(DoubleModel.ZERO, trailingEdgeLength)), "w 100lp, growx 5, wrap");
+
+        ////  Tab angle:
+        label = new JLabel("Tab Angle:");
+        //// The position of the fin tab.
+        label.setToolTipText("");
+        panel.add(label);
+
+        component.addChangeListener(tabAngle);
+        spin = new JSpinner(tabAngle.getSpinnerModel());
+        spin.setEditor(new SpinnerEditor(spin));
+        panel.add(spin, "growx");
+        order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+
+        panel.add(new UnitSelector(tabAngle), "growx");
+        panel.add(new BasicSlider(tabAngle.getSliderModel(DoubleModel.ZERO, Math.PI/4)), "w 100lp, growx 5, wrap");
+
+        ///  CNALPHA
+        label = new JLabel("Coefficient CNAlpha:");
+        //// The position of the fin tab.
+        label.setToolTipText("");
+        panel.add(label);
+
+        component.addChangeListener(CNAlpha);
+        spin = new JSpinner(CNAlpha.getSpinnerModel());
+        spin.setEditor(new SpinnerEditor(spin));
+        panel.add(spin, "growx");
+        order.add(((SpinnerEditor) spin.getEditor()).getTextField());
+
+
+
+
 
 
         masterPanel.add(panel,"top");

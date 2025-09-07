@@ -19,6 +19,7 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet{
     private double tabChord;
     private double tabOffset; // Offset from the root of the fin to the root of the tab
     private double tabAngle; // Angle from plane of the fin in radians
+    private double CNALPHA; // Angle from plane of the fin in radians
 
     // simple constructor.
     public TabControlledTrapezoidFinSet() {
@@ -159,6 +160,16 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet{
         this.tabOffset = tabOffset;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
     }
+
+
+    public double getCNALPHA() {
+        return this.CNALPHA;
+    }
+    public void setCNALPHA(double newCna) {
+        this.CNALPHA = newCna;
+        fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+    }
+
 
     @Override
     public String getComponentName() {

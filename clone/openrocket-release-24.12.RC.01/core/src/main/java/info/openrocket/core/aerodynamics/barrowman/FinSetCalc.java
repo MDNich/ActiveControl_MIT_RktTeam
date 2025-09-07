@@ -28,7 +28,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	protected static final int DIVISIONS = 48;
 
     protected boolean hasTabs = false;
-    public static final double CNALPHA = 1; // TODO: CFD
+    private double CNALPHA = 1; // TODO: CFD
     private double tabAngle = 0;
     private double tabArea;
     private double momentArm;
@@ -75,7 +75,8 @@ public class FinSetCalc extends RocketComponentCalc {
             TabControlledTrapezoidFinSet tabFinSet = (TabControlledTrapezoidFinSet) component;
             this.tabAngle = tabFinSet.getTabAngle();
             this.tabArea = tabFinSet.getTabChord()*tabFinSet.getTabSpan();
-            this.momentArm = tabFinSet.getTabOffset() + tabFinSet.getTabSpan()/2;
+            this.momentArm = tabFinSet.getBodyRadius() +  tabFinSet.getTabOffset() + tabFinSet.getTabSpan()/2; // todo get rocket tube size
+            this.CNALPHA = tabFinSet.getCNALPHA();
         }
 
 		this.thickness = component.getThickness();
@@ -218,14 +219,12 @@ public class FinSetCalc extends RocketComponentCalc {
 		forces.setCyaw(0);
 
 
-
-
         // if tabs
         if (this.hasTabs) {
-
-            double Q = 0.5 * conditions.getAtmosphericConditions().getDensity() * pow2(conditions.getVelocity());
-            double torquing_force = Q * CNALPHA * this.finCount * tabArea * Math.sin(tabAngle);
-            double moment = this.momentArm * torquing_force;
+            forces.setCroll(forces.getCroll() + CNALPHA * this.finCount * tabArea * this.momentArm *
+                    Math.sin(tabAngle) / conditions.getRefArea() / conditions.getRefLength());
+            forces.setCDaxial(forces.getCDaxial() + CNALPHA * this.finCount * tabArea * this.momentArm *
+                    Math.cos(tabAngle) / conditions.getRefArea());
         }
 		
 	}
