@@ -3,6 +3,7 @@ package info.openrocket.core.simulation.listeners;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.ArrayList;
@@ -24,16 +25,18 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 
-
-
-
 	public static SimulationStatus initialStat = null;
 	public static SimulationStatus latestStatus = null;
 	public static double latestTimeStep = -1;
 	public static double IdecayFactor = 1;
-	public static double servoStepCount = 1023.0;
-	public static double invVelSqCoeff = 1;
+	public static double servoStepCount = 4097.0; // number of discrete steps the servo can make
+    public static final double servoRangeAngleDeg = 120.0; // total range of motion of the servo
+    public static final double SERVO_REFRESH_TIME = 1520e-6; // seconds
+    public static double invVelSqCoeff = 1;
 	public static double iniVel = 10.0;
+
+
+    public static boolean simulateUsingTabs = true;
 
 	public static FinSet theFinsToModify = null;
 
@@ -43,6 +46,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public static ArrayList<Double> pastOmegaZ;
 	public static ArrayList<Double> pastThetaZ;
 	public static ArrayList<Double> finCantLog;
+	public static ArrayList<Double> finTabAngleLog;
+	public static ArrayList<Double> rocketVelMagnitudeLog;
 
 	public static Rocket theRocket;
 
@@ -54,6 +59,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 	// THESE WILL BE MODIFIED FROM PYTHON
+    public static boolean flagPrintDebugMsg = false;
 	public static boolean useRK6 = true;
 	public static boolean roundToNearest5 = true;
 	public static double velMinThresh = 20;
@@ -71,6 +77,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public static double desiredRotAng = 0;
 	public static double constFixed = 0;
 
+    public static double lastServoCommandTimestamp = 0;
 
 
 	public static boolean velocityPIDon = true;
@@ -82,6 +89,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		pastOmegaZ = new ArrayList<>();
 		pastThetaZ = new ArrayList<>();
 		finCantLog = new ArrayList<>();
+		finTabAngleLog = new ArrayList<>();
+        rocketVelMagnitudeLog = new ArrayList<>();
 		datIsReadyToCollect = new Flag();
 		readyToProceed = new Flag();
 	}
@@ -111,16 +120,32 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 		//System.out.println("Controller Engaged");
 
-		theFinsToModify  = getTheFinsToModify(status);
-		if (status.getRocketVelocity().length() > velMinThresh) {
-			setCantOfFinDeg(finCantController(status));
-		}
-		else {
-			setCantOfFinDeg(0);
-		}
-		pastOmegaZ.add(status.getRocketRotationVelocity().z);
-		pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
-		finCantLog.add(getCantOfFinDeg());
+        if(!simulateUsingTabs) {
+            theFinsToModify = getTheFinsToModify(status);
+            if (status.getRocketVelocity().length() > velMinThresh) {
+                setCantOfFinDeg(finCantController(status));
+            } else {
+                setCantOfFinDeg(0);
+            }
+            pastOmegaZ.add(status.getRocketRotationVelocity().z);
+            pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
+            finCantLog.add(getCantOfFinDeg());
+        }
+
+        else { // using tabs
+            theFinsToModify = getTheFinsToModifyTabs(status);
+            if (status.getRocketVelocity().length() > velMinThresh) {
+                setFinTabAngle(finCantController_Tabs(status));
+            } else {
+                setFinTabAngle(0);
+            }
+            pastOmegaZ.add(status.getRocketRotationVelocity().z);
+            pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
+            finTabAngleLog.add(getFinTabAngle());
+            rocketVelMagnitudeLog.add(status.getRocketVelocity().length());
+        }
+
+
 
 		if (status.apogeeReached) {
 			throw new SimulationException("Apogee => done");
@@ -170,7 +195,50 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	}
 
 
-	// don't worry about it
+
+    public static double finCantController_Tabs(SimulationStatus currentStat) {
+
+        double currentSpeed = currentStat.getRocketVelocity().length();
+        if(currentSpeed < velMinThresh) {
+            System.out.println("SHOULD NEVER GET HERE");
+            return 0;
+        }
+        double previousAngle = getFinTabAngle();
+        double translatVel = currentStat.getRocketVelocity().length();
+        double rotVel = currentStat.getRocketRotationVelocity().z;
+        double rotAng = toDegrees(toEulerAngles(currentStat.getRocketOrientationQuaternion()).z);
+        double lastRotVel = lastStat.getRocketRotationVelocity().z;
+        double lastRotAng = toDegrees(toEulerAngles(lastStat.getRocketOrientationQuaternion()).z);
+        double lastErrVel = desiredRotVel - lastRotVel;
+        double lastErrAng = desiredRotAng - lastRotAng;
+        double errVel = desiredRotVel - rotVel;
+        double errAng = desiredRotAng - rotAng;
+
+        lastStat = currentStat.clone();
+        double thrusting = constFixed;
+
+        if (velocityPIDon) {
+            totErrVel = errVel + totErrVel * IdecayFactor;
+
+            thrusting += errVel * kP_VEL;
+            thrusting += (errVel - lastErrVel) * kD_VEL;
+            thrusting += totErrVel * kI_VEL;
+        }
+        if (positionPIDon) {
+            totErrAng = errAng + totErrAng * IdecayFactor;
+
+            thrusting += errAng * kP_ANG;
+            thrusting += (errAng - lastErrAng) * kD_ANG;
+            thrusting += totErrAng * kI_ANG;
+        }
+
+        return thrusting;
+
+    }
+
+
+
+    // don't worry about it
 	public static FinSet getTheFinsToModify(SimulationStatus status) {
 		ArrayList<FinSet> finSets = new ArrayList<>();
 		Rocket rocket = status.getConfiguration().getRocket();
@@ -186,7 +254,42 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		return finSets.get(0);
 	}
 
+    // don't worry about it
+    public static FinSet getTheFinsToModifyTabs(SimulationStatus status) {
+        ArrayList<FinSet> finSets = new ArrayList<>();
+        Rocket rocket = status.getConfiguration().getRocket();
+        for (Iterator<RocketComponent> it = rocket.iterator(true); it.hasNext(); ) {
+            RocketComponent component = it.next();
 
+            if(component instanceof TabControlledTrapezoidFinSet) {
+                finSets.add((FinSet) component);
+            }
+
+
+        }
+        return finSets.get(0);
+    }
+
+
+
+
+    public static void setFinTabAngle(double newAngle) {
+        double stepSize = servoRangeAngleDeg/servoStepCount;
+        double numStepsFromZero = (int) (newAngle/stepSize);
+        if (latestStatus.getSimulationTime() - lastServoCommandTimestamp < SERVO_REFRESH_TIME) {
+            return; // no command allowed.
+        }
+        ((TabControlledTrapezoidFinSet) theFinsToModify).setTabAngle(Math.PI/180*numStepsFromZero*stepSize);
+        lastServoCommandTimestamp = latestStatus.getSimulationTime();
+        if (flagPrintDebugMsg) {
+            System.out.println("[JAVA] Actuated a servo change to " + newAngle + " degrees, which is " + numStepsFromZero + " steps.");
+        }
+    }
+    public static double getFinTabAngle() {
+        //double stepSize = servoRangeAngleDeg/servoStepCount;
+        //double numStepsFromZero = (int) (newAngle/stepSize);
+       return ((TabControlledTrapezoidFinSet) theFinsToModify).getTabAngle()*180/PI;
+    }
 
 
 	public static void setCantOfFinDeg(double newCant) {
