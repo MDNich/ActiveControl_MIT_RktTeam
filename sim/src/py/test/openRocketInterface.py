@@ -32,33 +32,44 @@ logging.getLogger().addHandler(ColorHandler())
 #os.environ['JAVA_HOME'] = '/opt/homebrew/Cellar/openjdk/23.0.2'
 os.environ['CLASSPATH'] = './out/OpenRocket.jar'
 
+"""
+KP_VEL = 3
+KI_VEL = 0#.1#0.75
+KD_VEL = .1
+# ANG PID
+KP_ANG = 2
+KI_ANG = 0#.1#0.75
+KD_ANG = 1
+"""
+
+
 
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 20
+TURBULENCE = 0
 USE_TABS = True
 CONST_FIXED = 0
 # VEL PID
-KP_VEL = 10
+KP_VEL = 3
 KI_VEL = 0#.1#0.75
-KD_VEL = 0.1
+KD_VEL = .1
 # ANG PID
-KP_ANG = 0
+KP_ANG = 5
 KI_ANG = 0#.1#0.75
-KD_ANG = 0
+KD_ANG = 0.1
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
 DESIRED_ROT_ANG = 0
 overrideI = True
 getPID_from_plant = False
-useVelocityPID = False
-usePositionPID = False
-showControlCutoffLine = False
+useVelocityPID = True
+usePositionPID = True
+showControlCutoffLine = useVelocityPID or usePositionPID#True
 USE_RK6 = True
 ROUND_5 = False
-SERVO_STEP_COUNT = int(1e6) # Large number means very small steps, effectively continuous.
+SERVO_STEP_COUNT = int(1024) # Large number means very small steps, effectively continuous.
 DEBUG_JAVA_MSG = False
 
 
@@ -342,6 +353,7 @@ if True:
     thetaZ = np.array(newCtrl.pastThetaZ)
     finCantLog = np.array(newCtrl.finCantLog)
     finTabAngleLog = np.array(newCtrl.finTabAngleLog)
+    smoothTabAngleHist = finTabAngleLog#np.array(newCtrl.desiredFinTabAngleLog)
 
     finHistory = finCantLog if not USE_TABS else finTabAngleLog
 
@@ -369,7 +381,7 @@ if True:
     apogeeInd = alt.argmax()
     np.set_printoptions(legacy='1.13')
     velMagProcess = velMagnitude[int(len(t)/4):apogeeInd]
-    controlCutoffIndex = int(len(t)/4) + np.where(velMagProcess < VELMINTHRESH)[0][0] if np.any(velMagProcess < VELMINTHRESH) else len(velMagProcess)-1
+    controlCutoffIndex = np.argmin(np.abs(velMagProcess - VELMINTHRESH)) + int(len(t)/4)
     controlCutoffTime = t[controlCutoffIndex]
     #print("Got cutoff time: {} s at index {}, velMag: {}".format(controlCutoffTime,controlCutoffIndex,velMagnitude[controlCutoffIndex]))
     #print(finCantLog[:apogeeInd])
@@ -412,9 +424,10 @@ if True:
     ax2.set_ylabel("Ang Velocity")
     ax3 = ax2.twinx()
     ax3.plot(t[:apogeeInd],finHistory[:apogeeInd],label="Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)',color='purple',alpha=0.7)
+    ax3.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=1)
     if DESIRED_ROT_VEL == 0:
         ax3.plot(t[:apogeeInd],thetaZ[:apogeeInd],label="Angular Position",color='purple',linestyle='dotted',alpha=0.7)
-    ax3.set_ylim(-1e1,1e1)
+    ax3.set_ylim(-1e2,1e2)
     if showControlCutoffLine:
         ax2.vlines(controlCutoffTime,-1e4,1e4,color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
     ax3.set_yscale('symlog',linthresh=1e-1)
