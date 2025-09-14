@@ -31,7 +31,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public static double IdecayFactor = 1;
 	public static double servoStepCount = 4097.0; // number of discrete steps the servo can make
     public static final double servoRangeAngleDeg = 120.0; // total range of motion of the servo
-    public static final double SERVO_REFRESH_TIME = 1520e-6; // seconds
+    public static final double SERVO_REFRESH_TIME = 2e-2; // seconds
     public static double invVelSqCoeff = 1;
 	public static double iniVel = 10.0;
 
@@ -47,6 +47,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 	public static ArrayList<Double> pastThetaZ;
 	public static ArrayList<Double> finCantLog;
 	public static ArrayList<Double> finTabAngleLog;
+	public static ArrayList<Double> desiredFinTabAngleLog;
 	public static ArrayList<Double> rocketVelMagnitudeLog;
 
 	public static Rocket theRocket;
@@ -90,6 +91,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		pastThetaZ = new ArrayList<>();
 		finCantLog = new ArrayList<>();
 		finTabAngleLog = new ArrayList<>();
+        desiredFinTabAngleLog = new ArrayList<>();
         rocketVelMagnitudeLog = new ArrayList<>();
 		datIsReadyToCollect = new Flag();
 		readyToProceed = new Flag();
@@ -136,8 +138,10 @@ public class NewControlStepListener extends AbstractSimulationListener {
             theFinsToModify = getTheFinsToModifyTabs(status);
             if (status.getRocketVelocity().length() > velMinThresh) {
                 setFinTabAngle(finCantController_Tabs(status));
+                desiredFinTabAngleLog.add(finCantController_Tabs(status));
             } else {
                 setFinTabAngle(0);
+                desiredFinTabAngleLog.add(0.0);
             }
             pastOmegaZ.add(status.getRocketRotationVelocity().z);
             pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
