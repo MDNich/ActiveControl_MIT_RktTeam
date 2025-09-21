@@ -64,8 +64,8 @@ DESIRED_ROT_VEL = 0
 DESIRED_ROT_ANG = 0
 overrideI = True
 getPID_from_plant = False
-useVelocityPID = True
-usePositionPID = True
+useVelocityPID = False
+usePositionPID = False
 showControlCutoffLine = useVelocityPID or usePositionPID#True
 USE_RK6 = True
 ROUND_5 = False
@@ -90,8 +90,8 @@ if not useVelocityPID:
     KI_VEL = 0
     KD_VEL = 0
 
-figPath = 'dat/demonstrator_4/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
-CSVSAVEPATH = 'dat/demonstrator_4/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+figPath = 'dat/demonstrator_5/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+CSVSAVEPATH = 'dat/demonstrator_5/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
 
 
 # Start
@@ -104,7 +104,7 @@ worldCoordClass = or_obj.util.WorldCoordinate
 quatClass = or_obj.util.Quaternion
 
 # Load rocket
-doc, rktObj = loadRocket(orh, 'demonstrator_4.ork')
+doc, rktObj = loadRocket(orh, 'demonstrator_5.ork')
 
 newCtrl = or_obj.simulation.listeners.NewControlStepListener
 
@@ -120,8 +120,8 @@ logging.info(flightConfig)
 sim = doc.getSimulation(3)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/demonstrator_4_out_long.csv'
-#figPath = 'dat/simResults/demonstrator_4_out_long.pdf'
+datPath = 'dat/simResults/demonstrator_5_out_long.csv'
+#figPath = 'dat/simResults/demonstrator_5_out_long.pdf'
 
 
 # Get all components, filter for fins.
@@ -326,8 +326,8 @@ if True:
         print("Using PID coefficients from plant dynamics.")
 
         if usePositionPID:
-            figPath = 'dat/demonstrator_4/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
-            CSVSAVEPATH = 'dat/demonstrator_4/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+            figPath = 'dat/demonstrator_5/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+            CSVSAVEPATH = 'dat/demonstrator_5/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
 
             newCtrl.kP_ANG = KP_ANG_gen
             newCtrl.kI_ANG = KI_ANG_gen
