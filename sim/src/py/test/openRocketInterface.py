@@ -47,7 +47,7 @@ KD_ANG = 1
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 0
+TURBULENCE = 5
 USE_TABS = True
 CONST_FIXED = 0
 # VEL PID
@@ -55,9 +55,9 @@ KP_VEL = 3
 KI_VEL = 0#.1#0.75
 KD_VEL = .1
 # ANG PID
-KP_ANG = 2
+KP_ANG = 0.25
 KI_ANG = 0#.1#0.75
-KD_ANG = 1
+KD_ANG = 2
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
@@ -65,7 +65,7 @@ DESIRED_ROT_ANG = 0
 overrideI = True
 getPID_from_plant = False
 useVelocityPID = False
-usePositionPID = False
+usePositionPID = True
 showControlCutoffLine = useVelocityPID or usePositionPID#True
 USE_RK6 = True
 ROUND_5 = False
