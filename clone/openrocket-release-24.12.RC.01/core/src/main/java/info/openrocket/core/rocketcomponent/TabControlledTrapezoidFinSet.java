@@ -5,13 +5,15 @@ import info.openrocket.core.util.Coordinate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Math.*;
+
 /**
  * A set of trapezoidal fins with tabs used for roll control.
  *
  * @author Marc D NICHITIU <nichitiu@mit.edu>
  */
 
-public class TabControlledTrapezoidFinSet extends TrapezoidFinSet{
+public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
 
     // Units are in meters.
 
@@ -175,6 +177,37 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet{
     public String getComponentName() {
         //// Trapezoidal fin set
         return "Tab Controlled Trapezoidal Fin Set";
+    }
+
+    public Coordinate[] getRollCtrlTabPoints() {
+        List<Coordinate> points = new ArrayList<>(4);
+
+        // Root of the tab is offset from the root of the fin by tabOffset
+
+        // horiz travel of trailing edge is rootChord - tipChord - sweep
+        // angle of trailing edge is thus atan((rootChord - tipChord - sweep)/height)
+
+        //double trailingEdgeAng = Math.PI/4;///atan((this.getRootChord() - this.getTipChord() - this.getSweep())/this.getSpan());
+
+        double horizTravel = Math.abs(this.getRootChord() - this.getTipChord() - this.getSweep());
+        double trailingEdgeAng =  atan(this.getHeight()/horizTravel);
+        System.out.println(trailingEdgeAng);
+
+        if (this.getTipChord() + this.getSweep() > this.getRootChord()) {
+            // then the trailing edge is slanting the other way.
+            trailingEdgeAng = Math.PI-trailingEdgeAng;
+        }
+
+
+
+        double cosA = cos(trailingEdgeAng);
+
+        points.add(new Coordinate(this.getRootChord()-cos(trailingEdgeAng)*tabOffset, sin(trailingEdgeAng)*tabOffset));
+        points.add(new Coordinate(this.getRootChord()-cos(trailingEdgeAng)*tabOffset - sin(trailingEdgeAng)*tabChord, sin(trailingEdgeAng)*tabOffset-cos(trailingEdgeAng)*tabChord));
+        points.add(new Coordinate(this.getRootChord()-cos(trailingEdgeAng)*(tabOffset+tabSpan) - sin(trailingEdgeAng)*tabChord, sin(trailingEdgeAng)*(tabOffset + tabSpan)-cos(trailingEdgeAng)*tabChord));
+        points.add(new Coordinate(this.getRootChord()-cos(trailingEdgeAng)*(tabOffset+tabSpan), sin(trailingEdgeAng)*(tabOffset + tabSpan)));
+
+        return points.toArray(new Coordinate[0]);
     }
 
 

@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
@@ -55,6 +56,14 @@ public class FinSetShapes extends RocketComponentShapes {
 
         // Make fin polygon
         shapeList.add(new RocketComponentShapes(generatePath(tabPoints), finset));
+
+        if (finset instanceof TabControlledTrapezoidFinSet) {
+            // Make fin polygon
+            TabControlledTrapezoidFinSet trapFinSet = (TabControlledTrapezoidFinSet) finset;
+            Coordinate[] rollCtrlTabPoints = trapFinSet.getRollCtrlTabPoints();
+            rollCtrlTabPoints = compositeTransform.transform( rollCtrlTabPoints );
+            shapeList.add(new RocketComponentShapes(generatePath(rollCtrlTabPoints), trapFinSet));
+        }
 
         // Make fin polygon
         shapeList.add(new RocketComponentShapes(generatePath(rootPoints), finset));

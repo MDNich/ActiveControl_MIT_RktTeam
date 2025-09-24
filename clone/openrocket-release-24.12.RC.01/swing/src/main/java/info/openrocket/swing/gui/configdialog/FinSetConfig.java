@@ -824,10 +824,6 @@ public abstract class FinSetConfig extends RocketComponentConfig {
         rollTabImagePanel.setBorder(BorderFactory.createTitledBorder("Layout of Roll Control Tabs"));
         //rollTabImagePanel.add(new JLabel(tip));
 
-
-
-
-        BufferedImage myPicture = null;
         JLabel picLabel;
         URL url = ClassLoader.getSystemResource("pix/tabCtrlLayout_invert.png");
         ImageIcon icon = new ImageIcon(url, "Tab Control Layout");
