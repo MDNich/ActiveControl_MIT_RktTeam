@@ -26,6 +26,7 @@ import info.openrocket.swing.gui.components.SVGOptionPanel;
 import info.openrocket.swing.gui.dialogs.preferences.PreferencesDialog;
 import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.util.FileHelper;
+import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.widgets.GroupableAndSearchableComboBox;
 import info.openrocket.swing.gui.widgets.MaterialComboBox;
@@ -828,13 +829,12 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
         BufferedImage myPicture = null;
         JLabel picLabel;
-        try {
-            myPicture = ImageIO.read(new File("etc/tabCtrlLayout_invert.png"));
-            picLabel = new JLabel(new ImageIcon(new ImageIcon(myPicture).getImage().getScaledInstance(400, 400,  Image.SCALE_DEFAULT)));
-            rollTabImagePanel.add(picLabel);
-        } catch (IOException e) {
-            System.out.println("Unable to load image :(");
-        }
+        URL url = ClassLoader.getSystemResource("pix/tabCtrlLayout_invert.png");
+        ImageIcon icon = new ImageIcon(url, "Tab Control Layout");
+        ImageIcon scaledIcon = (ImageIcon) Icons.getScaledIcon(icon, 0.5);
+        picLabel = new JLabel(scaledIcon);
+        rollTabImagePanel.add(picLabel);
+
 
 
         return rollTabImagePanel;
