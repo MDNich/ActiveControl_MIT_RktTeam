@@ -47,29 +47,29 @@ KD_ANG = 1
 import threading
 
 VELMINTHRESH = 15
-TURBULENCE = 5
+TURBULENCE = 10
 USE_TABS = True
 CONST_FIXED = 0
 # VEL PID
-KP_VEL = 3
-KI_VEL = 0#.1#0.75
-KD_VEL = .1
+KP_VEL = 10
+KI_VEL = 0.#.1#0.75
+KD_VEL = 1
 # ANG PID
-KP_ANG = 0.25
+KP_ANG = 0
 KI_ANG = 0#.1#0.75
-KD_ANG = 2
+KD_ANG = 0#0.05
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
 DESIRED_ROT_ANG = 0
 overrideI = True
 getPID_from_plant = False
-useVelocityPID = False
+useVelocityPID = True
 usePositionPID = True
 showControlCutoffLine = useVelocityPID or usePositionPID#True
 USE_RK6 = True
 ROUND_5 = False
-SERVO_STEP_COUNT = int(1024) # Large number means very small steps, effectively continuous.
+SERVO_STEP_COUNT = int(1024)#int(1024) # Large number means very small steps, effectively continuous.
 DEBUG_JAVA_MSG = False
 
 
@@ -431,6 +431,7 @@ if True:
     if showControlCutoffLine:
         ax2.vlines(controlCutoffTime,-1e4,1e4,color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
     ax3.set_yscale('symlog',linthresh=1e-1)
+    ax3.set_ylim(-1e1,1e1)
     if DESIRED_ROT_VEL == 0:
         ax3.set_ylabel("Fin Cant, Angular Position" if not USE_TABS else 'Fin Tab Angle, Angular Position (deg)')
     else:
@@ -441,7 +442,7 @@ if True:
     ax2.yaxis.label.set_color('red')
     ax2.tick_params(axis='y', colors='red')
     ax3.tick_params(axis='y', colors='purple')
-    ax2.set_yscale('symlog',linthresh=1e-2)
+    #ax2.set_yscale('symlog',linthresh=1e-2)
 
     maxLim2 = max(*np.abs(ax2.get_ylim()))
     maxLim3 = max(*np.abs(ax3.get_ylim()))

@@ -12,6 +12,7 @@ import info.openrocket.core.util.Quaternion;
 
 import java.util.Iterator;
 
+import static info.openrocket.core.simulation.listeners.ControllerState.*;
 import static java.lang.Math.*;
 
 /**
@@ -22,8 +23,12 @@ import static java.lang.Math.*;
  */
 public class NewControlStepListener extends AbstractSimulationListener {
 
-
-
+    public static ControllerState currentState = HALTED;
+    public static double targetAngle;
+    public static double movingStartTime;
+    public static double ctrlOut;
+    public static double iniAngle;
+    public static double degPerSec = 300; // really 300 deg/sec
 
 	public static SimulationStatus initialStat = null;
 	public static SimulationStatus latestStatus = null;
@@ -95,6 +100,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
         rocketVelMagnitudeLog = new ArrayList<>();
 		datIsReadyToCollect = new Flag();
 		readyToProceed = new Flag();
+        currentState = HALTED;
 	}
 
 
@@ -104,6 +110,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		status.copySimStatParameters(initialStat);
 		super.startSimulation(status);
 		lastStat = status.clone();
+        currentState = READY;
 
 	}
 
@@ -113,6 +120,58 @@ public class NewControlStepListener extends AbstractSimulationListener {
 		lastStat = status.clone();
 		return super.preStep(status);
 	}
+
+    public void postStepAction(SimulationStatus status) {
+        if (simulateUsingTabs) {
+            switch (currentState) {
+                case HALTED:
+                    if (status.getRocketVelocity().length() > velMinThresh) {
+                        currentState = READY;
+                        System.out.println("Exiting HALTED state");
+                    }
+                    break;
+                case READY:
+                    theFinsToModify = getTheFinsToModifyTabs(status);
+                    if (status.getRocketVelocity().length() > velMinThresh) {
+                        iniAngle = getFinTabAngle();
+                        ctrlOut = finCantController_Tabs(status);
+                        if (Math.abs(iniAngle-ctrlOut) > servoRangeAngleDeg/servoStepCount) {
+                            targetAngle = ctrlOut;
+                            movingStartTime = status.getSimulationTime();
+                            currentState = MOVING;
+                            System.out.println("STARTING MOVING PROC: current angle " + iniAngle + ", target angle " + targetAngle + ", time " + movingStartTime);
+                        }
+                    }
+                    else {
+                        currentState = HALTED;
+                        setFinTabAngle(0);
+                        System.out.println("Entering HALTED state");
+                    }
+                    break;
+                case MOVING:
+                    int factor = targetAngle > iniAngle ?  1 : -1;
+                    double angleToSet = iniAngle + factor*degPerSec*(status.getSimulationTime() - movingStartTime);
+                    if (iniAngle < targetAngle) {
+                        if (angleToSet >= targetAngle) {
+                            angleToSet = targetAngle;
+                            System.out.println("Reached target " + targetAngle + " delta t " + (status.getSimulationTime() - movingStartTime));
+                            currentState = READY;
+                        }
+                    }
+                    else if (iniAngle > targetAngle) {
+                        if (angleToSet <= targetAngle) {
+                            angleToSet = targetAngle;
+                            System.out.println("Reached target " + targetAngle + " delta t " + (status.getSimulationTime() - movingStartTime));
+                            currentState = READY;
+                        }
+                    }
+                    // low-level
+                    setFinTabAngleDumb(angleToSet);
+                    break;
+            }
+        }
+    }
+
 
 	@Override
 	public void postStep(SimulationStatus status) throws SimulationException {
@@ -135,17 +194,14 @@ public class NewControlStepListener extends AbstractSimulationListener {
         }
 
         else { // using tabs
-            theFinsToModify = getTheFinsToModifyTabs(status);
-            if (status.getRocketVelocity().length() > velMinThresh) {
-                setFinTabAngle(finCantController_Tabs(status));
-                desiredFinTabAngleLog.add(finCantController_Tabs(status));
-            } else {
-                setFinTabAngle(0);
-                desiredFinTabAngleLog.add(0.0);
-            }
+
+            postStepAction(status);
+
+
             pastOmegaZ.add(status.getRocketRotationVelocity().z);
             pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
             finTabAngleLog.add(getFinTabAngle());
+            desiredFinTabAngleLog.add(finCantController(status));
             rocketVelMagnitudeLog.add(status.getRocketVelocity().length());
         }
 
@@ -288,6 +344,14 @@ public class NewControlStepListener extends AbstractSimulationListener {
         if (flagPrintDebugMsg) {
             System.out.println("[JAVA] Actuated a servo change to " + newAngle + " degrees, which is " + numStepsFromZero + " steps.");
         }
+    }
+
+    public static void setFinTabAngleDumb(double newAngle) {
+        if (latestStatus.getSimulationTime() - lastServoCommandTimestamp < SERVO_REFRESH_TIME) {
+            return; // no command allowed.
+        }
+        ((TabControlledTrapezoidFinSet) theFinsToModify).setTabAngle(Math.PI/180*newAngle);
+        lastServoCommandTimestamp = latestStatus.getSimulationTime();
     }
     public static double getFinTabAngle() {
         //double stepSize = servoRangeAngleDeg/servoStepCount;
