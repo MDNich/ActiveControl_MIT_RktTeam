@@ -46,31 +46,32 @@ KD_ANG = 1
 
 import threading
 
-VELMINTHRESH = 15
-TURBULENCE = 10
+VELMINTHRESH = 40
+TURBULENCE = 17.5
 USE_TABS = True
 CONST_FIXED = 0
 # VEL PID
 KP_VEL = 10
-KI_VEL = 0.#.1#0.75
+KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
 # ANG PID
-KP_ANG = 0
+KP_ANG = 0.08
 KI_ANG = 0#.1#0.75
-KD_ANG = 0#0.05
+KD_ANG = 0.05
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
 DESIRED_ROT_ANG = 0
 overrideI = True
 getPID_from_plant = False
-useVelocityPID = True
+useVelocityPID = False
 usePositionPID = True
 showControlCutoffLine = useVelocityPID or usePositionPID#True
 USE_RK6 = True
 ROUND_5 = False
 SERVO_STEP_COUNT = int(1024)#int(1024) # Large number means very small steps, effectively continuous.
 DEBUG_JAVA_MSG = False
+DEG_PER_SEC = 300
 
 
 
@@ -293,6 +294,7 @@ if True:
 
 
     newCtrl.constFixed = CONST_FIXED
+    newCtrl.degPerSec = DEG_PER_SEC
 
     # get PID coefficients from algorithm generating.
 
@@ -420,9 +422,9 @@ if True:
 
 
 
-    ax2.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity (Rad/s)",color='red')
-    ax2.set_ylabel("Ang Velocity")
-    ax3 = ax2.twinx()
+    #ax2.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity (Rad/s)",color='red')
+    #ax2.set_ylabel("Ang Velocity")
+    ax3 = ax2#.twinx()
     ax3.plot(t[:apogeeInd],finHistory[:apogeeInd],label="Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)',color='purple',alpha=0.7)
     ax3.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=1)
     if DESIRED_ROT_VEL == 0:
@@ -430,27 +432,27 @@ if True:
     ax3.set_ylim(-1e2,1e2)
     if showControlCutoffLine:
         ax2.vlines(controlCutoffTime,-1e4,1e4,color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
-    ax3.set_yscale('symlog',linthresh=1e-1)
+    #ax3.set_yscale('symlog',linthresh=1e-1)
     ax3.set_ylim(-1e1,1e1)
     if DESIRED_ROT_VEL == 0:
         ax3.set_ylabel("Fin Cant, Angular Position" if not USE_TABS else 'Fin Tab Angle, Angular Position (deg)')
     else:
         ax3.set_ylabel("Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)')
-    ax3.spines['right'].set_color('purple')
-    ax3.spines['left'].set_color('red')
+    ax3.spines['left'].set_color('purple')
+    #ax3.spines['left'].set_color('red')
     ax3.yaxis.label.set_color('purple')
-    ax2.yaxis.label.set_color('red')
-    ax2.tick_params(axis='y', colors='red')
+    #ax2.yaxis.label.set_color('red')
+    #ax2.tick_params(axis='y', colors='red')
     ax3.tick_params(axis='y', colors='purple')
     #ax2.set_yscale('symlog',linthresh=1e-2)
 
     maxLim2 = max(*np.abs(ax2.get_ylim()))
     maxLim3 = max(*np.abs(ax3.get_ylim()))
-    ax2.set_ylim(-maxLim2,maxLim2)
+    #ax2.set_ylim(-maxLim2,maxLim2)
     ax3.set_ylim(-maxLim3,maxLim3)
-    ax2.set_xlim(*ax2.get_xlim())
-    ax2.set_ylim(-50,50)
-    ax2.hlines(0,*ax2.get_xlim(),color='k',linestyle='dotted')
+    #ax2.set_xlim(*ax2.get_xlim())
+    #ax2.set_ylim(-50,50)
+    #ax2.hlines(0,*ax2.get_xlim(),color='k',linestyle='dotted')
 
     ax2.set_xlabel("Time (s)")
     ax3.legend(loc='upper right')

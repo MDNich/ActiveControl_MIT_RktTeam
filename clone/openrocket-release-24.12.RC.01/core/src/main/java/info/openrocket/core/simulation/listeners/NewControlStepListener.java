@@ -135,7 +135,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
                     if (status.getRocketVelocity().length() > velMinThresh) {
                         iniAngle = getFinTabAngle();
                         ctrlOut = finCantController_Tabs(status);
-                        if (Math.abs(iniAngle-ctrlOut) > servoRangeAngleDeg/servoStepCount) {
+                        if (Math.abs(iniAngle-ctrlOut) > 1.5*servoRangeAngleDeg/servoStepCount) {
                             targetAngle = ctrlOut;
                             movingStartTime = status.getSimulationTime();
                             currentState = MOVING;
@@ -201,7 +201,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
             pastOmegaZ.add(status.getRocketRotationVelocity().z);
             pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
             finTabAngleLog.add(getFinTabAngle());
-            desiredFinTabAngleLog.add(finCantController(status));
+            desiredFinTabAngleLog.add(finCantController_Tabs(status,true));
             rocketVelMagnitudeLog.add(status.getRocketVelocity().length());
         }
 
@@ -254,13 +254,12 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 	}
 
-
-
-    public static double finCantController_Tabs(SimulationStatus currentStat) {
-
+    public static double finCantController_Tabs(SimulationStatus currentStat, boolean flagOk) {
         double currentSpeed = currentStat.getRocketVelocity().length();
         if(currentSpeed < velMinThresh) {
-            System.out.println("SHOULD NEVER GET HERE");
+            if(!flagOk) {
+                System.out.println("SHOULD NEVER GET HERE");
+            }
             return 0;
         }
         double previousAngle = getFinTabAngle();
@@ -291,9 +290,10 @@ public class NewControlStepListener extends AbstractSimulationListener {
             thrusting += (errAng - lastErrAng) * kD_ANG;
             thrusting += totErrAng * kI_ANG;
         }
-
         return thrusting;
-
+    }
+    public static double finCantController_Tabs(SimulationStatus currentStat) {
+        return finCantController_Tabs(currentStat,false);
     }
 
 

@@ -373,7 +373,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		tabOffsetFromRoot = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH, 0);
 		tabChord = new DoubleModel(component, "TabChord", UnitGroup.UNITS_LENGTH, 0);
 		tabAngle = new DoubleModel(component, "TabAngle",UnitGroup.UNITS_ANGLE, -Math.PI/4, Math.PI/4);
-        CNAlpha = new DoubleModel(component, "CNALPHA",UnitGroup.UNITS_COEFFICIENT, 0, 5);
+        CNAlpha = new DoubleModel(component, "CNALPHA",UnitGroup.UNITS_COEFFICIENT, 0, 10);
 
 		register(tabSpan);
 		register(tabChord);
