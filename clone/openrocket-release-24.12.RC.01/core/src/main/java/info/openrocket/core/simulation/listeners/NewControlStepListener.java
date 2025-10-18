@@ -30,98 +30,140 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static double iniAngle;
     public static double degPerSec = 300; // really 300 deg/sec
 
-	public static SimulationStatus initialStat = null;
-	public static SimulationStatus latestStatus = null;
-	public static double latestTimeStep = -1;
-	public static double IdecayFactor = 1;
-	public static double servoStepCount = 4097.0; // number of discrete steps the servo can make
+    public static SimulationStatus initialStat = null;
+    public static SimulationStatus latestStatus = null;
+    public static double latestTimeStep = -1;
+    public static double IdecayFactor = 1;
+    public static double servoStepCount = 4097.0; // number of discrete steps the servo can make
     public static final double servoRangeAngleDeg = 120.0; // total range of motion of the servo
-    public static final double SERVO_REFRESH_TIME = 2e-2; // seconds
+    public static double SERVO_REFRESH_TIME = 2e-10; // seconds
     public static double invVelSqCoeff = 1;
-	public static double iniVel = 10.0;
+    public static double iniVel = 10.0;
 
 
     public static boolean simulateUsingTabs = true;
 
-	public static FinSet theFinsToModify = null;
+    public static FinSet theFinsToModify = null;
 
-	public static Flag datIsReadyToCollect;
-	public static Flag readyToProceed;
+    public static Flag datIsReadyToCollect;
+    public static Flag readyToProceed;
 
-	public static ArrayList<Double> pastOmegaZ;
-	public static ArrayList<Double> pastThetaZ;
-	public static ArrayList<Double> finCantLog;
-	public static ArrayList<Double> finTabAngleLog;
-	public static ArrayList<Double> desiredFinTabAngleLog;
-	public static ArrayList<Double> rocketVelMagnitudeLog;
+    public static ArrayList<Double> pastOmegaZ;
+    public static ArrayList<Double> pastThetaZ;
+    public static ArrayList<Double> finCantLog;
+    public static ArrayList<Double> finTabAngleLog;
+    public static ArrayList<Double> desiredFinTabAngleLog;
+    public static ArrayList<Double> rocketVelMagnitudeLog;
 
-	public static Rocket theRocket;
-
-
-	public static SimulationStatus lastStat = null;
-
-	public static double totErrVel = 0;
-	public static double totErrAng = 0;
+    public static Rocket theRocket;
 
 
-	// THESE WILL BE MODIFIED FROM PYTHON
+    public static SimulationStatus lastStat = null;
+
+    public static double totErrVel = 0;
+    public static double totErrAng = 0;
+
+
+    // THESE WILL BE MODIFIED FROM PYTHON
     public static boolean flagPrintDebugMsg = false;
-	public static boolean useRK6 = true;
-	public static boolean roundToNearest5 = true;
-	public static double velMinThresh = 20;
-	public static double kP_VEL = 0;
-	public static double kP_ANG = 0;
-	public static double kI_VEL = 0;
-	public static double kI_ANG = 0;
-	public static double kD_VEL = 0;
-	public static double kD_ANG = 0;
-	public static double kVelRocket = 0;
-	public static double kVel2Rocket = 0;
-	public static double kVel3Rocket = 0;
-	public static double kAccelRocket = 0;
-	public static double desiredRotVel = 0;
-	public static double desiredRotAng = 0;
-	public static double constFixed = 0;
+    public static boolean useRK6 = true;
+    public static boolean roundToNearest5 = true;
+    public static double velMinThresh = 20;
+    public static double kP_VEL = 0;
+    public static double kP_ANG = 0;
+    public static double kI_VEL = 0;
+    public static double kI_ANG = 0;
+    public static double kD_VEL = 0;
+    public static double kD_ANG = 0;
+    public static double kVelRocket = 0;
+    public static double kVel2Rocket = 0;
+    public static double kVel3Rocket = 0;
+    public static double kAccelRocket = 0;
+    public static double desiredRotVel = 0;
+    public static double desiredRotAng = 0;
+    public static double constFixed = 0;
+
+
+    public static double WIND_EVENT_1_GUST = 10; // delta Z in mrad/sec
+    public static double WIND_EVENT_2_GUST = 20; // delta Z in mrad/sec
+    public static double WIND_EVENT_3_GUST = -40; // delta Z in mrad/sec
+    public static double WIND_EVENT_1_TIMESTAMP = 1.5; // seconds after launch when wind gust hits
+    public static double WIND_EVENT_2_TIMESTAMP = 4; // seconds after launch when wind gust hits
+    public static double WIND_EVENT_3_TIMESTAMP = 7; // seconds after launch when wind gust hits
+    private static boolean didFireWindEvent1 = false;
+    private static boolean didFireWindEvent2 = false;
+    private static boolean didFireWindEvent3 = false;
 
     public static double lastServoCommandTimestamp = 0;
 
 
-	public static boolean velocityPIDon = true;
-	public static boolean positionPIDon = true;
+    public static boolean velocityPIDon = true;
+    public static boolean positionPIDon = true;
+
+    private static double secondToLastTabAngle = 0;
+    private static double lastTabAngle = 0;
 
 
-	public NewControlStepListener() {
-		super();
-		pastOmegaZ = new ArrayList<>();
-		pastThetaZ = new ArrayList<>();
-		finCantLog = new ArrayList<>();
-		finTabAngleLog = new ArrayList<>();
+    public NewControlStepListener() {
+        super();
+        pastOmegaZ = new ArrayList<>();
+        pastThetaZ = new ArrayList<>();
+        finCantLog = new ArrayList<>();
+        finTabAngleLog = new ArrayList<>();
         desiredFinTabAngleLog = new ArrayList<>();
         rocketVelMagnitudeLog = new ArrayList<>();
-		datIsReadyToCollect = new Flag();
-		readyToProceed = new Flag();
+        datIsReadyToCollect = new Flag();
+        readyToProceed = new Flag();
         currentState = HALTED;
-	}
+    }
 
 
-	public static double initial = -1;
-	@Override
-	public void startSimulation(SimulationStatus status) throws SimulationException {
-		status.copySimStatParameters(initialStat);
-		super.startSimulation(status);
-		lastStat = status.clone();
+    public static double initial = -1;
+    @Override
+    public void startSimulation(SimulationStatus status) throws SimulationException {
+        status.copySimStatParameters(initialStat);
+        super.startSimulation(status);
+        lastStat = status.clone();
         currentState = READY;
 
-	}
+    }
 
-	@Override
-	public boolean preStep(SimulationStatus status) throws SimulationException {
-		initial = status.getSimulationTime();
-		lastStat = status.clone();
-		return super.preStep(status);
-	}
+    @Override
+    public boolean preStep(SimulationStatus status) throws SimulationException {
+        initial = status.getSimulationTime();
+        lastStat = status.clone();
+        return super.preStep(status);
+    }
 
     public void postStepAction(SimulationStatus status) {
+        double currentTime = status.getSimulationTime();
+        if(WIND_EVENT_1_TIMESTAMP == ((int) (currentTime*10)/10.0)) {
+            if (!didFireWindEvent1) {
+                windEvent(status,WIND_EVENT_1_GUST);
+                didFireWindEvent1 = true;
+            }
+            if (flagPrintDebugMsg) {
+                System.out.println("WIND EVENT 1 at t=" + currentTime);
+            }
+        }
+        if(WIND_EVENT_2_TIMESTAMP == ((int) (currentTime*10)/10.0)) {
+            if (!didFireWindEvent2) {
+                windEvent(status,WIND_EVENT_2_GUST);
+                didFireWindEvent2 = true;
+            }
+            if (flagPrintDebugMsg) {
+                System.out.println("WIND EVENT 2 at t=" + currentTime);
+            }
+        }
+        if(WIND_EVENT_3_TIMESTAMP == ((int) (currentTime*10)/10.0)) {
+            if (!didFireWindEvent3) {
+                windEvent(status,WIND_EVENT_3_GUST);
+                didFireWindEvent3 = true;
+            }
+            if (flagPrintDebugMsg) {
+                System.out.println("WIND EVENT 3 at t=" + currentTime);
+            }
+        }
         if (simulateUsingTabs) {
             switch (currentState) {
                 case HALTED:
@@ -129,28 +171,41 @@ public class NewControlStepListener extends AbstractSimulationListener {
                         currentState = READY;
                         System.out.println("Exiting HALTED state");
                     }
+                    setFinTabAngleDumb(0);
                     break;
                 case READY:
                     theFinsToModify = getTheFinsToModifyTabs(status);
                     if (status.getRocketVelocity().length() > velMinThresh) {
                         iniAngle = getFinTabAngle();
                         ctrlOut = finCantController_Tabs(status);
+
+
+                        if (latestStatus.getSimulationTime() - lastServoCommandTimestamp < SERVO_REFRESH_TIME) {
+                            System.out.println("too early !! try again in " + (SERVO_REFRESH_TIME - (latestStatus.getSimulationTime() - lastServoCommandTimestamp)) + " seconds");
+                            return; // no command allowed.
+                        }
                         if (Math.abs(iniAngle-ctrlOut) > 1.5*servoRangeAngleDeg/servoStepCount) {
+                            secondToLastTabAngle = 0;
+                            lastTabAngle = 0;
                             targetAngle = ctrlOut;
                             movingStartTime = status.getSimulationTime();
                             currentState = MOVING;
+                            lastServoCommandTimestamp = movingStartTime;
                             System.out.println("STARTING MOVING PROC: current angle " + iniAngle + ", target angle " + targetAngle + ", time " + movingStartTime);
                         }
                     }
                     else {
                         currentState = HALTED;
-                        setFinTabAngle(0);
+                        setFinTabAngleDumb(0);
                         System.out.println("Entering HALTED state");
                     }
                     break;
                 case MOVING:
                     int factor = targetAngle > iniAngle ?  1 : -1;
+
+
                     double angleToSet = iniAngle + factor*degPerSec*(status.getSimulationTime() - movingStartTime);
+
                     if (iniAngle < targetAngle) {
                         if (angleToSet >= targetAngle) {
                             angleToSet = targetAngle;
@@ -173,13 +228,13 @@ public class NewControlStepListener extends AbstractSimulationListener {
     }
 
 
-	@Override
-	public void postStep(SimulationStatus status) throws SimulationException {
-		latestStatus = status.clone();
-		double finTimeStep = status.getSimulationTime();
-		latestTimeStep = finTimeStep - initial;
+    @Override
+    public void postStep(SimulationStatus status) throws SimulationException {
+        latestStatus = status.clone();
+        double finTimeStep = status.getSimulationTime();
+        latestTimeStep = finTimeStep - initial;
 
-		//System.out.println("Controller Engaged");
+        //System.out.println("Controller Engaged");
 
         if(!simulateUsingTabs) {
             theFinsToModify = getTheFinsToModify(status);
@@ -207,52 +262,57 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 
-		if (status.apogeeReached) {
-			throw new SimulationException("Apogee => done");
-		}
+        if (status.apogeeReached) {
+            throw new SimulationException("Apogee => done");
+        }
 
-	}
+    }
 
 
-	public static double finCantController(SimulationStatus currentStat) {
+    public static double finCantController(SimulationStatus currentStat) {
 
-		double currentSpeed = currentStat.getRocketVelocity().length();
-		if(currentSpeed < velMinThresh) {
-			System.out.println("SHOULD NEVER GET HERE");
-			return 0;
-		}
-		double previousCant = theFinsToModify.getCantAngle();
-		double translatVel = currentStat.getRocketVelocity().length();
-		double rotVel = currentStat.getRocketRotationVelocity().z;
-		double rotAng = toDegrees(toEulerAngles(currentStat.getRocketOrientationQuaternion()).z);
-		double lastRotVel = lastStat.getRocketRotationVelocity().z;
-		double lastRotAng = toDegrees(toEulerAngles(lastStat.getRocketOrientationQuaternion()).z);
-		double lastErrVel = desiredRotVel - lastRotVel;
-		double lastErrAng = desiredRotAng - lastRotAng;
-		double errVel = desiredRotVel - rotVel;
-		double errAng = desiredRotAng - rotAng;
+        double currentSpeed = currentStat.getRocketVelocity().length();
+        if(currentSpeed < velMinThresh) {
+            System.out.println("SHOULD NEVER GET HERE");
+            return 0;
+        }
+        double previousCant = theFinsToModify.getCantAngle();
+        double translatVel = currentStat.getRocketVelocity().length();
+        double rotVel = currentStat.getRocketRotationVelocity().z;
+        double rotAng = toDegrees(toEulerAngles(currentStat.getRocketOrientationQuaternion()).z);
+        double lastRotVel = lastStat.getRocketRotationVelocity().z;
+        double lastRotAng = toDegrees(toEulerAngles(lastStat.getRocketOrientationQuaternion()).z);
+        double lastErrVel = desiredRotVel - lastRotVel;
+        double lastErrAng = desiredRotAng - lastRotAng;
+        double errVel = desiredRotVel - rotVel;
+        double errAng = desiredRotAng - rotAng;
 
-		lastStat = currentStat.clone();
-		double thrusting = constFixed;
+        lastStat = currentStat.clone();
+        double thrusting = constFixed;
 
-		if (velocityPIDon) {
-			totErrVel = errVel + totErrVel * IdecayFactor;
+        if (velocityPIDon) {
+            totErrVel = errVel + totErrVel * IdecayFactor;
 
-			thrusting += errVel * kP_VEL;
-			thrusting += (errVel - lastErrVel) * kD_VEL;
-			thrusting += totErrVel * kI_VEL;
-		}
-		if (positionPIDon) {
-			totErrAng = errAng + totErrAng * IdecayFactor;
+            thrusting += errVel * kP_VEL;
+            thrusting += (errVel - lastErrVel) * kD_VEL;
+            thrusting += totErrVel * kI_VEL;
+        }
+        if (positionPIDon) {
+            totErrAng = errAng + totErrAng * IdecayFactor;
 
-			thrusting += errAng * kP_ANG;
-			thrusting += (errAng - lastErrAng) * kD_ANG;
-			thrusting += totErrAng * kI_ANG;
-		}
+            thrusting += errAng * kP_ANG;
+            thrusting += (errAng - lastErrAng) * kD_ANG;
+            thrusting += totErrAng * kI_ANG;
+        }
 
-		return thrusting;
+        return thrusting;
 
-	}
+    }
+
+
+    public static void windEvent(SimulationStatus status,double deltaZ) {
+        status.setRocketRotationVelocity(new Coordinate(status.getRocketRotationVelocity().x,status.getRocketRotationVelocity().y,status.getRocketRotationVelocity().z+deltaZ));
+    }
 
     public static double finCantController_Tabs(SimulationStatus currentStat, boolean flagOk) {
         double currentSpeed = currentStat.getRocketVelocity().length();
@@ -299,20 +359,20 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
     // don't worry about it
-	public static FinSet getTheFinsToModify(SimulationStatus status) {
-		ArrayList<FinSet> finSets = new ArrayList<>();
-		Rocket rocket = status.getConfiguration().getRocket();
+    public static FinSet getTheFinsToModify(SimulationStatus status) {
+        ArrayList<FinSet> finSets = new ArrayList<>();
+        Rocket rocket = status.getConfiguration().getRocket();
         for (Iterator<RocketComponent> it = rocket.iterator(true); it.hasNext(); ) {
             RocketComponent component = it.next();
 
-			if(component instanceof FinSet) {
-				finSets.add((FinSet) component);
-			}
+            if(component instanceof FinSet) {
+                finSets.add((FinSet) component);
+            }
 
 
         }
-		return finSets.get(0);
-	}
+        return finSets.get(0);
+    }
 
     // don't worry about it
     public static FinSet getTheFinsToModifyTabs(SimulationStatus status) {
@@ -347,59 +407,55 @@ public class NewControlStepListener extends AbstractSimulationListener {
     }
 
     public static void setFinTabAngleDumb(double newAngle) {
-        if (latestStatus.getSimulationTime() - lastServoCommandTimestamp < SERVO_REFRESH_TIME) {
-            return; // no command allowed.
-        }
         ((TabControlledTrapezoidFinSet) theFinsToModify).setTabAngle(Math.PI/180*newAngle);
-        lastServoCommandTimestamp = latestStatus.getSimulationTime();
     }
     public static double getFinTabAngle() {
         //double stepSize = servoRangeAngleDeg/servoStepCount;
         //double numStepsFromZero = (int) (newAngle/stepSize);
-       return ((TabControlledTrapezoidFinSet) theFinsToModify).getTabAngle()*180/PI;
+        return ((TabControlledTrapezoidFinSet) theFinsToModify).getTabAngle()*180/PI;
     }
 
 
-	public static void setCantOfFinDeg(double newCant) {
-		double stepSize = 30.0/servoStepCount;
-		double numStepsFromZero = (int) (newCant/stepSize);
-		theFinsToModify.setCantAngle(Math.PI/180*numStepsFromZero*stepSize);
-	}
-	public static void deltaCantOfFinDeg(double deltaCant) {
-		double newCant = getCantOfFinDeg() + deltaCant;
-		theFinsToModify.setCantAngle(Math.PI/180*newCant);
-	}
-	public static double getCantOfFinDeg() {
-		return theFinsToModify.getCantAngle()*180/Math.PI;
-	}
+    public static void setCantOfFinDeg(double newCant) {
+        double stepSize = 30.0/servoStepCount;
+        double numStepsFromZero = (int) (newCant/stepSize);
+        theFinsToModify.setCantAngle(Math.PI/180*numStepsFromZero*stepSize);
+    }
+    public static void deltaCantOfFinDeg(double deltaCant) {
+        double newCant = getCantOfFinDeg() + deltaCant;
+        theFinsToModify.setCantAngle(Math.PI/180*newCant);
+    }
+    public static double getCantOfFinDeg() {
+        return theFinsToModify.getCantAngle()*180/Math.PI;
+    }
 
 
 
 
 
-	public static Coordinate toEulerAngles(Quaternion q) {
+    public static Coordinate toEulerAngles(Quaternion q) {
 
-		// roll (x-axis rotation)
-		double sinr_cosp = 2 * (q.getW() * q.getX() + q.getY() * q.getZ());
-		double cosr_cosp = 1 - 2 * (q.getX() * q.getX() + q.getY() * q.getY());
-		double angleX = atan2(sinr_cosp, cosr_cosp);
+        // roll (x-axis rotation)
+        double sinr_cosp = 2 * (q.getW() * q.getX() + q.getY() * q.getZ());
+        double cosr_cosp = 1 - 2 * (q.getX() * q.getX() + q.getY() * q.getY());
+        double angleX = atan2(sinr_cosp, cosr_cosp);
 
-		// pitch (y-axis rotation)
-		double sinp = sqrt(1 + 2 * (q.getW() * q.getY() - q.getX() * q.getZ()));
-		double cosp = sqrt(1 - 2 * (q.getW() * q.getY() - q.getX() * q.getZ()));
-		double angleY = 2 * atan2(sinp, cosp) - PI / 2;
+        // pitch (y-axis rotation)
+        double sinp = sqrt(1 + 2 * (q.getW() * q.getY() - q.getX() * q.getZ()));
+        double cosp = sqrt(1 - 2 * (q.getW() * q.getY() - q.getX() * q.getZ()));
+        double angleY = 2 * atan2(sinp, cosp) - PI / 2;
 
-		// yaw (z-axis rotation)
-		double siny_cosp = 2 * (q.getW() * q.getZ() + q.getX() * q.getY());
-		double cosy_cosp = 1 - 2 * (q.getY() * q.getY() + q.getZ() * q.getZ());
-		double angleZ = atan2(siny_cosp, cosy_cosp);
+        // yaw (z-axis rotation)
+        double siny_cosp = 2 * (q.getW() * q.getZ() + q.getX() * q.getY());
+        double cosy_cosp = 1 - 2 * (q.getY() * q.getY() + q.getZ() * q.getZ());
+        double angleZ = atan2(siny_cosp, cosy_cosp);
 
-		if (roundToNearest5) {
-			angleX = round(angleX / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
-			angleY = round(angleY / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
-			angleZ = round(angleZ / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
-		}
+        if (roundToNearest5) {
+            angleX = round(angleX / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+            angleY = round(angleY / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+            angleZ = round(angleZ / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+        }
 
-		return new Coordinate(angleX, angleY, angleZ);
-	}
+        return new Coordinate(angleX, angleY, angleZ);
+    }
 }

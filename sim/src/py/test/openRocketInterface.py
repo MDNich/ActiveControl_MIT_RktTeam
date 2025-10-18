@@ -47,7 +47,7 @@ KD_ANG = 1
 import threading
 
 VELMINTHRESH = 40
-TURBULENCE = 17.5
+TURBULENCE = 0
 USE_TABS = True
 CONST_FIXED = 0
 # VEL PID
@@ -55,9 +55,9 @@ KP_VEL = 10
 KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
 # ANG PID
-KP_ANG = 0.08
+KP_ANG = 0.15
 KI_ANG = 0#.1#0.75
-KD_ANG = 0.05
+KD_ANG = 2.1
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
@@ -72,7 +72,14 @@ ROUND_5 = False
 SERVO_STEP_COUNT = int(1024)#int(1024) # Large number means very small steps, effectively continuous.
 DEBUG_JAVA_MSG = False
 DEG_PER_SEC = 300
+REFRESH_TIME = 2e-2
 
+WIND_EVENT_1_TIMESTAMP = 0.7
+WIND_EVENT_2_TIMESTAMP = 1.6
+WIND_EVENT_3_TIMESTAMP = 3
+WIND_EVENT_1_GUST = 6e1
+WIND_EVENT_2_GUST = -4e1
+WIND_EVENT_3_GUST = 3e1
 
 
 if usePositionPID:
@@ -285,9 +292,16 @@ if True:
     newCtrl.desiredRotAng = DESIRED_ROT_ANG
     newCtrl.IdecayFactor = 1
 
+    newCtrl.WIND_EVENT_1_TIMESTAMP = WIND_EVENT_1_TIMESTAMP
+    newCtrl.WIND_EVENT_2_TIMESTAMP = WIND_EVENT_2_TIMESTAMP
+    newCtrl.WIND_EVENT_3_TIMESTAMP = WIND_EVENT_3_TIMESTAMP
+    newCtrl.WIND_EVENT_1_GUST = WIND_EVENT_1_GUST
+    newCtrl.WIND_EVENT_2_GUST = WIND_EVENT_2_GUST
+    newCtrl.WIND_EVENT_3_GUST = WIND_EVENT_3_GUST
+
     newCtrl.velocityPIDon = useVelocityPID
     newCtrl.positionPIDon = usePositionPID
-
+    newCtrl.SERVO_REFRESH_TIME = REFRESH_TIME
     newCtrl.roundToNearest5 = ROUND_5
 
     newCtrl.flagPrintDebugMsg = DEBUG_JAVA_MSG
@@ -419,32 +433,50 @@ if True:
     ax.set_ylabel("Velocity (m/s)")
     ax0.set_ylabel("Altitude (m)")
     ax.hlines(VELMINTHRESH,*ax.get_xlim(),color='k',linestyle='dotted')
-
-
-
-    #ax2.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity (Rad/s)",color='red')
-    #ax2.set_ylabel("Ang Velocity")
     ax3 = ax2#.twinx()
+
+
+    ax4 = ax3.twinx()
+    """ax4.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity (rad/s)",color='red',alpha=0.5,linewidth=2)
+    ax4.set_ylabel("Ang. Velocity (rad/s)")
+    ax4.yaxis.label.set_color('red')
+    ax4.tick_params(axis='y', colors='red')
+    ax3.tick_params(axis='y', colors='purple')
+    ax4.set_ylim(-60,60)
+    ax3.plot([-1],[-1],label="Ang Velocity (rad/s)",color='red',alpha=0.5,linewidth=2)"""
+
+    FLAG = True
+
+    ax4.plot(t[:apogeeInd],thetaZ[:apogeeInd],label="Ang. Pos. (deg)",color='red',alpha=0.5,linewidth=2)
+    ax4.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang. Vel. (rad/s)",color='orange',alpha=1,linewidth=2)
+    ax4.set_ylabel("Ang. Pos. (deg)")
+    ax4.yaxis.label.set_color('red')
+    ax4.tick_params(axis='y', colors='red')
+    ax3.tick_params(axis='y', colors='purple')
+    ax4.set_ylim(-180,180)
+    ax4.set_yticks(np.arange(-180,181,45))
+    #ax4.set_ylim(-1,1)
+    ax4.hlines(DESIRED_ROT_ANG,*ax4.get_xlim(),color='red',linestyle='dotted')
+    ax3.plot([-1],[-1],label="Ang. Pos. (deg)",color='red',alpha=0.5,linewidth=2)
+
     ax3.plot(t[:apogeeInd],finHistory[:apogeeInd],label="Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)',color='purple',alpha=0.7)
     ax3.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=1)
     if DESIRED_ROT_VEL == 0:
-        ax3.plot(t[:apogeeInd],thetaZ[:apogeeInd],label="Angular Position",color='purple',linestyle='dotted',alpha=0.7)
+        if not FLAG:
+            ax3.plot(t[:apogeeInd],thetaZ[:apogeeInd],label="Angular Position",color='purple',linestyle='dotted',alpha=0.7)
     ax3.set_ylim(-1e2,1e2)
     if showControlCutoffLine:
         ax2.vlines(controlCutoffTime,-1e4,1e4,color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
     #ax3.set_yscale('symlog',linthresh=1e-1)
-    ax3.set_ylim(-1e1,1e1)
+    ax3.set_ylim(-3e1,3e1)
     if DESIRED_ROT_VEL == 0:
-        ax3.set_ylabel("Fin Cant, Angular Position" if not USE_TABS else 'Fin Tab Angle, Angular Position (deg)')
+        ax3.set_ylabel("Fin Cant, Angular Position" if not USE_TABS else 'Fin Tab Angle (deg)')
     else:
         ax3.set_ylabel("Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)')
     ax3.spines['left'].set_color('purple')
-    #ax3.spines['left'].set_color('red')
+    ax3.spines['right'].set_color('red')
     ax3.yaxis.label.set_color('purple')
-    #ax2.yaxis.label.set_color('red')
-    #ax2.tick_params(axis='y', colors='red')
-    ax3.tick_params(axis='y', colors='purple')
-    #ax2.set_yscale('symlog',linthresh=1e-2)
+
 
     maxLim2 = max(*np.abs(ax2.get_ylim()))
     maxLim3 = max(*np.abs(ax3.get_ylim()))
@@ -454,15 +486,25 @@ if True:
     #ax2.set_ylim(-50,50)
     #ax2.hlines(0,*ax2.get_xlim(),color='k',linestyle='dotted')
 
+
+
+    ax2.vlines(WIND_EVENT_1_TIMESTAMP, -1e4,1e4,color='green',linewidth=1,label='Wind Gust Events')
+    ax2.vlines(WIND_EVENT_2_TIMESTAMP, -1e4,1e4,color='green',linewidth=1)
+    ax2.vlines(WIND_EVENT_3_TIMESTAMP, -1e4,1e4,color='green',linewidth=1)
+    ax.vlines(WIND_EVENT_1_TIMESTAMP, -1e4,1e4,color='green',linewidth=1,label='Wind Gust Events')
+    ax.vlines(WIND_EVENT_2_TIMESTAMP, -1e4,1e4,color='green',linewidth=1)
+    ax.vlines(WIND_EVENT_3_TIMESTAMP, -1e4,1e4,color='green',linewidth=1)
+
     ax2.set_xlabel("Time (s)")
-    ax3.legend(loc='upper right')
+    ax3.legend(loc='lower right',fontsize=8,ncol=2)
     titleFirstLine = "\\begin{center}\\noindent \\sc Tab-Ctrlled Flight" if USE_TABS else "Cant-Ctrlled Flight"
     titleTurbLine = "; Turb. ${}\\%$".format(TURBULENCE)
     title_vPID_Line = "\\\\[0.25em] $\\omega$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_VEL,KI_VEL,KD_VEL],2)) if useVelocityPID else ""
     title_aPID_Line = "; $\\varphi$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_ANG,KI_ANG,KD_ANG],2)) if usePositionPID else ""
     title_fixed_Line = "; $\\alpha_0={}$".format(np.round(CONST_FIXED,2)) if CONST_FIXED != 0 else ""
     title_suppLine = ("; $\\omega_0={}$".format(np.round(DESIRED_ROT_VEL,2)) if useVelocityPID else "") + ("; $\\varphi_0={}$ ".format(np.round(DESIRED_ROT_ANG,2)) if usePositionPID else "")
-    plt.gcf().suptitle(titleFirstLine +titleTurbLine + title_vPID_Line + title_aPID_Line + title_fixed_Line + title_suppLine + "\\end{center}", fontsize=12)
+    title_windLine = ("\\\\[0.25em] Wind Gusts: {}rad/s at {}s, {}rad/s at {}s, {}rad/s at {}s".format(WIND_EVENT_1_GUST,WIND_EVENT_1_TIMESTAMP,WIND_EVENT_2_GUST,WIND_EVENT_2_TIMESTAMP,WIND_EVENT_3_GUST,WIND_EVENT_3_TIMESTAMP) if (WIND_EVENT_1_TIMESTAMP > 0 or WIND_EVENT_2_TIMESTAMP > 0 or WIND_EVENT_3_TIMESTAMP > 0) else "")
+    plt.gcf().suptitle(titleFirstLine +titleTurbLine + title_vPID_Line + title_aPID_Line + title_fixed_Line + title_suppLine + title_windLine + "\\end{center}", fontsize=12)
 
     plt.savefig(figPath)
     #plt.show()

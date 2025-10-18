@@ -29,6 +29,7 @@ for i in range(len(timeseries)-250):
 	procGyr.append(np.mean(datGyro[i:i+250]))
 
 #plt.plot(timeseries,integratedGyr)
-#plt.plot(timeseries,datGyro)
-plt.plot(timeseries[250:],procGyr)
+plt.plot(timeseries[250:],datGyro[250:],label='unproc')
+plt.plot(timeseries[250:],procGyr,label='proc')
+plt.legend()
 plt.show()
