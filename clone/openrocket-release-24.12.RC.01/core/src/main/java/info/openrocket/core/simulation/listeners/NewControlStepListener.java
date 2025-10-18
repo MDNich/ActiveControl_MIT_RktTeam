@@ -26,6 +26,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static ControllerState currentState = HALTED;
     public static double targetAngle;
     public static double movingStartTime;
+    public static double lastIterTime;
     public static double ctrlOut;
     public static double iniAngle;
     public static double degPerSec = 300; // really 300 deg/sec
@@ -104,6 +105,16 @@ public class NewControlStepListener extends AbstractSimulationListener {
     private static double lastTabAngle = 0;
 
 
+
+
+
+    public static final double B0 = 7.73e3;
+    public static final double B1 = -94.34;
+    public static final double A0 = 7.73e3;
+    public static final double A1 = 180.4;
+    public static final double A2 = 2.068;
+
+
     public NewControlStepListener() {
         super();
         pastOmegaZ = new ArrayList<>();
@@ -125,6 +136,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
         super.startSimulation(status);
         lastStat = status.clone();
         currentState = READY;
+        System.out.println("[JAVA] Confirmed reception of PID Coeffs ANG {" + kP_ANG + " " + kI_ANG + " " + kD_ANG + "} ");
 
     }
 
@@ -191,6 +203,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
                             movingStartTime = status.getSimulationTime();
                             currentState = MOVING;
                             lastServoCommandTimestamp = movingStartTime;
+                            lastIterTime = status.getSimulationTime();
                             System.out.println("STARTING MOVING PROC: current angle " + iniAngle + ", target angle " + targetAngle + ", time " + movingStartTime);
                         }
                     }
@@ -204,7 +217,12 @@ public class NewControlStepListener extends AbstractSimulationListener {
                     int factor = targetAngle > iniAngle ?  1 : -1;
 
 
+
                     double angleToSet = iniAngle + factor*degPerSec*(status.getSimulationTime() - movingStartTime);
+
+                    // use second order approx from dynamics.
+                    double dt = latestTimeStep;// status.getSimulationTime() - lastIterTime;
+                    //angleToSet = (B0*targetAngle + A2/dt/dt*(2*lastTabAngle-secondToLastTabAngle) +(A1+B1)/dt*lastTabAngle)/(A2/dt/dt + (A1+B1)/dt + A0 + B0);
 
                     if (iniAngle < targetAngle) {
                         if (angleToSet >= targetAngle) {
@@ -222,6 +240,9 @@ public class NewControlStepListener extends AbstractSimulationListener {
                     }
                     // low-level
                     setFinTabAngleDumb(angleToSet);
+                    secondToLastTabAngle = lastTabAngle;
+                    lastTabAngle = angleToSet;
+                    lastIterTime = status.getSimulationTime();
                     break;
             }
         }
@@ -336,19 +357,24 @@ public class NewControlStepListener extends AbstractSimulationListener {
         lastStat = currentStat.clone();
         double thrusting = constFixed;
 
+        double velToUseForGainSq = currentSpeed*currentSpeed;
+        if (currentSpeed < velMinThresh) {
+            velToUseForGainSq = velMinThresh*velMinThresh;
+        }
+
         if (velocityPIDon) {
             totErrVel = errVel + totErrVel * IdecayFactor;
 
-            thrusting += errVel * kP_VEL;
-            thrusting += (errVel - lastErrVel) * kD_VEL;
-            thrusting += totErrVel * kI_VEL;
+            thrusting += errVel * kP_VEL/velToUseForGainSq;
+            thrusting += (errVel - lastErrVel) * kD_VEL/velToUseForGainSq;
+            thrusting += totErrVel * kI_VEL/velToUseForGainSq;
         }
         if (positionPIDon) {
             totErrAng = errAng + totErrAng * IdecayFactor;
 
-            thrusting += errAng * kP_ANG;
-            thrusting += (errAng - lastErrAng) * kD_ANG;
-            thrusting += totErrAng * kI_ANG;
+            thrusting += errAng * kP_ANG/velToUseForGainSq;
+            thrusting += (errAng - lastErrAng) * kD_ANG/velToUseForGainSq;
+            thrusting += totErrAng * kI_ANG/velToUseForGainSq;
         }
         return thrusting;
     }
@@ -407,6 +433,12 @@ public class NewControlStepListener extends AbstractSimulationListener {
     }
 
     public static void setFinTabAngleDumb(double newAngle) {
+        if (newAngle > 10) {
+            newAngle = 10;
+        }
+        if (newAngle < -10) {
+            newAngle = -10;
+        }
         ((TabControlledTrapezoidFinSet) theFinsToModify).setTabAngle(Math.PI/180*newAngle);
     }
     public static double getFinTabAngle() {

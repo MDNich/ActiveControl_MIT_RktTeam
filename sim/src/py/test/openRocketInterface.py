@@ -44,6 +44,13 @@ KD_ANG = 1
 
 
 
+'''
+KP_ANG = 0.15
+KI_ANG = 0.0005#.1#0.75
+KD_ANG = 2.1
+'''
+
+
 import threading
 
 VELMINTHRESH = 40
@@ -55,14 +62,14 @@ KP_VEL = 10
 KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
 # ANG PID
-KP_ANG = 0.15
-KI_ANG = 0#.1#0.75
-KD_ANG = 2.1
+KP_ANG = 7e3
+KI_ANG = 2.8#.1#0.75
+KD_ANG = 1e5
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
 DESIRED_ROT_ANG = 0
-overrideI = True
+overrideI = False
 getPID_from_plant = False
 useVelocityPID = False
 usePositionPID = True
@@ -77,8 +84,8 @@ REFRESH_TIME = 2e-2
 WIND_EVENT_1_TIMESTAMP = 0.7
 WIND_EVENT_2_TIMESTAMP = 1.6
 WIND_EVENT_3_TIMESTAMP = 3
-WIND_EVENT_1_GUST = 6e1
-WIND_EVENT_2_GUST = -4e1
+WIND_EVENT_1_GUST = 3e1
+WIND_EVENT_2_GUST = -3e1
 WIND_EVENT_3_GUST = 3e1
 
 
@@ -458,9 +465,10 @@ if True:
     #ax4.set_ylim(-1,1)
     ax4.hlines(DESIRED_ROT_ANG,*ax4.get_xlim(),color='red',linestyle='dotted')
     ax3.plot([-1],[-1],label="Ang. Pos. (deg)",color='red',alpha=0.5,linewidth=2)
+    ax3.plot([-1],[-1],label="Ang. Vel. (rad/s)",color='orange',alpha=0.5,linewidth=2)
 
     ax3.plot(t[:apogeeInd],finHistory[:apogeeInd],label="Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)',color='purple',alpha=0.7)
-    ax3.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=1)
+    ax3.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=1,alpha=0.3)
     if DESIRED_ROT_VEL == 0:
         if not FLAG:
             ax3.plot(t[:apogeeInd],thetaZ[:apogeeInd],label="Angular Position",color='purple',linestyle='dotted',alpha=0.7)
@@ -500,7 +508,7 @@ if True:
     titleFirstLine = "\\begin{center}\\noindent \\sc Tab-Ctrlled Flight" if USE_TABS else "Cant-Ctrlled Flight"
     titleTurbLine = "; Turb. ${}\\%$".format(TURBULENCE)
     title_vPID_Line = "\\\\[0.25em] $\\omega$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_VEL,KI_VEL,KD_VEL],2)) if useVelocityPID else ""
-    title_aPID_Line = "; $\\varphi$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_ANG,KI_ANG,KD_ANG],2)) if usePositionPID else ""
+    title_aPID_Line = "; $\\varphi$PID: $\\tt [{}\\cdot 10^3,{},{}\\cdot 10^5]$ ".format(*np.round([KP_ANG/1e3,KI_ANG,KD_ANG/1e5],1)) if usePositionPID else ""
     title_fixed_Line = "; $\\alpha_0={}$".format(np.round(CONST_FIXED,2)) if CONST_FIXED != 0 else ""
     title_suppLine = ("; $\\omega_0={}$".format(np.round(DESIRED_ROT_VEL,2)) if useVelocityPID else "") + ("; $\\varphi_0={}$ ".format(np.round(DESIRED_ROT_ANG,2)) if usePositionPID else "")
     title_windLine = ("\\\\[0.25em] Wind Gusts: {}rad/s at {}s, {}rad/s at {}s, {}rad/s at {}s".format(WIND_EVENT_1_GUST,WIND_EVENT_1_TIMESTAMP,WIND_EVENT_2_GUST,WIND_EVENT_2_TIMESTAMP,WIND_EVENT_3_GUST,WIND_EVENT_3_TIMESTAMP) if (WIND_EVENT_1_TIMESTAMP > 0 or WIND_EVENT_2_TIMESTAMP > 0 or WIND_EVENT_3_TIMESTAMP > 0) else "")
