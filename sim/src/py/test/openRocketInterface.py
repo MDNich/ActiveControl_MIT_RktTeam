@@ -74,13 +74,13 @@ KP_VEL = 10
 KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
 # ANG PID - old for Connor proc were 'kP: 1e3; kI: 4; kD: 1e4'
-KP_ANG = 7e3
+KP_ANG = 0.1
 KI_ANG = 0#2.8#.1#0.75
-KD_ANG = 2e5
+KD_ANG = 1
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
-DESIRED_ROT_ANG = 45
+DESIRED_ROT_ANG = -45
 overrideI = False
 getPID_from_plant = False
 useVelocityPID = False
@@ -512,7 +512,7 @@ if True:
 
     #ax3.plot([-1],[-1],label="Ang. Vel. (rad/s)",color='red',alpha=0.5,linewidth=2)
 
-    ax2.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=2,alpha=0.3)
+    ax2.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=0.5,alpha=1)
     ax2.plot(t[:apogeeInd],finHistory[:apogeeInd],label="Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)',color='purple',alpha=1,linewidth=1)
     ax3.plot([-1],[-1],color='blue',linestyle='dotted',label='Desired Angle')
 
@@ -566,7 +566,7 @@ if True:
     titleFirstLine = "\\begin{center}\\noindent \\sc Tab-Ctrlled Flight" if USE_TABS else "Cant-Ctrlled Flight"
     titleTurbLine = "; Turb. ${}\\%$".format(TURBULENCE)
     title_vPID_Line = "\\\\[0.25em] $\\omega$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_VEL,KI_VEL,KD_VEL],2)) if useVelocityPID else ""
-    title_aPID_Line = "; $\\varphi$PID: $\\tt [{}\\cdot 10^3,{},{}\\cdot 10^4]$ ".format(*np.round([KP_ANG/1e3,KI_ANG,KD_ANG/1e4],1)) if usePositionPID else ""
+    title_aPID_Line = "; $\\varphi$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_ANG,KI_ANG,KD_ANG],1)) if usePositionPID else ""
     title_fixed_Line = "; $\\alpha_0={}$".format(np.round(CONST_FIXED,2)) if CONST_FIXED != 0 else ""
     title_suppLine = ("; $\\omega_0={}$".format(np.round(DESIRED_ROT_VEL,2)) if useVelocityPID else "") + ("; $\\varphi_0={}$ ".format(np.round(DESIRED_ROT_ANG,2)) if usePositionPID else "")
     title_windLine = ("\\\\[0.25em] Wind Gusts: {}rad/s at {}s, {}rad/s at {}s, {}rad/s at {}s".format(WIND_EVENT_1_GUST,WIND_EVENT_1_TIMESTAMP,WIND_EVENT_2_GUST,WIND_EVENT_2_TIMESTAMP,WIND_EVENT_3_GUST,WIND_EVENT_3_TIMESTAMP) if (WIND_EVENT_1_TIMESTAMP > 0 or WIND_EVENT_2_TIMESTAMP > 0 or WIND_EVENT_3_TIMESTAMP > 0) else "")

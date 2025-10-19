@@ -106,13 +106,13 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
 
 
-
+    public static final double refVelSq = 1e4;
 
     public static final double B0 = 7.73e3;
     public static final double B1 = -94.34;
     public static final double A0 = 7.73e3;
     public static final double A1 = 180.4;
-    public static final double A2 = 2.068e-5;
+    public static final double A2 = 2.068;
 
 
     public NewControlStepListener() {
@@ -225,19 +225,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
                     // use second order approx from dynamics.
                     double dt = latestTimeStep;// status.getSimulationTime() - lastIterTime;
                     System.out.println("linear output: " + angleToSet + " dt " + dt);
-                    /*if (targetAngle < lastTabAngle) {
-                        angleToSet = 2*(B0*targetAngle + A2/dt/dt*(2*lastTabAngle-secondToLastTabAngle) + (A1+B1)/dt*lastTabAngle)/(A2/dt/dt + (A1+B1)/dt + A0 + B0);
-                    }
-                    else {
-                        angleToSet = -2*(B0*targetAngle + A2/dt/dt*(2*lastTabAngle-secondToLastTabAngle) + (A1+B1)/dt*lastTabAngle)/(A2/dt/dt + (A1+B1)/dt + A0 + B0);
-                    }
-
-                    if (angleToSet > 5 + lastTabAngle) {
-                        angleToSet = lastTabAngle + 1e-2;
-                    }
-                    if (angleToSet < -5 + lastTabAngle) {
-                        angleToSet = lastTabAngle - 1e-2;
-                    }*/
+                    angleToSet = (B0*angleToSet +A1/dt*lastTabAngle - A2/dt/dt*(-2*lastTabAngle+secondToLastTabAngle))/(A2/dt/dt+A1/dt+A0);
                     System.out.println("Proposed angle: " + angleToSet);
 
 
@@ -399,16 +387,16 @@ public class NewControlStepListener extends AbstractSimulationListener {
         if (velocityPIDon) {
             totErrVel = errVel + totErrVel * IdecayFactor;
 
-            thrusting += errVel * kP_VEL/velToUseForGainSq;
-            thrusting += (errVel - lastErrVel) * kD_VEL/velToUseForGainSq;
-            thrusting += totErrVel * kI_VEL/velToUseForGainSq;
+            thrusting += errVel * kP_VEL*refVelSq/velToUseForGainSq;
+            thrusting += (errVel - lastErrVel) * kD_VEL*refVelSq/velToUseForGainSq;
+            thrusting += totErrVel * kI_VEL*refVelSq/velToUseForGainSq;
         }
         if (positionPIDon) {
             totErrAng = errAng + totErrAng * IdecayFactor;
 
-            thrusting += errAng * kP_ANG/velToUseForGainSq;
-            thrusting += (errAng - lastErrAng) * kD_ANG/velToUseForGainSq;
-            thrusting += totErrAng * kI_ANG/velToUseForGainSq;
+            thrusting += errAng * kP_ANG*refVelSq/velToUseForGainSq;
+            thrusting += (errAng - lastErrAng) * kD_ANG*refVelSq/velToUseForGainSq;
+            thrusting += totErrAng * kI_ANG*refVelSq/velToUseForGainSq;
         }
         return thrusting;
     }

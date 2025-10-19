@@ -34,7 +34,7 @@ public abstract class FinSet extends ExternalComponent
 	/**
 	 * Maximum allowed cant of fins.
 	 */
-	public static final double MAX_CANT_RADIANS = (15.0 * Math.PI / 180);
+	public static final double MAX_CANT_RADIANS = 90*Math.PI/180;// muhahahaha (15.0 * Math.PI / 180);
 
 	/**
 	 * Maximum number of root points in the root geometry.
