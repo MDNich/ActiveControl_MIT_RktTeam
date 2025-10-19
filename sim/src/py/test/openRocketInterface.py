@@ -50,6 +50,18 @@ KI_ANG = 0.0005#.1#0.75
 KD_ANG = 2.1
 '''
 
+'''
+KP_ANG = 7e3
+KI_ANG = 2.8
+KD_ANG = 1e5
+'''
+
+
+'''
+KP_ANG = 1e3
+KI_ANG = 4e0#2.8
+KD_ANG = 1e4
+'''
 
 import threading
 
@@ -61,14 +73,14 @@ CONST_FIXED = 0
 KP_VEL = 10
 KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
-# ANG PID
+# ANG PID - old for Connor proc were 'kP: 1e3; kI: 4; kD: 1e4'
 KP_ANG = 7e3
-KI_ANG = 2.8#.1#0.75
-KD_ANG = 1e5
+KI_ANG = 0#2.8#.1#0.75
+KD_ANG = 2e5
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
-DESIRED_ROT_ANG = 0
+DESIRED_ROT_ANG = 45
 overrideI = False
 getPID_from_plant = False
 useVelocityPID = False
@@ -82,11 +94,11 @@ DEG_PER_SEC = 300
 REFRESH_TIME = 2e-2
 
 WIND_EVENT_1_TIMESTAMP = 0.7
-WIND_EVENT_2_TIMESTAMP = 1.6
+WIND_EVENT_2_TIMESTAMP = 1.5
 WIND_EVENT_3_TIMESTAMP = 3
-WIND_EVENT_1_GUST = 3e1
-WIND_EVENT_2_GUST = -3e1
-WIND_EVENT_3_GUST = 3e1
+WIND_EVENT_1_GUST = 2e1
+WIND_EVENT_2_GUST = -2e1
+WIND_EVENT_3_GUST = 2e1
 
 
 if usePositionPID:
@@ -374,6 +386,11 @@ if True:
 
     omegaZ = np.array(newCtrl.pastOmegaZ)
     thetaZ = np.array(newCtrl.pastThetaZ)
+    realThetaZ = []
+    for i in range(len(omegaZ)):
+        realThetaZ.append(np.sum(omegaZ[:i])*newCtrl.latestTimeStep)
+
+    realThetaZ = np.array(realThetaZ)
     finCantLog = np.array(newCtrl.finCantLog)
     finTabAngleLog = np.array(newCtrl.finTabAngleLog)
     smoothTabAngleHist = np.array(newCtrl.desiredFinTabAngleLog)
@@ -415,23 +432,35 @@ if True:
     print("Saved data to {}".format(CSVSAVEPATH))
 
 
-    fig, axs = plt.subplots(nrows=2,sharex='col')
-    plt.subplots_adjust(right=0.89)
-    ax = axs[0]
-    ax2 = axs[1]
+    #fig, axs = plt.subplots(nrows=3,sharex='col',figsize=(8.5,11/2))
+    fig, axs = plt.subplot_mosaic(
+        [['A'],['A'],
+         ['B'],['B'],['C'],['C'],['C']],figsize=(7,11/2)
+    )
+    plt.subplots_adjust(right=0.91,left=0.1,bottom=0.08,hspace=0.3)
+    ax = axs['A']
+    ax2 = axs['B']
+    ax9 = axs['C']
+    ax.set_xticks([])
+    ax2.set_xticks([])
+
+
     ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
     ax.plot(t[:apogeeInd],velMagnitude[:apogeeInd],label="Velocity Mag.",color='steelblue',linewidth=3,alpha=0.4,zorder=-1)
     ax.set_xlim(t[0],t[apogeeInd-1])
+    ax2.set_xlim(t[0],t[apogeeInd-1])
+    ax9.set_xlim(t[0],t[apogeeInd-1])
     ax.set_ylim(0,ax.get_ylim()[1])
     ax.plot([-1],[-1],label="Altitude",color='red')
-    ax.legend(loc='center right')
+    ax.legend(loc='center right',bbox_to_anchor=(1, 0.61))
     ax0 = ax.twinx()
     ax0.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='red')
     ax0.set_ylim(0,ax0.get_ylim()[1])
     if showControlCutoffLine:
         ax.vlines(controlCutoffTime,0,ax.get_ylim()[1],color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
+        ax9.vlines(controlCutoffTime,-1e10,1e10,color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
 
-    ax0.spines['right'].set_color('red')
+    ax0.spines['right'].set_color('blue')
     ax0.spines['left'].set_color('blue')
     ax0.yaxis.label.set_color('red')
     ax.yaxis.label.set_color('blue')
@@ -440,56 +469,79 @@ if True:
     ax.set_ylabel("Velocity (m/s)")
     ax0.set_ylabel("Altitude (m)")
     ax.hlines(VELMINTHRESH,*ax.get_xlim(),color='k',linestyle='dotted')
-    ax3 = ax2#.twinx()
+    ax3 = ax9.twinx()#9#.twinx()
 
 
-    ax4 = ax3.twinx()
-    """ax4.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity (rad/s)",color='red',alpha=0.5,linewidth=2)
+    ax4 = ax9#.twinx()
+
+    """ax4.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang Velocity (rad/s)",color='blue',alpha=0.5,linewidth=2)
     ax4.set_ylabel("Ang. Velocity (rad/s)")
-    ax4.yaxis.label.set_color('red')
-    ax4.tick_params(axis='y', colors='red')
+    ax4.yaxis.label.set_color('blue')
+    ax4.tick_params(axis='y', colors='blue')
     ax3.tick_params(axis='y', colors='purple')
     ax4.set_ylim(-60,60)
-    ax3.plot([-1],[-1],label="Ang Velocity (rad/s)",color='red',alpha=0.5,linewidth=2)"""
+    ax3.plot([-1],[-1],label="Ang Velocity (rad/s)",color='blue',alpha=0.5,linewidth=2)"""
 
     FLAG = True
-
-    ax4.plot(t[:apogeeInd],thetaZ[:apogeeInd],label="Ang. Pos. (deg)",color='red',alpha=0.5,linewidth=2)
-    ax4.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang. Vel. (rad/s)",color='orange',alpha=1,linewidth=2)
+    ax3.plot([-1],[-1],label="Ang. Pos. (deg)",color='blue',alpha=0.5,linewidth=2)
+    ax3.plot(t[:apogeeInd],omegaZ[:apogeeInd],label="Ang. Vel. (rad/s)",color='red',alpha=0.5,linewidth=2)
+    ax4.plot(t[:apogeeInd],thetaZ[:apogeeInd],label="Ang. Pos. (deg)",color='blue',alpha=0.5,linewidth=2)
+    #ax4.plot(t[:apogeeInd],realThetaZ[:apogeeInd],label="Ang. Pos. (deg)",color='blue',alpha=0.5,linewidth=2)
+    #ax4.plot(t[:apogeeInd],sgf(omegaZ[:apogeeInd],10,2)*10,label="Ang. Accel. (rad/s$^2$)",color='red',alpha=1,linewidth=2)
     ax4.set_ylabel("Ang. Pos. (deg)")
-    ax4.yaxis.label.set_color('red')
-    ax4.tick_params(axis='y', colors='red')
-    ax3.tick_params(axis='y', colors='purple')
+    ax4.yaxis.label.set_color('blue')
+    ax2.yaxis.label.set_color('blue')
+    ax4.tick_params(axis='y', colors='blue')
+    ax2.tick_params(axis='y', colors='blue')
     ax4.set_ylim(-180,180)
     ax4.set_yticks(np.arange(-180,181,45))
     #ax4.set_ylim(-1,1)
-    ax4.hlines(DESIRED_ROT_ANG,*ax4.get_xlim(),color='red',linestyle='dotted')
-    ax3.plot([-1],[-1],label="Ang. Pos. (deg)",color='red',alpha=0.5,linewidth=2)
-    ax3.plot([-1],[-1],label="Ang. Vel. (rad/s)",color='orange',alpha=0.5,linewidth=2)
+    ax4.hlines(DESIRED_ROT_ANG,*ax3.get_xlim(),color='blue',linestyle='dotted',label='Desired Angle')
+    ax3.set_ylabel("Ang. Vel. (rad/s)")
+    ax3.yaxis.label.set_color('red')
+    ax3.tick_params(axis='y', colors='red')
+    if WIND_EVENT_1_TIMESTAMP > 0:
+        ax3.hlines(WIND_EVENT_1_GUST,ax3.get_xlim()[1]*0.9,ax3.get_xlim()[1],color='red',linestyle='dotted')
+        ax3.hlines(WIND_EVENT_1_GUST,WIND_EVENT_1_TIMESTAMP,ax3.get_xlim()[1],color='red',linestyle='dotted',alpha=0.2)
+    if WIND_EVENT_2_TIMESTAMP > 0:
+        ax3.hlines(WIND_EVENT_2_GUST,ax3.get_xlim()[1]*0.9,ax3.get_xlim()[1],color='red',linestyle='dotted')
+        ax3.hlines(WIND_EVENT_2_GUST,WIND_EVENT_1_TIMESTAMP,ax3.get_xlim()[1],color='red',linestyle='dotted',alpha=0.2)
+    if WIND_EVENT_3_TIMESTAMP > 0:
+        ax3.hlines(WIND_EVENT_3_GUST,ax3.get_xlim()[1]*0.9,ax3.get_xlim()[1],color='red',linestyle='dotted')
+        ax3.hlines(WIND_EVENT_3_GUST,WIND_EVENT_1_TIMESTAMP,ax3.get_xlim()[1],color='red',linestyle='dotted',alpha=0.2)
 
-    ax3.plot(t[:apogeeInd],finHistory[:apogeeInd],label="Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)',color='purple',alpha=0.7)
-    ax3.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=1,alpha=0.3)
+    #ax3.plot([-1],[-1],label="Ang. Vel. (rad/s)",color='red',alpha=0.5,linewidth=2)
+
+    ax2.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=2,alpha=0.3)
+    ax2.plot(t[:apogeeInd],finHistory[:apogeeInd],label="Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)',color='purple',alpha=1,linewidth=1)
+    ax3.plot([-1],[-1],color='blue',linestyle='dotted',label='Desired Angle')
+
+    ax2.legend()
     if DESIRED_ROT_VEL == 0:
         if not FLAG:
             ax3.plot(t[:apogeeInd],thetaZ[:apogeeInd],label="Angular Position",color='purple',linestyle='dotted',alpha=0.7)
-    ax3.set_ylim(-1e2,1e2)
+    #ax2.set_ylim(-1e2,1e2)
     if showControlCutoffLine:
         ax2.vlines(controlCutoffTime,-1e4,1e4,color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
     #ax3.set_yscale('symlog',linthresh=1e-1)
-    ax3.set_ylim(-3e1,3e1)
+    #ax2.set_ylim(-3e1,3e1)
     if DESIRED_ROT_VEL == 0:
-        ax3.set_ylabel("Fin Cant, Angular Position" if not USE_TABS else 'Fin Tab Angle (deg)')
+        ax2.set_ylabel("Fin Cant, Angular Position" if not USE_TABS else 'Fin Tab Angle (deg)')
     else:
-        ax3.set_ylabel("Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)')
-    ax3.spines['left'].set_color('purple')
-    ax3.spines['right'].set_color('red')
-    ax3.yaxis.label.set_color('purple')
+        ax2.set_ylabel("Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)')
+    #ax2.spines['left'].set_color('purple')
+    #ax2.spines['right'].set_color('blue')
+    #ax2.yaxis.label.set_color('purple')
+
 
 
     maxLim2 = max(*np.abs(ax2.get_ylim()))
     maxLim3 = max(*np.abs(ax3.get_ylim()))
     #ax2.set_ylim(-maxLim2,maxLim2)
-    ax3.set_ylim(-maxLim3,maxLim3)
+    ax2.set_ylim(-12,12)
+    ax3.set_ylim(-70,70)
+    ax3.set_yticks(np.arange(-60,61,30))
+
     #ax2.set_xlim(*ax2.get_xlim())
     #ax2.set_ylim(-50,50)
     #ax2.hlines(0,*ax2.get_xlim(),color='k',linestyle='dotted')
@@ -502,13 +554,19 @@ if True:
     ax.vlines(WIND_EVENT_1_TIMESTAMP, -1e4,1e4,color='green',linewidth=1,label='Wind Gust Events')
     ax.vlines(WIND_EVENT_2_TIMESTAMP, -1e4,1e4,color='green',linewidth=1)
     ax.vlines(WIND_EVENT_3_TIMESTAMP, -1e4,1e4,color='green',linewidth=1)
+    ax9.vlines(WIND_EVENT_1_TIMESTAMP, -1e4,1e4,color='green',linewidth=1,label='Wind Gust Events')
+    ax9.vlines(WIND_EVENT_2_TIMESTAMP, -1e4,1e4,color='green',linewidth=1)
+    ax9.vlines(WIND_EVENT_3_TIMESTAMP, -1e4,1e4,color='green',linewidth=1)
 
-    ax2.set_xlabel("Time (s)")
-    ax3.legend(loc='lower right',fontsize=8,ncol=2)
+
+
+    ax9.set_xlabel("Time (s)")
+    ax3.legend(loc='lower right',ncol=3)
+   # ax9.legend(loc='lower right',fontsize=8,ncol=3)
     titleFirstLine = "\\begin{center}\\noindent \\sc Tab-Ctrlled Flight" if USE_TABS else "Cant-Ctrlled Flight"
     titleTurbLine = "; Turb. ${}\\%$".format(TURBULENCE)
     title_vPID_Line = "\\\\[0.25em] $\\omega$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_VEL,KI_VEL,KD_VEL],2)) if useVelocityPID else ""
-    title_aPID_Line = "; $\\varphi$PID: $\\tt [{}\\cdot 10^3,{},{}\\cdot 10^5]$ ".format(*np.round([KP_ANG/1e3,KI_ANG,KD_ANG/1e5],1)) if usePositionPID else ""
+    title_aPID_Line = "; $\\varphi$PID: $\\tt [{}\\cdot 10^3,{},{}\\cdot 10^4]$ ".format(*np.round([KP_ANG/1e3,KI_ANG,KD_ANG/1e4],1)) if usePositionPID else ""
     title_fixed_Line = "; $\\alpha_0={}$".format(np.round(CONST_FIXED,2)) if CONST_FIXED != 0 else ""
     title_suppLine = ("; $\\omega_0={}$".format(np.round(DESIRED_ROT_VEL,2)) if useVelocityPID else "") + ("; $\\varphi_0={}$ ".format(np.round(DESIRED_ROT_ANG,2)) if usePositionPID else "")
     title_windLine = ("\\\\[0.25em] Wind Gusts: {}rad/s at {}s, {}rad/s at {}s, {}rad/s at {}s".format(WIND_EVENT_1_GUST,WIND_EVENT_1_TIMESTAMP,WIND_EVENT_2_GUST,WIND_EVENT_2_TIMESTAMP,WIND_EVENT_3_GUST,WIND_EVENT_3_TIMESTAMP) if (WIND_EVENT_1_TIMESTAMP > 0 or WIND_EVENT_2_TIMESTAMP > 0 or WIND_EVENT_3_TIMESTAMP > 0) else "")

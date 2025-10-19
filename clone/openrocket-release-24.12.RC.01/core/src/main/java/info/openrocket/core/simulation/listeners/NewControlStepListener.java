@@ -112,7 +112,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static final double B1 = -94.34;
     public static final double A0 = 7.73e3;
     public static final double A1 = 180.4;
-    public static final double A2 = 2.068;
+    public static final double A2 = 2.068e-5;
 
 
     public NewControlStepListener() {
@@ -184,9 +184,13 @@ public class NewControlStepListener extends AbstractSimulationListener {
                         System.out.println("Exiting HALTED state");
                     }
                     setFinTabAngleDumb(0);
+                    secondToLastTabAngle = lastTabAngle;
+                    lastTabAngle = getFinTabAngle();
                     break;
                 case READY:
                     theFinsToModify = getTheFinsToModifyTabs(status);
+                    secondToLastTabAngle = lastTabAngle;
+                    lastTabAngle = getFinTabAngle();
                     if (status.getRocketVelocity().length() > velMinThresh) {
                         iniAngle = getFinTabAngle();
                         ctrlOut = finCantController_Tabs(status);
@@ -197,8 +201,6 @@ public class NewControlStepListener extends AbstractSimulationListener {
                             return; // no command allowed.
                         }
                         if (Math.abs(iniAngle-ctrlOut) > 1.5*servoRangeAngleDeg/servoStepCount) {
-                            secondToLastTabAngle = 0;
-                            lastTabAngle = 0;
                             targetAngle = ctrlOut;
                             movingStartTime = status.getSimulationTime();
                             currentState = MOVING;
@@ -222,9 +224,29 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
                     // use second order approx from dynamics.
                     double dt = latestTimeStep;// status.getSimulationTime() - lastIterTime;
-                    //angleToSet = (B0*targetAngle + A2/dt/dt*(2*lastTabAngle-secondToLastTabAngle) +(A1+B1)/dt*lastTabAngle)/(A2/dt/dt + (A1+B1)/dt + A0 + B0);
+                    System.out.println("linear output: " + angleToSet + " dt " + dt);
+                    /*if (targetAngle < lastTabAngle) {
+                        angleToSet = 2*(B0*targetAngle + A2/dt/dt*(2*lastTabAngle-secondToLastTabAngle) + (A1+B1)/dt*lastTabAngle)/(A2/dt/dt + (A1+B1)/dt + A0 + B0);
+                    }
+                    else {
+                        angleToSet = -2*(B0*targetAngle + A2/dt/dt*(2*lastTabAngle-secondToLastTabAngle) + (A1+B1)/dt*lastTabAngle)/(A2/dt/dt + (A1+B1)/dt + A0 + B0);
+                    }
+
+                    if (angleToSet > 5 + lastTabAngle) {
+                        angleToSet = lastTabAngle + 1e-2;
+                    }
+                    if (angleToSet < -5 + lastTabAngle) {
+                        angleToSet = lastTabAngle - 1e-2;
+                    }*/
+                    System.out.println("Proposed angle: " + angleToSet);
+
 
                     if (iniAngle < targetAngle) {
+                        /*if (angleToSet < getFinTabAngle()) {
+                            angleToSet *= -1;
+                            System.out.println("flipped angle to " + angleToSet);
+                            //angleToSet = getFinTabAngle()*1.01; // tf bro
+                        }*/
                         if (angleToSet >= targetAngle) {
                             angleToSet = targetAngle;
                             System.out.println("Reached target " + targetAngle + " delta t " + (status.getSimulationTime() - movingStartTime));
@@ -232,16 +254,28 @@ public class NewControlStepListener extends AbstractSimulationListener {
                         }
                     }
                     else if (iniAngle > targetAngle) {
+                        /*if (angleToSet > getFinTabAngle()) {
+                            angleToSet *= -1;
+                            System.out.println("flipped angle to " + angleToSet);
+                            //angleToSet = getFinTabAngle(); // tf bro
+                        }*/
                         if (angleToSet <= targetAngle) {
                             angleToSet = targetAngle;
                             System.out.println("Reached target " + targetAngle + " delta t " + (status.getSimulationTime() - movingStartTime));
                             currentState = READY;
                         }
                     }
+                    if (status.getSimulationTime() - movingStartTime > SERVO_REFRESH_TIME) {
+                        System.out.println("TIMEOUT REACHED");
+                        currentState = READY;
+                        return;
+                    }
+
                     // low-level
+                    System.out.println("[JAVA] current time " + status.getSimulationTime() + "\nSetting angle " + angleToSet);
                     setFinTabAngleDumb(angleToSet);
                     secondToLastTabAngle = lastTabAngle;
-                    lastTabAngle = angleToSet;
+                    lastTabAngle = getFinTabAngle();
                     lastIterTime = status.getSimulationTime();
                     break;
             }
