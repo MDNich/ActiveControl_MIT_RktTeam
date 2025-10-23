@@ -4,6 +4,7 @@ import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
+import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.ArrayList;
@@ -11,6 +12,7 @@ import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Quaternion;
 
 import java.util.Iterator;
+import java.util.List;
 
 import static info.openrocket.core.simulation.listeners.ControllerState.*;
 import static java.lang.Math.*;
@@ -55,6 +57,10 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static ArrayList<Double> finTabAngleLog;
     public static ArrayList<Double> desiredFinTabAngleLog;
     public static ArrayList<Double> rocketVelMagnitudeLog;
+    public static ArrayList<Double> CldLog;
+    public static ArrayList<Double> Qlog;
+    public static ArrayList<Double> JxxLog;
+    public static ArrayList<Double> CldArefDLog;
 
     public static Rocket theRocket;
 
@@ -123,6 +129,10 @@ public class NewControlStepListener extends AbstractSimulationListener {
         finTabAngleLog = new ArrayList<>();
         desiredFinTabAngleLog = new ArrayList<>();
         rocketVelMagnitudeLog = new ArrayList<>();
+        CldLog = new ArrayList<>();
+        CldArefDLog = new ArrayList<>();
+        Qlog = new ArrayList<>();
+        JxxLog = new ArrayList<>();
         datIsReadyToCollect = new Flag();
         readyToProceed = new Flag();
         currentState = HALTED;
@@ -301,6 +311,12 @@ public class NewControlStepListener extends AbstractSimulationListener {
             finTabAngleLog.add(getFinTabAngle());
             desiredFinTabAngleLog.add(finCantController_Tabs(status,true));
             rocketVelMagnitudeLog.add(status.getRocketVelocity().length());
+
+
+            List<Double> CldFlightBranch = status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF);
+            CldLog.add(CldFlightBranch.get(CldFlightBranch.toArray().length-1));
+            CldArefDLog.add(status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF).get(CldFlightBranch.toArray().length-1)*status.getFlightConfiguration().getReferenceLength()*status.getFlightConfiguration().getReferenceArea());
+            Qlog.add(status.getSimulationConditions().getAtmosphericModel().getConditions(status.getRocketWorldPosition().getAltitude()).getDensity()*status.getRocketVelocity().length()*status.getRocketVelocity().length()/2.0);
         }
 
 

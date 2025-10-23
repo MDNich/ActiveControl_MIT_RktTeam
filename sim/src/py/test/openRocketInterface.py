@@ -3,6 +3,9 @@
 # MUST BE RUN FROM TOP LEVEL WORKING DIRECTORY: 'sim'.
 import os
 from time import sleep
+
+import scipy.signal
+
 from Simplified_plant_dynamics import *
 import numpy as np
 import jpype
@@ -63,9 +66,14 @@ KI_ANG = 4e0#2.8
 KD_ANG = 1e4
 '''
 
+'''
+KP_ANG = 0.1
+KI_ANG = 0#2.8#.1#0.75
+KD_ANG = 1'''
+
 import threading
 
-VELMINTHRESH = 40
+VELMINTHRESH = 20
 TURBULENCE = 0
 USE_TABS = True
 CONST_FIXED = 0
@@ -386,6 +394,16 @@ if True:
 
     omegaZ = np.array(newCtrl.pastOmegaZ)
     thetaZ = np.array(newCtrl.pastThetaZ)
+
+
+
+    Qlog = np.array(newCtrl.Qlog)
+    CldArefDLog = np.array(newCtrl.CldArefDLog)
+    CldLog = np.array(newCtrl.CldLog)
+
+
+
+
     realThetaZ = []
     for i in range(len(omegaZ)):
         realThetaZ.append(np.sum(omegaZ[:i])*newCtrl.latestTimeStep)
@@ -423,7 +441,19 @@ if True:
     velMagProcess = velMagnitude[int(len(t)/4):apogeeInd]
     controlCutoffIndex = np.argmin(np.abs(velMagProcess - VELMINTHRESH)) + int(len(t)/4)
     controlCutoffTime = t[controlCutoffIndex]
-    #print("Got cutoff time: {} s at index {}, velMag: {}".format(controlCutoffTime,controlCutoffIndex,velMagnitude[controlCutoffIndex]))
+
+
+    #plt.subplots()
+    #motorendedIndex = np.argmax(velMagnitude)
+    #plt.plot(Qlog[:motorendedIndex],CldArefDLog[:motorendedIndex]/omegaZ[:motorendedIndex])#/vel[:motorendedIndex]/vel[:motorendedIndex])
+    #averaging = 2.2e-5
+    #plt.hlines(averaging,Qlog[0],Qlog[motorendedIndex],color='red',linestyle='dashed',label='Avg. CldArefD until motor end')
+    #plt.plot(Qlog[motorendedIndex:apogeeInd],CldArefDLog[motorendedIndex:apogeeInd]/omegaZ[motorendedIndex:apogeeInd])#/vel[motorendedIndex:apogeeInd]/vel[motorendedIndex:apogeeInd])
+    #plt.show()
+
+
+
+#print("Got cutoff time: {} s at index {}, velMag: {}".format(controlCutoffTime,controlCutoffIndex,velMagnitude[controlCutoffIndex]))
     #print(finCantLog[:apogeeInd])
 
     dataArr = np.array([t[:apogeeInd],alt[:apogeeInd],vel[:apogeeInd],omegaZ[:apogeeInd],finHistory[:apogeeInd], thetaZ[:apogeeInd]])
@@ -566,7 +596,7 @@ if True:
     titleFirstLine = "\\begin{center}\\noindent \\sc Tab-Ctrlled Flight" if USE_TABS else "Cant-Ctrlled Flight"
     titleTurbLine = "; Turb. ${}\\%$".format(TURBULENCE)
     title_vPID_Line = "\\\\[0.25em] $\\omega$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_VEL,KI_VEL,KD_VEL],2)) if useVelocityPID else ""
-    title_aPID_Line = "; $\\varphi$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_ANG,KI_ANG,KD_ANG],1)) if usePositionPID else ""
+    title_aPID_Line = "; $\\varphi$PID: $\\tt [{},{},{}]$ ".format(*np.round([KP_ANG,KI_ANG,KD_ANG],2)) if usePositionPID else ""
     title_fixed_Line = "; $\\alpha_0={}$".format(np.round(CONST_FIXED,2)) if CONST_FIXED != 0 else ""
     title_suppLine = ("; $\\omega_0={}$".format(np.round(DESIRED_ROT_VEL,2)) if useVelocityPID else "") + ("; $\\varphi_0={}$ ".format(np.round(DESIRED_ROT_ANG,2)) if usePositionPID else "")
     title_windLine = ("\\\\[0.25em] Wind Gusts: {}rad/s at {}s, {}rad/s at {}s, {}rad/s at {}s".format(WIND_EVENT_1_GUST,WIND_EVENT_1_TIMESTAMP,WIND_EVENT_2_GUST,WIND_EVENT_2_TIMESTAMP,WIND_EVENT_3_GUST,WIND_EVENT_3_TIMESTAMP) if (WIND_EVENT_1_TIMESTAMP > 0 or WIND_EVENT_2_TIMESTAMP > 0 or WIND_EVENT_3_TIMESTAMP > 0) else "")
