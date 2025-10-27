@@ -309,7 +309,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
             pastOmegaZ.add(status.getRocketRotationVelocity().z);
             pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
             finTabAngleLog.add(getFinTabAngle());
-            desiredFinTabAngleLog.add(finCantController_Tabs(status,true));
+            //desiredFinTabAngleLog.add(finCantController_Tabs(status,true));
+            desiredFinTabAngleLog.add(targetAngle);
             rocketVelMagnitudeLog.add(status.getRocketVelocity().length());
 
 
@@ -404,14 +405,14 @@ public class NewControlStepListener extends AbstractSimulationListener {
             totErrVel = errVel + totErrVel * IdecayFactor;
 
             thrusting += errVel * kP_VEL*refVelSq/velToUseForGainSq;
-            thrusting += (errVel - lastErrVel) * kD_VEL*refVelSq/velToUseForGainSq;
+            thrusting += (errVel - lastErrVel)/latestTimeStep * kD_VEL*refVelSq/velToUseForGainSq;
             thrusting += totErrVel * kI_VEL*refVelSq/velToUseForGainSq;
         }
         if (positionPIDon) {
             totErrAng = errAng + totErrAng * IdecayFactor;
 
             thrusting += errAng * kP_ANG*refVelSq/velToUseForGainSq;
-            thrusting += (errAng - lastErrAng) * kD_ANG*refVelSq/velToUseForGainSq;
+            thrusting += (errAng - lastErrAng)/latestTimeStep * kD_ANG*refVelSq/velToUseForGainSq;
             thrusting += totErrAng * kI_ANG*refVelSq/velToUseForGainSq;
         }
         return thrusting;

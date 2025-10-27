@@ -225,10 +225,8 @@ public class FinSetCalc extends RocketComponentCalc {
 
         // if tabs
         if (this.hasTabs) {
-            forces.setCroll(forces.getCroll() + CNALPHA * this.finCount * tabArea * this.momentArm *
-                    Math.sin(tabAngle) / conditions.getRefArea() / conditions.getRefLength());
-            forces.setCDaxial(forces.getCDaxial() + CNALPHA * this.finCount * tabArea * this.momentArm *
-                    Math.cos(tabAngle) / conditions.getRefArea());
+            forces.setCroll(forces.getCroll() + CNALPHA*tabAngle*tabArea*this.momentArm/conditions.getRefArea() / conditions.getRefLength());
+            forces.setCDaxial(forces.getCDaxial() + CNALPHA*tabAngle*Math.sin(tabAngle)*tabArea*this.momentArm/conditions.getRefArea() / conditions.getRefLength());
         }
 		
 	}

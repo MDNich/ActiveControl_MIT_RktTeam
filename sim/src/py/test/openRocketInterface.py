@@ -82,9 +82,9 @@ KP_VEL = 10
 KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
 # ANG PID - old for Connor proc were 'kP: 1e3; kI: 4; kD: 1e4'
-KP_ANG = 0.1
+KP_ANG = 0.2
 KI_ANG = 0#2.8#.1#0.75
-KD_ANG = 1
+KD_ANG = 0.02
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
