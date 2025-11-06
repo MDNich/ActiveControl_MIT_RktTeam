@@ -10,6 +10,7 @@ import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.Quaternion;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +45,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static double iniVel = 10.0;
 
 
+    public static boolean MASTER_NOISE_OVERRIDE = false;
+
     public static boolean simulateUsingTabs = true;
 
     public static FinSet theFinsToModify = null;
@@ -57,6 +60,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static ArrayList<Double> finTabAngleLog;
     public static ArrayList<Double> desiredFinTabAngleLog;
     public static ArrayList<Double> rocketVelMagnitudeLog;
+    public static ArrayList<Double> rocketAltitudeLog;
     public static ArrayList<Double> CldLog;
     public static ArrayList<Double> Qlog;
     public static ArrayList<Double> JxxLog;
@@ -97,6 +101,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static double WIND_EVENT_1_TIMESTAMP = 1.5; // seconds after launch when wind gust hits
     public static double WIND_EVENT_2_TIMESTAMP = 4; // seconds after launch when wind gust hits
     public static double WIND_EVENT_3_TIMESTAMP = 7; // seconds after launch when wind gust hits
+    public static boolean FLAG_OVERRIDE_JXX = true;
+    public static double OVERRIDEN_JXX = 0.014;
     private static boolean didFireWindEvent1 = false;
     private static boolean didFireWindEvent2 = false;
     private static boolean didFireWindEvent3 = false;
@@ -121,6 +127,16 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static final double A2 = 2.068;
 
 
+    public static double velocityToUse = 0;
+    public static double altitudeToUse = 0;
+    public static double velocityMeasured = 0;
+    public static ArrayList<Double> velocityMeasuredList = null;
+    public static ArrayList<Double> altitudeMeasuredList = null;
+    public static ArrayList<Double> altitudeToUseList = null;
+    public static double velocity_randomness_size = 5;
+    public static double amplitude_randomness_size = 5;
+
+
     public NewControlStepListener() {
         super();
         pastOmegaZ = new ArrayList<>();
@@ -129,6 +145,10 @@ public class NewControlStepListener extends AbstractSimulationListener {
         finTabAngleLog = new ArrayList<>();
         desiredFinTabAngleLog = new ArrayList<>();
         rocketVelMagnitudeLog = new ArrayList<>();
+        rocketAltitudeLog = new ArrayList<>();
+        velocityMeasuredList = new ArrayList<>();
+        altitudeMeasuredList = new ArrayList<>();
+        altitudeToUseList = new ArrayList<>();
         CldLog = new ArrayList<>();
         CldArefDLog = new ArrayList<>();
         Qlog = new ArrayList<>();
@@ -147,14 +167,13 @@ public class NewControlStepListener extends AbstractSimulationListener {
         lastStat = status.clone();
         currentState = READY;
         System.out.println("[JAVA] Confirmed reception of PID Coeffs ANG {" + kP_ANG + " " + kI_ANG + " " + kD_ANG + "} ");
-
     }
 
     @Override
     public boolean preStep(SimulationStatus status) throws SimulationException {
         initial = status.getSimulationTime();
         lastStat = status.clone();
-        return super.preStep(status);
+        return super.preStep(status); // true
     }
 
     public void postStepAction(SimulationStatus status) {
@@ -189,7 +208,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
         if (simulateUsingTabs) {
             switch (currentState) {
                 case HALTED:
-                    if (status.getRocketVelocity().length() > velMinThresh) {
+                    if (velocityToUse > velMinThresh) {
                         currentState = READY;
                         System.out.println("Exiting HALTED state");
                     }
@@ -201,7 +220,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
                     theFinsToModify = getTheFinsToModifyTabs(status);
                     secondToLastTabAngle = lastTabAngle;
                     lastTabAngle = getFinTabAngle();
-                    if (status.getRocketVelocity().length() > velMinThresh) {
+                    if (velocityToUse > velMinThresh) {
                         iniAngle = getFinTabAngle();
                         ctrlOut = finCantController_Tabs(status);
 
@@ -287,11 +306,31 @@ public class NewControlStepListener extends AbstractSimulationListener {
         double finTimeStep = status.getSimulationTime();
         latestTimeStep = finTimeStep - initial;
 
+        altitudeMeasuredList.add(status.getRocketWorldPosition().getAltitude() + (0.5-random())*2*amplitude_randomness_size);
+        double altMovingAvg = 0;
+        int lenAlt = altitudeMeasuredList.toArray().length;
+        int maxI = 0;
+        for (int i =0; i < 20; i++) {
+            altMovingAvg += altitudeMeasuredList.get(lenAlt-i-1);
+            maxI ++;
+            if (lenAlt -i - 1 <= 0) {
+                break;
+            }
+        }
+        altMovingAvg /= maxI;
+        altitudeToUseList.add(altMovingAvg);
+        altitudeToUse = altMovingAvg;
+        int indexOfAltitudeToFetchDiff = (int) (0.5/status.getSimulationConditions().getTimeStep());
+        velocityToUse = (altitudeToUse - altitudeToUseList.get(max(altitudeToUseList.toArray().length-indexOfAltitudeToFetchDiff, 0)))/0.5;
+        if (MASTER_NOISE_OVERRIDE) {
+            velocityToUse = status.getRocketVelocity().length();
+        }
+
         //System.out.println("Controller Engaged");
 
         if(!simulateUsingTabs) {
             theFinsToModify = getTheFinsToModify(status);
-            if (status.getRocketVelocity().length() > velMinThresh) {
+            if (velocityToUse > velMinThresh) {
                 setCantOfFinDeg(finCantController(status));
             } else {
                 setCantOfFinDeg(0);
@@ -311,13 +350,14 @@ public class NewControlStepListener extends AbstractSimulationListener {
             finTabAngleLog.add(getFinTabAngle());
             //desiredFinTabAngleLog.add(finCantController_Tabs(status,true));
             desiredFinTabAngleLog.add(targetAngle);
-            rocketVelMagnitudeLog.add(status.getRocketVelocity().length());
+            rocketVelMagnitudeLog.add(velocityToUse);
+            rocketAltitudeLog.add(altitudeToUse);
 
 
             List<Double> CldFlightBranch = status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF);
             CldLog.add(CldFlightBranch.get(CldFlightBranch.toArray().length-1));
             CldArefDLog.add(status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF).get(CldFlightBranch.toArray().length-1)*status.getFlightConfiguration().getReferenceLength()*status.getFlightConfiguration().getReferenceArea());
-            Qlog.add(status.getSimulationConditions().getAtmosphericModel().getConditions(status.getRocketWorldPosition().getAltitude()).getDensity()*status.getRocketVelocity().length()*status.getRocketVelocity().length()/2.0);
+            Qlog.add(status.getSimulationConditions().getAtmosphericModel().getConditions(status.getRocketWorldPosition().getAltitude()).getDensity()*velocityToUse*velocityToUse/2.0);
         }
 
 
@@ -376,6 +416,11 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
     public static double finCantController_Tabs(SimulationStatus currentStat, boolean flagOk) {
         double currentSpeed = currentStat.getRocketVelocity().length();
+
+        // muhahaha override
+        currentSpeed = velocityToUse;
+
+
         if(currentSpeed < velMinThresh) {
             if(!flagOk) {
                 System.out.println("SHOULD NEVER GET HERE");
@@ -383,7 +428,6 @@ public class NewControlStepListener extends AbstractSimulationListener {
             return 0;
         }
         double previousAngle = getFinTabAngle();
-        double translatVel = currentStat.getRocketVelocity().length();
         double rotVel = currentStat.getRocketRotationVelocity().z;
         double rotAng = toDegrees(toEulerAngles(currentStat.getRocketOrientationQuaternion()).z);
         double lastRotVel = lastStat.getRocketRotationVelocity().z;

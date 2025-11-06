@@ -71,7 +71,26 @@ KP_ANG = 0.1
 KI_ANG = 0#2.8#.1#0.75
 KD_ANG = 1'''
 
+
+
+
+
+'''
+GOOD FOR OLD JXX
+KP_ANG = 0.194
+KI_ANG = 0
+KD_ANG = 0.0314
+
+
+
+KP_ANG = 0.2
+KI_ANG = 0
+KD_ANG = 0.0175
+'''''
 import threading
+
+JXX = 0.05
+OVERRIDE_JXX_CALC = True
 
 VELMINTHRESH = 20
 TURBULENCE = 0
@@ -81,14 +100,14 @@ CONST_FIXED = 0
 KP_VEL = 10
 KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
-# ANG PID - old for Connor proc were 'kP: 1e3; kI: 4; kD: 1e4'
-KP_ANG = 0.2
-KI_ANG = 0#2.8#.1#0.75
-KD_ANG = 0.02
+# ANG PID
+KP_ANG = 0.189
+KI_ANG = 0
+KD_ANG = 0.0377
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
-DESIRED_ROT_ANG = -45
+DESIRED_ROT_ANG = 0
 overrideI = False
 getPID_from_plant = False
 useVelocityPID = False
@@ -100,13 +119,16 @@ SERVO_STEP_COUNT = int(1024)#int(1024) # Large number means very small steps, ef
 DEBUG_JAVA_MSG = False
 DEG_PER_SEC = 300
 REFRESH_TIME = 2e-2
+ALTITUDE_NOISE_AMPLITUDE = 100
+MASTER_NOISE_OVERRIDE = True
+
 
 WIND_EVENT_1_TIMESTAMP = 0.7
 WIND_EVENT_2_TIMESTAMP = 1.5
 WIND_EVENT_3_TIMESTAMP = 3
-WIND_EVENT_1_GUST = 2e1
-WIND_EVENT_2_GUST = -2e1
-WIND_EVENT_3_GUST = 2e1
+WIND_EVENT_1_GUST = 5e0
+WIND_EVENT_2_GUST = -7e0
+WIND_EVENT_3_GUST = 5e0
 
 
 if usePositionPID:
@@ -125,8 +147,8 @@ if not useVelocityPID:
     KI_VEL = 0
     KD_VEL = 0
 
-figPath = 'dat/demonstrator_5/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
-CSVSAVEPATH = 'dat/demonstrator_5/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+figPath = 'dat/demonstrator_6/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+CSVSAVEPATH = 'dat/demonstrator_6/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
 
 
 # Start
@@ -139,7 +161,7 @@ worldCoordClass = or_obj.util.WorldCoordinate
 quatClass = or_obj.util.Quaternion
 
 # Load rocket
-doc, rktObj = loadRocket(orh, 'demonstrator_5.ork')
+doc, rktObj = loadRocket(orh, 'demonstrator_6.ork')
 
 newCtrl = or_obj.simulation.listeners.NewControlStepListener
 
@@ -155,8 +177,8 @@ logging.info(flightConfig)
 sim = doc.getSimulation(3)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/demonstrator_5_out_long.csv'
-#figPath = 'dat/simResults/demonstrator_5_out_long.pdf'
+datPath = 'dat/simResults/demonstrator_6_out_long.csv'
+#figPath = 'dat/simResults/demonstrator_6_out_long.pdf'
 
 
 # Get all components, filter for fins.
@@ -319,6 +341,9 @@ if True:
     newCtrl.desiredRotAng = DESIRED_ROT_ANG
     newCtrl.IdecayFactor = 1
 
+
+    newCtrl.amplitude_randomness_size = ALTITUDE_NOISE_AMPLITUDE
+
     newCtrl.WIND_EVENT_1_TIMESTAMP = WIND_EVENT_1_TIMESTAMP
     newCtrl.WIND_EVENT_2_TIMESTAMP = WIND_EVENT_2_TIMESTAMP
     newCtrl.WIND_EVENT_3_TIMESTAMP = WIND_EVENT_3_TIMESTAMP
@@ -326,12 +351,17 @@ if True:
     newCtrl.WIND_EVENT_2_GUST = WIND_EVENT_2_GUST
     newCtrl.WIND_EVENT_3_GUST = WIND_EVENT_3_GUST
 
+    newCtrl.MASTER_NOISE_OVERRIDE = MASTER_NOISE_OVERRIDE
+
     newCtrl.velocityPIDon = useVelocityPID
     newCtrl.positionPIDon = usePositionPID
     newCtrl.SERVO_REFRESH_TIME = REFRESH_TIME
     newCtrl.roundToNearest5 = ROUND_5
 
     newCtrl.flagPrintDebugMsg = DEBUG_JAVA_MSG
+
+    newCtrl.FLAG_OVERRIDE_JXX = OVERRIDE_JXX_CALC
+    newCtrl.OVERRIDEN_JXX = JXX
 
 
     newCtrl.constFixed = CONST_FIXED
@@ -369,8 +399,8 @@ if True:
         print("Using PID coefficients from plant dynamics.")
 
         if usePositionPID:
-            figPath = 'dat/demonstrator_5/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
-            CSVSAVEPATH = 'dat/demonstrator_5/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+            figPath = 'dat/demonstrator_6/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+            CSVSAVEPATH = 'dat/demonstrator_6/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
 
             newCtrl.kP_ANG = KP_ANG_gen
             newCtrl.kI_ANG = KI_ANG_gen
@@ -422,6 +452,9 @@ if True:
     alt = np.array(data[dT.TYPE_ALTITUDE].tolist())
     vel = np.array(data[dT.TYPE_VELOCITY_Z].tolist())
     velMagnitude = np.array(newCtrl.rocketVelMagnitudeLog)
+
+    if not MASTER_NOISE_OVERRIDE:
+        alt = np.array(newCtrl.rocketAltitudeLog)
 
 
 

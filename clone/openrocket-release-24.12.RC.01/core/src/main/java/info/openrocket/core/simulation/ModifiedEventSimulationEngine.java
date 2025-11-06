@@ -127,7 +127,8 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				if (dataBranch.getLength() == 0) {
 					flightData.getWarningSet().add(Warning.EMPTY_BRANCH, dataBranch.getName());
 				}
-			} while (!toSimulate.isEmpty());
+                //toSimulate.push(currentStatus);
+            } while (!toSimulate.isEmpty());
 			
 			SimulationListenerHelper.fireEndSimulation(currentStatus, null);
 			
@@ -170,38 +171,46 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 
 				// Take the step
 				double oldAlt = currentStatus.getRocketPosition().z;
-				
-				if (SimulationListenerHelper.firePreStep(currentStatus)) {
+                System.out.println("[JAVA] Firing Pre Step");
+                boolean preStepOutput = SimulationListenerHelper.firePreStep(currentStatus);
+                System.out.println("[JAVA] Fired Pre Step: Returned " +  preStepOutput);
+                if (preStepOutput) {
 					// Step at most to the next event
 					double maxStepTime = Double.MAX_VALUE;
 					FlightEvent nextEvent = currentStatus.getEventQueue().peek();
 
 					if (nextEvent != null) {
 						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(), 0.001);
+                        System.out.println("[JAVA] Next Event: max step time " +  maxStepTime);
 					} else if (currentStatus.isLanded()) {
 						maxStepTime = 0.0;
+                        System.out.println("[JAVA] detected landed");
 					}
 
 					if (maxStepTime > MathUtil.EPSILON) {
 						log.trace(
 								  "Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
-						System.out.print("[JAVA] Current simulation time: " + currentStatus.getSimulationTime() + "s                  \r");
+						System.out.println("[JAVA] Current simulation time: " + currentStatus.getSimulationTime() + "s                 ");
 						currentStepper.step(currentStatus, maxStepTime);
 					}
 				}
 				SimulationListenerHelper.firePostStep(currentStatus);
-				
-				
-				// Check for NaN values in the simulation status
+                System.out.println("[JAVA] Fired Post Step");
+
+
+                // Check for NaN values in the simulation status
 				checkNaN();
 				
 				// If we haven't hit the ground, add altitude event
-				if (!currentStatus.isLanded())
-					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
-											 currentStatus.getConfiguration().getRocket(),
-							new Pair<>(oldAlt, currentStatus.getRocketPosition().z)));
-				
-				if (currentStatus.getRocketPosition().z > currentStatus.getMaxAlt()) {
+				if (!currentStatus.isLanded()) {
+                    currentStatus.addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
+                            currentStatus.getConfiguration().getRocket(),
+                            new Pair<>(oldAlt, currentStatus.getRocketPosition().z)));
+                    System.out.println("[JAVA] Landed");
+                }
+
+
+                if (currentStatus.getRocketPosition().z > currentStatus.getMaxAlt()) {
 					currentStatus.setMaxAlt(currentStatus.getRocketPosition().z);
 				}
 				
@@ -213,22 +222,27 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					
 					// Avoid sinking into ground before liftoff
 					if (relativePosition.z < 0) {
-						currentStatus.setRocketPosition(origin);
+                        System.out.println("[JAVA] Fixing Sinking in Ground");
+                        currentStatus.setRocketPosition(origin);
 						relativePosition = Coordinate.ZERO;
 						currentStatus.setRocketVelocity(originVelocity);
 					}
 					// Detect lift-off
 					if (relativePosition.z > 0.02) {
 						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, currentStatus.getSimulationTime()));
-					}
+                        System.out.println("[JAVA] Liftoff");
+
+                    }
+
 					
 				} else {
 					
 					// Check ground hit after liftoff
 					if ((currentStatus.getRocketPosition().z < MathUtil.EPSILON) && !currentStatus.isLanded()) {
 						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, currentStatus.getSimulationTime()));
+                        System.out.println("[JAVA] Ground hit after liftoff");
 
-						// currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
+                        // currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 					}
 					
 				}
@@ -238,7 +252,8 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 						!currentStatus.isLaunchRodCleared() &&
 						relativePosition.length() > currentStatus.getSimulationConditions().getLaunchRodLength()) {
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, currentStatus.getSimulationTime(), null));
-				}
+                    System.out.println("[JAVA] Off Launch Rod");
+                }
 				
 				
 				// Check for apogee
@@ -246,7 +261,8 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					currentStatus.setMaxAltTime(previousSimulationTime);
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.APOGEE, previousSimulationTime,
 							currentStatus.getConfiguration().getRocket()));
-				}
+                    System.out.println("[JAVA] Apogee");
+                }
 				
 //				//@Obsolete
 //				//@Redundant
@@ -264,7 +280,8 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				if (!currentStatus.isTumbling() &&
 					(currentStatus.getDeployedRecoveryDevices().size() == 0) &&
 					!currentStatus.isLanded()) {
-					final double cp = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CP_LOCATION);
+                    System.out.println("[JAVA] Tumbling");
+                    final double cp = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CP_LOCATION);
 					final double cg = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CG_LOCATION);
 					final double aoa = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_AOA);
 					final double margin =
@@ -287,16 +304,19 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				}
 
 				// If I'm on the ground and have no events in the queue, I'm done
-				if (currentStatus.isLanded() && currentStatus.getEventQueue().isEmpty())
-					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
-
+				if (currentStatus.isLanded() && currentStatus.getEventQueue().isEmpty()) {
+                    currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
+                    System.out.println("[JAVA] Ended Simulation");
+                }
 				previousSimulationTime = currentStatus.getSimulationTime();
 			}
 		} catch (SimulationException e) {
 			
 			SimulationListenerHelper.fireEndSimulation(currentStatus, e);
+            System.out.println("[JAVA] Caught simulation exception");
+            System.out.println(e.toString());
 
-			// Add FlightEvent for exception.
+            // Add FlightEvent for exception.
 			currentStatus.getFlightDataBranch().addEvent(new FlightEvent(FlightEvent.Type.EXCEPTION, currentStatus.getSimulationTime(), currentStatus.getConfiguration().getRocket(), e.getLocalizedMessage()));
 
 			flightData.getWarningSet().addAll(currentStatus.getWarnings());
@@ -733,7 +753,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 		b |= currentStatus.getRocketOrientationQuaternion().isNaN();
 		b |= currentStatus.getRocketRotationVelocity().isNaN();
 		d += currentStatus.getEffectiveLaunchRodLength();
-		
+
 		if (Double.isNaN(d) || b) {
 			log.error("Simulation resulted in NaN value:" +
 					" simulationTime=" + currentStatus.getSimulationTime() +
@@ -742,6 +762,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					" rocketOrientationQuaternion=" + currentStatus.getRocketOrientationQuaternion() +
 					" rocketRotationVelocity=" + currentStatus.getRocketRotationVelocity() +
 					" effectiveLaunchRodLength=" + currentStatus.getEffectiveLaunchRodLength());
+            System.out.println("[JAVA] CHECKING NANs FAILED : cooked");
 			throw new SimulationCalculationException(trans.get("BasicEventSimulationEngine.error.NaNResult"),
 													 currentStatus.getFlightDataBranch());
 		}

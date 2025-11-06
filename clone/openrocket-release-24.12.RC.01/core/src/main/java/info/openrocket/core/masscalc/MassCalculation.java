@@ -11,6 +11,7 @@ import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.MotorMount;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.simulation.MotorClusterState;
+import info.openrocket.core.simulation.listeners.NewControlStepListener;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.core.util.MathUtil;
 import info.openrocket.core.util.Transformation;
@@ -485,6 +486,10 @@ public class MassCalculation {
 			Ir += eachGlobal.Ixx;
 			It += eachGlobal.Iyy;
 		}
+
+        if (NewControlStepListener.FLAG_OVERRIDE_JXX) {
+            Ir = NewControlStepListener.OVERRIDEN_JXX;
+        }
 		
 		return new RigidBody( centerOfMass, Ir, It, It );
 	}

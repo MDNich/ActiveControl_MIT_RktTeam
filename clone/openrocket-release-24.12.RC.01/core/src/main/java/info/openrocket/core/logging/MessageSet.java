@@ -189,7 +189,17 @@ public abstract class MessageSet<E extends Message> extends AbstractSet<E> imple
 			if (m.id.equals(id))
 				return m;
 		}
-		throw new BugException("Message with id " + id + " not found");
+		return new Message() {
+            @Override
+            public String getMessageDescription() {
+                return "Message was not found.";
+            }
+
+            @Override
+            public boolean replaceBy(Message other) {
+                return false;
+            }
+        };//throw new BugException("Message with id " + id + " not found");
 	}
 
     public void immute() {
