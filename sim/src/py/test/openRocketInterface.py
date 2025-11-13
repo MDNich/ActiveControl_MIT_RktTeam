@@ -89,7 +89,7 @@ KD_ANG = 0.0175
 '''''
 import threading
 
-JXX = 0.05
+JXX = 0.011
 OVERRIDE_JXX_CALC = True
 
 VELMINTHRESH = 20
@@ -101,14 +101,16 @@ KP_VEL = 10
 KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
 # ANG PID
-KP_ANG = 0.189
+KP_ANG = 0.5284#0.189
 KI_ANG = 0
-KD_ANG = 0.0377
+KD_ANG = 0#0.1057#0.0377
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
 DESIRED_ROT_ANG = 0
 overrideI = False
+DISABLE_VELOCITY_WEIGHTING = True
+DISABLE_VELOCITY_WEIGHTING = True
 getPID_from_plant = False
 useVelocityPID = False
 usePositionPID = True
@@ -121,11 +123,21 @@ DEG_PER_SEC = 300
 REFRESH_TIME = 2e-2
 ALTITUDE_NOISE_AMPLITUDE = 100
 MASTER_NOISE_OVERRIDE = True
+TIME_DELAY_MOTOR = 600
+overrideCNA = 15
 
 
-WIND_EVENT_1_TIMESTAMP = 0.7
-WIND_EVENT_2_TIMESTAMP = 1.5
-WIND_EVENT_3_TIMESTAMP = 3
+
+#overrideCNA = 60
+#JXX = 0.051
+
+
+
+
+
+WIND_EVENT_1_TIMESTAMP = -0.7
+WIND_EVENT_2_TIMESTAMP = -1.5
+WIND_EVENT_3_TIMESTAMP = -3
 WIND_EVENT_1_GUST = 5e0
 WIND_EVENT_2_GUST = -7e0
 WIND_EVENT_3_GUST = 5e0
@@ -174,7 +186,7 @@ logging.info("Motor identifier: ")
 logging.info(flightConfig)
 
 # load sim
-sim = doc.getSimulation(3)
+sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
 datPath = 'dat/simResults/demonstrator_6_out_long.csv'
@@ -226,20 +238,27 @@ logging.error("RUNNING A NEW SIMULATION")
 
 import pandas as pd
 
+alt0 = 194.4285888671875
+v0 = 72.10404205322266
+rotRate0 = -2.71606445268
+rot0 = 26.965709686279297 + 10
+
 
 if True:
     # startParams
-    alt0 = 0.01 # m
+    #alt0 = 0.01 # m
     v0x = 0 # m/s
     v0y = 0 # m/s
-    v0z = 0 # m/s
+    v0z = v0#0 # m/s
 
     rotAxis = coordClass(0,0,1) # z axis, for now
-    angle = 0.0
+    angle = rot0*np.pi/180#0.0
 
     omega0x = 0.0
     omega0y = 0.0
-    omega0z = INI_ROT_VEL
+    #omega0z = INI_ROT_VEL
+    omega0z = rotRate0# 0.0 # override for particular test case.
+
 
 
     initialPropDict = {
@@ -274,6 +293,10 @@ if True:
         "time" : 0.0, # double
     }
 
+
+
+
+
     dictList = [initialPropDict]
     currenPropDict = initialPropDict.copy()
     times = [0]
@@ -293,6 +316,7 @@ if True:
     motorEndLoc = 0
     timeStep=prefDt
     listener_array = [newCtrl()]
+
 
 
     # provide initial conditions
@@ -337,9 +361,20 @@ if True:
     newCtrl.theFinsToModify = finToPlayWith
     newCtrl.simulateUsingTabs = USE_TABS
 
+
+
+
     newCtrl.desiredRotVel = DESIRED_ROT_VEL
     newCtrl.desiredRotAng = DESIRED_ROT_ANG
     newCtrl.IdecayFactor = 1
+
+    newCtrl.DISABLE_VELOCITY_WEIGHTING = DISABLE_VELOCITY_WEIGHTING
+    newCtrl.TIME_DELAY_MOTOR = TIME_DELAY_MOTOR
+    newCtrl.overrideCNA = overrideCNA
+
+
+    newCtrl.OVERRIDEN_INI_TAB_ANGLE = -10
+    newCtrl.OVERRIDE_INITIAL_TAB_STATE = True
 
 
     newCtrl.amplitude_randomness_size = ALTITUDE_NOISE_AMPLITUDE
@@ -414,7 +449,6 @@ if True:
     newCtrl.velMinThresh = VELMINTHRESH
 
 
-
     simThread = threading.Thread(target=lambda: sim.simulate(listener_array))
     simThread.start()
 
@@ -443,12 +477,18 @@ if True:
     finTabAngleLog = np.array(newCtrl.finTabAngleLog)
     smoothTabAngleHist = np.array(newCtrl.desiredFinTabAngleLog)
 
+    smoothTabAngleHist = np.clip(smoothTabAngleHist, -10, 10)
+
     finHistory = finCantLog if not USE_TABS else finTabAngleLog
 
 
     data = orh.get_timeseries(sim, [dT.TYPE_ALTITUDE,dT.TYPE_VELOCITY_Z,dT.TYPE_TIME])
 
     t = np.array(data[dT.TYPE_TIME].tolist())
+
+    t += 3
+
+
     alt = np.array(data[dT.TYPE_ALTITUDE].tolist())
     vel = np.array(data[dT.TYPE_VELOCITY_Z].tolist())
     velMagnitude = np.array(newCtrl.rocketVelMagnitudeLog)
@@ -470,6 +510,13 @@ if True:
     import matplotlib.pyplot as plt
 
     apogeeInd = alt.argmax()
+
+    for i in range(len(t)):
+        if t[i] > 8:
+            break
+
+    apogeeInd = i
+
     np.set_printoptions(legacy='1.13')
     velMagProcess = velMagnitude[int(len(t)/4):apogeeInd]
     controlCutoffIndex = np.argmin(np.abs(velMagProcess - VELMINTHRESH)) + int(len(t)/4)
@@ -575,7 +622,8 @@ if True:
 
     #ax3.plot([-1],[-1],label="Ang. Vel. (rad/s)",color='red',alpha=0.5,linewidth=2)
 
-    ax2.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=0.5,alpha=1)
+
+    ax2.plot(t[:apogeeInd],smoothTabAngleHist[:apogeeInd],label="Controller Output",color='blue',linewidth=2,alpha=1)
     ax2.plot(t[:apogeeInd],finHistory[:apogeeInd],label="Fin Cant (deg)" if not USE_TABS else 'Fin Tab Angle (deg)',color='purple',alpha=1,linewidth=1)
     ax3.plot([-1],[-1],color='blue',linestyle='dotted',label='Desired Angle')
 
@@ -602,6 +650,7 @@ if True:
     maxLim3 = max(*np.abs(ax3.get_ylim()))
     #ax2.set_ylim(-maxLim2,maxLim2)
     ax2.set_ylim(-12,12)
+    #ax2.set_ylim(-50,50)
     ax3.set_ylim(-70,70)
     ax3.set_yticks(np.arange(-60,61,30))
 
@@ -636,7 +685,7 @@ if True:
     plt.gcf().suptitle(titleFirstLine +titleTurbLine + title_vPID_Line + title_aPID_Line + title_fixed_Line + title_suppLine + title_windLine + "\\end{center}", fontsize=12)
 
     plt.savefig(figPath)
-    #plt.show()
+    plt.show()
 
     logger.setLevel(level=logging.INFO)
 

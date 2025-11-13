@@ -5,6 +5,7 @@ import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
 import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.ArrayList;
@@ -94,6 +95,11 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static double desiredRotAng = 0;
     public static double constFixed = 0;
 
+    public static boolean DISABLE_VELOCITY_WEIGHTING = false;
+    public static boolean OVERRIDE_INITIAL_TAB_STATE = false;
+    public static boolean didntOverrideYet = true;
+    public static double OVERRIDEN_INI_TAB_ANGLE = 0;
+
 
     public static double WIND_EVENT_1_GUST = 10; // delta Z in mrad/sec
     public static double WIND_EVENT_2_GUST = 20; // delta Z in mrad/sec
@@ -127,6 +133,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static final double A2 = 2.068;
 
 
+    public static double TIME_DELAY_MOTOR = 0;
+    public static double overrideCNA = 0;
     public static double velocityToUse = 0;
     public static double altitudeToUse = 0;
     public static double velocityMeasured = 0;
@@ -163,10 +171,25 @@ public class NewControlStepListener extends AbstractSimulationListener {
     @Override
     public void startSimulation(SimulationStatus status) throws SimulationException {
         status.copySimStatParameters(initialStat);
+        if (TIME_DELAY_MOTOR > 0) {
+            ((MotorClusterState) status.getActiveMotors().toArray()[0]).ignite(status.getSimulationTime()-TIME_DELAY_MOTOR); // 3.5 seconds before
+        }
+        if (TIME_DELAY_MOTOR > 100) {
+            ((MotorClusterState) status.getActiveMotors().toArray()[0]).burnOut(status.getSimulationTime()-TIME_DELAY_MOTOR); // 3.5 seconds before
+        }
+
         super.startSimulation(status);
         lastStat = status.clone();
         currentState = READY;
+
+        theFinsToModify = getTheFinsToModifyTabs(status);
+        if (overrideCNA > 0) {
+            ((TabControlledTrapezoidFinSet) theFinsToModify).setCNALPHA(overrideCNA);
+        }
         System.out.println("[JAVA] Confirmed reception of PID Coeffs ANG {" + kP_ANG + " " + kI_ANG + " " + kD_ANG + "} ");
+
+
+
     }
 
     @Override
@@ -217,9 +240,20 @@ public class NewControlStepListener extends AbstractSimulationListener {
                     lastTabAngle = getFinTabAngle();
                     break;
                 case READY:
+
+
+
                     theFinsToModify = getTheFinsToModifyTabs(status);
                     secondToLastTabAngle = lastTabAngle;
                     lastTabAngle = getFinTabAngle();
+
+                    if(OVERRIDE_INITIAL_TAB_STATE & didntOverrideYet) {
+                        secondToLastTabAngle = OVERRIDEN_INI_TAB_ANGLE;
+                        lastTabAngle = OVERRIDEN_INI_TAB_ANGLE;
+                        setFinTabAngleDumb(OVERRIDEN_INI_TAB_ANGLE);
+                        didntOverrideYet = false;
+                    }
+
                     if (velocityToUse > velMinThresh) {
                         iniAngle = getFinTabAngle();
                         ctrlOut = finCantController_Tabs(status);
@@ -429,9 +463,9 @@ public class NewControlStepListener extends AbstractSimulationListener {
         }
         double previousAngle = getFinTabAngle();
         double rotVel = currentStat.getRocketRotationVelocity().z;
-        double rotAng = toDegrees(toEulerAngles(currentStat.getRocketOrientationQuaternion()).z);
+        double rotAng = toDegrees(toEulerAngles(currentStat.getRocketOrientationQuaternion()).z)+10;
         double lastRotVel = lastStat.getRocketRotationVelocity().z;
-        double lastRotAng = toDegrees(toEulerAngles(lastStat.getRocketOrientationQuaternion()).z);
+        double lastRotAng = toDegrees(toEulerAngles(lastStat.getRocketOrientationQuaternion()).z)+10;
         double lastErrVel = desiredRotVel - lastRotVel;
         double lastErrAng = desiredRotAng - lastRotAng;
         double errVel = desiredRotVel - rotVel;
@@ -448,16 +482,30 @@ public class NewControlStepListener extends AbstractSimulationListener {
         if (velocityPIDon) {
             totErrVel = errVel + totErrVel * IdecayFactor;
 
-            thrusting += errVel * kP_VEL*refVelSq/velToUseForGainSq;
-            thrusting += (errVel - lastErrVel)/latestTimeStep * kD_VEL*refVelSq/velToUseForGainSq;
-            thrusting += totErrVel * kI_VEL*refVelSq/velToUseForGainSq;
+            if (DISABLE_VELOCITY_WEIGHTING) {
+                thrusting += errVel * kP_VEL;
+                thrusting += (errVel - lastErrVel)/latestTimeStep * kD_VEL;
+                thrusting += totErrVel * kI_VEL;
+            }
+            else {
+                thrusting += errVel * kP_VEL*refVelSq/velToUseForGainSq;
+                thrusting += (errVel - lastErrVel)/latestTimeStep * kD_VEL*refVelSq/velToUseForGainSq;
+                thrusting += totErrVel * kI_VEL*refVelSq/velToUseForGainSq;
+            }
         }
         if (positionPIDon) {
             totErrAng = errAng + totErrAng * IdecayFactor;
+            if (DISABLE_VELOCITY_WEIGHTING) {
+                thrusting += errAng * kP_ANG;
+                thrusting += (errAng - lastErrAng)/latestTimeStep * kD_ANG;
+                thrusting += totErrAng * kI_ANG;
+            }
+            else {
+                thrusting += errAng * kP_ANG*refVelSq/velToUseForGainSq;
+                thrusting += (errAng - lastErrAng)/latestTimeStep * kD_ANG*refVelSq/velToUseForGainSq;
+                thrusting += totErrAng * kI_ANG*refVelSq/velToUseForGainSq;
+            }
 
-            thrusting += errAng * kP_ANG*refVelSq/velToUseForGainSq;
-            thrusting += (errAng - lastErrAng)/latestTimeStep * kD_ANG*refVelSq/velToUseForGainSq;
-            thrusting += totErrAng * kI_ANG*refVelSq/velToUseForGainSq;
         }
         return thrusting;
     }
@@ -484,14 +532,14 @@ public class NewControlStepListener extends AbstractSimulationListener {
     }
 
     // don't worry about it
-    public static FinSet getTheFinsToModifyTabs(SimulationStatus status) {
-        ArrayList<FinSet> finSets = new ArrayList<>();
+    public static TabControlledTrapezoidFinSet getTheFinsToModifyTabs(SimulationStatus status) {
+        ArrayList<TabControlledTrapezoidFinSet> finSets = new ArrayList<>();
         Rocket rocket = status.getConfiguration().getRocket();
         for (Iterator<RocketComponent> it = rocket.iterator(true); it.hasNext(); ) {
             RocketComponent component = it.next();
 
-            if(component instanceof TabControlledTrapezoidFinSet) {
-                finSets.add((FinSet) component);
+            if (component instanceof TabControlledTrapezoidFinSet) {
+                finSets.add((TabControlledTrapezoidFinSet) component);
             }
 
 
@@ -527,7 +575,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static double getFinTabAngle() {
         //double stepSize = servoRangeAngleDeg/servoStepCount;
         //double numStepsFromZero = (int) (newAngle/stepSize);
-        return ((TabControlledTrapezoidFinSet) theFinsToModify).getTabAngle()*180/PI;
+        return ((TabControlledTrapezoidFinSet) theFinsToModify).getTabAngle()*180/PI ;
     }
 
 
