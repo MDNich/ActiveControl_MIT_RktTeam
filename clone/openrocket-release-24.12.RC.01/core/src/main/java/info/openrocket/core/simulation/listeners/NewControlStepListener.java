@@ -448,6 +448,37 @@ public class NewControlStepListener extends AbstractSimulationListener {
         status.setRocketRotationVelocity(new Coordinate(status.getRocketRotationVelocity().x,status.getRocketRotationVelocity().y,status.getRocketRotationVelocity().z+deltaZ));
     }
 
+
+
+
+    /**
+     * Compute the desired fin tab control output (angle) using PID controllers.
+     *
+     * <p>This method calculates the control output (expressed in degrees) for the
+     * tab-controlled fin set based on the current simulation status. The controller
+     * combines velocity- and position-based PID terms according to the global
+     * configuration flags (for example {@code velocityPIDon}, {@code positionPIDon}
+     * and {@code DISABLE_VELOCITY_WEIGHTING}). The method also uses several
+     * globally-configured gains and state variables (for example {@code kP_VEL},
+     * {@code kD_ANG}, {@code refVelSq}, {@code velMinThresh} and {@code latestTimeStep}).
+     *
+     * <p>Important behavior and side effects:
+     * <ul>
+     *   <li>The rocket speed is overridden with the global {@code velocityToUse} value.
+     *   <li>If the (overridden) speed is below {@code velMinThresh} the method returns
+     *       0. If {@code flagOk} is {@code false} a debug message may be printed.
+     *   <li>Roll angle and rate are read from {@code currentStat} (note the implementation
+     *       uses {@code toDegrees(toEulerAngles(...).z) + 10} for the roll angle).
+     *   <li>Derivative terms use {@code latestTimeStep}; callers/contexts should ensure
+     *       this value is positive to avoid large/undefined derivative contributions.
+     *   <li>The global variable {@code lastStat} is updated (set to a clone of
+     *       {@code currentStat}).
+     * </ul>
+     *
+     * @param currentStat the current simulation status containing rocket kinematics
+     * @param flagOk when {@code false} a low-speed condition may cause a debug message to be printed
+     * @return the computed control output expressed as a fin tab angle in degrees
+     */
     public static double finCantController_Tabs(SimulationStatus currentStat, boolean flagOk) {
         double currentSpeed = currentStat.getRocketVelocity().length();
 
@@ -509,6 +540,13 @@ public class NewControlStepListener extends AbstractSimulationListener {
         }
         return thrusting;
     }
+    /**
+     * Convenience overload that calls {@link #finCantController_Tabs(SimulationStatus, boolean)}
+     * with {@code flagOk == false}.
+     *
+     * @param currentStat the current simulation status
+     * @return the computed control output expressed as a fin tab angle in degrees
+     */
     public static double finCantController_Tabs(SimulationStatus currentStat) {
         return finCantController_Tabs(currentStat,false);
     }
