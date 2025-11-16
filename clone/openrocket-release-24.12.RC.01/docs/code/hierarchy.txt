@@ -1,0 +1,84 @@
+info.openrocket.core.rocketcomponent
+└── RocketComponent              (absztrakt, MINDEN komponens ősosztálya)
+    ├── ComponentAssembly        (absztrakt, gyerekeket tartalmazó "szerelvény")
+    │   ├── Rocket               (a teljes rakéta gyökéreleme)
+    │   ├── AxialStage
+    │   │   ├── ParallelStage
+    │   │   └── (egyéb stage‑típusok, ha vannak)
+    │   ├── PodSet               (test köré szerelt pod-/oldalkomponensek gyűjteménye)
+    │   ├── ClusterConfiguration (motorcluster konfiguráció)
+    │   └── ComponentAssembly    (egyéb speciális assembly típusok)
+    │
+    ├── BodyComponent            (absztrakt, testhez tartozó külső/strukturális elemek közös ős)
+    │   ├── SymmetricComponent   (absztrakt, forgásszimmetrikus testek, csövek)
+    │   │   ├── Tube             (absztrakt / alap csőforma)
+    │   │   │   ├── BodyTube
+    │   │   │   ├── InnerTube
+    │   │   │   ├── TubeCoupler
+    │   │   │   ├── Sleeve
+    │   │   │   └── TubeFinSet   (csőre szerelt véglemezek/fin‑sor)
+    │   │   ├── NoseCone
+    │   │   ├── Transition
+    │   │   ├── TubeFinSet       (fin set, mint szimmetrikus elem)
+    │   │   └── (egyéb szimmetrikus variánsok)
+    │   │
+    │   ├── RingComponent        (absztrakt gyűrű jellegű komponensek)
+    │   │   ├── RadiusRingComponent
+    │   │   ├── ThicknessRingComponent
+    │   │   ├── CenteringRing
+    │   │   └── Bulkhead
+    │   │
+    │   ├── StructuralComponent  (absztrakt, szerkezeti szerepű elemek)
+    │   │   ├── EngineBlock
+    │   │   ├── TubeCoupler      (ha ide sorolva van)
+    │   │   └── (egyéb strukturális elemek)
+    │   │
+    │   ├── ExternalComponent    (absztrakt, külső, aerodinamikailag látható részek)
+    │   │   ├── LaunchLug
+    │   │   ├── RailButton
+    │   │   ├── FinSet           (absztrakt)
+    │   │   │   ├── TrapezoidFinSet
+    │   │   │   ├── EllipticalFinSet
+    │   │   │   ├── FreeformFinSet
+    │   │   │   └── TabControlledTrapezoidFinSet
+    │   │   ├── AirbrakeSet      (féklap-készlet; Leaf leszármazott is)
+    │   │   └── (egyéb külső elemek)
+    │   │
+    │   ├── InternalComponent    (absztrakt, test belsejében lévő elemek)
+    │   │   ├── MotorMount
+    │   │   ├── MassComponent    (lásd lentebb)
+    │   │   ├── RecoveryDevice   (pl. ejtőernyő, streamer)
+    │   │   └── (egyéb belső elemek)
+    │   │
+    │   └── BodyComponent        (egyéb, nem részletezett leszármazottak)
+    │
+    ├── MassComponent            (absztrakt, tömeget reprezentáló komponens)
+    │   ├── MassObject
+    │   └── (egyéb tömegelemek, ha vannak)
+    │
+    ├── RecoveryDevice           (absztrakt, mentőrendszer-komponens)
+    │   ├── Parachute
+    │   ├── Streamer
+    │   └── ShockCord
+    │
+    ├── Leaf                     (absztrakt, „levél” típusú, általában nem tart gyerekeket)
+    │   ├── AirbrakeSet
+    │   └── (egyéb levél-elemek)
+    │
+    ├── BoxBounded               (absztrakt/segéd-bázis a téglatest‑határolt objektumoknak)
+    │   └── (ide sorolt konkrét típusok)
+    │
+    ├── FlightConfigurableComponent
+    │   ├── FlightConfigurableParameter
+    │   ├── FlightConfigurableParameterSet
+    │   └── (olyan komponensek, amelyek flight‑config szerint állíthatók)
+    │
+    ├── RocketUtils              (segédosztály, nem komponens‑szülő)
+    ├── InstanceMap              (példány‑leképezés, nem vizuális komponens)
+    ├── InstanceContext
+    ├── FlightConfiguration
+    ├── FlightConfigurationId
+    ├── IgnitionConfiguration
+    ├── DeploymentConfiguration
+    ├── StageSeparationConfiguration
+    └── (egyéb konfigurációs / segédosztályok)

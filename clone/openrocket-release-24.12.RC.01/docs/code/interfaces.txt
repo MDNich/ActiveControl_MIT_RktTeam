@@ -1,0 +1,12 @@
+info.openrocket.core.rocketcomponent
+├── Clusterable              (interface)
+├── Instanceable             (interface)
+│   ├── LineInstanceable     (konkrét implementáció / marker)
+│   └── RingInstanceable
+├── RadialParent             (interface vagy absztrakt szülő, sugárirányú gyerekeket kezel)
+├── InsideColorComponent     (interface/marker, belső szín kezelésére)
+│   └── InsideColorComponentHandler
+├── RocketComponentVisitor   (visitor‑minta a komponensfához)
+├── ComponentChangeListener  (listener interface)
+├── ComponentChangeEvent
+└── (egyéb listener / event osztályok)
