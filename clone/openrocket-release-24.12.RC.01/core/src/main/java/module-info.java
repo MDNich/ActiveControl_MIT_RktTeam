@@ -28,7 +28,6 @@ open module info.openrocket.core {
 	requires org.locationtech.jts;
 	requires org.objectweb.asm.commons;
     requires org.checkerframework.checker.qual;
-    //requires info.openrocket.core;
 
     // TODO: I'm a JPMS noob, so I just exported each package. Should really check which ones are actually needed.
 	exports info.openrocket.core.aerodynamics;

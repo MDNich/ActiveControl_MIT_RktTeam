@@ -110,7 +110,9 @@ public class ComponentAddButtons extends JPanel implements Scrollable {
 				new ComponentButton(document, selectionModel, TubeFinSet.class, trans.get("compaddbuttons.Tubefin")),
 				//// Rail Button
 				new ComponentButton(document, selectionModel, RailButton.class, trans.get("compaddbuttons.RailButton")),
-				//// Launch lug
+                //// Airbake
+                new ComponentButton(document, selectionModel, AirbrakeSet.class, "Airbrakes"),
+                //// Launch lug
 				new ComponentButton(document, selectionModel, LaunchLug.class, trans.get("compaddbuttons.Launchlug")));
 		row++;
 		

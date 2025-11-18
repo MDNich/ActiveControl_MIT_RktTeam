@@ -88,7 +88,7 @@ public class FinSetShapes extends RocketComponentShapes {
 		return RocketComponentShapes.toArray(toReturn, finset);
 	}
 
-	private static Path2D.Float generatePath(final Coordinate[] points){
+	public static Path2D.Float generatePath(final Coordinate[] points){
 		Path2D.Float finShape = new Path2D.Float();
 		for( int i = 0; i < points.length; i++){
 			Coordinate curPoint = points[i];

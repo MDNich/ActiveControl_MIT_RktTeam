@@ -42,7 +42,8 @@ class DocumentConfig {
 			constructors.put("tubefinset", TubeFinSet.class.getConstructor());
 			constructors.put("launchlug", LaunchLug.class.getConstructor());
 			constructors.put("railbutton", RailButton.class.getConstructor());
-			
+			constructors.put("airbrakeset", AirbrakeSet.class.getConstructor());
+
 			// Internal components
 			constructors.put("engineblock", EngineBlock.class.getConstructor());
 			constructors.put("innertube", InnerTube.class.getConstructor());
@@ -312,7 +313,26 @@ class DocumentConfig {
 		setters.put("TubeFinSet:angleoffset", new AnglePositionSetter());
 		setters.put("TubeFinSet:radiusoffset", new RadiusPositionSetter());
 
-		// InternalComponent - nothing
+
+        // Airbrake Set
+        setters.put("AirbrakeSet:length", new DoubleSetter(
+                Reflection.findMethod(AirbrakeSet.class, "setLength", double.class)));
+        setters.put("AirbrakeSet:width", new DoubleSetter(
+                Reflection.findMethod(AirbrakeSet.class, "setWidth", double.class)));
+        setters.put("AirbrakeSet:thickness", new DoubleSetter(
+                Reflection.findMethod(AirbrakeSet.class, "setThickness", double.class)));
+        setters.put("AirbrakeSet:numAirbrakes", new IntSetter(
+                Reflection.findMethod(AirbrakeSet.class, "setNumAirbrakes", int.class)));
+        setters.put("AirbrakeSet:overrideCD", new DoubleSetter(
+                Reflection.findMethod(AirbrakeSet.class, "setOverrideCD", double.class)));
+        setters.put("AirbrakeSet:indivAirbrakeMass", new DoubleSetter(
+                Reflection.findMethod(AirbrakeSet.class, "setIndivAirbrakeMass", double.class)));
+        setters.put("AirbrakeSet:fracExposed", new DoubleSetter(
+                Reflection.findMethod(AirbrakeSet.class, "setFracExposed", double.class)));
+
+
+
+        // InternalComponent - nothing
 		
 		// StructuralComponent
 		setters.put("StructuralComponent:material", new MaterialSetter(

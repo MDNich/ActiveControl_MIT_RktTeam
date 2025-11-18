@@ -55,5 +55,7 @@ open module info.openrocket.swing {
 			info.openrocket.swing.gui.rocketfigure.SymmetricComponentShapes,
 			info.openrocket.swing.gui.rocketfigure.TransitionShapes,
 			info.openrocket.swing.gui.rocketfigure.TubeFinSetShapes,
-			info.openrocket.swing.gui.rocketfigure.TubeShapes;
+			info.openrocket.swing.gui.rocketfigure.TubeShapes,
+            info.openrocket.swing.gui.rocketfigure.AirbrakeSetShapes,
+            info.openrocket.swing.gui.rocketfigure.LeafSetShapes;
 }

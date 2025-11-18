@@ -248,6 +248,7 @@ public class OpenRocketSaver extends RocketSaver {
 		while ((currentclass != null) && (currentclass != Object.class)) {
 			currentclassname = currentclass.getSimpleName();
 			saverclassname = METHOD_PACKAGE + "." + currentclassname + METHOD_SUFFIX;
+            System.out.println("Looking for " + saverclassname);
 			
 			try {
 				saverClass = Class.forName(saverclassname);
