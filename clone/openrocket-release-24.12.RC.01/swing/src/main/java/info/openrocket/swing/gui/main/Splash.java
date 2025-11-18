@@ -62,7 +62,7 @@ public class Splash {
 	
 	
 	private static void drawVersionNumber(Graphics2D g2) {
-		String text = "MIT Edition (v4)";
+		String text = "MIT Edition (v5)";
 		GlyphVector gv = VERSION_FONT.createGlyphVector(g2.getFontRenderContext(), text);
 		
 		Rectangle2D rect = gv.getVisualBounds();
