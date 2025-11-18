@@ -30,8 +30,10 @@ public class AboutDialog extends JDialog {
 	private final Translator trans = Application.getTranslator();
 	
 	private final String CREDITS = "<html><center>" +
-		"<font size=\"+1\"><b>OpenRocket has been developed by:</b></font><br>" +
+		"<font size=\"+1\"><b>This MIT edition of OpenRocket has been developed by:</b></font><br>" +
 		"<br>" +
+		"Marc D Nichițiu (MIT Rocket Team Simulations)<br><br>" +
+        "<b><i> based on the founation of </i></b><br><br>" +
 		"Sampo Niskanen (main developer)<br>" +
 		"Doug Pedrick (RockSim file format, printing)<br>" +
 		"Kevin Ruland (Android version)<br>" +
@@ -110,11 +112,12 @@ public class AboutDialog extends JDialog {
 		sub = new JPanel(new MigLayout("fill"));
 		
 		sub.add(new StyledLabel("OpenRocket", 20), "ax 50%, growy, wrap para");
-		sub.add(new StyledLabel(trans.get("lbl.version").trim() + " " + version, 3), "ax 50%, growy, wrap rel");
+		sub.add(new StyledLabel("MIT Edition (v5), using ".trim() + " " + version, 3), "ax 50%, growy, wrap rel");
 		String copyright = String.format("Copyright %c 2007-%s Sampo Niskanen and others", Chars.COPY, copyrightYear);
 		sub.add(new StyledLabel(copyright), "ax 50%, growy, wrap para");
 		
 		sub.add(new URLLabel(OPENROCKET_URL), "ax 50%, growy, wrap para");
+		sub.add(new URLLabel("https://github.com/MDNich/ActiveControl_MIT_RktTeam"), "ax 50%, growy, wrap para");
 		panel.add(sub, "grow, pushx");
 		
 		

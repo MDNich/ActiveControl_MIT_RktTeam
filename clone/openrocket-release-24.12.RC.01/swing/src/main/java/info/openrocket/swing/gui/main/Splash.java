@@ -63,14 +63,24 @@ public class Splash {
 	
 	private static void drawVersionNumber(Graphics2D g2) {
 		String text = "MIT Edition (v5)";
+		String text2 = "Marc D. Nichițiu (RT)";
+		String text3 = "nichitiu@mit.edu";
 		GlyphVector gv = VERSION_FONT.createGlyphVector(g2.getFontRenderContext(), text);
-		
+		GlyphVector gv2 = VERSION_FONT.createGlyphVector(g2.getFontRenderContext(), text2);
+		GlyphVector gv3 = VERSION_FONT.createGlyphVector(g2.getFontRenderContext(), text3);
+
 		Rectangle2D rect = gv.getVisualBounds();
+		Rectangle2D rect2 = gv2.getVisualBounds();
+		Rectangle2D rect3 = gv3.getVisualBounds();
 		double width = rect.getWidth();
-		
+		double width2 = rect2.getWidth();
+		double width3 = rect3.getWidth();
+
 		g2.setColor(VERSION_COLOR);
 		g2.drawGlyphVector(gv, (float) (VERSION_POSITION_X - width), VERSION_POSITION_Y);
-		
+		g2.drawGlyphVector(gv2, (float) (VERSION_POSITION_X - width2), VERSION_POSITION_Y+((float) (rect.getHeight()*1.3)));
+		g2.drawGlyphVector(gv3, (float) (VERSION_POSITION_X - width3), VERSION_POSITION_Y+((float) (rect.getHeight()*1.3 + rect2.getHeight()*1.15)));
+
 	}
 	
 	
