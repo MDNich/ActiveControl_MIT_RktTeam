@@ -1,0 +1,1108 @@
+- info.openrocket.core
+  - info.openrocket.core.aerodynamics
+    - AbstractAerodynamicCalculator (class) — implements A  <!-- info/openrocket/core/aerodynamics/AbstractAerodynamicCalculator.java -->
+    - AerodynamicCalculator (interface) — extends M  <!-- info/openrocket/core/aerodynamics/AerodynamicCalculator.java -->
+    - AerodynamicForces (class) — implements C  <!-- info/openrocket/core/aerodynamics/AerodynamicForces.java -->
+    - BarrowmanCalculator (class) — extends A  <!-- info/openrocket/core/aerodynamics/BarrowmanCalculator.java -->
+    - FlightConditions (class) — implements C  <!-- info/openrocket/core/aerodynamics/FlightConditions.java -->
+    - defining (class)  <!-- info/openrocket/core/aerodynamics/FlightConditions.java -->
+    - for (interface)  <!-- info/openrocket/core/aerodynamics/AerodynamicCalculator.java -->
+  - info.openrocket.core.aerodynamics.barrowman
+    - AirbrakeSetCalc (class) — extends R  <!-- info/openrocket/core/aerodynamics/barrowman/AirbrakeSetCalc.java -->
+    - ComponentAssemblyCalc (class) — extends R  <!-- info/openrocket/core/aerodynamics/barrowman/ComponentAssemblyCalc.java -->
+    - FinSetCalc (class) — extends R  <!-- info/openrocket/core/aerodynamics/barrowman/FinSetCalc.java -->
+    - LaunchLugCalc (class) — extends T  <!-- info/openrocket/core/aerodynamics/barrowman/LaunchLugCalc.java -->
+    - RailButtonCalc (class) — extends R  <!-- info/openrocket/core/aerodynamics/barrowman/RailButtonCalc.java -->
+    - RocketComponentCalc (class)  <!-- info/openrocket/core/aerodynamics/barrowman/RocketComponentCalc.java -->
+    - SymmetricComponentCalc (class) — extends R  <!-- info/openrocket/core/aerodynamics/barrowman/SymmetricComponentCalc.java -->
+    - TubeCalc (class) — extends R  <!-- info/openrocket/core/aerodynamics/barrowman/TubeCalc.java -->
+    - TubeFinSetCalc (class) — extends T  <!-- info/openrocket/core/aerodynamics/barrowman/TubeFinSetCalc.java -->
+  - info.openrocket.core.appearance
+    - Appearance (class)  <!-- info/openrocket/core/appearance/Appearance.java -->
+    - AppearanceBuilder (class) — extends A  <!-- info/openrocket/core/appearance/AppearanceBuilder.java -->
+    - Decal (class)  <!-- info/openrocket/core/appearance/Decal.java -->
+    - DecalImage (interface) — extends C  <!-- info/openrocket/core/appearance/DecalImage.java -->
+    - EdgeMode (enum)  <!-- info/openrocket/core/appearance/Decal.java -->
+    - is (class)  <!-- info/openrocket/core/appearance/Appearance.java -->
+    - is (class)  <!-- info/openrocket/core/appearance/Decal.java -->
+    - repeatedly (class)  <!-- info/openrocket/core/appearance/AppearanceBuilder.java -->
+    - to (class)  <!-- info/openrocket/core/appearance/AppearanceBuilder.java -->
+    - to (enum)  <!-- info/openrocket/core/appearance/Decal.java -->
+  - info.openrocket.core.appearance.defaults
+    - DefaultAppearance (class)  <!-- info/openrocket/core/appearance/defaults/DefaultAppearance.java -->
+    - ResourceDecalImage (class) — implements D  <!-- info/openrocket/core/appearance/defaults/ResourceDecalImage.java -->
+    - of (class)  <!-- info/openrocket/core/appearance/defaults/ResourceDecalImage.java -->
+  - info.openrocket.core.arch
+    - Platform (enum)  <!-- info/openrocket/core/arch/SystemInfo.java -->
+    - SystemInfo (class)  <!-- info/openrocket/core/arch/SystemInfo.java -->
+    - is (interface)  <!-- info/openrocket/core/arch/SystemInfo.java -->
+  - info.openrocket.core.communication
+    - BugReporter (class) — extends C  <!-- info/openrocket/core/communication/BugReporter.java -->
+    - Communicator (class)  <!-- info/openrocket/core/communication/Communicator.java -->
+    - ConnectionSource (interface)  <!-- info/openrocket/core/communication/ConnectionSource.java -->
+    - DefaultConnectionSource (class) — implements C  <!-- info/openrocket/core/communication/DefaultConnectionSource.java -->
+    - GitHubAPIUtil (class)  <!-- info/openrocket/core/communication/GitHubAPIUtil.java -->
+    - ReleaseInfo (class)  <!-- info/openrocket/core/communication/ReleaseInfo.java -->
+    - ReleaseNotesHandler (class) — extends A  <!-- info/openrocket/core/communication/ReleaseNotesHandler.java -->
+    - ReleaseStatus (enum)  <!-- info/openrocket/core/communication/UpdateInfoRetriever.java -->
+    - UpdateCheckerException (class) — extends E  <!-- info/openrocket/core/communication/UpdateInfoRetriever.java -->
+    - UpdateInfo (class)  <!-- info/openrocket/core/communication/UpdateInfo.java -->
+    - UpdateInfoFetcher (class) — extends T  <!-- info/openrocket/core/communication/UpdateInfoRetriever.java -->
+    - UpdateInfoRetriever (class)  <!-- info/openrocket/core/communication/UpdateInfoRetriever.java -->
+    - WelcomeInfoRetriever (class)  <!-- info/openrocket/core/communication/WelcomeInfoRetriever.java -->
+    - exists (interface)  <!-- info/openrocket/core/communication/ConnectionSource.java -->
+  - info.openrocket.core.componentanalysis
+    - CADataBranch (class) — extends D  <!-- info/openrocket/core/componentanalysis/CADataBranch.java -->
+    - CADataType (class) — implements C  <!-- info/openrocket/core/componentanalysis/CADataType.java -->
+    - CADataTypeGroup (class) — implements C  <!-- info/openrocket/core/componentanalysis/CADataTypeGroup.java -->
+    - CADomainDataType (class) — extends C  <!-- info/openrocket/core/componentanalysis/CADomainDataType.java -->
+    - CAParameterSweep (class)  <!-- info/openrocket/core/componentanalysis/CAParameterSweep.java -->
+    - CAParameters (class) — implements C  <!-- info/openrocket/core/componentanalysis/CAParameters.java -->
+    - CAParametersListener (interface)  <!-- info/openrocket/core/componentanalysis/CAParameters.java -->
+  - info.openrocket.core.database
+    - AsynchronousDatabaseLoader (class)  <!-- info/openrocket/core/database/AsynchronousDatabaseLoader.java -->
+    - ComponentPresetDao (interface)  <!-- info/openrocket/core/database/ComponentPresetDao.java -->
+    - ComponentPresetDatabase (class) — extends D  <!-- info/openrocket/core/database/ComponentPresetDatabase.java -->
+    - ComponentPresetDatabaseLoader (class) — extends A  <!-- info/openrocket/core/database/ComponentPresetDatabaseLoader.java -->
+    - DBIterator (class) — implements I  <!-- info/openrocket/core/database/Database.java -->
+    - Database (class)  <!-- info/openrocket/core/database/Database.java -->
+    - DatabaseListener (interface)  <!-- info/openrocket/core/database/DatabaseListener.java -->
+    - Databases (class)  <!-- info/openrocket/core/database/Databases.java -->
+    - LoadingThread (class) — extends T  <!-- info/openrocket/core/database/AsynchronousDatabaseLoader.java -->
+    - MotorDatabaseLoader (class) — extends A  <!-- info/openrocket/core/database/MotorDatabaseLoader.java -->
+    - defining (interface)  <!-- info/openrocket/core/database/DatabaseListener.java -->
+    - functions (class)  <!-- info/openrocket/core/database/Database.java -->
+    - implementation (class)  <!-- info/openrocket/core/database/Database.java -->
+    - that (class)  <!-- info/openrocket/core/database/Databases.java -->
+    - that (class)  <!-- info/openrocket/core/database/AsynchronousDatabaseLoader.java -->
+  - info.openrocket.core.database.motor
+    - MotorDatabase (interface)  <!-- info/openrocket/core/database/motor/MotorDatabase.java -->
+    - ThrustCurveMotorComparator (class) — implements C  <!-- info/openrocket/core/database/motor/ThrustCurveMotorSet.java -->
+    - ThrustCurveMotorSet (class) — implements C  <!-- info/openrocket/core/database/motor/ThrustCurveMotorSet.java -->
+    - ThrustCurveMotorSetDatabase (class) — implements M  <!-- info/openrocket/core/database/motor/ThrustCurveMotorSetDatabase.java -->
+  - info.openrocket.core.document
+    - Attachment (class) — extends A  <!-- info/openrocket/core/document/Attachment.java -->
+    - ConditionListener (class) — implements S  <!-- info/openrocket/core/document/Simulation.java -->
+    - DecalImageImpl (class) — implements D  <!-- info/openrocket/core/document/DecalRegistry.java -->
+    - DecalRegistry (class)  <!-- info/openrocket/core/document/DecalRegistry.java -->
+    - FileType (enum)  <!-- info/openrocket/core/document/StorageOptions.java -->
+    - OpenRocketDocument (class) — implements C  <!-- info/openrocket/core/document/OpenRocketDocument.java -->
+    - OpenRocketDocumentFactory (class)  <!-- info/openrocket/core/document/OpenRocketDocumentFactory.java -->
+    - Simulation (class) — implements C  <!-- info/openrocket/core/document/Simulation.java -->
+    - Status (enum)  <!-- info/openrocket/core/document/Simulation.java -->
+    - StorageOptions (class) — implements C  <!-- info/openrocket/core/document/StorageOptions.java -->
+    - UndoRedoListener (interface) — extends E  <!-- info/openrocket/core/document/UndoRedoListener.java -->
+    - defining (class)  <!-- info/openrocket/core/document/Simulation.java -->
+    - is (class)  <!-- info/openrocket/core/document/Simulation.java -->
+  - info.openrocket.core.document.attachments
+    - FileSystemAttachment (class) — extends A  <!-- info/openrocket/core/document/attachments/FileSystemAttachment.java -->
+    - ZipFileAttachment (class) — extends A  <!-- info/openrocket/core/document/attachments/ZipFileAttachment.java -->
+  - info.openrocket.core.document.events
+    - DocumentChangeEvent (class) — extends E  <!-- info/openrocket/core/document/events/DocumentChangeEvent.java -->
+    - DocumentChangeListener (interface)  <!-- info/openrocket/core/document/events/DocumentChangeListener.java -->
+    - SimulationChangeEvent (class) — extends D  <!-- info/openrocket/core/document/events/SimulationChangeEvent.java -->
+  - info.openrocket.core.file
+    - AbstractRocketLoader (class) — implements R  <!-- info/openrocket/core/file/AbstractRocketLoader.java -->
+    - AttachmentFactory (interface)  <!-- info/openrocket/core/file/AttachmentFactory.java -->
+    - AttachmentUtils (class)  <!-- info/openrocket/core/file/AttachmentUtils.java -->
+    - CSVExport (class)  <!-- info/openrocket/core/file/CSVExport.java -->
+    - DatabaseMotorFinder (class) — implements M  <!-- info/openrocket/core/file/DatabaseMotorFinder.java -->
+    - DocumentLoadingContext (class)  <!-- info/openrocket/core/file/DocumentLoadingContext.java -->
+    - FileSystemAttachmentFactory (class) — implements A  <!-- info/openrocket/core/file/FileSystemAttachmentFactory.java -->
+    - GeneralRocketLoader (class)  <!-- info/openrocket/core/file/GeneralRocketLoader.java -->
+    - GeneralRocketSaver (class)  <!-- info/openrocket/core/file/GeneralRocketSaver.java -->
+    - Loader (interface)  <!-- info/openrocket/core/file/Loader.java -->
+    - MotorFinder (interface)  <!-- info/openrocket/core/file/MotorFinder.java -->
+    - ProgressOutputStream (class) — extends F  <!-- info/openrocket/core/file/GeneralRocketSaver.java -->
+    - RocketLoadException (class) — extends E  <!-- info/openrocket/core/file/RocketLoadException.java -->
+    - RocketLoader (interface)  <!-- info/openrocket/core/file/RocketLoader.java -->
+    - RocketSaver (class)  <!-- info/openrocket/core/file/RocketSaver.java -->
+    - SavingProgress (interface)  <!-- info/openrocket/core/file/GeneralRocketSaver.java -->
+    - TipShapeCode (class)  <!-- info/openrocket/core/file/TipShapeCode.java -->
+    - UnknownFileTypeException (class) — extends I  <!-- info/openrocket/core/file/UnknownFileTypeException.java -->
+    - ZipFileAttachmentFactory (class) — implements A  <!-- info/openrocket/core/file/ZipFileAttachmentFactory.java -->
+  - info.openrocket.core.file.iterator
+    - DirSelectionFileFilter (class) — implements F  <!-- info/openrocket/core/file/iterator/DirectoryIterator.java -->
+    - DirectoryIterator (class) — extends F  <!-- info/openrocket/core/file/iterator/DirectoryIterator.java -->
+    - FileIterator (class) — implements I  <!-- info/openrocket/core/file/iterator/FileIterator.java -->
+    - ZipDirectoryIterator (class) — extends F  <!-- info/openrocket/core/file/iterator/ZipDirectoryIterator.java -->
+    - for (class)  <!-- info/openrocket/core/file/iterator/FileIterator.java -->
+  - info.openrocket.core.file.motor
+    - AbstractMotorLoader (class) — implements M  <!-- info/openrocket/core/file/motor/AbstractMotorLoader.java -->
+    - GeneralMotorLoader (class) — implements M  <!-- info/openrocket/core/file/motor/GeneralMotorLoader.java -->
+    - MotorLoader (interface) — extends L  <!-- info/openrocket/core/file/motor/MotorLoader.java -->
+    - RASPMotorLoader (class) — extends A  <!-- info/openrocket/core/file/motor/RASPMotorLoader.java -->
+    - RSEHandler (class) — extends A  <!-- info/openrocket/core/file/motor/RockSimMotorLoader.java -->
+    - RSEMotorDataHandler (class) — extends A  <!-- info/openrocket/core/file/motor/RockSimMotorLoader.java -->
+    - RSEMotorHandler (class) — extends A  <!-- info/openrocket/core/file/motor/RockSimMotorLoader.java -->
+    - RockSimMotorLoader (class) — extends A  <!-- info/openrocket/core/file/motor/RockSimMotorLoader.java -->
+    - ZipFileMotorLoader (class) — implements M  <!-- info/openrocket/core/file/motor/ZipFileMotorLoader.java -->
+    - that (class)  <!-- info/openrocket/core/file/motor/GeneralMotorLoader.java -->
+  - info.openrocket.core.file.openrocket
+    - OpenRocketSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/OpenRocketSaver.java -->
+    - exists (class)  <!-- info/openrocket/core/file/openrocket/OpenRocketSaver.java -->
+    - for (class)  <!-- info/openrocket/core/file/openrocket/OpenRocketSaver.java -->
+    - hierarchy (class)  <!-- info/openrocket/core/file/openrocket/OpenRocketSaver.java -->
+    - name (enum)  <!-- info/openrocket/core/file/openrocket/OpenRocketSaver.java -->
+    - to (enum)  <!-- info/openrocket/core/file/openrocket/OpenRocketSaver.java -->
+  - info.openrocket.core.file.openrocket.importt
+    - AnglePositionSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/AnglePositionSetter.java -->
+    - AppearanceHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/AppearanceHandler.java -->
+    - AtmosphereHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/AtmosphereHandler.java -->
+    - AxialPositionSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/AxialPositionSetter.java -->
+    - BooleanSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/BooleanSetter.java -->
+    - Class (class)  <!-- info/openrocket/core/file/openrocket/importt/ComponentParameterHandler.java -->
+    - ClusterConfigurationSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/ClusterConfigurationSetter.java -->
+    - ColorSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/ColorSetter.java -->
+    - ComponentHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/ComponentHandler.java -->
+    - ComponentParameterHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/ComponentParameterHandler.java -->
+    - ComponentPresetSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/ComponentPresetSetter.java -->
+    - ConfigHandler (class) — extends E  <!-- info/openrocket/core/file/openrocket/importt/ConfigHandler.java -->
+    - CustomExpressionHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/CustomExpressionHandler.java -->
+    - DatatypeHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/DatatypeHandler.java -->
+    - DeploymentConfigurationHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/DeploymentConfigurationHandler.java -->
+    - DocumentConfig (class)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - DocumentMaterialHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/DocumentMaterialHandler.java -->
+    - DocumentPreferencesHandler (class) — extends E  <!-- info/openrocket/core/file/openrocket/importt/DocumentPreferencesHandler.java -->
+    - DoubleSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/DoubleSetter.java -->
+    - EntryHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/EntryHandler.java -->
+    - EntryHelper (class)  <!-- info/openrocket/core/file/openrocket/importt/EntryHelper.java -->
+    - EnumSetter (class)  <!-- info/openrocket/core/file/openrocket/importt/EnumSetter.java -->
+    - FinSetPointHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/FinSetPointHandler.java -->
+    - FinTabPositionSetter (class) — extends D  <!-- info/openrocket/core/file/openrocket/importt/FinTabPositionSetter.java -->
+    - FlightDataBranchHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/FlightDataBranchHandler.java -->
+    - FlightDataHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/FlightDataHandler.java -->
+    - IgnitionConfigurationHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/IgnitionConfigurationHandler.java -->
+    - InsideAppearanceHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/InsideAppearanceHandler.java -->
+    - IntSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/IntSetter.java -->
+    - MaterialSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/MaterialSetter.java -->
+    - MotorConfigurationHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/MotorConfigurationHandler.java -->
+    - MotorHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/MotorHandler.java -->
+    - MotorMountHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/MotorMountHandler.java -->
+    - OpenRocketContentHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/OpenRocketContentHandler.java -->
+    - OpenRocketHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/OpenRocketHandler.java -->
+    - OpenRocketLoader (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/OpenRocketLoader.java -->
+    - OverrideSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/OverrideSetter.java -->
+    - PhotoStudioHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/PhotoStudioHandler.java -->
+    - RadiusPositionSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/RadiusPositionSetter.java -->
+    - Setter (interface)  <!-- info/openrocket/core/file/openrocket/importt/Setter.java -->
+    - SimulationConditionsHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/SimulationConditionsHandler.java -->
+    - SimulationsHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/SimulationsHandler.java -->
+    - SingleSimulationHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/SingleSimulationHandler.java -->
+    - StageSeparationConfigurationHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/StageSeparationConfigurationHandler.java -->
+    - StringSetter (class) — implements S  <!-- info/openrocket/core/file/openrocket/importt/StringSetter.java -->
+    - WarningHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/WarningHandler.java -->
+    - WindHandler (class) — extends A  <!-- info/openrocket/core/file/openrocket/importt/WindHandler.java -->
+    - exists (enum)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - for (class)  <!-- info/openrocket/core/file/openrocket/importt/EntryHelper.java -->
+    - name (class)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - name (enum)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - names (enum)  <!-- info/openrocket/core/file/openrocket/importt/FinTabPositionSetter.java -->
+    - of (class)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - order (class)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - type (enum)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - uses (class)  <!-- info/openrocket/core/file/openrocket/importt/OpenRocketLoader.java -->
+    - value (enum)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - value (enum)  <!-- info/openrocket/core/file/openrocket/importt/DocumentConfig.java -->
+    - will (class)  <!-- info/openrocket/core/file/openrocket/importt/PhotoStudioHandler.java -->
+  - info.openrocket.core.file.openrocket.savers
+    - AirbrakeSetSaver (class) — extends E  <!-- info/openrocket/core/file/openrocket/savers/AirbrakeSetSaver.java -->
+    - AxialStageSaver (class) — extends C  <!-- info/openrocket/core/file/openrocket/savers/AxialStageSaver.java -->
+    - BodyComponentSaver (class) — extends E  <!-- info/openrocket/core/file/openrocket/savers/BodyComponentSaver.java -->
+    - BodyTubeSaver (class) — extends S  <!-- info/openrocket/core/file/openrocket/savers/BodyTubeSaver.java -->
+    - BulkheadSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/BulkheadSaver.java -->
+    - CenteringRingSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/CenteringRingSaver.java -->
+    - ComponentAssemblySaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/ComponentAssemblySaver.java -->
+    - EllipticalFinSetSaver (class) — extends F  <!-- info/openrocket/core/file/openrocket/savers/EllipticalFinSetSaver.java -->
+    - EngineBlockSaver (class) — extends T  <!-- info/openrocket/core/file/openrocket/savers/EngineBlockSaver.java -->
+    - ExternalComponentSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/ExternalComponentSaver.java -->
+    - FinSetSaver (class) — extends E  <!-- info/openrocket/core/file/openrocket/savers/FinSetSaver.java -->
+    - FreeformFinSetSaver (class) — extends F  <!-- info/openrocket/core/file/openrocket/savers/FreeformFinSetSaver.java -->
+    - InnerTubeSaver (class) — extends T  <!-- info/openrocket/core/file/openrocket/savers/InnerTubeSaver.java -->
+    - InternalComponentSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/InternalComponentSaver.java -->
+    - LaunchLugSaver (class) — extends E  <!-- info/openrocket/core/file/openrocket/savers/LaunchLugSaver.java -->
+    - MassComponentSaver (class) — extends M  <!-- info/openrocket/core/file/openrocket/savers/MassComponentSaver.java -->
+    - MassObjectSaver (class) — extends I  <!-- info/openrocket/core/file/openrocket/savers/MassObjectSaver.java -->
+    - NoseConeSaver (class) — extends T  <!-- info/openrocket/core/file/openrocket/savers/NoseConeSaver.java -->
+    - ParachuteSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/ParachuteSaver.java -->
+    - PhotoStudioSaver (class)  <!-- info/openrocket/core/file/openrocket/savers/PhotoStudioSaver.java -->
+    - RadiusRingComponentSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/RadiusRingComponentSaver.java -->
+    - RailButtonSaver (class) — extends E  <!-- info/openrocket/core/file/openrocket/savers/RailButtonSaver.java -->
+    - RecoveryDeviceSaver (class) — extends M  <!-- info/openrocket/core/file/openrocket/savers/RecoveryDeviceSaver.java -->
+    - RingComponentSaver (class) — extends S  <!-- info/openrocket/core/file/openrocket/savers/RingComponentSaver.java -->
+    - RocketComponentSaver (class)  <!-- info/openrocket/core/file/openrocket/savers/RocketComponentSaver.java -->
+    - RocketSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/RocketSaver.java -->
+    - ShockCordSaver (class) — extends M  <!-- info/openrocket/core/file/openrocket/savers/ShockCordSaver.java -->
+    - StreamerSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/StreamerSaver.java -->
+    - StructuralComponentSaver (class) — extends I  <!-- info/openrocket/core/file/openrocket/savers/StructuralComponentSaver.java -->
+    - SymmetricComponentSaver (class) — extends B  <!-- info/openrocket/core/file/openrocket/savers/SymmetricComponentSaver.java -->
+    - TabControlledTrapezoidFinSetSaver (class) — extends F  <!-- info/openrocket/core/file/openrocket/savers/TabControlledTrapezoidFinSetSaver.java -->
+    - ThicknessRingComponentSaver (class) — extends R  <!-- info/openrocket/core/file/openrocket/savers/ThicknessRingComponentSaver.java -->
+    - TransitionSaver (class) — extends S  <!-- info/openrocket/core/file/openrocket/savers/TransitionSaver.java -->
+    - TrapezoidFinSetSaver (class) — extends F  <!-- info/openrocket/core/file/openrocket/savers/TrapezoidFinSetSaver.java -->
+    - TubeCouplerSaver (class) — extends T  <!-- info/openrocket/core/file/openrocket/savers/TubeCouplerSaver.java -->
+    - TubeFinSetSaver (class) — extends E  <!-- info/openrocket/core/file/openrocket/savers/TubeFinSetSaver.java -->
+    - names (enum)  <!-- info/openrocket/core/file/openrocket/savers/ExternalComponentSaver.java -->
+    - names (enum)  <!-- info/openrocket/core/file/openrocket/savers/RocketComponentSaver.java -->
+    - names (enum)  <!-- info/openrocket/core/file/openrocket/savers/RocketComponentSaver.java -->
+    - names (enum)  <!-- info/openrocket/core/file/openrocket/savers/RocketComponentSaver.java -->
+    - names (enum)  <!-- info/openrocket/core/file/openrocket/savers/RocketComponentSaver.java -->
+    - takes (class)  <!-- info/openrocket/core/file/openrocket/savers/PhotoStudioSaver.java -->
+  - info.openrocket.core.file.rasaero
+    - CustomBooleanAdapter (class) — extends X  <!-- info/openrocket/core/file/rasaero/CustomBooleanAdapter.java -->
+    - CustomDoubleAdapter (class) — extends X  <!-- info/openrocket/core/file/rasaero/CustomDoubleAdapter.java -->
+    - NoseConeShapeSettings (class)  <!-- info/openrocket/core/file/rasaero/RASAeroCommonConstants.java -->
+    - RASAeroCommonConstants (class)  <!-- info/openrocket/core/file/rasaero/RASAeroCommonConstants.java -->
+    - RASAeroMotorsLoader (class)  <!-- info/openrocket/core/file/rasaero/RASAeroMotorsLoader.java -->
+  - info.openrocket.core.file.rasaero.export
+    - BasePartDTO (class)  <!-- info/openrocket/core/file/rasaero/export/BasePartDTO.java -->
+    - BoattailDTO (class) — extends T  <!-- info/openrocket/core/file/rasaero/export/BoattailDTO.java -->
+    - BodyTubeDTO (class) — extends B  <!-- info/openrocket/core/file/rasaero/export/BodyTubeDTO.java -->
+    - BodyTubeDTOAdapter (interface)  <!-- info/openrocket/core/file/rasaero/export/BodyTubeDTOAdapter.java -->
+    - BoosterDTO (class) — implements B  <!-- info/openrocket/core/file/rasaero/export/BoosterDTO.java -->
+    - FinDTO (class)  <!-- info/openrocket/core/file/rasaero/export/FinDTO.java -->
+    - LaunchSiteDTO (class)  <!-- info/openrocket/core/file/rasaero/export/LaunchSiteDTO.java -->
+    - NoseConeDTO (class) — extends B  <!-- info/openrocket/core/file/rasaero/export/NoseConeDTO.java -->
+    - RASAeroDocumentDTO (class)  <!-- info/openrocket/core/file/rasaero/export/RASAeroDocumentDTO.java -->
+    - RASAeroExportException (class) — extends E  <!-- info/openrocket/core/file/rasaero/export/RASAeroSaver.java -->
+    - RASAeroSaver (class) — extends R  <!-- info/openrocket/core/file/rasaero/export/RASAeroSaver.java -->
+    - RecoveryDTO (class)  <!-- info/openrocket/core/file/rasaero/export/RecoveryDTO.java -->
+    - RocketDesignDTO (class)  <!-- info/openrocket/core/file/rasaero/export/RocketDesignDTO.java -->
+    - SimulationDTO (class)  <!-- info/openrocket/core/file/rasaero/export/SimulationDTO.java -->
+    - SimulationListDTO (class)  <!-- info/openrocket/core/file/rasaero/export/SimulationListDTO.java -->
+    - TransitionDTO (class) — extends B  <!-- info/openrocket/core/file/rasaero/export/TransitionDTO.java -->
+    - for (class)  <!-- info/openrocket/core/file/rasaero/export/BasePartDTO.java -->
+    - is (class)  <!-- info/openrocket/core/file/rasaero/export/RASAeroSaver.java -->
+  - info.openrocket.core.file.rasaero.importt
+    - BaseHandler (class)  <!-- info/openrocket/core/file/rasaero/importt/BaseHandler.java -->
+    - BoattailHandler (class) — extends T  <!-- info/openrocket/core/file/rasaero/importt/BoattailHandler.java -->
+    - BodyTubeHandler (class) — extends B  <!-- info/openrocket/core/file/rasaero/importt/BodyTubeHandler.java -->
+    - BoosterHandler (class) — extends B  <!-- info/openrocket/core/file/rasaero/importt/BoosterHandler.java -->
+    - ColorHandler (class)  <!-- info/openrocket/core/file/rasaero/importt/ColorHandler.java -->
+    - FinCanHandler (class) — extends B  <!-- info/openrocket/core/file/rasaero/importt/FinCanHandler.java -->
+    - FinHandler (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/FinHandler.java -->
+    - LaunchLugHandler (class)  <!-- info/openrocket/core/file/rasaero/importt/LaunchLugHandler.java -->
+    - LaunchSiteHandler (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/LaunchSiteHandler.java -->
+    - NoseConeHandler (class) — extends B  <!-- info/openrocket/core/file/rasaero/importt/NoseConeHandler.java -->
+    - RASAeroHandler (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/RASAeroHandler.java -->
+    - RASAeroLoader (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/RASAeroLoader.java -->
+    - RailGuideHandler (class)  <!-- info/openrocket/core/file/rasaero/importt/RailGuideHandler.java -->
+    - RecoveryHandler (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/RecoveryHandler.java -->
+    - RocketDesignHandler (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/RASAeroHandler.java -->
+    - RocketDocumentHandler (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/RASAeroHandler.java -->
+    - SimulationHandler (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/SimulationHandler.java -->
+    - SimulationListHandler (class) — extends A  <!-- info/openrocket/core/file/rasaero/importt/SimulationListHandler.java -->
+    - SurfaceFinishHandler (class)  <!-- info/openrocket/core/file/rasaero/importt/SurfaceFinishHandler.java -->
+    - TransitionHandler (class) — extends B  <!-- info/openrocket/core/file/rasaero/importt/TransitionHandler.java -->
+    - for (class)  <!-- info/openrocket/core/file/rasaero/importt/BaseHandler.java -->
+    - is (class)  <!-- info/openrocket/core/file/rasaero/importt/RASAeroLoader.java -->
+  - info.openrocket.core.file.rocksim
+    - RockSimCommonConstants (class)  <!-- info/openrocket/core/file/rocksim/RockSimCommonConstants.java -->
+    - RockSimDensityType (enum)  <!-- info/openrocket/core/file/rocksim/RockSimDensityType.java -->
+    - RockSimFinishCode (enum)  <!-- info/openrocket/core/file/rocksim/RockSimFinishCode.java -->
+    - RockSimLocationMode (enum)  <!-- info/openrocket/core/file/rocksim/RockSimLocationMode.java -->
+    - RockSimNoseConeCode (enum)  <!-- info/openrocket/core/file/rocksim/RockSimNoseConeCode.java -->
+    - based (enum)  <!-- info/openrocket/core/file/rocksim/RockSimNoseConeCode.java -->
+    - based (enum)  <!-- info/openrocket/core/file/rocksim/RockSimDensityType.java -->
+    - from (enum)  <!-- info/openrocket/core/file/rocksim/RockSimFinishCode.java -->
+    - instance (enum)  <!-- info/openrocket/core/file/rocksim/RockSimNoseConeCode.java -->
+    - value (enum)  <!-- info/openrocket/core/file/rocksim/RockSimLocationMode.java -->
+    - value (enum)  <!-- info/openrocket/core/file/rocksim/RockSimLocationMode.java -->
+    - value (enum)  <!-- info/openrocket/core/file/rocksim/RockSimLocationMode.java -->
+    - value (enum)  <!-- info/openrocket/core/file/rocksim/RockSimFinishCode.java -->
+  - info.openrocket.core.file.rocksim.export
+    - AbstractTransitionDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/AbstractTransitionDTO.java -->
+    - AttachableParts (interface)  <!-- info/openrocket/core/file/rocksim/export/AttachableParts.java -->
+    - BasePartDTO (class)  <!-- info/openrocket/core/file/rocksim/export/BasePartDTO.java -->
+    - BodyTubeDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/BodyTubeDTO.java -->
+    - BulkheadDTO (class) — extends C  <!-- info/openrocket/core/file/rocksim/export/BulkheadDTO.java -->
+    - CenteringRingDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/CenteringRingDTO.java -->
+    - CustomFinSetDTO (class) — extends F  <!-- info/openrocket/core/file/rocksim/export/CustomFinSetDTO.java -->
+    - EngineBlockDTO (class) — extends C  <!-- info/openrocket/core/file/rocksim/export/EngineBlockDTO.java -->
+    - FinSetDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/FinSetDTO.java -->
+    - InnerBodyTubeDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/InnerBodyTubeDTO.java -->
+    - LaunchLugDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/LaunchLugDTO.java -->
+    - MassObjectDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/MassObjectDTO.java -->
+    - NoseConeDTO (class) — extends A  <!-- info/openrocket/core/file/rocksim/export/NoseConeDTO.java -->
+    - ParachuteDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/ParachuteDTO.java -->
+    - ParallelStageDTO (class) — extends P  <!-- info/openrocket/core/file/rocksim/export/ParallelStageDTO.java -->
+    - PodSetDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/PodSetDTO.java -->
+    - RockSimDesignDTO (class)  <!-- info/openrocket/core/file/rocksim/export/RockSimDesignDTO.java -->
+    - RockSimDocumentDTO (class)  <!-- info/openrocket/core/file/rocksim/export/RockSimDocumentDTO.java -->
+    - RockSimSaver (class) — extends R  <!-- info/openrocket/core/file/rocksim/export/RockSimSaver.java -->
+    - RocketDesignDTO (class)  <!-- info/openrocket/core/file/rocksim/export/RocketDesignDTO.java -->
+    - StageDTO (class)  <!-- info/openrocket/core/file/rocksim/export/StageDTO.java -->
+    - StreamerDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/StreamerDTO.java -->
+    - TransitionDTO (class) — extends A  <!-- info/openrocket/core/file/rocksim/export/TransitionDTO.java -->
+    - TubeCouplerDTO (class) — extends C  <!-- info/openrocket/core/file/rocksim/export/TubeCouplerDTO.java -->
+    - TubeFinSetDTO (class) — extends B  <!-- info/openrocket/core/file/rocksim/export/TubeFinSetDTO.java -->
+    - UsageCode (enum)  <!-- info/openrocket/core/file/rocksim/export/CenteringRingDTO.java -->
+    - are (interface)  <!-- info/openrocket/core/file/rocksim/export/AttachableParts.java -->
+    - for (class)  <!-- info/openrocket/core/file/rocksim/export/AbstractTransitionDTO.java -->
+    - for (class)  <!-- info/openrocket/core/file/rocksim/export/BasePartDTO.java -->
+    - is (class)  <!-- info/openrocket/core/file/rocksim/export/AbstractTransitionDTO.java -->
+    - is (class)  <!-- info/openrocket/core/file/rocksim/export/RockSimSaver.java -->
+    - models (class)  <!-- info/openrocket/core/file/rocksim/export/NoseConeDTO.java -->
+    - models (class)  <!-- info/openrocket/core/file/rocksim/export/StreamerDTO.java -->
+    - models (class)  <!-- info/openrocket/core/file/rocksim/export/FinSetDTO.java -->
+    - models (class)  <!-- info/openrocket/core/file/rocksim/export/LaunchLugDTO.java -->
+    - models (class)  <!-- info/openrocket/core/file/rocksim/export/InnerBodyTubeDTO.java -->
+    - models (class)  <!-- info/openrocket/core/file/rocksim/export/TubeFinSetDTO.java -->
+    - models (class)  <!-- info/openrocket/core/file/rocksim/export/TransitionDTO.java -->
+    - models (class)  <!-- info/openrocket/core/file/rocksim/export/RocketDesignDTO.java -->
+    - that (interface)  <!-- info/openrocket/core/file/rocksim/export/AttachableParts.java -->
+  - info.openrocket.core.file.rocksim.importt
+    - AttachedPartsHandler (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/AttachedPartsHandler.java -->
+    - BaseHandler (class)  <!-- info/openrocket/core/file/rocksim/importt/BaseHandler.java -->
+    - BodyTubeHandler (class) — extends B  <!-- info/openrocket/core/file/rocksim/importt/BodyTubeHandler.java -->
+    - FinSetHandler (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/FinSetHandler.java -->
+    - InnerBodyTubeHandler (class) — extends P  <!-- info/openrocket/core/file/rocksim/importt/InnerBodyTubeHandler.java -->
+    - LaunchLugHandler (class) — extends P  <!-- info/openrocket/core/file/rocksim/importt/LaunchLugHandler.java -->
+    - MassObjectHandler (class) — extends P  <!-- info/openrocket/core/file/rocksim/importt/MassObjectHandler.java -->
+    - NoseConeHandler (class) — extends B  <!-- info/openrocket/core/file/rocksim/importt/NoseConeHandler.java -->
+    - ParachuteHandler (class) — extends R  <!-- info/openrocket/core/file/rocksim/importt/ParachuteHandler.java -->
+    - PodHandler (class) — extends P  <!-- info/openrocket/core/file/rocksim/importt/PodHandler.java -->
+    - PositionDependentHandler (class)  <!-- info/openrocket/core/file/rocksim/importt/PositionDependentHandler.java -->
+    - RecoveryDeviceHandler (class)  <!-- info/openrocket/core/file/rocksim/importt/RecoveryDeviceHandler.java -->
+    - RingHandler (class) — extends P  <!-- info/openrocket/core/file/rocksim/importt/RingHandler.java -->
+    - RockSimAppearanceBuilder (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/RockSimAppearanceBuilder.java -->
+    - RockSimContentHandler (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/RockSimHandler.java -->
+    - RockSimHandler (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/RockSimHandler.java -->
+    - RockSimLoader (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/RockSimLoader.java -->
+    - RocketDesignHandler (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/RockSimHandler.java -->
+    - StageHandler (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/RockSimHandler.java -->
+    - StreamerHandler (class) — extends R  <!-- info/openrocket/core/file/rocksim/importt/StreamerHandler.java -->
+    - SubAssemblyHandler (class) — extends A  <!-- info/openrocket/core/file/rocksim/importt/SubAssemblyHandler.java -->
+    - TransitionHandler (class) — extends B  <!-- info/openrocket/core/file/rocksim/importt/TransitionHandler.java -->
+    - TubeFinSetHandler (class) — extends P  <!-- info/openrocket/core/file/rocksim/importt/TubeFinSetHandler.java -->
+    - handles (class)  <!-- info/openrocket/core/file/rocksim/importt/SubAssemblyHandler.java -->
+    - is (class)  <!-- info/openrocket/core/file/rocksim/importt/SubAssemblyHandler.java -->
+    - is (class)  <!-- info/openrocket/core/file/rocksim/importt/RockSimHandler.java -->
+    - is (class)  <!-- info/openrocket/core/file/rocksim/importt/RockSimLoader.java -->
+    - of (enum)  <!-- info/openrocket/core/file/rocksim/importt/BaseHandler.java -->
+    - that (class)  <!-- info/openrocket/core/file/rocksim/importt/BaseHandler.java -->
+    - that (class)  <!-- info/openrocket/core/file/rocksim/importt/PositionDependentHandler.java -->
+    - types (class)  <!-- info/openrocket/core/file/rocksim/importt/BaseHandler.java -->
+  - info.openrocket.core.file.simplesax
+    - AbstractElementHandler (class) — implements E  <!-- info/openrocket/core/file/simplesax/AbstractElementHandler.java -->
+    - DelegatorHandler (class) — extends D  <!-- info/openrocket/core/file/simplesax/DelegatorHandler.java -->
+    - ElementHandler (interface)  <!-- info/openrocket/core/file/simplesax/ElementHandler.java -->
+    - NullElementHandler (class) — extends A  <!-- info/openrocket/core/file/simplesax/NullElementHandler.java -->
+    - PlainTextHandler (class) — extends A  <!-- info/openrocket/core/file/simplesax/PlainTextHandler.java -->
+    - SimpleSAX (class)  <!-- info/openrocket/core/file/simplesax/SimpleSAX.java -->
+    - XMLReaderCache (class)  <!-- info/openrocket/core/file/simplesax/SimpleSAX.java -->
+    - can (class)  <!-- info/openrocket/core/file/simplesax/NullElementHandler.java -->
+    - for (class)  <!-- info/openrocket/core/file/simplesax/AbstractElementHandler.java -->
+    - handles (class)  <!-- info/openrocket/core/file/simplesax/ElementHandler.java -->
+  - info.openrocket.core.file.svg.export
+    - LineCap (enum)  <!-- info/openrocket/core/file/svg/export/SVGBuilder.java -->
+    - SVGBuilder (class)  <!-- info/openrocket/core/file/svg/export/SVGBuilder.java -->
+    - that (class)  <!-- info/openrocket/core/file/svg/export/SVGBuilder.java -->
+  - info.openrocket.core.file.wavefrontobj
+    - Axis (enum)  <!-- info/openrocket/core/file/wavefrontobj/Axis.java -->
+    - CoordTransform (class)  <!-- info/openrocket/core/file/wavefrontobj/CoordTransform.java -->
+    - DefaultCoordTransform (class) — extends C  <!-- info/openrocket/core/file/wavefrontobj/DefaultCoordTransform.java -->
+    - DefaultFloatTuple (class) — implements F  <!-- info/openrocket/core/file/wavefrontobj/DefaultFloatTuple.java -->
+    - DefaultMtl (class) — implements M  <!-- info/openrocket/core/file/wavefrontobj/DefaultMtl.java -->
+    - DefaultMtlWriter (class)  <!-- info/openrocket/core/file/wavefrontobj/DefaultMtlWriter.java -->
+    - DefaultObj (class) — implements O  <!-- info/openrocket/core/file/wavefrontobj/DefaultObj.java -->
+    - DefaultObjEdge (class)  <!-- info/openrocket/core/file/wavefrontobj/DefaultObjEdge.java -->
+    - DefaultObjFace (class) — implements O  <!-- info/openrocket/core/file/wavefrontobj/DefaultObjFace.java -->
+    - DefaultObjGroup (class) — implements O  <!-- info/openrocket/core/file/wavefrontobj/DefaultObjGroup.java -->
+    - DefaultTextureOptions (class) — implements T  <!-- info/openrocket/core/file/wavefrontobj/DefaultTextureOptions.java -->
+    - FloatTupleBounds (class)  <!-- info/openrocket/core/file/wavefrontobj/FloatTupleBounds.java -->
+    - LevelOfDetail (enum)  <!-- info/openrocket/core/file/wavefrontobj/ObjUtils.java -->
+    - ObjUtils (class)  <!-- info/openrocket/core/file/wavefrontobj/ObjUtils.java -->
+    - TriangulationHelper (class)  <!-- info/openrocket/core/file/wavefrontobj/TriangulationHelper.java -->
+    - TriangulationMethod (enum)  <!-- info/openrocket/core/file/wavefrontobj/ObjUtils.java -->
+    - for (class)  <!-- info/openrocket/core/file/wavefrontobj/FloatTupleBounds.java -->
+    - that (class)  <!-- info/openrocket/core/file/wavefrontobj/DefaultMtlWriter.java -->
+    - to (class)  <!-- info/openrocket/core/file/wavefrontobj/TriangulationHelper.java -->
+    - to (class)  <!-- info/openrocket/core/file/wavefrontobj/TriangulationHelper.java -->
+  - info.openrocket.core.file.wavefrontobj.export
+    - AppearanceExporter (class)  <!-- info/openrocket/core/file/wavefrontobj/export/AppearanceExporter.java -->
+    - ExporterFactory (interface)  <!-- info/openrocket/core/file/wavefrontobj/export/OBJExporterFactory.java -->
+    - OBJExportOptions (class)  <!-- info/openrocket/core/file/wavefrontobj/export/OBJExportOptions.java -->
+    - OBJExporterFactory (class)  <!-- info/openrocket/core/file/wavefrontobj/export/OBJExporterFactory.java -->
+    - for (class)  <!-- info/openrocket/core/file/wavefrontobj/export/AppearanceExporter.java -->
+  - info.openrocket.core.file.wavefrontobj.export.components
+    - BodyTubeExporter (class) — extends R  <!-- info/openrocket/core/file/wavefrontobj/export/components/BodyTubeExporter.java -->
+    - FinSetExporter (class) — extends R  <!-- info/openrocket/core/file/wavefrontobj/export/components/FinSetExporter.java -->
+    - LaunchLugExporter (class) — extends R  <!-- info/openrocket/core/file/wavefrontobj/export/components/LaunchLugExporter.java -->
+    - MassObjectExporter (class) — extends R  <!-- info/openrocket/core/file/wavefrontobj/export/components/MassObjectExporter.java -->
+    - MotorExporter (class)  <!-- info/openrocket/core/file/wavefrontobj/export/components/MotorExporter.java -->
+    - RailButtonExporter (class) — extends R  <!-- info/openrocket/core/file/wavefrontobj/export/components/RailButtonExporter.java -->
+    - RingComponentExporter (class) — extends R  <!-- info/openrocket/core/file/wavefrontobj/export/components/RingComponentExporter.java -->
+    - RocketComponentExporter (class)  <!-- info/openrocket/core/file/wavefrontobj/export/components/RocketComponentExporter.java -->
+    - TransitionExporter (class) — extends R  <!-- info/openrocket/core/file/wavefrontobj/export/components/TransitionExporter.java -->
+    - TubeFinSetExporter (class) — extends R  <!-- info/openrocket/core/file/wavefrontobj/export/components/TubeFinSetExporter.java -->
+    - for (class)  <!-- info/openrocket/core/file/wavefrontobj/export/components/RocketComponentExporter.java -->
+    - generates (class)  <!-- info/openrocket/core/file/wavefrontobj/export/components/RocketComponentExporter.java -->
+  - info.openrocket.core.file.wavefrontobj.export.shapes
+    - Boundaries (class)  <!-- info/openrocket/core/file/wavefrontobj/export/shapes/PolygonExporter.java -->
+    - CylinderExporter (class)  <!-- info/openrocket/core/file/wavefrontobj/export/shapes/CylinderExporter.java -->
+    - DiskExporter (class)  <!-- info/openrocket/core/file/wavefrontobj/export/shapes/DiskExporter.java -->
+    - PolygonExporter (class)  <!-- info/openrocket/core/file/wavefrontobj/export/shapes/PolygonExporter.java -->
+    - TubeExporter (class)  <!-- info/openrocket/core/file/wavefrontobj/export/shapes/TubeExporter.java -->
+  - info.openrocket.core.formatting
+    - BaseSubstitutor (class) — implements S  <!-- info/openrocket/core/formatting/MotorConfigurationSubstitutor.java -->
+    - CaseSubstitutor (class) — extends B  <!-- info/openrocket/core/formatting/MotorConfigurationSubstitutor.java -->
+    - ManufacturerSubstitutor (class) — extends B  <!-- info/openrocket/core/formatting/MotorConfigurationSubstitutor.java -->
+    - MotorConfigurationSubstitutor (class) — implements R  <!-- info/openrocket/core/formatting/MotorConfigurationSubstitutor.java -->
+    - MotorSubstitutor (class) — extends B  <!-- info/openrocket/core/formatting/MotorConfigurationSubstitutor.java -->
+    - RocketDescriptor (interface)  <!-- info/openrocket/core/formatting/RocketDescriptor.java -->
+    - RocketDescriptorImpl (class) — implements R  <!-- info/openrocket/core/formatting/RocketDescriptorImpl.java -->
+    - RocketSubstitutor (interface)  <!-- info/openrocket/core/formatting/RocketSubstitutor.java -->
+    - Substitutor (interface)  <!-- info/openrocket/core/formatting/MotorConfigurationSubstitutor.java -->
+    - that (class)  <!-- info/openrocket/core/formatting/RocketSubstitutor.java -->
+  - info.openrocket.core.gui.util
+    - SimpleFileFilter (class) — extends F  <!-- info/openrocket/core/gui/util/SimpleFileFilter.java -->
+  - info.openrocket.core.l10n
+    - ClassBasedTranslator (class) — implements T  <!-- info/openrocket/core/l10n/ClassBasedTranslator.java -->
+    - DebugTranslator (class) — implements T  <!-- info/openrocket/core/l10n/DebugTranslator.java -->
+    - ExceptionSuppressingTranslator (class) — implements T  <!-- info/openrocket/core/l10n/ExceptionSuppressingTranslator.java -->
+    - L10N (class)  <!-- info/openrocket/core/l10n/L10N.java -->
+    - LocalizedIOException (class) — extends I  <!-- info/openrocket/core/l10n/LocalizedIOException.java -->
+    - ResourceBundleTranslator (class) — implements T  <!-- info/openrocket/core/l10n/ResourceBundleTranslator.java -->
+    - Translator (interface)  <!-- info/openrocket/core/l10n/Translator.java -->
+    - calls (class)  <!-- info/openrocket/core/l10n/ExceptionSuppressingTranslator.java -->
+    - for (interface)  <!-- info/openrocket/core/l10n/Translator.java -->
+    - name (class)  <!-- info/openrocket/core/l10n/ClassBasedTranslator.java -->
+    - name (class)  <!-- info/openrocket/core/l10n/ClassBasedTranslator.java -->
+    - name (class)  <!-- info/openrocket/core/l10n/ClassBasedTranslator.java -->
+    - name (class)  <!-- info/openrocket/core/l10n/ClassBasedTranslator.java -->
+    - name (class)  <!-- info/openrocket/core/l10n/ClassBasedTranslator.java -->
+    - optionally (class)  <!-- info/openrocket/core/l10n/DebugTranslator.java -->
+  - info.openrocket.core.logging
+    - Cause (enum)  <!-- info/openrocket/core/logging/SimulationAbort.java -->
+    - Error (class) — extends M  <!-- info/openrocket/core/logging/Error.java -->
+    - ErrorSet (class) — extends M  <!-- info/openrocket/core/logging/ErrorSet.java -->
+    - EventAfterLanding (class) — extends W  <!-- info/openrocket/core/logging/Warning.java -->
+    - HighSpeedDeployment (class) — extends W  <!-- info/openrocket/core/logging/Warning.java -->
+    - LargeAOA (class) — extends W  <!-- info/openrocket/core/logging/Warning.java -->
+    - Markers (class)  <!-- info/openrocket/core/logging/Markers.java -->
+    - Message (class) — implements C  <!-- info/openrocket/core/logging/Message.java -->
+    - MessagePriority (enum)  <!-- info/openrocket/core/logging/MessagePriority.java -->
+    - MessageSet (class)  <!-- info/openrocket/core/logging/MessageSet.java -->
+    - MissingMotor (class) — extends W  <!-- info/openrocket/core/logging/Warning.java -->
+    - Other (class) — extends W  <!-- info/openrocket/core/logging/Warning.java -->
+    - Other (class) — extends E  <!-- info/openrocket/core/logging/Error.java -->
+    - SimulationAbort (class) — extends M  <!-- info/openrocket/core/logging/SimulationAbort.java -->
+    - Warning (class) — extends M  <!-- info/openrocket/core/logging/Warning.java -->
+    - WarningSet (class) — extends M  <!-- info/openrocket/core/logging/WarningSet.java -->
+    - doesn (class)  <!-- info/openrocket/core/logging/Message.java -->
+  - info.openrocket.core.masscalc
+    - CMAnalysisEntry (class)  <!-- info/openrocket/core/masscalc/CMAnalysisEntry.java -->
+    - MassCalculation (class)  <!-- info/openrocket/core/masscalc/MassCalculation.java -->
+    - MassCalculator (class) — implements M  <!-- info/openrocket/core/masscalc/MassCalculator.java -->
+    - RigidBody (class)  <!-- info/openrocket/core/masscalc/RigidBody.java -->
+    - Type (enum)  <!-- info/openrocket/core/masscalc/MassCalculation.java -->
+    - which (enum)  <!-- info/openrocket/core/masscalc/MassCalculation.java -->
+  - info.openrocket.core.material
+    - Bulk (class) — extends M  <!-- info/openrocket/core/material/Material.java -->
+    - Custom (class) — extends M  <!-- info/openrocket/core/material/Material.java -->
+    - Line (class) — extends M  <!-- info/openrocket/core/material/Material.java -->
+    - Material (class) — implements C  <!-- info/openrocket/core/material/Material.java -->
+    - MaterialGroup (class) — implements C  <!-- info/openrocket/core/material/MaterialGroup.java -->
+    - MaterialStorage (class) — implements D  <!-- info/openrocket/core/material/MaterialStorage.java -->
+    - Surface (class) — extends M  <!-- info/openrocket/core/material/Material.java -->
+    - Type (enum)  <!-- info/openrocket/core/material/Material.java -->
+    - for (class)  <!-- info/openrocket/core/material/Material.java -->
+    - for (class)  <!-- info/openrocket/core/material/MaterialGroup.java -->
+    - in (class)  <!-- info/openrocket/core/material/MaterialGroup.java -->
+  - info.openrocket.core.models.atmosphere
+    - AtmosphericConditions (class) — implements C  <!-- info/openrocket/core/models/atmosphere/AtmosphericConditions.java -->
+    - AtmosphericModel (interface) — extends M  <!-- info/openrocket/core/models/atmosphere/AtmosphericModel.java -->
+    - ExtendedISAModel (class) — extends I  <!-- info/openrocket/core/models/atmosphere/ExtendedISAModel.java -->
+    - InterpolatingAtmosphericModel (class) — implements A  <!-- info/openrocket/core/models/atmosphere/InterpolatingAtmosphericModel.java -->
+    - for (interface)  <!-- info/openrocket/core/models/atmosphere/AtmosphericModel.java -->
+    - implements (class)  <!-- info/openrocket/core/models/atmosphere/InterpolatingAtmosphericModel.java -->
+    - serves (class)  <!-- info/openrocket/core/models/atmosphere/AtmosphericConditions.java -->
+  - info.openrocket.core.models.gravity
+    - GravityModel (interface) — extends M  <!-- info/openrocket/core/models/gravity/GravityModel.java -->
+    - WGSGravityModel (class) — implements G  <!-- info/openrocket/core/models/gravity/WGSGravityModel.java -->
+    - for (interface)  <!-- info/openrocket/core/models/gravity/GravityModel.java -->
+  - info.openrocket.core.models.wind
+    - AltitudeReference (enum)  <!-- info/openrocket/core/models/wind/WindModel.java -->
+    - LevelWindModel (class) — implements C  <!-- info/openrocket/core/models/wind/MultiLevelPinkNoiseWindModel.java -->
+    - MultiLevelPinkNoiseWindModel (class) — implements W  <!-- info/openrocket/core/models/wind/MultiLevelPinkNoiseWindModel.java -->
+    - PinkNoiseWindModel (class) — implements W  <!-- info/openrocket/core/models/wind/PinkNoiseWindModel.java -->
+    - WindModel (interface) — extends M  <!-- info/openrocket/core/models/wind/WindModel.java -->
+    - WindModelType (enum)  <!-- info/openrocket/core/models/wind/WindModelType.java -->
+    - constant (enum)  <!-- info/openrocket/core/models/wind/WindModelType.java -->
+  - info.openrocket.core.motor
+    - Builder (class)  <!-- info/openrocket/core/motor/ThrustCurveMotor.java -->
+    - CaseInfo (enum)  <!-- info/openrocket/core/motor/CaseInfo.java -->
+    - DataType (enum)  <!-- info/openrocket/core/motor/MotorDigest.java -->
+    - DesignationComparator (class) — implements C  <!-- info/openrocket/core/motor/DesignationComparator.java -->
+    - IgnitionEvent (enum)  <!-- info/openrocket/core/motor/IgnitionEvent.java -->
+    - Manufacturer (class) — implements S  <!-- info/openrocket/core/motor/Manufacturer.java -->
+    - ManufacturerList (class) — extends C  <!-- info/openrocket/core/motor/Manufacturer.java -->
+    - ManufacturerSerializationProxy (class) — implements S  <!-- info/openrocket/core/motor/Manufacturer.java -->
+    - Motor (interface)  <!-- info/openrocket/core/motor/Motor.java -->
+    - MotorConfiguration (class) — implements F  <!-- info/openrocket/core/motor/MotorConfiguration.java -->
+    - MotorConfigurationId (class)  <!-- info/openrocket/core/motor/MotorConfigurationId.java -->
+    - MotorConfigurationSet (class) — extends F  <!-- info/openrocket/core/motor/MotorConfigurationSet.java -->
+    - MotorDigest (class)  <!-- info/openrocket/core/motor/MotorDigest.java -->
+    - ThrustCurveMotor (class) — implements M  <!-- info/openrocket/core/motor/ThrustCurveMotor.java -->
+    - Type (enum)  <!-- info/openrocket/core/motor/Motor.java -->
+    - and (class)  <!-- info/openrocket/core/motor/ThrustCurveMotor.java -->
+    - if (class)  <!-- info/openrocket/core/motor/DesignationComparator.java -->
+    - letter (class)  <!-- info/openrocket/core/motor/DesignationComparator.java -->
+    - that (class)  <!-- info/openrocket/core/motor/MotorDigest.java -->
+  - info.openrocket.core.optimization.general
+    - Function (interface)  <!-- info/openrocket/core/optimization/general/Function.java -->
+    - FunctionCache (interface)  <!-- info/openrocket/core/optimization/general/FunctionCache.java -->
+    - FunctionCallable (class) — implements C  <!-- info/openrocket/core/optimization/general/ParallelExecutorCache.java -->
+    - FunctionOptimizer (interface)  <!-- info/openrocket/core/optimization/general/FunctionOptimizer.java -->
+    - OptimizationController (interface)  <!-- info/openrocket/core/optimization/general/OptimizationController.java -->
+    - OptimizationControllerDelegator (class) — implements O  <!-- info/openrocket/core/optimization/general/OptimizationControllerDelegator.java -->
+    - OptimizationException (class) — extends E  <!-- info/openrocket/core/optimization/general/OptimizationException.java -->
+    - ParallelExecutorCache (class) — implements P  <!-- info/openrocket/core/optimization/general/ParallelExecutorCache.java -->
+    - ParallelFunctionCache (interface) — extends F  <!-- info/openrocket/core/optimization/general/ParallelFunctionCache.java -->
+    - Point (class)  <!-- info/openrocket/core/optimization/general/Point.java -->
+    - defining (interface)  <!-- info/openrocket/core/optimization/general/Function.java -->
+    - for (interface)  <!-- info/openrocket/core/optimization/general/FunctionOptimizer.java -->
+    - handles (class)  <!-- info/openrocket/core/optimization/general/ParallelExecutorCache.java -->
+    - is (class)  <!-- info/openrocket/core/optimization/general/FunctionCache.java -->
+  - info.openrocket.core.optimization.general.multidim
+    - FunctionCacheComparator (class) — implements C  <!-- info/openrocket/core/optimization/general/multidim/FunctionCacheComparator.java -->
+    - MultidirectionalSearchOptimizer (class) — implements F  <!-- info/openrocket/core/optimization/general/multidim/MultidirectionalSearchOptimizer.java -->
+    - SearchPattern (class)  <!-- info/openrocket/core/optimization/general/multidim/SearchPattern.java -->
+    - to (class)  <!-- info/openrocket/core/optimization/general/multidim/SearchPattern.java -->
+  - info.openrocket.core.optimization.general.onedim
+    - GoldenSectionSearchOptimizer (class) — implements F  <!-- info/openrocket/core/optimization/general/onedim/GoldenSectionSearchOptimizer.java -->
+  - info.openrocket.core.optimization.rocketoptimization
+    - OptimizableParameter (interface)  <!-- info/openrocket/core/optimization/rocketoptimization/OptimizableParameter.java -->
+    - OptimizationGoal (interface)  <!-- info/openrocket/core/optimization/rocketoptimization/OptimizationGoal.java -->
+    - RocketOptimizationFunction (class) — implements F  <!-- info/openrocket/core/optimization/rocketoptimization/RocketOptimizationFunction.java -->
+    - RocketOptimizationListener (interface)  <!-- info/openrocket/core/optimization/rocketoptimization/RocketOptimizationListener.java -->
+    - SimulationDomain (interface)  <!-- info/openrocket/core/optimization/rocketoptimization/SimulationDomain.java -->
+    - SimulationModifier (interface) — extends C  <!-- info/openrocket/core/optimization/rocketoptimization/SimulationModifier.java -->
+    - defining (interface)  <!-- info/openrocket/core/optimization/rocketoptimization/SimulationDomain.java -->
+    - must (class)  <!-- info/openrocket/core/optimization/rocketoptimization/RocketOptimizationFunction.java -->
+    - what (interface)  <!-- info/openrocket/core/optimization/rocketoptimization/SimulationModifier.java -->
+  - info.openrocket.core.optimization.rocketoptimization.domains
+    - IdentitySimulationDomain (class) — implements S  <!-- info/openrocket/core/optimization/rocketoptimization/domains/IdentitySimulationDomain.java -->
+    - StabilityDomain (class) — implements S  <!-- info/openrocket/core/optimization/rocketoptimization/domains/StabilityDomain.java -->
+    - must (class)  <!-- info/openrocket/core/optimization/rocketoptimization/domains/StabilityDomain.java -->
+  - info.openrocket.core.optimization.rocketoptimization.goals
+    - MaximizationGoal (class) — implements O  <!-- info/openrocket/core/optimization/rocketoptimization/goals/MaximizationGoal.java -->
+    - MinimizationGoal (class) — implements O  <!-- info/openrocket/core/optimization/rocketoptimization/goals/MinimizationGoal.java -->
+    - ValueSeekGoal (class) — implements O  <!-- info/openrocket/core/optimization/rocketoptimization/goals/ValueSeekGoal.java -->
+  - info.openrocket.core.optimization.rocketoptimization.modifiers
+    - AbstractSimulationModifier (class) — implements S  <!-- info/openrocket/core/optimization/rocketoptimization/modifiers/AbstractSimulationModifier.java -->
+    - FlightConfigurationModifier (class)  <!-- info/openrocket/core/optimization/rocketoptimization/modifiers/FlightConfigurationModifier.java -->
+    - GenericComponentModifier (class) — extends G  <!-- info/openrocket/core/optimization/rocketoptimization/modifiers/GenericComponentModifier.java -->
+    - GenericModifier (class)  <!-- info/openrocket/core/optimization/rocketoptimization/modifiers/GenericModifier.java -->
+    - of (class)  <!-- info/openrocket/core/optimization/rocketoptimization/modifiers/FlightConfigurationModifier.java -->
+    - type (class)  <!-- info/openrocket/core/optimization/rocketoptimization/modifiers/GenericComponentModifier.java -->
+    - type (class)  <!-- info/openrocket/core/optimization/rocketoptimization/modifiers/FlightConfigurationModifier.java -->
+    - type (class)  <!-- info/openrocket/core/optimization/rocketoptimization/modifiers/GenericModifier.java -->
+  - info.openrocket.core.optimization.rocketoptimization.parameters
+    - DeploymentVelocityParameter (class) — extends S  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/DeploymentVelocityParameter.java -->
+    - GroundHitVelocityParameter (class) — extends S  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/GroundHitVelocityParameter.java -->
+    - LandingDistanceParameter (class) — extends S  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/LandingDistanceParameter.java -->
+    - MaximumAccelerationParameter (class) — extends S  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/MaximumAccelerationParameter.java -->
+    - MaximumAltitudeParameter (class) — extends S  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/MaximumAltitudeParameter.java -->
+    - MaximumVelocityParameter (class) — extends S  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/MaximumVelocityParameter.java -->
+    - SimulationBasedParameter (class) — implements O  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/SimulationBasedParameter.java -->
+    - StabilityParameter (class) — implements O  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/StabilityParameter.java -->
+    - TotalFlightTimeParameter (class) — extends S  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/TotalFlightTimeParameter.java -->
+    - must (class)  <!-- info/openrocket/core/optimization/rocketoptimization/parameters/StabilityParameter.java -->
+  - info.openrocket.core.optimization.services
+    - DefaultOptimizableParameterService (class) — implements O  <!-- info/openrocket/core/optimization/services/DefaultOptimizableParameterService.java -->
+    - DefaultSimulationModifierService (class) — implements S  <!-- info/openrocket/core/optimization/services/DefaultSimulationModifierService.java -->
+    - ModifierDefinition (class)  <!-- info/openrocket/core/optimization/services/DefaultSimulationModifierService.java -->
+    - OptimizableParameterService (interface)  <!-- info/openrocket/core/optimization/services/OptimizableParameterService.java -->
+    - OptimizationServiceHelper (class)  <!-- info/openrocket/core/optimization/services/OptimizationServiceHelper.java -->
+    - SimulationModifierService (interface)  <!-- info/openrocket/core/optimization/services/SimulationModifierService.java -->
+  - info.openrocket.core.plugin
+    - AnnotationFinder (interface)  <!-- info/openrocket/core/plugin/AnnotationFinder.java -->
+    - AnnotationFinderImpl (class) — implements A  <!-- info/openrocket/core/plugin/AnnotationFinderImpl.java -->
+    - CustomRemapper (class) — extends R  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+    - JarMigrationException (class) — extends E  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+    - JarMigrationHelper (class)  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+    - Plugin (interface)  <!-- info/openrocket/core/plugin/Plugin.java -->
+    - PluginHelper (class)  <!-- info/openrocket/core/plugin/PluginHelper.java -->
+    - PluginModule (class) — extends A  <!-- info/openrocket/core/plugin/PluginModule.java -->
+    - and (interface)  <!-- info/openrocket/core/plugin/Plugin.java -->
+    - belongs (class)  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+    - belongs (class)  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+    - exists (class)  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+    - files (class)  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+    - for (class)  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+    - path (class)  <!-- info/openrocket/core/plugin/AnnotationFinderImpl.java -->
+    - path (class)  <!-- info/openrocket/core/plugin/AnnotationFinder.java -->
+    - resource (class)  <!-- info/openrocket/core/plugin/JarMigrationHelper.java -->
+  - info.openrocket.core.preferences
+    - ApplicationPreferences (class) — implements C  <!-- info/openrocket/core/preferences/ApplicationPreferences.java -->
+    - DocumentPreference (class)  <!-- info/openrocket/core/preferences/DocumentPreferences.java -->
+    - DocumentPreferences (class) — implements C  <!-- info/openrocket/core/preferences/DocumentPreferences.java -->
+    - ORPreferences (interface)  <!-- info/openrocket/core/preferences/ORPreferences.java -->
+    - StaticFieldHolder (class)  <!-- info/openrocket/core/preferences/ApplicationPreferences.java -->
+    - so (class)  <!-- info/openrocket/core/preferences/ApplicationPreferences.java -->
+    - type (enum)  <!-- info/openrocket/core/preferences/ApplicationPreferences.java -->
+    - value (enum)  <!-- info/openrocket/core/preferences/ApplicationPreferences.java -->
+    - value (enum)  <!-- info/openrocket/core/preferences/ApplicationPreferences.java -->
+  - info.openrocket.core.preset
+    - ComponentPreset (class) — implements C  <!-- info/openrocket/core/preset/ComponentPreset.java -->
+    - ComponentPresetFactory (class)  <!-- info/openrocket/core/preset/ComponentPresetFactory.java -->
+    - InvalidComponentPresetException (class) — extends E  <!-- info/openrocket/core/preset/InvalidComponentPresetException.java -->
+    - MaterialSerializationProxy (class) — implements S  <!-- info/openrocket/core/preset/ComponentPreset.java -->
+    - Type (enum)  <!-- info/openrocket/core/preset/ComponentPreset.java -->
+    - TypedKey (class)  <!-- info/openrocket/core/preset/TypedKey.java -->
+    - TypedPropertyMap (class) — implements C  <!-- info/openrocket/core/preset/TypedPropertyMap.java -->
+    - type (class)  <!-- info/openrocket/core/preset/ComponentPreset.java -->
+  - info.openrocket.core.preset.loader
+    - BaseColumnParser (class) — implements R  <!-- info/openrocket/core/preset/loader/BaseColumnParser.java -->
+    - BaseComponentLoader (class) — extends R  <!-- info/openrocket/core/preset/loader/BaseComponentLoader.java -->
+    - BaseUnitColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/BaseUnitColumnParser.java -->
+    - BodyTubeLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/BodyTubeLoader.java -->
+    - BulkHeadLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/BulkHeadLoader.java -->
+    - CenteringRingLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/CenteringRingLoader.java -->
+    - DoubleColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/DoubleColumnParser.java -->
+    - DoubleUnitColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/DoubleUnitColumnParser.java -->
+    - EngineBlockLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/EngineBlockLoader.java -->
+    - IntegerColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/IntegerColumnParser.java -->
+    - LaunchLugLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/LaunchLugLoader.java -->
+    - LineMaterialColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/LineMaterialColumnParser.java -->
+    - ManufacturerColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/ManufacturerColumnParser.java -->
+    - MassColumnParser (class) — extends D  <!-- info/openrocket/core/preset/loader/MassColumnParser.java -->
+    - MaterialColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/MaterialColumnParser.java -->
+    - MaterialHolder (class)  <!-- info/openrocket/core/preset/loader/MaterialHolder.java -->
+    - MaterialLoader (class) — extends R  <!-- info/openrocket/core/preset/loader/MaterialLoader.java -->
+    - NoseConeLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/NoseConeLoader.java -->
+    - ParachuteLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/ParachuteLoader.java -->
+    - RailButtonLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/RailButtonLoader.java -->
+    - RockSimComponentFileColumnParser (interface)  <!-- info/openrocket/core/preset/loader/RockSimComponentFileColumnParser.java -->
+    - RockSimComponentFileLoader (class)  <!-- info/openrocket/core/preset/loader/RockSimComponentFileLoader.java -->
+    - RockSimComponentFileType (enum)  <!-- info/openrocket/core/preset/loader/RockSimComponentFileType.java -->
+    - ShapeColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/ShapeColumnParser.java -->
+    - StreamerLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/StreamerLoader.java -->
+    - StringColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/StringColumnParser.java -->
+    - SurfaceMaterialColumnParser (class) — extends B  <!-- info/openrocket/core/preset/loader/SurfaceMaterialColumnParser.java -->
+    - TransitionLoader (class) — extends N  <!-- info/openrocket/core/preset/loader/TransitionLoader.java -->
+    - TubeCouplerLoader (class) — extends B  <!-- info/openrocket/core/preset/loader/TubeCouplerLoader.java -->
+  - info.openrocket.core.preset.xml
+    - AnnotatedLengthDTO (class)  <!-- info/openrocket/core/preset/xml/BaseComponentDTO.java -->
+    - AnnotatedMassDTO (class)  <!-- info/openrocket/core/preset/xml/BaseComponentDTO.java -->
+    - AnnotatedMaterialDTO (class)  <!-- info/openrocket/core/preset/xml/BaseComponentDTO.java -->
+    - Base64Adapter (class) — extends X  <!-- info/openrocket/core/preset/xml/BaseComponentDTO.java -->
+    - BaseComponentDTO (class)  <!-- info/openrocket/core/preset/xml/BaseComponentDTO.java -->
+    - BodyTubeDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/BodyTubeDTO.java -->
+    - BulkHeadDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/BulkHeadDTO.java -->
+    - CenteringRingDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/CenteringRingDTO.java -->
+    - EngineBlockDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/EngineBlockDTO.java -->
+    - LaunchLugDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/LaunchLugDTO.java -->
+    - MaterialDTO (class)  <!-- info/openrocket/core/preset/xml/MaterialDTO.java -->
+    - MaterialGroupDTO (enum)  <!-- info/openrocket/core/preset/xml/MaterialGroupDTO.java -->
+    - MaterialTypeDTO (enum)  <!-- info/openrocket/core/preset/xml/MaterialTypeDTO.java -->
+    - NoseConeDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/NoseConeDTO.java -->
+    - OpenRocketComponentDTO (class)  <!-- info/openrocket/core/preset/xml/OpenRocketComponentDTO.java -->
+    - OpenRocketComponentLoader (class) — implements L  <!-- info/openrocket/core/preset/xml/OpenRocketComponentLoader.java -->
+    - OpenRocketComponentSaver (class)  <!-- info/openrocket/core/preset/xml/OpenRocketComponentSaver.java -->
+    - ParachuteDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/ParachuteDTO.java -->
+    - RailButtonDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/RailButtonDTO.java -->
+    - ShapeDTO (enum)  <!-- info/openrocket/core/preset/xml/ShapeDTO.java -->
+    - StreamerDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/StreamerDTO.java -->
+    - TransitionDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/TransitionDTO.java -->
+    - TubeCouplerDTO (class) — extends B  <!-- info/openrocket/core/preset/xml/TubeCouplerDTO.java -->
+    - for (class)  <!-- info/openrocket/core/preset/xml/BaseComponentDTO.java -->
+    - of (enum)  <!-- info/openrocket/core/preset/xml/MaterialTypeDTO.java -->
+    - of (enum)  <!-- info/openrocket/core/preset/xml/MaterialGroupDTO.java -->
+    - that (class)  <!-- info/openrocket/core/preset/xml/OpenRocketComponentSaver.java -->
+    - to (class)  <!-- info/openrocket/core/preset/xml/ShapeDTO.java -->
+    - to (class)  <!-- info/openrocket/core/preset/xml/ShapeDTO.java -->
+  - info.openrocket.core.rocketcomponent
+    - AirbrakeSet (class) — extends L  <!-- info/openrocket/core/rocketcomponent/AirbrakeSet.java -->
+    - AxialStage (class) — extends C  <!-- info/openrocket/core/rocketcomponent/AxialStage.java -->
+    - BodyComponent (class) — extends E  <!-- info/openrocket/core/rocketcomponent/BodyComponent.java -->
+    - BodyTube (class) — extends S  <!-- info/openrocket/core/rocketcomponent/BodyTube.java -->
+    - BoxBounded (interface)  <!-- info/openrocket/core/rocketcomponent/BoxBounded.java -->
+    - Bulkhead (class) — extends R  <!-- info/openrocket/core/rocketcomponent/Bulkhead.java -->
+    - CenteringRing (class) — extends R  <!-- info/openrocket/core/rocketcomponent/CenteringRing.java -->
+    - ClusterConfiguration (class)  <!-- info/openrocket/core/rocketcomponent/ClusterConfiguration.java -->
+    - Clusterable (interface) — extends C  <!-- info/openrocket/core/rocketcomponent/Clusterable.java -->
+    - Coaxial (interface)  <!-- info/openrocket/core/rocketcomponent/Coaxial.java -->
+    - ComponentAssembly (class) — extends R  <!-- info/openrocket/core/rocketcomponent/ComponentAssembly.java -->
+    - ComponentChangeEvent (class) — extends E  <!-- info/openrocket/core/rocketcomponent/ComponentChangeEvent.java -->
+    - ComponentChangeListener (interface) — extends E  <!-- info/openrocket/core/rocketcomponent/ComponentChangeListener.java -->
+    - CrossSection (enum)  <!-- info/openrocket/core/rocketcomponent/FinSet.java -->
+    - DeployEvent (enum)  <!-- info/openrocket/core/rocketcomponent/DeploymentConfiguration.java -->
+    - DeploymentConfiguration (class) — implements F  <!-- info/openrocket/core/rocketcomponent/DeploymentConfiguration.java -->
+    - DesignType (enum)  <!-- info/openrocket/core/rocketcomponent/DesignType.java -->
+    - EllipticalFinSet (class) — extends F  <!-- info/openrocket/core/rocketcomponent/EllipticalFinSet.java -->
+    - EngineBlock (class) — extends T  <!-- info/openrocket/core/rocketcomponent/EngineBlock.java -->
+    - ExternalComponent (class) — extends R  <!-- info/openrocket/core/rocketcomponent/ExternalComponent.java -->
+    - FinSet (class) — extends E  <!-- info/openrocket/core/rocketcomponent/FinSet.java -->
+    - Finish (enum)  <!-- info/openrocket/core/rocketcomponent/ExternalComponent.java -->
+    - FlightConfigurableComponent (interface)  <!-- info/openrocket/core/rocketcomponent/FlightConfigurableComponent.java -->
+    - FlightConfigurableParameter (interface)  <!-- info/openrocket/core/rocketcomponent/FlightConfigurableParameter.java -->
+    - FlightConfigurableParameterSet (class)  <!-- info/openrocket/core/rocketcomponent/FlightConfigurableParameterSet.java -->
+    - FlightConfiguration (class) — implements F  <!-- info/openrocket/core/rocketcomponent/FlightConfiguration.java -->
+    - FlightConfigurationId (class) — implements C  <!-- info/openrocket/core/rocketcomponent/FlightConfigurationId.java -->
+    - FreeformFinSet (class) — extends F  <!-- info/openrocket/core/rocketcomponent/FreeformFinSet.java -->
+    - IgnitionConfiguration (class) — implements F  <!-- info/openrocket/core/rocketcomponent/IgnitionConfiguration.java -->
+    - IllegalFinPointException (class) — extends E  <!-- info/openrocket/core/rocketcomponent/IllegalFinPointException.java -->
+    - InnerTube (class) — extends T  <!-- info/openrocket/core/rocketcomponent/InnerTube.java -->
+    - InsideColorComponent (interface)  <!-- info/openrocket/core/rocketcomponent/InsideColorComponent.java -->
+    - InsideColorComponentHandler (class)  <!-- info/openrocket/core/rocketcomponent/InsideColorComponentHandler.java -->
+    - InstanceContext (class)  <!-- info/openrocket/core/rocketcomponent/InstanceContext.java -->
+    - InstanceMap (class) — extends C  <!-- info/openrocket/core/rocketcomponent/InstanceMap.java -->
+    - Instanceable (interface)  <!-- info/openrocket/core/rocketcomponent/Instanceable.java -->
+    - InternalComponent (class) — extends R  <!-- info/openrocket/core/rocketcomponent/InternalComponent.java -->
+    - LaunchLug (class) — extends T  <!-- info/openrocket/core/rocketcomponent/LaunchLug.java -->
+    - LeafSet (class) — extends E  <!-- info/openrocket/core/rocketcomponent/LeafSet.java -->
+    - LineInstanceable (interface) — extends A  <!-- info/openrocket/core/rocketcomponent/LineInstanceable.java -->
+    - MassComponent (class) — extends M  <!-- info/openrocket/core/rocketcomponent/MassComponent.java -->
+    - MassComponentType (enum)  <!-- info/openrocket/core/rocketcomponent/MassComponent.java -->
+    - MassObject (class) — extends I  <!-- info/openrocket/core/rocketcomponent/MassObject.java -->
+    - MotorMount (interface) — extends C  <!-- info/openrocket/core/rocketcomponent/MotorMount.java -->
+    - NoseCone (class) — extends T  <!-- info/openrocket/core/rocketcomponent/NoseCone.java -->
+    - Parachute (class) — extends R  <!-- info/openrocket/core/rocketcomponent/Parachute.java -->
+    - ParallelStage (class) — extends A  <!-- info/openrocket/core/rocketcomponent/ParallelStage.java -->
+    - PodSet (class) — extends C  <!-- info/openrocket/core/rocketcomponent/PodSet.java -->
+    - RadialParent (interface)  <!-- info/openrocket/core/rocketcomponent/RadialParent.java -->
+    - RadiusRingComponent (class) — extends R  <!-- info/openrocket/core/rocketcomponent/RadiusRingComponent.java -->
+    - RailButton (class) — extends E  <!-- info/openrocket/core/rocketcomponent/RailButton.java -->
+    - RecoveryDevice (class) — extends M  <!-- info/openrocket/core/rocketcomponent/RecoveryDevice.java -->
+    - ReferenceType (enum)  <!-- info/openrocket/core/rocketcomponent/ReferenceType.java -->
+    - RingComponent (class) — extends S  <!-- info/openrocket/core/rocketcomponent/RingComponent.java -->
+    - RingInstanceable (interface) — extends I  <!-- info/openrocket/core/rocketcomponent/RingInstanceable.java -->
+    - Rocket (class) — extends C  <!-- info/openrocket/core/rocketcomponent/Rocket.java -->
+    - RocketComponent (class) — implements C  <!-- info/openrocket/core/rocketcomponent/RocketComponent.java -->
+    - RocketComponentIterator (class) — implements I  <!-- info/openrocket/core/rocketcomponent/RocketComponent.java -->
+    - RocketComponentVisitor (interface)  <!-- info/openrocket/core/rocketcomponent/RocketComponentVisitor.java -->
+    - RocketUtils (class)  <!-- info/openrocket/core/rocketcomponent/RocketUtils.java -->
+    - SeparationEvent (enum)  <!-- info/openrocket/core/rocketcomponent/StageSeparationConfiguration.java -->
+    - Shape (enum)  <!-- info/openrocket/core/rocketcomponent/Transition.java -->
+    - ShockCord (class) — extends M  <!-- info/openrocket/core/rocketcomponent/ShockCord.java -->
+    - Sleeve (class) — extends R  <!-- info/openrocket/core/rocketcomponent/Sleeve.java -->
+    - StageFlags (class) — implements C  <!-- info/openrocket/core/rocketcomponent/FlightConfiguration.java -->
+    - StageSeparationConfiguration (class) — implements F  <!-- info/openrocket/core/rocketcomponent/StageSeparationConfiguration.java -->
+    - Streamer (class) — extends R  <!-- info/openrocket/core/rocketcomponent/Streamer.java -->
+    - StructuralComponent (class) — extends I  <!-- info/openrocket/core/rocketcomponent/StructuralComponent.java -->
+    - SymmetricComponent (class) — extends B  <!-- info/openrocket/core/rocketcomponent/SymmetricComponent.java -->
+    - TYPE (enum)  <!-- info/openrocket/core/rocketcomponent/ComponentChangeEvent.java -->
+    - TabControlledTrapezoidFinSet (class) — extends T  <!-- info/openrocket/core/rocketcomponent/TabControlledTrapezoidFinSet.java -->
+    - ThicknessRingComponent (class) — extends R  <!-- info/openrocket/core/rocketcomponent/ThicknessRingComponent.java -->
+    - Transition (class) — extends S  <!-- info/openrocket/core/rocketcomponent/Transition.java -->
+    - Transition (class)  <!-- info/openrocket/core/rocketcomponent/NoseCone.java -->
+    - TrapezoidFinSet (class) — extends F  <!-- info/openrocket/core/rocketcomponent/TrapezoidFinSet.java -->
+    - Tube (class) — extends E  <!-- info/openrocket/core/rocketcomponent/Tube.java -->
+    - TubeCoupler (class) — extends T  <!-- info/openrocket/core/rocketcomponent/TubeCoupler.java -->
+    - TubeFinSet (class) — extends T  <!-- info/openrocket/core/rocketcomponent/TubeFinSet.java -->
+    - as (class)  <!-- info/openrocket/core/rocketcomponent/RocketComponent.java -->
+    - assume (class)  <!-- info/openrocket/core/rocketcomponent/SymmetricComponent.java -->
+    - defines (interface)  <!-- info/openrocket/core/rocketcomponent/Coaxial.java -->
+    - defines (class)  <!-- info/openrocket/core/rocketcomponent/InnerTube.java -->
+    - defining (class)  <!-- info/openrocket/core/rocketcomponent/FlightConfiguration.java -->
+    - implemented (interface)  <!-- info/openrocket/core/rocketcomponent/FlightConfigurableComponent.java -->
+    - is (interface)  <!-- info/openrocket/core/rocketcomponent/Coaxial.java -->
+    - is (class)  <!-- info/openrocket/core/rocketcomponent/RailButton.java -->
+    - is (class)  <!-- info/openrocket/core/rocketcomponent/ClusterConfiguration.java -->
+    - is (class)  <!-- info/openrocket/core/rocketcomponent/AirbrakeSet.java -->
+    - must (class)  <!-- info/openrocket/core/rocketcomponent/RocketComponent.java -->
+    - need (class)  <!-- info/openrocket/core/rocketcomponent/MassObject.java -->
+    - provides (class)  <!-- info/openrocket/core/rocketcomponent/LeafSet.java -->
+    - replaces (class)  <!-- info/openrocket/core/rocketcomponent/FlightConfigurationId.java -->
+    - representing (class)  <!-- info/openrocket/core/rocketcomponent/RecoveryDevice.java -->
+    - represents (class)  <!-- info/openrocket/core/rocketcomponent/LeafSet.java -->
+    - represents (class)  <!-- info/openrocket/core/rocketcomponent/MassComponent.java -->
+    - should (class)  <!-- info/openrocket/core/rocketcomponent/LeafSet.java -->
+    - that (class)  <!-- info/openrocket/core/rocketcomponent/RocketComponent.java -->
+    - to (class)  <!-- info/openrocket/core/rocketcomponent/RocketComponent.java -->
+    - type (class)  <!-- info/openrocket/core/rocketcomponent/Transition.java -->
+    - type (class)  <!-- info/openrocket/core/rocketcomponent/ParallelStage.java -->
+    - type (class)  <!-- info/openrocket/core/rocketcomponent/RocketComponent.java -->
+    - type (class)  <!-- info/openrocket/core/rocketcomponent/RocketComponent.java -->
+    - type (class)  <!-- info/openrocket/core/rocketcomponent/AxialStage.java -->
+    - type (class)  <!-- info/openrocket/core/rocketcomponent/BodyTube.java -->
+    - type (class)  <!-- info/openrocket/core/rocketcomponent/PodSet.java -->
+    - used (class)  <!-- info/openrocket/core/rocketcomponent/FlightConfigurationId.java -->
+    - uses (class)  <!-- info/openrocket/core/rocketcomponent/FreeformFinSet.java -->
+    - which (interface)  <!-- info/openrocket/core/rocketcomponent/InsideColorComponent.java -->
+  - info.openrocket.core.rocketcomponent.position
+    - AngleMethod (enum) — implements D  <!-- info/openrocket/core/rocketcomponent/position/AngleMethod.java -->
+    - AnglePositionable (interface)  <!-- info/openrocket/core/rocketcomponent/position/AnglePositionable.java -->
+    - AxialMethod (enum) — implements D  <!-- info/openrocket/core/rocketcomponent/position/AxialMethod.java -->
+    - AxialPositionable (interface)  <!-- info/openrocket/core/rocketcomponent/position/AxialPositionable.java -->
+    - Distance (class)  <!-- info/openrocket/core/rocketcomponent/position/Distance.java -->
+    - DistanceMethod (interface)  <!-- info/openrocket/core/rocketcomponent/position/DistanceMethod.java -->
+    - RadiusMethod (enum) — implements D  <!-- info/openrocket/core/rocketcomponent/position/RadiusMethod.java -->
+    - RadiusPositionable (interface)  <!-- info/openrocket/core/rocketcomponent/position/RadiusPositionable.java -->
+  - info.openrocket.core.rocketvisitors
+    - BredthFirstRecusiveVisitor (class)  <!-- info/openrocket/core/rocketvisitors/BredthFirstRecusiveVisitor.java -->
+    - DepthFirstRecursiveVisitor (class)  <!-- info/openrocket/core/rocketvisitors/DepthFirstRecursiveVisitor.java -->
+    - ListComponents (class)  <!-- info/openrocket/core/rocketvisitors/ListComponents.java -->
+    - ListMotorMounts (class) — extends L  <!-- info/openrocket/core/rocketvisitors/ListMotorMounts.java -->
+  - info.openrocket.core.scripting
+    - GraalJSScriptEngineFactory (class) — implements S  <!-- info/openrocket/core/scripting/GraalJSScriptEngineFactory.java -->
+    - ScriptEngineFactory (interface)  <!-- info/openrocket/core/scripting/ScriptEngineFactory.java -->
+    - ScriptEngineManagerRedux (class)  <!-- info/openrocket/core/scripting/ScriptEngineManagerRedux.java -->
+    - implementing (class)  <!-- info/openrocket/core/scripting/ScriptEngineFactory.java -->
+    - to (class)  <!-- info/openrocket/core/scripting/ScriptEngineManagerRedux.java -->
+    - to (class)  <!-- info/openrocket/core/scripting/ScriptEngineManagerRedux.java -->
+    - to (class)  <!-- info/openrocket/core/scripting/ScriptEngineFactory.java -->
+    - to (class)  <!-- info/openrocket/core/scripting/ScriptEngineFactory.java -->
+    - uses (class)  <!-- info/openrocket/core/scripting/ScriptEngineManagerRedux.java -->
+  - info.openrocket.core.simulation
+    - AbstractEulerStepper (class) — extends A  <!-- info/openrocket/core/simulation/AbstractEulerStepper.java -->
+    - AbstractSimulationStepper (class) — implements S  <!-- info/openrocket/core/simulation/AbstractSimulationStepper.java -->
+    - AccelerationData (class)  <!-- info/openrocket/core/simulation/AccelerationData.java -->
+    - BasicEventSimulationEngine (class) — implements S  <!-- info/openrocket/core/simulation/BasicEventSimulationEngine.java -->
+    - BasicLandingStepper (class) — extends A  <!-- info/openrocket/core/simulation/BasicLandingStepper.java -->
+    - BasicTumbleStepper (class) — extends A  <!-- info/openrocket/core/simulation/BasicTumbleStepper.java -->
+    - DataBranch (class)  <!-- info/openrocket/core/simulation/DataBranch.java -->
+    - DataStore (class)  <!-- info/openrocket/core/simulation/AbstractSimulationStepper.java -->
+    - DataType (interface) — extends U  <!-- info/openrocket/core/simulation/DataType.java -->
+    - DefaultSimulationOptionFactory (class)  <!-- info/openrocket/core/simulation/DefaultSimulationOptionFactory.java -->
+    - EulerValues (class)  <!-- info/openrocket/core/simulation/AbstractEulerStepper.java -->
+    - EventQueue (class) — extends P  <!-- info/openrocket/core/simulation/EventQueue.java -->
+    - FlightData (class)  <!-- info/openrocket/core/simulation/FlightData.java -->
+    - FlightDataBranch (class) — extends D  <!-- info/openrocket/core/simulation/FlightDataBranch.java -->
+    - FlightDataType (class) — implements C  <!-- info/openrocket/core/simulation/FlightDataType.java -->
+    - FlightDataTypeGroup (class) — implements C  <!-- info/openrocket/core/simulation/FlightDataTypeGroup.java -->
+    - FlightEvent (class) — implements C  <!-- info/openrocket/core/simulation/FlightEvent.java -->
+    - GroundStepper (class) — extends A  <!-- info/openrocket/core/simulation/GroundStepper.java -->
+    - ModifiedEventSimulationEngine (class) — implements S  <!-- info/openrocket/core/simulation/ModifiedEventSimulationEngine.java -->
+    - MotorClusterState (class)  <!-- info/openrocket/core/simulation/MotorClusterState.java -->
+    - RK4Parameters (class)  <!-- info/openrocket/core/simulation/RK4SimulationStepper.java -->
+    - RK4SimulationStepper (class) — extends A  <!-- info/openrocket/core/simulation/RK4SimulationStepper.java -->
+    - RK6Parameters (class)  <!-- info/openrocket/core/simulation/RK6SimulationStepper.java -->
+    - RK6SimulationStepper (class) — extends A  <!-- info/openrocket/core/simulation/RK6SimulationStepper.java -->
+    - SimulationConditions (class) — implements M  <!-- info/openrocket/core/simulation/SimulationConditions.java -->
+    - SimulationEngine (interface)  <!-- info/openrocket/core/simulation/SimulationEngine.java -->
+    - SimulationOptions (class) — implements C  <!-- info/openrocket/core/simulation/SimulationOptions.java -->
+    - SimulationOptionsInterface (interface) — extends C  <!-- info/openrocket/core/simulation/SimulationOptionsInterface.java -->
+    - SimulationStatus (class) — implements C  <!-- info/openrocket/core/simulation/SimulationStatus.java -->
+    - SimulationStepper (interface)  <!-- info/openrocket/core/simulation/SimulationStepper.java -->
+    - ThrustState (enum)  <!-- info/openrocket/core/simulation/ThrustState.java -->
+    - Type (enum)  <!-- info/openrocket/core/simulation/FlightEvent.java -->
+    - defined (class)  <!-- info/openrocket/core/simulation/FlightDataType.java -->
+    - defining (class)  <!-- info/openrocket/core/simulation/FlightDataType.java -->
+    - for (class)  <!-- info/openrocket/core/simulation/SimulationStatus.java -->
+    - for (class)  <!-- info/openrocket/core/simulation/SimulationConditions.java -->
+    - holding (class)  <!-- info/openrocket/core/simulation/SimulationOptions.java -->
+    - that (class)  <!-- info/openrocket/core/simulation/FlightEvent.java -->
+  - info.openrocket.core.simulation.customexpression
+    - CustomExpression (class) — implements C  <!-- info/openrocket/core/simulation/customexpression/CustomExpression.java -->
+    - CustomExpressionSimulationListener (class) — extends A  <!-- info/openrocket/core/simulation/customexpression/CustomExpressionSimulationListener.java -->
+    - Functions (class)  <!-- info/openrocket/core/simulation/customexpression/Functions.java -->
+    - IndexExpression (class) — extends C  <!-- info/openrocket/core/simulation/customexpression/IndexExpression.java -->
+    - RangeExpression (class) — extends C  <!-- info/openrocket/core/simulation/customexpression/RangeExpression.java -->
+    - which (class)  <!-- info/openrocket/core/simulation/customexpression/Functions.java -->
+  - info.openrocket.core.simulation.exception
+    - SimulationCalculationException (class) — extends S  <!-- info/openrocket/core/simulation/exception/SimulationCalculationException.java -->
+    - SimulationCancelledException (class) — extends S  <!-- info/openrocket/core/simulation/exception/SimulationCancelledException.java -->
+    - SimulationException (class) — extends E  <!-- info/openrocket/core/simulation/exception/SimulationException.java -->
+    - SimulationListenerException (class) — extends S  <!-- info/openrocket/core/simulation/exception/SimulationListenerException.java -->
+  - info.openrocket.core.simulation.extension
+    - AbstractSimulationExtension (class) — extends A  <!-- info/openrocket/core/simulation/extension/AbstractSimulationExtension.java -->
+    - AbstractSimulationExtensionProvider (class) — implements S  <!-- info/openrocket/core/simulation/extension/AbstractSimulationExtensionProvider.java -->
+    - SimulationExtension (interface)  <!-- info/openrocket/core/simulation/extension/SimulationExtension.java -->
+    - SimulationExtensionConfiguration (class) — extends H  <!-- info/openrocket/core/simulation/extension/SimulationExtensionConfiguration.java -->
+    - SimulationExtensionProvider (interface)  <!-- info/openrocket/core/simulation/extension/SimulationExtensionProvider.java -->
+    - name (class)  <!-- info/openrocket/core/simulation/extension/AbstractSimulationExtension.java -->
+    - naming (class)  <!-- info/openrocket/core/simulation/extension/SimulationExtensionProvider.java -->
+    - of (class)  <!-- info/openrocket/core/simulation/extension/AbstractSimulationExtensionProvider.java -->
+  - info.openrocket.core.simulation.extension.example
+    - AdvancedRollControl (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/AdvancedRollControl.java -->
+    - AdvancedRollControlProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/AdvancedRollControlProvider.java -->
+    - AirStart (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/AirStart.java -->
+    - AirStartListener (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/AirStart.java -->
+    - AirStartProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/AirStartProvider.java -->
+    - CSVSave (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/CSVSave.java -->
+    - CSVSaveListener (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/CSVSave.java -->
+    - CSVSaveProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/CSVSaveProvider.java -->
+    - DampingMoment (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/DampingMoment.java -->
+    - DampingMomentListener (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/DampingMoment.java -->
+    - DampingMomentProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/DampingMomentProvider.java -->
+    - PrintSimulation (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/PrintSimulation.java -->
+    - PrintSimulationListener (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/PrintSimulation.java -->
+    - PrintSimulationProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/PrintSimulationProvider.java -->
+    - RollControl (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/RollControl.java -->
+    - RollControlListener (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/AdvancedRollControl.java -->
+    - RollControlListener (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/RollControl.java -->
+    - RollControlProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/RollControlProvider.java -->
+    - StopSimulation (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/StopSimulation.java -->
+    - StopSimulationListener (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/StopSimulation.java -->
+    - StopSimulationProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/example/StopSimulationProvider.java -->
+    - Types (enum)  <!-- info/openrocket/core/simulation/extension/example/CSVSave.java -->
+  - info.openrocket.core.simulation.extension.impl
+    - API (interface)  <!-- info/openrocket/core/simulation/extension/impl/ScriptingSimulationListener.java -->
+    - JavaCode (class) — extends A  <!-- info/openrocket/core/simulation/extension/impl/JavaCode.java -->
+    - JavaCodeProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/impl/JavaCodeProvider.java -->
+    - ScriptingExtension (class) — extends A  <!-- info/openrocket/core/simulation/extension/impl/ScriptingExtension.java -->
+    - ScriptingProvider (class) — extends A  <!-- info/openrocket/core/simulation/extension/impl/ScriptingProvider.java -->
+    - ScriptingSimulationListener (class) — implements S  <!-- info/openrocket/core/simulation/extension/impl/ScriptingSimulationListener.java -->
+    - ScriptingUtil (class)  <!-- info/openrocket/core/simulation/extension/impl/ScriptingUtil.java -->
+    - used (class)  <!-- info/openrocket/core/simulation/extension/impl/ScriptingUtil.java -->
+  - info.openrocket.core.simulation.listeners
+    - AbstractSimulationListener (class) — implements S  <!-- info/openrocket/core/simulation/listeners/AbstractSimulationListener.java -->
+    - ControllerState (enum)  <!-- info/openrocket/core/simulation/listeners/ControllerState.java -->
+    - Flag (class)  <!-- info/openrocket/core/simulation/listeners/Flag.java -->
+    - MidControlStepLauncher (class) — extends A  <!-- info/openrocket/core/simulation/listeners/MidControlStepLauncher.java -->
+    - NewControlStepListener (class) — extends A  <!-- info/openrocket/core/simulation/listeners/NewControlStepListener.java -->
+    - SimulationComputationListener (interface) — extends S  <!-- info/openrocket/core/simulation/listeners/SimulationComputationListener.java -->
+    - SimulationEventListener (interface)  <!-- info/openrocket/core/simulation/listeners/SimulationEventListener.java -->
+    - SimulationListener (interface)  <!-- info/openrocket/core/simulation/listeners/SimulationListener.java -->
+    - SimulationListenerHelper (class)  <!-- info/openrocket/core/simulation/listeners/SimulationListenerHelper.java -->
+    - containing (interface)  <!-- info/openrocket/core/simulation/listeners/SimulationComputationListener.java -->
+    - for (class)  <!-- info/openrocket/core/simulation/listeners/AbstractSimulationListener.java -->
+  - info.openrocket.core.simulation.listeners.example
+    - AirStart (class) — extends A  <!-- info/openrocket/core/simulation/listeners/example/AirStart.java -->
+  - info.openrocket.core.simulation.listeners.system
+    - ApogeeEndListener (class) — extends A  <!-- info/openrocket/core/simulation/listeners/system/ApogeeEndListener.java -->
+    - GroundHitListener (class) — extends A  <!-- info/openrocket/core/simulation/listeners/system/GroundHitListener.java -->
+    - InterruptListener (class) — extends A  <!-- info/openrocket/core/simulation/listeners/system/InterruptListener.java -->
+    - OptimumCoastListener (class) — extends A  <!-- info/openrocket/core/simulation/listeners/system/OptimumCoastListener.java -->
+    - RecoveryDeviceDeploymentEndListener (class) — extends A  <!-- info/openrocket/core/simulation/listeners/system/RecoveryDeviceDeploymentEndListener.java -->
+  - info.openrocket.core.startup
+    - Application (class)  <!-- info/openrocket/core/startup/Application.java -->
+    - ExceptionHandler (interface)  <!-- info/openrocket/core/startup/ExceptionHandler.java -->
+    - that (class)  <!-- info/openrocket/core/startup/Application.java -->
+  - info.openrocket.core.thrustcurve
+    - Base64Decoder (class)  <!-- info/openrocket/core/thrustcurve/Base64Decoder.java -->
+    - DownloadRequest (class)  <!-- info/openrocket/core/thrustcurve/DownloadRequest.java -->
+    - DownloadResponse (class)  <!-- info/openrocket/core/thrustcurve/DownloadResponse.java -->
+    - DownloadResponseParser (class) — implements E  <!-- info/openrocket/core/thrustcurve/DownloadResponseParser.java -->
+    - MotorBurnFile (class)  <!-- info/openrocket/core/thrustcurve/MotorBurnFile.java -->
+    - SearchRequest (class)  <!-- info/openrocket/core/thrustcurve/SearchRequest.java -->
+    - SearchResponse (class)  <!-- info/openrocket/core/thrustcurve/SearchResponse.java -->
+    - SearchResponseParser (class) — implements E  <!-- info/openrocket/core/thrustcurve/SearchResponseParser.java -->
+    - SerializeThrustcurveMotors (class)  <!-- info/openrocket/core/thrustcurve/SerializeThrustcurveMotors.java -->
+    - SupportedFileTypes (class)  <!-- info/openrocket/core/thrustcurve/SupportedFileTypes.java -->
+    - TCMotor (class) — implements C  <!-- info/openrocket/core/thrustcurve/TCMotor.java -->
+    - ThrustCurveAPI (class)  <!-- info/openrocket/core/thrustcurve/ThrustCurveAPI.java -->
+    - Type (enum)  <!-- info/openrocket/core/thrustcurve/SearchRequest.java -->
+  - info.openrocket.core.unit
+    - CaliberUnit (class) — extends G  <!-- info/openrocket/core/unit/CaliberUnit.java -->
+    - DegreeUnit (class) — extends G  <!-- info/openrocket/core/unit/DegreeUnit.java -->
+    - FixedPrecisionUnit (class) — extends U  <!-- info/openrocket/core/unit/FixedPrecisionUnit.java -->
+    - FixedUnitGroup (class) — extends U  <!-- info/openrocket/core/unit/FixedUnitGroup.java -->
+    - FractionalUnit (class) — extends U  <!-- info/openrocket/core/unit/FractionalUnit.java -->
+    - FrequencyUnit (class) — extends G  <!-- info/openrocket/core/unit/FrequencyUnit.java -->
+    - GeneralUnit (class) — extends U  <!-- info/openrocket/core/unit/GeneralUnit.java -->
+    - InchUnit (class) — extends G  <!-- info/openrocket/core/unit/InchUnit.java -->
+    - PercentageOfLengthUnit (class) — extends G  <!-- info/openrocket/core/unit/PercentageOfLengthUnit.java -->
+    - RadianUnit (class) — extends G  <!-- info/openrocket/core/unit/RadianUnit.java -->
+    - StabilityUnitGroup (class) — extends U  <!-- info/openrocket/core/unit/UnitGroup.java -->
+    - TemperatureUnit (class) — extends F  <!-- info/openrocket/core/unit/TemperatureUnit.java -->
+    - Tick (class)  <!-- info/openrocket/core/unit/Tick.java -->
+    - Unit (class)  <!-- info/openrocket/core/unit/Unit.java -->
+    - UnitGroup (class)  <!-- info/openrocket/core/unit/UnitGroup.java -->
+    - Value (class) — implements C  <!-- info/openrocket/core/unit/Value.java -->
+    - ValueComparator (class) — implements C  <!-- info/openrocket/core/unit/ValueComparator.java -->
+    - may (class)  <!-- info/openrocket/core/unit/Value.java -->
+    - provides (class)  <!-- info/openrocket/core/unit/FixedUnitGroup.java -->
+    - representing (class)  <!-- info/openrocket/core/unit/Value.java -->
+    - that (class)  <!-- info/openrocket/core/unit/UnitGroup.java -->
+  - info.openrocket.core.util
+    - AbstractChangeSource (class) — implements C  <!-- info/openrocket/core/util/AbstractChangeSource.java -->
+    - AlphanumComparator (class) — implements C  <!-- info/openrocket/core/util/AlphanumComparator.java -->
+    - ArrayList (class)  <!-- info/openrocket/core/util/ArrayList.java -->
+    - ArrayUtils (class)  <!-- info/openrocket/core/util/ArrayUtils.java -->
+    - Base64 (class)  <!-- info/openrocket/core/util/Base64.java -->
+    - BogusSafetyMutex (class) — extends S  <!-- info/openrocket/core/util/SafetyMutex.java -->
+    - BoundingBox (class)  <!-- info/openrocket/core/util/BoundingBox.java -->
+    - BugException (class) — extends F  <!-- info/openrocket/core/util/BugException.java -->
+    - BuildProperties (class)  <!-- info/openrocket/core/util/BuildProperties.java -->
+    - ChangeSource (interface)  <!-- info/openrocket/core/util/ChangeSource.java -->
+    - Chars (class)  <!-- info/openrocket/core/util/Chars.java -->
+    - ComparablePair (class)  <!-- info/openrocket/core/util/ComparablePair.java -->
+    - ComponentChangeAdapter (class) — implements C  <!-- info/openrocket/core/util/ComponentChangeAdapter.java -->
+    - ConcreteSafetyMutex (class) — extends S  <!-- info/openrocket/core/util/SafetyMutex.java -->
+    - ConcurrencyException (class) — extends F  <!-- info/openrocket/core/util/ConcurrencyException.java -->
+    - Config (class)  <!-- info/openrocket/core/util/Config.java -->
+    - ConfigurationException (class) — extends F  <!-- info/openrocket/core/util/ConfigurationException.java -->
+    - Coordinate (class) — implements C  <!-- info/openrocket/core/util/Coordinate.java -->
+    - DecalNotFoundException (class) — extends E  <!-- info/openrocket/core/util/DecalNotFoundException.java -->
+    - ExpressionParser (class)  <!-- info/openrocket/core/util/ExpressionParser.java -->
+    - FatalException (class) — extends R  <!-- info/openrocket/core/util/FatalException.java -->
+    - FileUtils (class)  <!-- info/openrocket/core/util/FileUtils.java -->
+    - GeodeticComputationStrategy (enum)  <!-- info/openrocket/core/util/GeodeticComputationStrategy.java -->
+    - Group (interface)  <!-- info/openrocket/core/util/Group.java -->
+    - Groupable (interface)  <!-- info/openrocket/core/util/Groupable.java -->
+    - Inertia (class)  <!-- info/openrocket/core/util/Inertia.java -->
+    - InvalidExpressionException (class) — extends E  <!-- info/openrocket/core/util/InvalidExpressionException.java -->
+    - Invalidatable (interface)  <!-- info/openrocket/core/util/Invalidatable.java -->
+    - Invalidator (class) — implements I  <!-- info/openrocket/core/util/Invalidator.java -->
+    - JarUtil (class)  <!-- info/openrocket/core/util/JarUtil.java -->
+    - LimitedInputStream (class) — extends F  <!-- info/openrocket/core/util/LimitedInputStream.java -->
+    - LineStyle (enum)  <!-- info/openrocket/core/util/LineStyle.java -->
+    - LinearInterpolator (class) — implements C  <!-- info/openrocket/core/util/LinearInterpolator.java -->
+    - ListenerData (class)  <!-- info/openrocket/core/util/ListenerList.java -->
+    - ListenerDataIterator (class) — implements I  <!-- info/openrocket/core/util/ListenerList.java -->
+    - ListenerList (class)  <!-- info/openrocket/core/util/ListenerList.java -->
+    - MarkdownUtil (class)  <!-- info/openrocket/core/util/MarkdownUtil.java -->
+    - MathUtil (class)  <!-- info/openrocket/core/util/MathUtil.java -->
+    - MemoryData (class)  <!-- info/openrocket/core/util/MemoryManagement.java -->
+    - MemoryManagement (class)  <!-- info/openrocket/core/util/MemoryManagement.java -->
+    - Method (class)  <!-- info/openrocket/core/util/Reflection.java -->
+    - ModID (class) — implements C  <!-- info/openrocket/core/util/ModID.java -->
+    - Monitorable (interface)  <!-- info/openrocket/core/util/Monitorable.java -->
+    - MonitorableIterator (class)  <!-- info/openrocket/core/util/MonitorableSet.java -->
+    - MonitorableSet (class)  <!-- info/openrocket/core/util/MonitorableSet.java -->
+    - Mutable (class) — implements C  <!-- info/openrocket/core/util/Mutable.java -->
+    - Named (class)  <!-- info/openrocket/core/util/Named.java -->
+    - NumericComparator (class) — implements C  <!-- info/openrocket/core/util/NumericComparator.java -->
+    - ORColor (class)  <!-- info/openrocket/core/util/ORColor.java -->
+    - Pair (class)  <!-- info/openrocket/core/util/Pair.java -->
+    - PinkNoise (class)  <!-- info/openrocket/core/util/PinkNoise.java -->
+    - PolyInterpolator (class)  <!-- info/openrocket/core/util/PolyInterpolator.java -->
+    - PrintProperties (class)  <!-- info/openrocket/core/util/PrintProperties.java -->
+    - Quaternion (class)  <!-- info/openrocket/core/util/Quaternion.java -->
+    - QuaternionMultiply (class)  <!-- info/openrocket/core/util/QuaternionMultiply.java -->
+    - Reflection (class)  <!-- info/openrocket/core/util/Reflection.java -->
+    - RocketComponentUtils (class)  <!-- info/openrocket/core/util/RocketComponentUtils.java -->
+    - Rotation2D (class)  <!-- info/openrocket/core/util/Rotation2D.java -->
+    - SafetyMutex (class)  <!-- info/openrocket/core/util/SafetyMutex.java -->
+    - StateChangeListener (interface) — extends E  <!-- info/openrocket/core/util/StateChangeListener.java -->
+    - Statistics (interface)  <!-- info/openrocket/core/util/Statistics.java -->
+    - StringUtils (class)  <!-- info/openrocket/core/util/StringUtils.java -->
+    - TestRockets (class)  <!-- info/openrocket/core/util/TestRockets.java -->
+    - TextUtil (class)  <!-- info/openrocket/core/util/TextUtil.java -->
+    - Transformation (class) — implements j  <!-- info/openrocket/core/util/Transformation.java -->
+    - UncloseableInputStream (class) — extends F  <!-- info/openrocket/core/util/UncloseableInputStream.java -->
+    - UnitValue (interface)  <!-- info/openrocket/core/util/UnitValue.java -->
+    - Utils (class)  <!-- info/openrocket/core/util/Utils.java -->
+    - Value (class)  <!-- info/openrocket/core/util/QuaternionMultiply.java -->
+    - WorldCoordinate (class)  <!-- info/openrocket/core/util/WorldCoordinate.java -->
+    - also (class)  <!-- info/openrocket/core/util/Mutable.java -->
+    - belongs (class)  <!-- info/openrocket/core/util/JarUtil.java -->
+    - can (class)  <!-- info/openrocket/core/util/SafetyMutex.java -->
+    - cannot (class)  <!-- info/openrocket/core/util/SafetyMutex.java -->
+    - containing (class)  <!-- info/openrocket/core/util/ListenerList.java -->
+    - containing (class)  <!-- info/openrocket/core/util/MemoryManagement.java -->
+    - contains (class)  <!-- info/openrocket/core/util/ListenerList.java -->
+    - defining (interface)  <!-- info/openrocket/core/util/ChangeSource.java -->
+    - defining (class)  <!-- info/openrocket/core/util/Chars.java -->
+    - for (class)  <!-- info/openrocket/core/util/PolyInterpolator.java -->
+    - formats (class)  <!-- info/openrocket/core/util/MarkdownUtil.java -->
+    - helping (class)  <!-- info/openrocket/core/util/Mutable.java -->
+    - is (class)  <!-- info/openrocket/core/util/FatalException.java -->
+    - is (class)  <!-- info/openrocket/core/util/JarUtil.java -->
+    - is (class)  <!-- info/openrocket/core/util/SafetyMutex.java -->
+    - is (class)  <!-- info/openrocket/core/util/PinkNoise.java -->
+    - of (class)  <!-- info/openrocket/core/util/Coordinate.java -->
+    - supports (class)  <!-- info/openrocket/core/util/Named.java -->
+    - that (class)  <!-- info/openrocket/core/util/Reflection.java -->
+    - that (class)  <!-- info/openrocket/core/util/MemoryManagement.java -->
+    - that (class)  <!-- info/openrocket/core/util/Invalidator.java -->
+    - that (class)  <!-- info/openrocket/core/util/PinkNoise.java -->
+    - which (class)  <!-- info/openrocket/core/util/ComponentChangeAdapter.java -->
+    - will (class)  <!-- info/openrocket/core/util/MemoryManagement.java -->
+  - info.openrocket.core.util.enums
+    - EnumConversion (interface)  <!-- info/openrocket/core/util/enums/EnumConversion.java -->
+    - EnumName (class)  <!-- info/openrocket/core/util/enums/EnumName.java -->
+    - constants (enum)  <!-- info/openrocket/core/util/enums/EnumName.java -->
+    - type (enum)  <!-- info/openrocket/core/util/enums/EnumName.java -->
+  - info.openrocket.core.utils
+    - L10NGenerator (class)  <!-- info/openrocket/core/utils/L10NGenerator.java -->
+    - L10nPropertyReport (class)  <!-- info/openrocket/core/utils/L10nPropertyReport.java -->
+    - MotorCorrelation (class)  <!-- info/openrocket/core/utils/MotorCorrelation.java -->
+    - TestFunctionOptimizer (class)  <!-- info/openrocket/core/utils/TestFunctionOptimizer.java -->
+    - TestFunctionOptimizerLoop (class)  <!-- info/openrocket/core/utils/TestFunctionOptimizerLoop.java -->
+    - is (class)  <!-- info/openrocket/core/utils/L10NGenerator.java -->

@@ -1,0 +1,172 @@
+\documentclass{amsdtx}
+\usepackage[margin=.75in]{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{eqnarray,amsmath}
+\usepackage{amssymb}
+\usepackage{url}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{cancel}
+\usepackage{multicol}
+\usepackage[Glenn]{fncychap}
+\usepackage{esint}
+%\usepackage{hyperref}
+\definecolor{b}{HTML}{3C78D8}
+\definecolor{t}{HTML}{134F5C}
+\definecolor{g}{HTML}{38761D}
+\definecolor{r}{HTML}{AB0000}
+\definecolor{p}{HTML}{A64D79}
+\usepackage[Glenn]{fncychap}
+\usepackage{calligra}
+\newcommand{\bs}[1]{\boldsymbol{#1}}
+
+\usepackage{tipa}
+\DeclareMathAlphabet{\mathcalligra}{T1}{calligra}{m}{n}
+\DeclareFontShape{T1}{calligra}{m}{n}{<->s*[2.2]callig15}{}
+\newcommand{\scriptr}{\mathcalligra{r}\,}
+\newcommand{\boldscriptr}{\pmb{\mathcalligra{r}}\,}
+%\usepackage{hyperref}
+
+
+
+\usepackage{bm}
+
+\newcommand*{\mline}[1]{%
+\begingroup
+    \renewcommand*{\arraystretch}{1.1}%
+   \begin{tabular}[c]{@{}>{\arraybackslash}p{2cm}@{}}#1\end{tabular}%
+  \endgroup
+}
+
+
+\usepackage{listings}
+
+\definecolor{codegreen}{HTML}{38761D}
+\definecolor{codeblue}{HTML}{000076}
+\definecolor{codegray}{rgb}{0.2,0.2,0.2}
+\definecolor{codepurple}{HTML}{AB0000}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.95}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{white},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codepurple},
+    numberstyle=\ttfamily\scriptsize\color{codeblue},
+    stringstyle=\color{b},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4
+}
+\lstset{style=mystyle}
+
+
+
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{N}{@{}m{0pt}@{}}
+
+\newcommand{\vfs}[1]{\ensuremath \textbf{\textit{f}}\kern-0.1cm_{s_{#1}}}
+\newcommand{\fs}[1]{\ensuremath f\kern-0.07cm_{s_{#1}}}
+\newcommand{\F}{\ensuremath \textbf{F}\kern-0.05cm}
+\newcommand{\cc}{\ensuremath\mu_{cc}}
+\newcommand{\cg}{\ensuremath\mu_{cg}}
+\newcommand{\e}{\ensuremath{\textbf{{\bf e}}}}
+\newcommand{\M}{\ensuremath{\textbf{M}}}
+\newcommand{\R}{\ensuremath{\textbf{r}}}
+\newcommand{\U}{\ensuremath{\textbf{u}}}
+\newcommand{\st}{\ensuremath{\textbf{\bf t}}}
+\newcommand{\fnf}{\ensuremath{F_{\rm N_{\it f}}}}
+\newcommand{\Fnf}{\ensuremath{\text{$\F_{\rm N_{\it f}}$}}}
+\newcommand{\dvec}[1]{\ensuremath\overset{\text{\tiny$\bm\leftrightarrow$}}{#1}}
+
+\usepackage{enumitem}
+
+\title{\sc OpenRocket-Based Rocket Control Simulation}
+\author{\sc Marc D Nichitiu~|~MIT Rocket Team Simulations}
+\date{\sc Fall 2025}
+\begin{document}
+\maketitle    
+\begin{center}
+	\it In this document, we outline the purpose, structure, and uses of the Java-based OpenRocket software in scripting control simulation for amateur rocketry purposes.
+\end{center}
+\begin{multicols}{2}
+	\tableofcontents
+\end{multicols}
+
+\section{Introduction}
+OpenRocket is a very versatile open-source software written in Java, allowing for multi-platform interoperability. OpenRocket is quite flexible and reliable for subsonic regimes, with moderately accurate of supersonic simulation. For amateur rocketry, it is well within the accuracy of the manufacturing modeled. 
+
+Using the Python {\tt jpype} module, it is possible to instantiate Java objects, thus scripting the OpenRocket simulation routines. It is additionally possible to use Simulation Listeners to actuate rocket components in flight as a function of flight data.
+
+We thus seek to apply these in order to optimize our rocket designs.
+\section{OpenRocket}
+\subsection{Structure}
+\subsection{Components}
+\subsection{Simulation Flow}
+\section{Roll Tabs}
+\subsection{Design}
+\subsection{Implementation}
+\subsection{Control Algorithm}
+\subsection{Simulation}
+\section{Airbrakes}
+\subsection{Design}
+\subsection{Implementation}
+\subsection{Control Algorithm}
+\subsection{Simulation}
+
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

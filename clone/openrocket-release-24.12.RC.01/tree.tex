@@ -1,0 +1,2523 @@
+\documentclass{amsdtx}
+\usepackage{amsmath}
+\usepackage{geometry}
+\begin{document}
+
+
+\begin{itemize}
+\item
+  info.openrocket.core
+
+  \begin{itemize}
+  
+  \item
+    info.openrocket.core.aerodynamics
+
+    \begin{itemize}
+    
+    \item
+      AbstractAerodynamicCalculator (class) --- implements A
+    \item
+      AerodynamicCalculator (interface) --- extends M
+    \item
+      AerodynamicForces (class) --- implements C
+    \item
+      BarrowmanCalculator (class) --- extends A
+    \item
+      FlightConditions (class) --- implements C
+    \item
+      defining (class)
+    \item
+      for (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.aerodynamics.barrowman
+
+    \begin{itemize}
+    
+    \item
+      AirbrakeSetCalc (class) --- extends R
+    \item
+      ComponentAssemblyCalc (class) --- extends R
+    \item
+      FinSetCalc (class) --- extends R
+    \item
+      LaunchLugCalc (class) --- extends T
+    \item
+      RailButtonCalc (class) --- extends R
+    \item
+      RocketComponentCalc (class)
+    \item
+      SymmetricComponentCalc (class) --- extends R
+    \item
+      TubeCalc (class) --- extends R
+    \item
+      TubeFinSetCalc (class) --- extends T
+    \end{itemize}
+  \item
+    info.openrocket.core.appearance
+
+    \begin{itemize}
+    
+    \item
+      Appearance (class)
+    \item
+      AppearanceBuilder (class) --- extends A
+    \item
+      Decal (class)
+    \item
+      DecalImage (interface) --- extends C
+    \item
+      EdgeMode (enum)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      repeatedly (class)
+    \item
+      to (class)
+    \item
+      to (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.appearance.defaults
+
+    \begin{itemize}
+    
+    \item
+      DefaultAppearance (class)
+    \item
+      ResourceDecalImage (class) --- implements D
+    \item
+      of (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.arch
+
+    \begin{itemize}
+    
+    \item
+      Platform (enum)
+    \item
+      SystemInfo (class)
+    \item
+      is (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.communication
+
+    \begin{itemize}
+    
+    \item
+      BugReporter (class) --- extends C
+    \item
+      Communicator (class)
+    \item
+      ConnectionSource (interface)
+    \item
+      DefaultConnectionSource (class) --- implements C
+    \item
+      GitHubAPIUtil (class)
+    \item
+      ReleaseInfo (class)
+    \item
+      ReleaseNotesHandler (class) --- extends A
+    \item
+      ReleaseStatus (enum)
+    \item
+      UpdateCheckerException (class) --- extends E
+    \item
+      UpdateInfo (class)
+    \item
+      UpdateInfoFetcher (class) --- extends T
+    \item
+      UpdateInfoRetriever (class)
+    \item
+      WelcomeInfoRetriever (class)
+    \item
+      exists (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.componentanalysis
+
+    \begin{itemize}
+    
+    \item
+      CADataBranch (class) --- extends D
+    \item
+      CADataType (class) --- implements C
+    \item
+      CADataTypeGroup (class) --- implements C
+    \item
+      CADomainDataType (class) --- extends C
+    \item
+      CAParameterSweep (class)
+    \item
+      CAParameters (class) --- implements C
+    \item
+      CAParametersListener (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.database
+
+    \begin{itemize}
+    
+    \item
+      AsynchronousDatabaseLoader (class)
+    \item
+      ComponentPresetDao (interface)
+    \item
+      ComponentPresetDatabase (class) --- extends D
+    \item
+      ComponentPresetDatabaseLoader (class) --- extends A
+    \item
+      DBIterator (class) --- implements I
+    \item
+      Database (class)
+    \item
+      DatabaseListener (interface)
+    \item
+      Databases (class)
+    \item
+      LoadingThread (class) --- extends T
+    \item
+      MotorDatabaseLoader (class) --- extends A
+    \item
+      defining (interface)
+    \item
+      functions (class)
+    \item
+      implementation (class)
+    \item
+      that (class)
+    \item
+      that (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.database.motor
+
+    \begin{itemize}
+    
+    \item
+      MotorDatabase (interface)
+    \item
+      ThrustCurveMotorComparator (class) --- implements C
+    \item
+      ThrustCurveMotorSet (class) --- implements C
+    \item
+      ThrustCurveMotorSetDatabase (class) --- implements M
+    \end{itemize}
+  \item
+    info.openrocket.core.document
+
+    \begin{itemize}
+    
+    \item
+      Attachment (class) --- extends A
+    \item
+      ConditionListener (class) --- implements S
+    \item
+      DecalImageImpl (class) --- implements D
+    \item
+      DecalRegistry (class)
+    \item
+      FileType (enum)
+    \item
+      OpenRocketDocument (class) --- implements C
+    \item
+      OpenRocketDocumentFactory (class)
+    \item
+      Simulation (class) --- implements C
+    \item
+      Status (enum)
+    \item
+      StorageOptions (class) --- implements C
+    \item
+      UndoRedoListener (interface) --- extends E
+    \item
+      defining (class)
+    \item
+      is (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.document.attachments
+
+    \begin{itemize}
+    
+    \item
+      FileSystemAttachment (class) --- extends A
+    \item
+      ZipFileAttachment (class) --- extends A
+    \end{itemize}
+  \item
+    info.openrocket.core.document.events
+
+    \begin{itemize}
+    
+    \item
+      DocumentChangeEvent (class) --- extends E
+    \item
+      DocumentChangeListener (interface)
+    \item
+      SimulationChangeEvent (class) --- extends D
+    \end{itemize}
+  \item
+    info.openrocket.core.file
+
+    \begin{itemize}
+    
+    \item
+      AbstractRocketLoader (class) --- implements R
+    \item
+      AttachmentFactory (interface)
+    \item
+      AttachmentUtils (class)
+    \item
+      CSVExport (class)
+    \item
+      DatabaseMotorFinder (class) --- implements M
+    \item
+      DocumentLoadingContext (class)
+    \item
+      FileSystemAttachmentFactory (class) --- implements A
+    \item
+      GeneralRocketLoader (class)
+    \item
+      GeneralRocketSaver (class)
+    \item
+      Loader (interface)
+    \item
+      MotorFinder (interface)
+    \item
+      ProgressOutputStream (class) --- extends F
+    \item
+      RocketLoadException (class) --- extends E
+    \item
+      RocketLoader (interface)
+    \item
+      RocketSaver (class)
+    \item
+      SavingProgress (interface)
+    \item
+      TipShapeCode (class)
+    \item
+      UnknownFileTypeException (class) --- extends I
+    \item
+      ZipFileAttachmentFactory (class) --- implements A
+    \end{itemize}
+  \item
+    info.openrocket.core.file.iterator
+
+    \begin{itemize}
+    
+    \item
+      DirSelectionFileFilter (class) --- implements F
+    \item
+      DirectoryIterator (class) --- extends F
+    \item
+      FileIterator (class) --- implements I
+    \item
+      ZipDirectoryIterator (class) --- extends F
+    \item
+      for (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.motor
+
+    \begin{itemize}
+    
+    \item
+      AbstractMotorLoader (class) --- implements M
+    \item
+      GeneralMotorLoader (class) --- implements M
+    \item
+      MotorLoader (interface) --- extends L
+    \item
+      RASPMotorLoader (class) --- extends A
+    \item
+      RSEHandler (class) --- extends A
+    \item
+      RSEMotorDataHandler (class) --- extends A
+    \item
+      RSEMotorHandler (class) --- extends A
+    \item
+      RockSimMotorLoader (class) --- extends A
+    \item
+      ZipFileMotorLoader (class) --- implements M
+    \item
+      that (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.openrocket
+
+    \begin{itemize}
+    
+    \item
+      OpenRocketSaver (class) --- extends R
+    \item
+      exists (class)
+    \item
+      for (class)
+    \item
+      hierarchy (class)
+    \item
+      name (enum)
+    \item
+      to (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.openrocket.importt
+
+    \begin{itemize}
+    
+    \item
+      AnglePositionSetter (class) --- implements S
+    \item
+      AppearanceHandler (class) --- extends A
+    \item
+      AtmosphereHandler (class) --- extends A
+    \item
+      AxialPositionSetter (class) --- implements S
+    \item
+      BooleanSetter (class) --- implements S
+    \item
+      Class (class)
+    \item
+      ClusterConfigurationSetter (class) --- implements S
+    \item
+      ColorSetter (class) --- implements S
+    \item
+      ComponentHandler (class) --- extends A
+    \item
+      ComponentParameterHandler (class) --- extends A
+    \item
+      ComponentPresetSetter (class) --- implements S
+    \item
+      ConfigHandler (class) --- extends E
+    \item
+      CustomExpressionHandler (class) --- extends A
+    \item
+      DatatypeHandler (class) --- extends A
+    \item
+      DeploymentConfigurationHandler (class) --- extends A
+    \item
+      DocumentConfig (class)
+    \item
+      DocumentMaterialHandler (class) --- extends A
+    \item
+      DocumentPreferencesHandler (class) --- extends E
+    \item
+      DoubleSetter (class) --- implements S
+    \item
+      EntryHandler (class) --- extends A
+    \item
+      EntryHelper (class)
+    \item
+      EnumSetter (class)
+    \item
+      FinSetPointHandler (class) --- extends A
+    \item
+      FinTabPositionSetter (class) --- extends D
+    \item
+      FlightDataBranchHandler (class) --- extends A
+    \item
+      FlightDataHandler (class) --- extends A
+    \item
+      IgnitionConfigurationHandler (class) --- extends A
+    \item
+      InsideAppearanceHandler (class) --- extends A
+    \item
+      IntSetter (class) --- implements S
+    \item
+      MaterialSetter (class) --- implements S
+    \item
+      MotorConfigurationHandler (class) --- extends A
+    \item
+      MotorHandler (class) --- extends A
+    \item
+      MotorMountHandler (class) --- extends A
+    \item
+      OpenRocketContentHandler (class) --- extends A
+    \item
+      OpenRocketHandler (class) --- extends A
+    \item
+      OpenRocketLoader (class) --- extends A
+    \item
+      OverrideSetter (class) --- implements S
+    \item
+      PhotoStudioHandler (class) --- extends A
+    \item
+      RadiusPositionSetter (class) --- implements S
+    \item
+      Setter (interface)
+    \item
+      SimulationConditionsHandler (class) --- extends A
+    \item
+      SimulationsHandler (class) --- extends A
+    \item
+      SingleSimulationHandler (class) --- extends A
+    \item
+      StageSeparationConfigurationHandler (class) --- extends A
+    \item
+      StringSetter (class) --- implements S
+    \item
+      WarningHandler (class) --- extends A
+    \item
+      WindHandler (class) --- extends A
+    \item
+      exists (enum)
+    \item
+      for (class)
+    \item
+      name (class)
+    \item
+      name (enum)
+    \item
+      names (enum)
+    \item
+      of (class)
+    \item
+      order (class)
+    \item
+      type (enum)
+    \item
+      uses (class)
+    \item
+      value (enum)
+    \item
+      value (enum)
+    \item
+      will (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.openrocket.savers
+
+    \begin{itemize}
+    
+    \item
+      AirbrakeSetSaver (class) --- extends E
+    \item
+      AxialStageSaver (class) --- extends C
+    \item
+      BodyComponentSaver (class) --- extends E
+    \item
+      BodyTubeSaver (class) --- extends S
+    \item
+      BulkheadSaver (class) --- extends R
+    \item
+      CenteringRingSaver (class) --- extends R
+    \item
+      ComponentAssemblySaver (class) --- extends R
+    \item
+      EllipticalFinSetSaver (class) --- extends F
+    \item
+      EngineBlockSaver (class) --- extends T
+    \item
+      ExternalComponentSaver (class) --- extends R
+    \item
+      FinSetSaver (class) --- extends E
+    \item
+      FreeformFinSetSaver (class) --- extends F
+    \item
+      InnerTubeSaver (class) --- extends T
+    \item
+      InternalComponentSaver (class) --- extends R
+    \item
+      LaunchLugSaver (class) --- extends E
+    \item
+      MassComponentSaver (class) --- extends M
+    \item
+      MassObjectSaver (class) --- extends I
+    \item
+      NoseConeSaver (class) --- extends T
+    \item
+      ParachuteSaver (class) --- extends R
+    \item
+      PhotoStudioSaver (class)
+    \item
+      RadiusRingComponentSaver (class) --- extends R
+    \item
+      RailButtonSaver (class) --- extends E
+    \item
+      RecoveryDeviceSaver (class) --- extends M
+    \item
+      RingComponentSaver (class) --- extends S
+    \item
+      RocketComponentSaver (class)
+    \item
+      RocketSaver (class) --- extends R
+    \item
+      ShockCordSaver (class) --- extends M
+    \item
+      StreamerSaver (class) --- extends R
+    \item
+      StructuralComponentSaver (class) --- extends I
+    \item
+      SymmetricComponentSaver (class) --- extends B
+    \item
+      TabControlledTrapezoidFinSetSaver (class) --- extends F
+    \item
+      ThicknessRingComponentSaver (class) --- extends R
+    \item
+      TransitionSaver (class) --- extends S
+    \item
+      TrapezoidFinSetSaver (class) --- extends F
+    \item
+      TubeCouplerSaver (class) --- extends T
+    \item
+      TubeFinSetSaver (class) --- extends E
+    \item
+      names (enum)
+    \item
+      names (enum)
+    \item
+      names (enum)
+    \item
+      names (enum)
+    \item
+      names (enum)
+    \item
+      takes (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.rasaero
+
+    \begin{itemize}
+    
+    \item
+      CustomBooleanAdapter (class) --- extends X
+    \item
+      CustomDoubleAdapter (class) --- extends X
+    \item
+      NoseConeShapeSettings (class)
+    \item
+      RASAeroCommonConstants (class)
+    \item
+      RASAeroMotorsLoader (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.rasaero.export
+
+    \begin{itemize}
+    
+    \item
+      BasePartDTO (class)
+    \item
+      BoattailDTO (class) --- extends T
+    \item
+      BodyTubeDTO (class) --- extends B
+    \item
+      BodyTubeDTOAdapter (interface)
+    \item
+      BoosterDTO (class) --- implements B
+    \item
+      FinDTO (class)
+    \item
+      LaunchSiteDTO (class)
+    \item
+      NoseConeDTO (class) --- extends B
+    \item
+      RASAeroDocumentDTO (class)
+    \item
+      RASAeroExportException (class) --- extends E
+    \item
+      RASAeroSaver (class) --- extends R
+    \item
+      RecoveryDTO (class)
+    \item
+      RocketDesignDTO (class)
+    \item
+      SimulationDTO (class)
+    \item
+      SimulationListDTO (class)
+    \item
+      TransitionDTO (class) --- extends B
+    \item
+      for (class)
+    \item
+      is (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.rasaero.importt
+
+    \begin{itemize}
+    
+    \item
+      BaseHandler (class)
+    \item
+      BoattailHandler (class) --- extends T
+    \item
+      BodyTubeHandler (class) --- extends B
+    \item
+      BoosterHandler (class) --- extends B
+    \item
+      ColorHandler (class)
+    \item
+      FinCanHandler (class) --- extends B
+    \item
+      FinHandler (class) --- extends A
+    \item
+      LaunchLugHandler (class)
+    \item
+      LaunchSiteHandler (class) --- extends A
+    \item
+      NoseConeHandler (class) --- extends B
+    \item
+      RASAeroHandler (class) --- extends A
+    \item
+      RASAeroLoader (class) --- extends A
+    \item
+      RailGuideHandler (class)
+    \item
+      RecoveryHandler (class) --- extends A
+    \item
+      RocketDesignHandler (class) --- extends A
+    \item
+      RocketDocumentHandler (class) --- extends A
+    \item
+      SimulationHandler (class) --- extends A
+    \item
+      SimulationListHandler (class) --- extends A
+    \item
+      SurfaceFinishHandler (class)
+    \item
+      TransitionHandler (class) --- extends B
+    \item
+      for (class)
+    \item
+      is (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.rocksim
+
+    \begin{itemize}
+    
+    \item
+      RockSimCommonConstants (class)
+    \item
+      RockSimDensityType (enum)
+    \item
+      RockSimFinishCode (enum)
+    \item
+      RockSimLocationMode (enum)
+    \item
+      RockSimNoseConeCode (enum)
+    \item
+      based (enum)
+    \item
+      based (enum)
+    \item
+      from (enum)
+    \item
+      instance (enum)
+    \item
+      value (enum)
+    \item
+      value (enum)
+    \item
+      value (enum)
+    \item
+      value (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.rocksim.export
+
+    \begin{itemize}
+    
+    \item
+      AbstractTransitionDTO (class) --- extends B
+    \item
+      AttachableParts (interface)
+    \item
+      BasePartDTO (class)
+    \item
+      BodyTubeDTO (class) --- extends B
+    \item
+      BulkheadDTO (class) --- extends C
+    \item
+      CenteringRingDTO (class) --- extends B
+    \item
+      CustomFinSetDTO (class) --- extends F
+    \item
+      EngineBlockDTO (class) --- extends C
+    \item
+      FinSetDTO (class) --- extends B
+    \item
+      InnerBodyTubeDTO (class) --- extends B
+    \item
+      LaunchLugDTO (class) --- extends B
+    \item
+      MassObjectDTO (class) --- extends B
+    \item
+      NoseConeDTO (class) --- extends A
+    \item
+      ParachuteDTO (class) --- extends B
+    \item
+      ParallelStageDTO (class) --- extends P
+    \item
+      PodSetDTO (class) --- extends B
+    \item
+      RockSimDesignDTO (class)
+    \item
+      RockSimDocumentDTO (class)
+    \item
+      RockSimSaver (class) --- extends R
+    \item
+      RocketDesignDTO (class)
+    \item
+      StageDTO (class)
+    \item
+      StreamerDTO (class) --- extends B
+    \item
+      TransitionDTO (class) --- extends A
+    \item
+      TubeCouplerDTO (class) --- extends C
+    \item
+      TubeFinSetDTO (class) --- extends B
+    \item
+      UsageCode (enum)
+    \item
+      are (interface)
+    \item
+      for (class)
+    \item
+      for (class)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      models (class)
+    \item
+      models (class)
+    \item
+      models (class)
+    \item
+      models (class)
+    \item
+      models (class)
+    \item
+      models (class)
+    \item
+      models (class)
+    \item
+      models (class)
+    \item
+      that (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.rocksim.importt
+
+    \begin{itemize}
+    
+    \item
+      AttachedPartsHandler (class) --- extends A
+    \item
+      BaseHandler (class)
+    \item
+      BodyTubeHandler (class) --- extends B
+    \item
+      FinSetHandler (class) --- extends A
+    \item
+      InnerBodyTubeHandler (class) --- extends P
+    \item
+      LaunchLugHandler (class) --- extends P
+    \item
+      MassObjectHandler (class) --- extends P
+    \item
+      NoseConeHandler (class) --- extends B
+    \item
+      ParachuteHandler (class) --- extends R
+    \item
+      PodHandler (class) --- extends P
+    \item
+      PositionDependentHandler (class)
+    \item
+      RecoveryDeviceHandler (class)
+    \item
+      RingHandler (class) --- extends P
+    \item
+      RockSimAppearanceBuilder (class) --- extends A
+    \item
+      RockSimContentHandler (class) --- extends A
+    \item
+      RockSimHandler (class) --- extends A
+    \item
+      RockSimLoader (class) --- extends A
+    \item
+      RocketDesignHandler (class) --- extends A
+    \item
+      StageHandler (class) --- extends A
+    \item
+      StreamerHandler (class) --- extends R
+    \item
+      SubAssemblyHandler (class) --- extends A
+    \item
+      TransitionHandler (class) --- extends B
+    \item
+      TubeFinSetHandler (class) --- extends P
+    \item
+      handles (class)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      of (enum)
+    \item
+      that (class)
+    \item
+      that (class)
+    \item
+      types (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.simplesax
+
+    \begin{itemize}
+    
+    \item
+      AbstractElementHandler (class) --- implements E
+    \item
+      DelegatorHandler (class) --- extends D
+    \item
+      ElementHandler (interface)
+    \item
+      NullElementHandler (class) --- extends A
+    \item
+      PlainTextHandler (class) --- extends A
+    \item
+      SimpleSAX (class)
+    \item
+      XMLReaderCache (class)
+    \item
+      can (class)
+    \item
+      for (class)
+    \item
+      handles (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.svg.export
+
+    \begin{itemize}
+    
+    \item
+      LineCap (enum)
+    \item
+      SVGBuilder (class)
+    \item
+      that (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.wavefrontobj
+
+    \begin{itemize}
+    
+    \item
+      Axis (enum)
+    \item
+      CoordTransform (class)
+    \item
+      DefaultCoordTransform (class) --- extends C
+    \item
+      DefaultFloatTuple (class) --- implements F
+    \item
+      DefaultMtl (class) --- implements M
+    \item
+      DefaultMtlWriter (class)
+    \item
+      DefaultObj (class) --- implements O
+    \item
+      DefaultObjEdge (class)
+    \item
+      DefaultObjFace (class) --- implements O
+    \item
+      DefaultObjGroup (class) --- implements O
+    \item
+      DefaultTextureOptions (class) --- implements T
+    \item
+      FloatTupleBounds (class)
+    \item
+      LevelOfDetail (enum)
+    \item
+      ObjUtils (class)
+    \item
+      TriangulationHelper (class)
+    \item
+      TriangulationMethod (enum)
+    \item
+      for (class)
+    \item
+      that (class)
+    \item
+      to (class)
+    \item
+      to (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.wavefrontobj.export
+
+    \begin{itemize}
+    
+    \item
+      AppearanceExporter (class)
+    \item
+      ExporterFactory (interface)
+    \item
+      OBJExportOptions (class)
+    \item
+      OBJExporterFactory (class)
+    \item
+      for (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.wavefrontobj.export.components
+
+    \begin{itemize}
+    
+    \item
+      BodyTubeExporter (class) --- extends R
+    \item
+      FinSetExporter (class) --- extends R
+    \item
+      LaunchLugExporter (class) --- extends R
+    \item
+      MassObjectExporter (class) --- extends R
+    \item
+      MotorExporter (class)
+    \item
+      RailButtonExporter (class) --- extends R
+    \item
+      RingComponentExporter (class) --- extends R
+    \item
+      RocketComponentExporter (class)
+    \item
+      TransitionExporter (class) --- extends R
+    \item
+      TubeFinSetExporter (class) --- extends R
+    \item
+      for (class)
+    \item
+      generates (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.file.wavefrontobj.export.shapes
+
+    \begin{itemize}
+    
+    \item
+      Boundaries (class)
+    \item
+      CylinderExporter (class)
+    \item
+      DiskExporter (class)
+    \item
+      PolygonExporter (class)
+    \item
+      TubeExporter (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.formatting
+
+    \begin{itemize}
+    
+    \item
+      BaseSubstitutor (class) --- implements S
+    \item
+      CaseSubstitutor (class) --- extends B
+    \item
+      ManufacturerSubstitutor (class) --- extends B
+    \item
+      MotorConfigurationSubstitutor (class) --- implements R
+    \item
+      MotorSubstitutor (class) --- extends B
+    \item
+      RocketDescriptor (interface)
+    \item
+      RocketDescriptorImpl (class) --- implements R
+    \item
+      RocketSubstitutor (interface)
+    \item
+      Substitutor (interface)
+    \item
+      that (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.gui.util
+
+    \begin{itemize}
+    
+    \item
+      SimpleFileFilter (class) --- extends F
+    \end{itemize}
+  \item
+    info.openrocket.core.l10n
+
+    \begin{itemize}
+    
+    \item
+      ClassBasedTranslator (class) --- implements T
+    \item
+      DebugTranslator (class) --- implements T
+    \item
+      ExceptionSuppressingTranslator (class) --- implements T
+    \item
+      L10N (class)
+    \item
+      LocalizedIOException (class) --- extends I
+    \item
+      ResourceBundleTranslator (class) --- implements T
+    \item
+      Translator (interface)
+    \item
+      calls (class)
+    \item
+      for (interface)
+    \item
+      name (class)
+    \item
+      name (class)
+    \item
+      name (class)
+    \item
+      name (class)
+    \item
+      name (class)
+    \item
+      optionally (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.logging
+
+    \begin{itemize}
+    
+    \item
+      Cause (enum)
+    \item
+      Error (class) --- extends M
+    \item
+      ErrorSet (class) --- extends M
+    \item
+      EventAfterLanding (class) --- extends W
+    \item
+      HighSpeedDeployment (class) --- extends W
+    \item
+      LargeAOA (class) --- extends W
+    \item
+      Markers (class)
+    \item
+      Message (class) --- implements C
+    \item
+      MessagePriority (enum)
+    \item
+      MessageSet (class)
+    \item
+      MissingMotor (class) --- extends W
+    \item
+      Other (class) --- extends W
+    \item
+      Other (class) --- extends E
+    \item
+      SimulationAbort (class) --- extends M
+    \item
+      Warning (class) --- extends M
+    \item
+      WarningSet (class) --- extends M
+    \item
+      doesn (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.masscalc
+
+    \begin{itemize}
+    
+    \item
+      CMAnalysisEntry (class)
+    \item
+      MassCalculation (class)
+    \item
+      MassCalculator (class) --- implements M
+    \item
+      RigidBody (class)
+    \item
+      Type (enum)
+    \item
+      which (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.material
+
+    \begin{itemize}
+    
+    \item
+      Bulk (class) --- extends M
+    \item
+      Custom (class) --- extends M
+    \item
+      Line (class) --- extends M
+    \item
+      Material (class) --- implements C
+    \item
+      MaterialGroup (class) --- implements C
+    \item
+      MaterialStorage (class) --- implements D
+    \item
+      Surface (class) --- extends M
+    \item
+      Type (enum)
+    \item
+      for (class)
+    \item
+      for (class)
+    \item
+      in (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.models.atmosphere
+
+    \begin{itemize}
+    
+    \item
+      AtmosphericConditions (class) --- implements C
+    \item
+      AtmosphericModel (interface) --- extends M
+    \item
+      ExtendedISAModel (class) --- extends I
+    \item
+      InterpolatingAtmosphericModel (class) --- implements A
+    \item
+      for (interface)
+    \item
+      implements (class)
+    \item
+      serves (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.models.gravity
+
+    \begin{itemize}
+    
+    \item
+      GravityModel (interface) --- extends M
+    \item
+      WGSGravityModel (class) --- implements G
+    \item
+      for (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.models.wind
+
+    \begin{itemize}
+    
+    \item
+      AltitudeReference (enum)
+    \item
+      LevelWindModel (class) --- implements C
+    \item
+      MultiLevelPinkNoiseWindModel (class) --- implements W
+    \item
+      PinkNoiseWindModel (class) --- implements W
+    \item
+      WindModel (interface) --- extends M
+    \item
+      WindModelType (enum)
+    \item
+      constant (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.motor
+
+    \begin{itemize}
+    
+    \item
+      Builder (class)
+    \item
+      CaseInfo (enum)
+    \item
+      DataType (enum)
+    \item
+      DesignationComparator (class) --- implements C
+    \item
+      IgnitionEvent (enum)
+    \item
+      Manufacturer (class) --- implements S
+    \item
+      ManufacturerList (class) --- extends C
+    \item
+      ManufacturerSerializationProxy (class) --- implements S
+    \item
+      Motor (interface)
+    \item
+      MotorConfiguration (class) --- implements F
+    \item
+      MotorConfigurationId (class)
+    \item
+      MotorConfigurationSet (class) --- extends F
+    \item
+      MotorDigest (class)
+    \item
+      ThrustCurveMotor (class) --- implements M
+    \item
+      Type (enum)
+    \item
+      and (class)
+    \item
+      if (class)
+    \item
+      letter (class)
+    \item
+      that (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.general
+
+    \begin{itemize}
+    
+    \item
+      Function (interface)
+    \item
+      FunctionCache (interface)
+    \item
+      FunctionCallable (class) --- implements C
+    \item
+      FunctionOptimizer (interface)
+    \item
+      OptimizationController (interface)
+    \item
+      OptimizationControllerDelegator (class) --- implements O
+    \item
+      OptimizationException (class) --- extends E
+    \item
+      ParallelExecutorCache (class) --- implements P
+    \item
+      ParallelFunctionCache (interface) --- extends F
+    \item
+      Point (class)
+    \item
+      defining (interface)
+    \item
+      for (interface)
+    \item
+      handles (class)
+    \item
+      is (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.general.multidim
+
+    \begin{itemize}
+    
+    \item
+      FunctionCacheComparator (class) --- implements C
+    \item
+      MultidirectionalSearchOptimizer (class) --- implements F
+    \item
+      SearchPattern (class)
+    \item
+      to (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.general.onedim
+
+    \begin{itemize}
+    
+    \item
+      GoldenSectionSearchOptimizer (class) --- implements F
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.rocketoptimization
+
+    \begin{itemize}
+    
+    \item
+      OptimizableParameter (interface)
+    \item
+      OptimizationGoal (interface)
+    \item
+      RocketOptimizationFunction (class) --- implements F
+    \item
+      RocketOptimizationListener (interface)
+    \item
+      SimulationDomain (interface)
+    \item
+      SimulationModifier (interface) --- extends C
+    \item
+      defining (interface)
+    \item
+      must (class)
+    \item
+      what (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.rocketoptimization.domains
+
+    \begin{itemize}
+    
+    \item
+      IdentitySimulationDomain (class) --- implements S
+    \item
+      StabilityDomain (class) --- implements S
+    \item
+      must (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.rocketoptimization.goals
+
+    \begin{itemize}
+    
+    \item
+      MaximizationGoal (class) --- implements O
+    \item
+      MinimizationGoal (class) --- implements O
+    \item
+      ValueSeekGoal (class) --- implements O
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.rocketoptimization.modifiers
+
+    \begin{itemize}
+    
+    \item
+      AbstractSimulationModifier (class) --- implements S
+    \item
+      FlightConfigurationModifier (class)
+    \item
+      GenericComponentModifier (class) --- extends G
+    \item
+      GenericModifier (class)
+    \item
+      of (class)
+    \item
+      type (class)
+    \item
+      type (class)
+    \item
+      type (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.rocketoptimization.parameters
+
+    \begin{itemize}
+    
+    \item
+      DeploymentVelocityParameter (class) --- extends S
+    \item
+      GroundHitVelocityParameter (class) --- extends S
+    \item
+      LandingDistanceParameter (class) --- extends S
+    \item
+      MaximumAccelerationParameter (class) --- extends S
+    \item
+      MaximumAltitudeParameter (class) --- extends S
+    \item
+      MaximumVelocityParameter (class) --- extends S
+    \item
+      SimulationBasedParameter (class) --- implements O
+    \item
+      StabilityParameter (class) --- implements O
+    \item
+      TotalFlightTimeParameter (class) --- extends S
+    \item
+      must (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.optimization.services
+
+    \begin{itemize}
+    
+    \item
+      DefaultOptimizableParameterService (class) --- implements O
+    \item
+      DefaultSimulationModifierService (class) --- implements S
+    \item
+      ModifierDefinition (class)
+    \item
+      OptimizableParameterService (interface)
+    \item
+      OptimizationServiceHelper (class)
+    \item
+      SimulationModifierService (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.plugin
+
+    \begin{itemize}
+    
+    \item
+      AnnotationFinder (interface)
+    \item
+      AnnotationFinderImpl (class) --- implements A
+    \item
+      CustomRemapper (class) --- extends R
+    \item
+      JarMigrationException (class) --- extends E
+    \item
+      JarMigrationHelper (class)
+    \item
+      Plugin (interface)
+    \item
+      PluginHelper (class)
+    \item
+      PluginModule (class) --- extends A
+    \item
+      and (interface)
+    \item
+      belongs (class)
+    \item
+      belongs (class)
+    \item
+      exists (class)
+    \item
+      files (class)
+    \item
+      for (class)
+    \item
+      path (class)
+    \item
+      path (class)
+    \item
+      resource (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.preferences
+
+    \begin{itemize}
+    
+    \item
+      ApplicationPreferences (class) --- implements C
+    \item
+      DocumentPreference (class)
+    \item
+      DocumentPreferences (class) --- implements C
+    \item
+      ORPreferences (interface)
+    \item
+      StaticFieldHolder (class)
+    \item
+      so (class)
+    \item
+      type (enum)
+    \item
+      value (enum)
+    \item
+      value (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.preset
+
+    \begin{itemize}
+    
+    \item
+      ComponentPreset (class) --- implements C
+    \item
+      ComponentPresetFactory (class)
+    \item
+      InvalidComponentPresetException (class) --- extends E
+    \item
+      MaterialSerializationProxy (class) --- implements S
+    \item
+      Type (enum)
+    \item
+      TypedKey (class)
+    \item
+      TypedPropertyMap (class) --- implements C
+    \item
+      type (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.preset.loader
+
+    \begin{itemize}
+    
+    \item
+      BaseColumnParser (class) --- implements R
+    \item
+      BaseComponentLoader (class) --- extends R
+    \item
+      BaseUnitColumnParser (class) --- extends B
+    \item
+      BodyTubeLoader (class) --- extends B
+    \item
+      BulkHeadLoader (class) --- extends B
+    \item
+      CenteringRingLoader (class) --- extends B
+    \item
+      DoubleColumnParser (class) --- extends B
+    \item
+      DoubleUnitColumnParser (class) --- extends B
+    \item
+      EngineBlockLoader (class) --- extends B
+    \item
+      IntegerColumnParser (class) --- extends B
+    \item
+      LaunchLugLoader (class) --- extends B
+    \item
+      LineMaterialColumnParser (class) --- extends B
+    \item
+      ManufacturerColumnParser (class) --- extends B
+    \item
+      MassColumnParser (class) --- extends D
+    \item
+      MaterialColumnParser (class) --- extends B
+    \item
+      MaterialHolder (class)
+    \item
+      MaterialLoader (class) --- extends R
+    \item
+      NoseConeLoader (class) --- extends B
+    \item
+      ParachuteLoader (class) --- extends B
+    \item
+      RailButtonLoader (class) --- extends B
+    \item
+      RockSimComponentFileColumnParser (interface)
+    \item
+      RockSimComponentFileLoader (class)
+    \item
+      RockSimComponentFileType (enum)
+    \item
+      ShapeColumnParser (class) --- extends B
+    \item
+      StreamerLoader (class) --- extends B
+    \item
+      StringColumnParser (class) --- extends B
+    \item
+      SurfaceMaterialColumnParser (class) --- extends B
+    \item
+      TransitionLoader (class) --- extends N
+    \item
+      TubeCouplerLoader (class) --- extends B
+    \end{itemize}
+  \item
+    info.openrocket.core.preset.xml
+
+    \begin{itemize}
+    
+    \item
+      AnnotatedLengthDTO (class)
+    \item
+      AnnotatedMassDTO (class)
+    \item
+      AnnotatedMaterialDTO (class)
+    \item
+      Base64Adapter (class) --- extends X
+    \item
+      BaseComponentDTO (class)
+    \item
+      BodyTubeDTO (class) --- extends B
+    \item
+      BulkHeadDTO (class) --- extends B
+    \item
+      CenteringRingDTO (class) --- extends B
+    \item
+      EngineBlockDTO (class) --- extends B
+    \item
+      LaunchLugDTO (class) --- extends B
+    \item
+      MaterialDTO (class)
+    \item
+      MaterialGroupDTO (enum)
+    \item
+      MaterialTypeDTO (enum)
+    \item
+      NoseConeDTO (class) --- extends B
+    \item
+      OpenRocketComponentDTO (class)
+    \item
+      OpenRocketComponentLoader (class) --- implements L
+    \item
+      OpenRocketComponentSaver (class)
+    \item
+      ParachuteDTO (class) --- extends B
+    \item
+      RailButtonDTO (class) --- extends B
+    \item
+      ShapeDTO (enum)
+    \item
+      StreamerDTO (class) --- extends B
+    \item
+      TransitionDTO (class) --- extends B
+    \item
+      TubeCouplerDTO (class) --- extends B
+    \item
+      for (class)
+    \item
+      of (enum)
+    \item
+      of (enum)
+    \item
+      that (class)
+    \item
+      to (class)
+    \item
+      to (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.rocketcomponent
+
+    \begin{itemize}
+    
+    \item
+      AirbrakeSet (class) --- extends L
+    \item
+      AxialStage (class) --- extends C
+    \item
+      BodyComponent (class) --- extends E
+    \item
+      BodyTube (class) --- extends S
+    \item
+      BoxBounded (interface)
+    \item
+      Bulkhead (class) --- extends R
+    \item
+      CenteringRing (class) --- extends R
+    \item
+      ClusterConfiguration (class)
+    \item
+      Clusterable (interface) --- extends C
+    \item
+      Coaxial (interface)
+    \item
+      ComponentAssembly (class) --- extends R
+    \item
+      ComponentChangeEvent (class) --- extends E
+    \item
+      ComponentChangeListener (interface) --- extends E
+    \item
+      CrossSection (enum)
+    \item
+      DeployEvent (enum)
+    \item
+      DeploymentConfiguration (class) --- implements F
+    \item
+      DesignType (enum)
+    \item
+      EllipticalFinSet (class) --- extends F
+    \item
+      EngineBlock (class) --- extends T
+    \item
+      ExternalComponent (class) --- extends R
+    \item
+      FinSet (class) --- extends E
+    \item
+      Finish (enum)
+    \item
+      FlightConfigurableComponent (interface)
+    \item
+      FlightConfigurableParameter (interface)
+    \item
+      FlightConfigurableParameterSet (class)
+    \item
+      FlightConfiguration (class) --- implements F
+    \item
+      FlightConfigurationId (class) --- implements C
+    \item
+      FreeformFinSet (class) --- extends F
+    \item
+      IgnitionConfiguration (class) --- implements F
+    \item
+      IllegalFinPointException (class) --- extends E
+    \item
+      InnerTube (class) --- extends T
+    \item
+      InsideColorComponent (interface)
+    \item
+      InsideColorComponentHandler (class)
+    \item
+      InstanceContext (class)
+    \item
+      InstanceMap (class) --- extends C
+    \item
+      Instanceable (interface)
+    \item
+      InternalComponent (class) --- extends R
+    \item
+      LaunchLug (class) --- extends T
+    \item
+      LeafSet (class) --- extends E
+    \item
+      LineInstanceable (interface) --- extends A
+    \item
+      MassComponent (class) --- extends M
+    \item
+      MassComponentType (enum)
+    \item
+      MassObject (class) --- extends I
+    \item
+      MotorMount (interface) --- extends C
+    \item
+      NoseCone (class) --- extends T
+    \item
+      Parachute (class) --- extends R
+    \item
+      ParallelStage (class) --- extends A
+    \item
+      PodSet (class) --- extends C
+    \item
+      RadialParent (interface)
+    \item
+      RadiusRingComponent (class) --- extends R
+    \item
+      RailButton (class) --- extends E
+    \item
+      RecoveryDevice (class) --- extends M
+    \item
+      ReferenceType (enum)
+    \item
+      RingComponent (class) --- extends S
+    \item
+      RingInstanceable (interface) --- extends I
+    \item
+      Rocket (class) --- extends C
+    \item
+      RocketComponent (class) --- implements C
+    \item
+      RocketComponentIterator (class) --- implements I
+    \item
+      RocketComponentVisitor (interface)
+    \item
+      RocketUtils (class)
+    \item
+      SeparationEvent (enum)
+    \item
+      Shape (enum)
+    \item
+      ShockCord (class) --- extends M
+    \item
+      Sleeve (class) --- extends R
+    \item
+      StageFlags (class) --- implements C
+    \item
+      StageSeparationConfiguration (class) --- implements F
+    \item
+      Streamer (class) --- extends R
+    \item
+      StructuralComponent (class) --- extends I
+    \item
+      SymmetricComponent (class) --- extends B
+    \item
+      TYPE (enum)
+    \item
+      TabControlledTrapezoidFinSet (class) --- extends T
+    \item
+      ThicknessRingComponent (class) --- extends R
+    \item
+      Transition (class) --- extends S
+    \item
+      Transition (class)
+    \item
+      TrapezoidFinSet (class) --- extends F
+    \item
+      Tube (class) --- extends E
+    \item
+      TubeCoupler (class) --- extends T
+    \item
+      TubeFinSet (class) --- extends T
+    \item
+      as (class)
+    \item
+      assume (class)
+    \item
+      defines (interface)
+    \item
+      defines (class)
+    \item
+      defining (class)
+    \item
+      implemented (interface)
+    \item
+      is (interface)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      must (class)
+    \item
+      need (class)
+    \item
+      provides (class)
+    \item
+      replaces (class)
+    \item
+      representing (class)
+    \item
+      represents (class)
+    \item
+      represents (class)
+    \item
+      should (class)
+    \item
+      that (class)
+    \item
+      to (class)
+    \item
+      type (class)
+    \item
+      type (class)
+    \item
+      type (class)
+    \item
+      type (class)
+    \item
+      type (class)
+    \item
+      type (class)
+    \item
+      type (class)
+    \item
+      used (class)
+    \item
+      uses (class)
+    \item
+      which (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.rocketcomponent.position
+
+    \begin{itemize}
+    
+    \item
+      AngleMethod (enum) --- implements D
+    \item
+      AnglePositionable (interface)
+    \item
+      AxialMethod (enum) --- implements D
+    \item
+      AxialPositionable (interface)
+    \item
+      Distance (class)
+    \item
+      DistanceMethod (interface)
+    \item
+      RadiusMethod (enum) --- implements D
+    \item
+      RadiusPositionable (interface)
+    \end{itemize}
+  \item
+    info.openrocket.core.rocketvisitors
+
+    \begin{itemize}
+    
+    \item
+      BredthFirstRecusiveVisitor (class)
+    \item
+      DepthFirstRecursiveVisitor (class)
+    \item
+      ListComponents (class)
+    \item
+      ListMotorMounts (class) --- extends L
+    \end{itemize}
+  \item
+    info.openrocket.core.scripting
+
+    \begin{itemize}
+    
+    \item
+      GraalJSScriptEngineFactory (class) --- implements S
+    \item
+      ScriptEngineFactory (interface)
+    \item
+      ScriptEngineManagerRedux (class)
+    \item
+      implementing (class)
+    \item
+      to (class)
+    \item
+      to (class)
+    \item
+      to (class)
+    \item
+      to (class)
+    \item
+      uses (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation
+
+    \begin{itemize}
+    
+    \item
+      AbstractEulerStepper (class) --- extends A
+    \item
+      AbstractSimulationStepper (class) --- implements S
+    \item
+      AccelerationData (class)
+    \item
+      BasicEventSimulationEngine (class) --- implements S
+    \item
+      BasicLandingStepper (class) --- extends A
+    \item
+      BasicTumbleStepper (class) --- extends A
+    \item
+      DataBranch (class)
+    \item
+      DataStore (class)
+    \item
+      DataType (interface) --- extends U
+    \item
+      DefaultSimulationOptionFactory (class)
+    \item
+      EulerValues (class)
+    \item
+      EventQueue (class) --- extends P
+    \item
+      FlightData (class)
+    \item
+      FlightDataBranch (class) --- extends D
+    \item
+      FlightDataType (class) --- implements C
+    \item
+      FlightDataTypeGroup (class) --- implements C
+    \item
+      FlightEvent (class) --- implements C
+    \item
+      GroundStepper (class) --- extends A
+    \item
+      ModifiedEventSimulationEngine (class) --- implements S
+    \item
+      MotorClusterState (class)
+    \item
+      RK4Parameters (class)
+    \item
+      RK4SimulationStepper (class) --- extends A
+    \item
+      RK6Parameters (class)
+    \item
+      RK6SimulationStepper (class) --- extends A
+    \item
+      SimulationConditions (class) --- implements M
+    \item
+      SimulationEngine (interface)
+    \item
+      SimulationOptions (class) --- implements C
+    \item
+      SimulationOptionsInterface (interface) --- extends C
+    \item
+      SimulationStatus (class) --- implements C
+    \item
+      SimulationStepper (interface)
+    \item
+      ThrustState (enum)
+    \item
+      Type (enum)
+    \item
+      defined (class)
+    \item
+      defining (class)
+    \item
+      for (class)
+    \item
+      for (class)
+    \item
+      holding (class)
+    \item
+      that (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation.customexpression
+
+    \begin{itemize}
+    
+    \item
+      CustomExpression (class) --- implements C
+    \item
+      CustomExpressionSimulationListener (class) --- extends A
+    \item
+      Functions (class)
+    \item
+      IndexExpression (class) --- extends C
+    \item
+      RangeExpression (class) --- extends C
+    \item
+      which (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation.exception
+
+    \begin{itemize}
+    
+    \item
+      SimulationCalculationException (class) --- extends S
+    \item
+      SimulationCancelledException (class) --- extends S
+    \item
+      SimulationException (class) --- extends E
+    \item
+      SimulationListenerException (class) --- extends S
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation.extension
+
+    \begin{itemize}
+    
+    \item
+      AbstractSimulationExtension (class) --- extends A
+    \item
+      AbstractSimulationExtensionProvider (class) --- implements S
+    \item
+      SimulationExtension (interface)
+    \item
+      SimulationExtensionConfiguration (class) --- extends H
+    \item
+      SimulationExtensionProvider (interface)
+    \item
+      name (class)
+    \item
+      naming (class)
+    \item
+      of (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation.extension.example
+
+    \begin{itemize}
+    
+    \item
+      AdvancedRollControl (class) --- extends A
+    \item
+      AdvancedRollControlProvider (class) --- extends A
+    \item
+      AirStart (class) --- extends A
+    \item
+      AirStartListener (class) --- extends A
+    \item
+      AirStartProvider (class) --- extends A
+    \item
+      CSVSave (class) --- extends A
+    \item
+      CSVSaveListener (class) --- extends A
+    \item
+      CSVSaveProvider (class) --- extends A
+    \item
+      DampingMoment (class) --- extends A
+    \item
+      DampingMomentListener (class) --- extends A
+    \item
+      DampingMomentProvider (class) --- extends A
+    \item
+      PrintSimulation (class) --- extends A
+    \item
+      PrintSimulationListener (class) --- extends A
+    \item
+      PrintSimulationProvider (class) --- extends A
+    \item
+      RollControl (class) --- extends A
+    \item
+      RollControlListener (class) --- extends A
+    \item
+      RollControlListener (class) --- extends A
+    \item
+      RollControlProvider (class) --- extends A
+    \item
+      StopSimulation (class) --- extends A
+    \item
+      StopSimulationListener (class) --- extends A
+    \item
+      StopSimulationProvider (class) --- extends A
+    \item
+      Types (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation.extension.impl
+
+    \begin{itemize}
+    
+    \item
+      API (interface)
+    \item
+      JavaCode (class) --- extends A
+    \item
+      JavaCodeProvider (class) --- extends A
+    \item
+      ScriptingExtension (class) --- extends A
+    \item
+      ScriptingProvider (class) --- extends A
+    \item
+      ScriptingSimulationListener (class) --- implements S
+    \item
+      ScriptingUtil (class)
+    \item
+      used (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation.listeners
+
+    \begin{itemize}
+    
+    \item
+      AbstractSimulationListener (class) --- implements S
+    \item
+      ControllerState (enum)
+    \item
+      Flag (class)
+    \item
+      MidControlStepLauncher (class) --- extends A
+    \item
+      NewControlStepListener (class) --- extends A
+    \item
+      SimulationComputationListener (interface) --- extends S
+    \item
+      SimulationEventListener (interface)
+    \item
+      SimulationListener (interface)
+    \item
+      SimulationListenerHelper (class)
+    \item
+      containing (interface)
+    \item
+      for (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation.listeners.example
+
+    \begin{itemize}
+    
+    \item
+      AirStart (class) --- extends A
+    \end{itemize}
+  \item
+    info.openrocket.core.simulation.listeners.system
+
+    \begin{itemize}
+    
+    \item
+      ApogeeEndListener (class) --- extends A
+    \item
+      GroundHitListener (class) --- extends A
+    \item
+      InterruptListener (class) --- extends A
+    \item
+      OptimumCoastListener (class) --- extends A
+    \item
+      RecoveryDeviceDeploymentEndListener (class) --- extends A
+    \end{itemize}
+  \item
+    info.openrocket.core.startup
+
+    \begin{itemize}
+    
+    \item
+      Application (class)
+    \item
+      ExceptionHandler (interface)
+    \item
+      that (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.thrustcurve
+
+    \begin{itemize}
+    
+    \item
+      Base64Decoder (class)
+    \item
+      DownloadRequest (class)
+    \item
+      DownloadResponse (class)
+    \item
+      DownloadResponseParser (class) --- implements E
+    \item
+      MotorBurnFile (class)
+    \item
+      SearchRequest (class)
+    \item
+      SearchResponse (class)
+    \item
+      SearchResponseParser (class) --- implements E
+    \item
+      SerializeThrustcurveMotors (class)
+    \item
+      SupportedFileTypes (class)
+    \item
+      TCMotor (class) --- implements C
+    \item
+      ThrustCurveAPI (class)
+    \item
+      Type (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.unit
+
+    \begin{itemize}
+    
+    \item
+      CaliberUnit (class) --- extends G
+    \item
+      DegreeUnit (class) --- extends G
+    \item
+      FixedPrecisionUnit (class) --- extends U
+    \item
+      FixedUnitGroup (class) --- extends U
+    \item
+      FractionalUnit (class) --- extends U
+    \item
+      FrequencyUnit (class) --- extends G
+    \item
+      GeneralUnit (class) --- extends U
+    \item
+      InchUnit (class) --- extends G
+    \item
+      PercentageOfLengthUnit (class) --- extends G
+    \item
+      RadianUnit (class) --- extends G
+    \item
+      StabilityUnitGroup (class) --- extends U
+    \item
+      TemperatureUnit (class) --- extends F
+    \item
+      Tick (class)
+    \item
+      Unit (class)
+    \item
+      UnitGroup (class)
+    \item
+      Value (class) --- implements C
+    \item
+      ValueComparator (class) --- implements C
+    \item
+      may (class)
+    \item
+      provides (class)
+    \item
+      representing (class)
+    \item
+      that (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.util
+
+    \begin{itemize}
+    
+    \item
+      AbstractChangeSource (class) --- implements C
+    \item
+      AlphanumComparator (class) --- implements C
+    \item
+      ArrayList (class)
+    \item
+      ArrayUtils (class)
+    \item
+      Base64 (class)
+    \item
+      BogusSafetyMutex (class) --- extends S
+    \item
+      BoundingBox (class)
+    \item
+      BugException (class) --- extends F
+    \item
+      BuildProperties (class)
+    \item
+      ChangeSource (interface)
+    \item
+      Chars (class)
+    \item
+      ComparablePair (class)
+    \item
+      ComponentChangeAdapter (class) --- implements C
+    \item
+      ConcreteSafetyMutex (class) --- extends S
+    \item
+      ConcurrencyException (class) --- extends F
+    \item
+      Config (class)
+    \item
+      ConfigurationException (class) --- extends F
+    \item
+      Coordinate (class) --- implements C
+    \item
+      DecalNotFoundException (class) --- extends E
+    \item
+      ExpressionParser (class)
+    \item
+      FatalException (class) --- extends R
+    \item
+      FileUtils (class)
+    \item
+      GeodeticComputationStrategy (enum)
+    \item
+      Group (interface)
+    \item
+      Groupable (interface)
+    \item
+      Inertia (class)
+    \item
+      InvalidExpressionException (class) --- extends E
+    \item
+      Invalidatable (interface)
+    \item
+      Invalidator (class) --- implements I
+    \item
+      JarUtil (class)
+    \item
+      LimitedInputStream (class) --- extends F
+    \item
+      LineStyle (enum)
+    \item
+      LinearInterpolator (class) --- implements C
+    \item
+      ListenerData (class)
+    \item
+      ListenerDataIterator (class) --- implements I
+    \item
+      ListenerList (class)
+    \item
+      MarkdownUtil (class)
+    \item
+      MathUtil (class)
+    \item
+      MemoryData (class)
+    \item
+      MemoryManagement (class)
+    \item
+      Method (class)
+    \item
+      ModID (class) --- implements C
+    \item
+      Monitorable (interface)
+    \item
+      MonitorableIterator (class)
+    \item
+      MonitorableSet (class)
+    \item
+      Mutable (class) --- implements C
+    \item
+      Named (class)
+    \item
+      NumericComparator (class) --- implements C
+    \item
+      ORColor (class)
+    \item
+      Pair (class)
+    \item
+      PinkNoise (class)
+    \item
+      PolyInterpolator (class)
+    \item
+      PrintProperties (class)
+    \item
+      Quaternion (class)
+    \item
+      QuaternionMultiply (class)
+    \item
+      Reflection (class)
+    \item
+      RocketComponentUtils (class)
+    \item
+      Rotation2D (class)
+    \item
+      SafetyMutex (class)
+    \item
+      StateChangeListener (interface) --- extends E
+    \item
+      Statistics (interface)
+    \item
+      StringUtils (class)
+    \item
+      TestRockets (class)
+    \item
+      TextUtil (class)
+    \item
+      Transformation (class) --- implements j
+    \item
+      UncloseableInputStream (class) --- extends F
+    \item
+      UnitValue (interface)
+    \item
+      Utils (class)
+    \item
+      Value (class)
+    \item
+      WorldCoordinate (class)
+    \item
+      also (class)
+    \item
+      belongs (class)
+    \item
+      can (class)
+    \item
+      cannot (class)
+    \item
+      containing (class)
+    \item
+      containing (class)
+    \item
+      contains (class)
+    \item
+      defining (interface)
+    \item
+      defining (class)
+    \item
+      for (class)
+    \item
+      formats (class)
+    \item
+      helping (class)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      is (class)
+    \item
+      of (class)
+    \item
+      supports (class)
+    \item
+      that (class)
+    \item
+      that (class)
+    \item
+      that (class)
+    \item
+      that (class)
+    \item
+      which (class)
+    \item
+      will (class)
+    \end{itemize}
+  \item
+    info.openrocket.core.util.enums
+
+    \begin{itemize}
+    
+    \item
+      EnumConversion (interface)
+    \item
+      EnumName (class)
+    \item
+      constants (enum)
+    \item
+      type (enum)
+    \end{itemize}
+  \item
+    info.openrocket.core.utils
+
+    \begin{itemize}
+    
+    \item
+      L10NGenerator (class)
+    \item
+      L10nPropertyReport (class)
+    \item
+      MotorCorrelation (class)
+    \item
+      TestFunctionOptimizer (class)
+    \item
+      TestFunctionOptimizerLoop (class)
+    \item
+      is (class)
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+	
+\end{document}

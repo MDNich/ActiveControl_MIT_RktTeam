@@ -43,7 +43,7 @@ public class AirbrakeSetConfig extends RocketComponentConfig {
 
 		//// Length (y dimension)
 		panel.add(new JLabel("Length (l):"));
-		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0,2);
+		m = new DoubleModel(component, "Length", UnitGroup.UNITS_LENGTH, 0,5e-1);
 		register(m);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
@@ -54,7 +54,7 @@ public class AirbrakeSetConfig extends RocketComponentConfig {
 
 		//// Width (z dimension)
 		panel.add(new JLabel("Width (w):"));
-		m = new DoubleModel(component, "Width", UnitGroup.UNITS_LENGTH, 0,4e-2);
+		m = new DoubleModel(component, "Width", UnitGroup.UNITS_LENGTH, 0,2e-1);
 		register(m);
 		spin = new JSpinner(m.getSpinnerModel());
 		spin.setEditor(new SpinnerEditor(spin));
