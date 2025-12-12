@@ -34,9 +34,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     public static ArrayList<Double> pastOmegaZ;
     public static ArrayList<Double> pastThetaZ;
     public static ArrayList<Double> finTabAngleLog;
-    public static ArrayList<Double> desiredFinTabAngleLog;
-    public static ArrayList<Double> rocketVelMagnitudeLog;
-    public static ArrayList<Double> rocketAltitudeLog;
+    public static ArrayList<Double> rktVelMagLog;
+    public static ArrayList<Double> rktAltLog;
     public static ArrayList<Double> CldLog;
     public static ArrayList<Double> Qlog;
     public static ArrayList<Double> CldArefDLog;
@@ -53,7 +52,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
 
 
     // Simulation loop timing
-    public static double initial = 0;
+    public static double loopStart = 0;
 
 
     // Simulation of servo lag
@@ -70,9 +69,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         pastOmegaZ = new ArrayList<>();
         pastThetaZ = new ArrayList<>();
         finTabAngleLog = new ArrayList<>();
-        desiredFinTabAngleLog = new ArrayList<>();
-        rocketVelMagnitudeLog = new ArrayList<>();
-        rocketAltitudeLog = new ArrayList<>();
+        rktVelMagLog = new ArrayList<>();
+        rktAltLog = new ArrayList<>();
         altitudeMeasuredList = new ArrayList<>();
         CldLog = new ArrayList<>();
         CldArefDLog = new ArrayList<>();
@@ -102,7 +100,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
 
     @Override
     public boolean preStep(SimulationStatus status) throws SimulationException {
-        initial = status.getSimulationTime();
+        loopStart = status.getSimulationTime();
         lastStat = status.clone();
         return super.preStep(status); // true
     }
@@ -111,7 +109,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     public void postStep(SimulationStatus status) throws SimulationException {
         latestStatus = status.clone();
         double finTimeStep = status.getSimulationTime();
-        latestTimeStep = finTimeStep - initial;
+        latestTimeStep = finTimeStep - loopStart;
 
         double current_fudged_altitude = status.getRocketWorldPosition().getAltitude() + (0.5-random())*2*amplitude_randomness_size;
         altitudeMeasuredList.add(current_fudged_altitude);
@@ -120,8 +118,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         pastOmegaZ.add(status.getRocketRotationVelocity().z);
         pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
         finTabAngleLog.add(getFinTabAngleDeg());
-        rocketVelMagnitudeLog.add(realVelocity);
-        rocketAltitudeLog.add(current_fudged_altitude);
+        rktVelMagLog.add(realVelocity);
+        rktAltLog.add(current_fudged_altitude);
 
         List<Double> CldFlightBranch = status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF);
         CldLog.add(CldFlightBranch.get(CldFlightBranch.toArray().length-1));

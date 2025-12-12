@@ -451,10 +451,10 @@ if True:
     t = np.array(data[dT.TYPE_TIME].tolist())
     alt = np.array(data[dT.TYPE_ALTITUDE].tolist())
     vel = np.array(data[dT.TYPE_VELOCITY_Z].tolist())
-    velMagnitude = np.array(newCtrl.rocketVelMagnitudeLog)
+    velMagnitude = np.array(newCtrl.rktVelMagLog)
 
     if not MASTER_NOISE_OVERRIDE:
-        alt = np.array(newCtrl.rocketAltitudeLog)
+        alt = np.array(newCtrl.rktAltLog)
 
 
 

@@ -1,6 +1,8 @@
 package edu.mit.rocket_team.zephyrus.instrument;
 
 import edu.mit.rocket_team.zephyrus.util.RTInstrument;
+import edu.mit.rocket_team.zephyrus.util.data.RTFudgedData;
+import edu.mit.rocket_team.zephyrus.util.data.RTMagData;
 
 public class RTMag extends RTInstrument {
 
@@ -28,5 +30,16 @@ public class RTMag extends RTInstrument {
         return magZ;
     }
 
-
+    @Override
+    public void backdoorFudge(RTFudgedData fudged) {
+        if (fudged instanceof RTMagData magFudged) {
+            this.magX = magFudged.getMagX();
+            this.magY = magFudged.getMagY();
+            this.magZ = magFudged.getMagZ();
+        }
+        else {
+            throw new IllegalArgumentException("Invalid fudged data type for RTMag");
+        }
+    }
 }
+    

@@ -1,5 +1,7 @@
 package edu.mit.rocket_team.zephyrus.instrument;
 
+import edu.mit.rocket_team.zephyrus.util.data.RTFudgedData;
+import edu.mit.rocket_team.zephyrus.util.data.RTGPSData;
 import edu.mit.rocket_team.zephyrus.util.RTInstrument;
 
 public class RTGPS extends RTInstrument {
@@ -52,6 +54,20 @@ public class RTGPS extends RTInstrument {
     public boolean getFix() {
         // return if the GPS has a fix
         return false;
+    }
+
+    public void backdoorFudge(RTFudgedData fudged) {
+        if  (fudged instanceof RTGPSData gpsData) {
+            this.latitude = gpsData.getLatitude();
+            this.longitude = gpsData.getLongitude();
+            this.altitude = gpsData.getAltitude();
+            this.PDOP = gpsData.getPDOP();
+            this.VDOP = gpsData.getVDOP();
+            this.HDOP = gpsData.getHDOP();
+        }
+        else {
+            throw new IllegalArgumentException("Invalid fudged data type for RTGPS");
+        }
     }
 
 

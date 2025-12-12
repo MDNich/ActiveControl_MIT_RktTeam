@@ -1,11 +1,14 @@
 package edu.mit.rocket_team.zephyrus.instrument;
 
+import edu.mit.rocket_team.zephyrus.util.data.RTAccelData;
+import edu.mit.rocket_team.zephyrus.util.data.RTFudgedData;
 import edu.mit.rocket_team.zephyrus.util.RTInstrument;
-import info.openrocket.core.util.Coordinate;
 
 public class RTAccel extends RTInstrument {
 
-    private Coordinate currentAccel;
+    float accelX;
+    float accelY;
+    float accelZ;
 
     public RTAccel() {
 
@@ -13,7 +16,9 @@ public class RTAccel extends RTInstrument {
 
     @Override
     public void setup() {
-        currentAccel = new Coordinate(0,0,9.81);
+        accelX = 0;
+        accelY = 0;
+        accelZ = (float) 9.81;
     }
 
     public void update() {
@@ -21,19 +26,25 @@ public class RTAccel extends RTInstrument {
     }
 
     public float getAccelX() {
-        return (float) currentAccel.x;
+        return this.accelX;
     }
 
     public float getAccelY() {
-        return (float) currentAccel.y;
+        return this.accelY;
     }
 
     public float getAccelZ() {
-        return (float) currentAccel.z;
+        return this.accelZ;
     }
 
-
-    public void backdoorCoordinate(Coordinate fudged) {
-        this.currentAccel = fudged.clone();
+    public void backdoorFudge(RTFudgedData fudged) {
+        if (fudged instanceof RTAccelData accelFudged) {
+            this.accelX = accelFudged.getAccelX();
+            this.accelY = accelFudged.getAccelY();
+            this.accelZ = accelFudged.getAccelZ();
+        }
+        else {
+            throw new IllegalArgumentException("Invalid fudged data type for RTAccel");
+        }
     }
 }
