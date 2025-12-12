@@ -1,10 +1,10 @@
 package edu.mit.rocket_team.zephyrus.instrument;
 
-import edu.mit.rocket_team.zephyrus.util.Instrument;
+import edu.mit.rocket_team.zephyrus.util.RTInstrument;
 
-public class Baro extends Instrument {
+public class RTBaro extends RTInstrument {
 
-    public Baro() {
+    public RTBaro() {
 
     }
 

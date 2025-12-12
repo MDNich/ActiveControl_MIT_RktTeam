@@ -1,15 +1,15 @@
 package edu.mit.rocket_team.zephyrus.instrument;
 
-import edu.mit.rocket_team.zephyrus.util.Instrument;
+import edu.mit.rocket_team.zephyrus.util.RTInstrument;
 
-public class Mag extends Instrument {
+public class RTMag extends RTInstrument {
 
 
     float magX;
     float magY;
     float magZ;
 
-    public Mag() {
+    public RTMag() {
 
     }
 

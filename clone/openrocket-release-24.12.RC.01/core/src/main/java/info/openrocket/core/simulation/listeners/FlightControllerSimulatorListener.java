@@ -1,7 +1,6 @@
 package info.openrocket.core.simulation.listeners;
 
-import edu.mit.rocket_team.zephyrus.FC.FC;
-import info.openrocket.core.rocketcomponent.FinSet;
+import edu.mit.rocket_team.zephyrus.FC.RTFC;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
@@ -98,7 +97,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
             theFinsToModify.setCNALPHA(overrideCNA);
         }
 
-        FC.init();
+        RTFC.init();
     }
 
     @Override
@@ -142,8 +141,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
                 current_fudged_altitude));
 
 
-        FC.pre_loop(fudgedStatus.clone());
-        FC.loop();
+        RTFC.pre_loop(fudgedStatus.clone());
+        RTFC.loop();
 
         if (ABORT_AT_APOGEE) {
             if (status.apogeeReached) {

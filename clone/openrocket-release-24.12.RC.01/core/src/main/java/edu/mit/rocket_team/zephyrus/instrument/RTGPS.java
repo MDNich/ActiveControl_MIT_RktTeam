@@ -1,8 +1,8 @@
 package edu.mit.rocket_team.zephyrus.instrument;
 
-import edu.mit.rocket_team.zephyrus.util.Instrument;
+import edu.mit.rocket_team.zephyrus.util.RTInstrument;
 
-public class GPS extends Instrument {
+public class RTGPS extends RTInstrument {
 
     private float latitude;
     private float longitude;
@@ -12,7 +12,7 @@ public class GPS extends Instrument {
     private float VDOP;
     private float HDOP;
 
-    public GPS() {
+    public RTGPS() {
 
     }
 

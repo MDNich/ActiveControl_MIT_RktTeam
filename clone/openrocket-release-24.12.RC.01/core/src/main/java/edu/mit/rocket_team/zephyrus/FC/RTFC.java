@@ -3,7 +3,7 @@ package edu.mit.rocket_team.zephyrus.FC;
 import info.openrocket.core.simulation.SimulationStatus;
 
 // Flight computer code goes here.
-public class FC {
+public class RTFC {
 
     public static SimulationStatus currentFCsimStat;
 

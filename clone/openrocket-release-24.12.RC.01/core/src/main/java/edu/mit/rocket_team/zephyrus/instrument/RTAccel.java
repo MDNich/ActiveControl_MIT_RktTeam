@@ -1,13 +1,13 @@
 package edu.mit.rocket_team.zephyrus.instrument;
 
-import edu.mit.rocket_team.zephyrus.util.Instrument;
+import edu.mit.rocket_team.zephyrus.util.RTInstrument;
 import info.openrocket.core.util.Coordinate;
 
-public class Accel extends Instrument {
+public class RTAccel extends RTInstrument {
 
     private Coordinate currentAccel;
 
-    public Accel() {
+    public RTAccel() {
 
     }
 

@@ -1,14 +1,14 @@
 package edu.mit.rocket_team.zephyrus.instrument;
 
-import edu.mit.rocket_team.zephyrus.util.Instrument;
+import edu.mit.rocket_team.zephyrus.util.RTInstrument;
 
-public class Gyro extends Instrument {
+public class RTGyro extends RTInstrument {
 
     float gyroX;
     float gyroY;
     float gyroZ;
 
-    public Gyro() {
+    public RTGyro() {
 
     }
 
