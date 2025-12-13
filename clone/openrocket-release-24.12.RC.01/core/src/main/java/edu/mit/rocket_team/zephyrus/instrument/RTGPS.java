@@ -63,6 +63,7 @@ public class RTGPS extends RTInstrument {
         return fix;
     }
 
+    @Override
     public void backdoorFudge(RTFudgedData fudged) {
         if  (fudged instanceof RTGPSData gpsData) {
             this.latitude = gpsData.getLatitude();

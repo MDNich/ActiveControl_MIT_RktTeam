@@ -11,6 +11,12 @@ public class RTAccelData extends RTFudgedData {
         this.accelZ = z;
     }
 
+    public RTAccelData(Double x, Double y, Double z) {
+        this.accelX = x.floatValue();
+        this.accelY = y.floatValue();
+        this.accelZ = z.floatValue();
+    }
+
     public float getAccelX() {
         return accelX;
     }

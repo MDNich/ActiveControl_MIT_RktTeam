@@ -20,6 +20,17 @@ public class RTGPSData extends RTFudgedData {
         this.hasFix    = hF;
     }
 
+    public RTGPSData(Double lat, Double lon, Double alt,
+                     Double p, Double v, Double h, boolean hF) {
+        this.latitude  = lat.floatValue();
+        this.longitude = lon.floatValue();
+        this.altitude  = alt.floatValue();
+        this.PDOP      = p.floatValue();
+        this.VDOP      = v.floatValue();
+        this.HDOP      = h.floatValue();
+        this.hasFix    = hF;
+    }
+
     public float getLatitude() {
         return latitude;
     }

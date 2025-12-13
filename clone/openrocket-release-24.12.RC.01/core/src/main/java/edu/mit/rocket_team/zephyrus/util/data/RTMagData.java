@@ -11,6 +11,12 @@ public class RTMagData extends RTFudgedData {
         this.magZ = z;
     }
 
+    public RTMagData(Double x, Double y, Double z) {
+        this.magX = x.floatValue();
+        this.magY = y.floatValue();
+        this.magZ = z.floatValue();
+    }
+
     public float getMagX() {
         return magX;
     }

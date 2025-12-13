@@ -14,6 +14,13 @@ public class RTBaroData extends RTFudgedData {
         this.altitude = a;
         this.pressure = p;
     }
+    public RTBaroData(Double rP, Double rT, Double t, Double a, Double p) {
+        this.rawPressure = rP.floatValue();
+        this.rawTemperature = rT.floatValue();
+        this.temperature = t.floatValue();
+        this.altitude = a.floatValue();
+        this.pressure = p.floatValue();
+    }
 
     public float getRawPressure() {
         return rawPressure;

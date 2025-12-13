@@ -114,6 +114,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         double current_fudged_altitude = status.getRocketWorldPosition().getAltitude() + (0.5-random())*2*amplitude_randomness_size;
         altitudeMeasuredList.add(current_fudged_altitude);
         double realVelocity = status.getRocketVelocity().length();
+        double gps_fudged_altitude = Math.round(current_fudged_altitude*100.0)/100.0;
+        boolean gps_has_fix = true;
 
         pastOmegaZ.add(status.getRocketRotationVelocity().z);
         pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
@@ -137,6 +139,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
                 realLocation.getLatitudeRad(),
                 realLocation.getLongitudeRad(),
                 current_fudged_altitude));
+        fudgedStatus.putExtraData("fudged_gps_altitude", gps_fudged_altitude);
+        fudgedStatus.putExtraData("fudged_gps_has_fix", gps_has_fix);
 
 
         RTFC.pre_loop(fudgedStatus.clone());

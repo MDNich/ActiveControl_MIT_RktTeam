@@ -11,6 +11,12 @@ public class RTGyroData extends RTFudgedData {
         this.gyroZ = z;
     }
 
+    public RTGyroData(Double x, Double y, Double z) {
+        this.gyroX = x.floatValue();
+        this.gyroY = y.floatValue();
+        this.gyroZ = z.floatValue();
+    }
+
     public float getGyroX() {
         return gyroX;
     }
