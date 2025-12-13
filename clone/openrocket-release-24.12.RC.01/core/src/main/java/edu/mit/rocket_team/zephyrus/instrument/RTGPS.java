@@ -3,6 +3,7 @@ package edu.mit.rocket_team.zephyrus.instrument;
 import edu.mit.rocket_team.zephyrus.util.data.RTFudgedData;
 import edu.mit.rocket_team.zephyrus.util.data.RTGPSData;
 import edu.mit.rocket_team.zephyrus.util.RTInstrument;
+import edu.mit.rocket_team.zephyrus.util.hardware.RTHardwareSerial;
 
 public class RTGPS extends RTInstrument {
 
@@ -14,10 +15,18 @@ public class RTGPS extends RTInstrument {
     private float VDOP;
     private float HDOP;
 
-    private boolean hasFix;
+    private boolean fix;
+
+    private char[] gpsData;
+
+    private float rawGPS;
+    private float gpsAltOffset;
+    private float maxGpsAlt;
+
+    private RTHardwareSerial gpsSer;
 
     public RTGPS() {
-
+        gpsData = new char[100];
     }
 
 
@@ -26,12 +35,8 @@ public class RTGPS extends RTInstrument {
 
     }
 
-    public void update() {
-        // update the class variables.
-    }
-
-    public void parse() {
-        // update the class variables.
+    public void updateAndParse() {
+        // update and parse from the physical sensor; no-op in simulation, perhaps a wait.
     }
 
     public float getLatitude() {
@@ -55,7 +60,7 @@ public class RTGPS extends RTInstrument {
 
     public boolean getFix() {
         // return if the GPS has a fix
-        return hasFix;
+        return fix;
     }
 
     public void backdoorFudge(RTFudgedData fudged) {
@@ -66,13 +71,42 @@ public class RTGPS extends RTInstrument {
             this.PDOP = gpsData.getPDOP();
             this.VDOP = gpsData.getVDOP();
             this.HDOP = gpsData.getHDOP();
-            this.hasFix = gpsData.getHasFix();
+            this.fix = gpsData.getHasFix();
         }
         else {
             throw new IllegalArgumentException("Invalid fudged data type for RTGPS");
         }
     }
 
+
+    // Private methods to parse GPS data would go here
+    private boolean gpsUpdateData(int length) {
+        return true;
+    }
+
+    private void gpsParse(char[] data, int length) {
+        // no-op
+    }
+
+    private float convertToDecimalFast(float raw, char hemi) {
+        int deg = (int) raw / 100;
+        float minutes = raw - deg * 100;
+        float decimal = (float) (deg + minutes / 60.0);
+
+        if (hemi == 'S' || hemi == 'W')
+            decimal = -decimal;
+
+        return decimal;
+    }
+
+    private int indexOf(char[] arr, char target, int start) {
+        for (int i = start; arr[i] != '\0'; i++) {
+            if (arr[i] == target) {
+                return i;   // found
+            }
+        }
+        return -1;
+    }
 
 
 }
