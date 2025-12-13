@@ -28,13 +28,13 @@ public class RTGyro extends RTInstrument {
 
     }
 
-    public float gyro_x() {
+    public float getGyroX() {
         return gyroX;
     }
-    public float gyro_y() {
+    public float getGyroY() {
         return gyroY;
     }
-    public float gyro_z() {
+    public float getGyroZ() {
         return gyroZ;
     }
 

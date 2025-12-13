@@ -11,7 +11,6 @@ public class RTBaro extends RTInstrument {
     private float temperature;
     private float altitude;
     private float pressure;
-    private float movingAvg;
 
     public RTBaro() {
 
@@ -48,21 +47,15 @@ public class RTBaro extends RTInstrument {
         return rawTemperature;
     }
 
-    public float pressure() {
+    public float getPressure() {
         return pressure;
     }
 
-    public float altitude() {
+    public float getAltitude() {
         return altitude;
     }
 
-    public float altitudeMavg() {
-        // todo: calculate moving average according to spec
-        movingAvg = altitude; // placeholder
-        return movingAvg;
-    }
-
-    public float temperature() {
+    public float getTemperature() {
         return temperature;
     }
 
