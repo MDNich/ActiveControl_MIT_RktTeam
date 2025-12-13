@@ -17,24 +17,24 @@ public class RTGyro extends RTInstrument {
     @Override
     public void setup() {
         begin();
-        configure();
+        config();
     }
 
     private void begin() {
 
     }
 
-    private void configure() {
+    private void config() {
 
     }
 
-    public float getGyroX() {
+    public float gyro_x() {
         return gyroX;
     }
-    public float getGyroY() {
+    public float gyro_y() {
         return gyroY;
     }
-    public float getGyroZ() {
+    public float gyro_z() {
         return gyroZ;
     }
 
