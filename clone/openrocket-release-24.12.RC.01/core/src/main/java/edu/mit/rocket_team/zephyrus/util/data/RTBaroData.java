@@ -3,16 +3,16 @@ package edu.mit.rocket_team.zephyrus.util.data;
 public class RTBaroData extends RTFudgedData {
     private float rawPressure;
     private float rawTemperature;
-    private float normalTemperature;
-    private float getRawAltitude;
-    private float getProcessedAltitude;
+    private float temperature;
+    private float altitude;
+    private float pressure;
 
-    public RTBaroData(float rP, float rT, float nT, float rA, float pA) {
+    public RTBaroData(float rP, float rT, float t, float a, float p) {
         this.rawPressure = rP;
         this.rawTemperature = rT;
-        this.normalTemperature = nT;
-        this.getRawAltitude = rA;
-        this.getProcessedAltitude = pA;
+        this.temperature = t;
+        this.altitude = a;
+        this.pressure = p;
     }
 
     public float getRawPressure() {
@@ -21,14 +21,14 @@ public class RTBaroData extends RTFudgedData {
     public float getRawTemperature() {
         return rawTemperature;
     }
-    public float getNormalTemperature() {
-        return normalTemperature;
+    public float getTemperature() {
+        return temperature;
     }
-    public float getRawAltitude() {
-        return getRawAltitude;
+    public float getAltitude() {
+        return altitude;
     }
-    public float getProcessedAltitude() {
-        return getProcessedAltitude;
+    public float getPressure() {
+        return pressure;
     }
 
     public void setRawPressure(float rawPressure) {
@@ -37,13 +37,13 @@ public class RTBaroData extends RTFudgedData {
     public void setRawTemperature(float rawTemperature) {
         this.rawTemperature = rawTemperature;
     }
-    public void setNormalTemperature(float normalTemperature) {
-        this.normalTemperature = normalTemperature;
+    public void setTemperature(float temperature) {
+        this.temperature = temperature;
     }
-    public void setRawAltitude(float rawAltitude) {
-        this.getRawAltitude = rawAltitude;
+    public void setAltitude(float altitude) {
+        this.altitude = altitude;
     }
-    public void setProcessedAltitude(float processedAltitude) {
-        this.getProcessedAltitude = processedAltitude;
+    public void setPressure(float pressure) {
+        this.pressure = pressure;
     }
 }

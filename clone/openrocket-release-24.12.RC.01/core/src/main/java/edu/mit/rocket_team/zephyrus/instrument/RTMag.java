@@ -42,4 +42,3 @@ public class RTMag extends RTInstrument {
         }
     }
 }
-    

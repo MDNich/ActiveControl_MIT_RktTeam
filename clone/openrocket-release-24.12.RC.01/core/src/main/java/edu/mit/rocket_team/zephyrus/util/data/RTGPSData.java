@@ -7,15 +7,17 @@ public class RTGPSData extends RTFudgedData {
     private float PDOP;
     private float VDOP;
     private float HDOP;
+    private boolean hasFix;
 
     public RTGPSData(float lat, float lon, float alt,
-                     float p, float v, float h) {
-        this.latitude = lat;
+                     float p, float v, float h, boolean hF) {
+        this.latitude  = lat;
         this.longitude = lon;
-        this.altitude = alt;
-        this.PDOP = p;
-        this.VDOP = v;
-        this.HDOP = h;
+        this.altitude  = alt;
+        this.PDOP      = p;
+        this.VDOP      = v;
+        this.HDOP      = h;
+        this.hasFix    = hF;
     }
 
     public float getLatitude() {
@@ -42,6 +44,10 @@ public class RTGPSData extends RTFudgedData {
         return HDOP;
     }
 
+    public boolean getHasFix() {
+        return hasFix;
+    }
+
     public void setLatitude(float lat) {
         this.latitude = lat;
     }
@@ -59,5 +65,8 @@ public class RTGPSData extends RTFudgedData {
     }
     public void setHDOP(float h) {
         this.HDOP = h;
+    }
+    public void setHasFix(boolean hasFix) {
+        this.hasFix = hasFix;
     }
 }

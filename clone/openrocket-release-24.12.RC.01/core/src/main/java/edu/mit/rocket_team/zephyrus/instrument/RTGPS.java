@@ -14,6 +14,8 @@ public class RTGPS extends RTInstrument {
     private float VDOP;
     private float HDOP;
 
+    private boolean hasFix;
+
     public RTGPS() {
 
     }
@@ -53,7 +55,7 @@ public class RTGPS extends RTInstrument {
 
     public boolean getFix() {
         // return if the GPS has a fix
-        return false;
+        return hasFix;
     }
 
     public void backdoorFudge(RTFudgedData fudged) {
@@ -64,6 +66,7 @@ public class RTGPS extends RTInstrument {
             this.PDOP = gpsData.getPDOP();
             this.VDOP = gpsData.getVDOP();
             this.HDOP = gpsData.getHDOP();
+            this.hasFix = gpsData.getHasFix();
         }
         else {
             throw new IllegalArgumentException("Invalid fudged data type for RTGPS");
