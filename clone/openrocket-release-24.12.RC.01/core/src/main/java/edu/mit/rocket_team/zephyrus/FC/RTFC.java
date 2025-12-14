@@ -6,8 +6,11 @@ import edu.mit.rocket_team.zephyrus.util.data.*;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.SimulationStatus;
+import info.openrocket.core.util.Coordinate;
 
 import java.util.List;
+
+import static edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.convertToImuAngles;
 
 // Flight computer code goes here.
 public class RTFC {
@@ -41,13 +44,16 @@ public class RTFC {
         List<Double> accelZ = currentFCsimStat.getFlightDataBranch().get(FlightDataType.TYPE_ACCELERATION_Z);
         List<Double> accelXY = currentFCsimStat.getFlightDataBranch().get(FlightDataType.TYPE_ACCELERATION_XY);
 
+        // mag
+        Coordinate worldAngle = (Coordinate) currentFCsimStat.getExtraData("fudged_world_angle");
+        // gyro
+        Coordinate worldAngleRate = (Coordinate) currentFCsimStat.getExtraData("fudged_world_angle_rate");
+
         // pressure
         double alt = currentFCsimStat.getRocketWorldPosition().getAltitude();
         AtmosphericConditions atmos = currentFCsimStat.getSimulationConditions().
                 getAtmosphericModel().
                 getConditions(alt);
-
-
 
         RTAccelData accelDat = new RTAccelData(
                 accelXY.get(accelXY.size() - 1),
@@ -65,14 +71,14 @@ public class RTFC {
                 (Double) currentFCsimStat.getExtraData("fudged_gps_altitude"),
                 1.0,1.0,1.0,(Boolean) currentFCsimStat.getExtraData("fudged_gps_has_fix"));
         RTGyroData gyroDat = new RTGyroData(
-                currentFCsimStat.getRocketRotationVelocity().x,
-                currentFCsimStat.getRocketRotationVelocity().y,
-                currentFCsimStat.getRocketRotationVelocity().z
+                worldAngleRate.x,
+                worldAngleRate.y,
+                worldAngleRate.z
         );
         RTMagData magDat = new RTMagData(
-                currentFCsimStat.getRocketPosition().x,
-                currentFCsimStat.getRocketPosition().y,
-                currentFCsimStat.getRocketPosition().z
+                worldAngle.x,
+                worldAngle.y,
+                worldAngle.z
         );
 
         RTInstrument[] sensors = {accel, baro, gps, gyro, mag};

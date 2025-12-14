@@ -13,6 +13,7 @@ import info.openrocket.core.util.*;
 import java.util.Iterator;
 import java.util.List;
 
+import static edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.convertToImuAngles;
 import static java.lang.Math.*;
 
 /**
@@ -118,7 +119,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         boolean gps_has_fix = true;
 
         pastOmegaZ.add(status.getRocketRotationVelocity().z);
-        pastThetaZ.add(toDegrees(toEulerAngles(status.getRocketOrientationQuaternion()).z));
+        pastThetaZ.add(toDegrees(toEulerAngles_rocketCoord(status.getRocketOrientationQuaternion()).z));
         finTabAngleLog.add(getFinTabAngleDeg());
         rktVelMagLog.add(realVelocity);
         rktAltLog.add(current_fudged_altitude);
@@ -141,6 +142,30 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
                 current_fudged_altitude));
         fudgedStatus.putExtraData("fudged_gps_altitude", gps_fudged_altitude);
         fudgedStatus.putExtraData("fudged_gps_has_fix", gps_has_fix);
+
+        // Fudge the orientation
+
+        List<Double> rollAngles = fudgedStatus.getFlightDataBranch().get(FlightDataType.TYPE_ORIENTATION_PHI);
+        List<Double> pitchAngles = fudgedStatus.getFlightDataBranch().get(FlightDataType.TYPE_ORIENTATION_THETA);
+
+        double rollAngle = rollAngles.get(rollAngles.size() - 1);
+        double pitchAngle = pitchAngles.get(pitchAngles.size() - 1);
+        Coordinate worldAngle = convertToImuAngles(rollAngle, pitchAngle);
+        // TODO Fudge the world angles as needed !
+
+        fudgedStatus.putExtraData("fudged_world_angle", worldAngle);
+
+        List<Double> rollRates = fudgedStatus.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_RATE);
+        List<Double> pitchRates = fudgedStatus.getFlightDataBranch().get(FlightDataType.TYPE_PITCH_RATE);
+
+        double rollRate = rollRates.get(rollRates.size() - 1);
+        double pitchRate = pitchRates.get(pitchRates.size() - 1);
+        Coordinate worldAngRate = convertToImuAngles(rollRate, pitchRate);
+        // TODO Fudge the world angular vels as needed !
+
+        fudgedStatus.putExtraData("fudged_world_angle_rate", worldAngRate);
+
+
 
 
         RTFC.pre_loop(fudgedStatus.clone());
@@ -202,7 +227,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
 
 
 
-    public static Coordinate toEulerAngles(Quaternion q) {
+    public static Coordinate toEulerAngles_rocketCoord(Quaternion q) {
 
         // roll (x-axis rotation)
         double sinr_cosp = 2 * (q.getW() * q.getX() + q.getY() * q.getZ());
@@ -215,6 +240,31 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         double angleY = 2 * atan2(sinp, cosp) - PI / 2;
 
         // yaw (z-axis rotation)
+        double siny_cosp = 2 * (q.getW() * q.getZ() + q.getX() * q.getY());
+        double cosy_cosp = 1 - 2 * (q.getY() * q.getY() + q.getZ() * q.getZ());
+        double angleZ = atan2(siny_cosp, cosy_cosp);
+
+        if (roundToNearest5) {
+            angleX = round(angleX / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+            angleY = round(angleY / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+            angleZ = round(angleZ / (Math.PI / 180 * 1));// * (Math.PI / 180 * 5);
+        }
+
+        return new Coordinate(angleX, angleY, angleZ);
+    }
+    public static Coordinate toEulerAngles_worldCoord(Quaternion q) {
+
+        // roll (x-axis rotation) -> should be assigned to z
+        double sinr_cosp = 2 * (q.getW() * q.getX() + q.getY() * q.getZ());
+        double cosr_cosp = 1 - 2 * (q.getX() * q.getX() + q.getY() * q.getY());
+        double angleX = atan2(sinr_cosp, cosr_cosp);
+
+        // pitch (y-axis rotation) -> should be assigned to y
+        double sinp = sqrt(1 + 2 * (q.getW() * q.getY() - q.getX() * q.getZ()));
+        double cosp = sqrt(1 - 2 * (q.getW() * q.getY() - q.getX() * q.getZ()));
+        double angleY = 2 * atan2(sinp, cosp) - PI / 2;
+
+        // yaw (z-axis rotation) -> should be assigned to x
         double siny_cosp = 2 * (q.getW() * q.getZ() + q.getX() * q.getY());
         double cosy_cosp = 1 - 2 * (q.getY() * q.getY() + q.getZ() * q.getZ());
         double angleZ = atan2(siny_cosp, cosy_cosp);
