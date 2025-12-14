@@ -29,6 +29,9 @@ public class RTMag extends RTInstrument {
     public float getMagZ() {
         return magZ;
     }
+    public float getRoll() {
+        return getMagZ();
+    }
 
     @Override
     public void backdoorFudge(RTFudgedData fudged) {

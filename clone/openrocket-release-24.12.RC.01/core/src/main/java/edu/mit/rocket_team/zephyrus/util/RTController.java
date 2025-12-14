@@ -1,4 +1,5 @@
 package edu.mit.rocket_team.zephyrus.util;
 
-public class RTController {
+public abstract class RTController {
+    public abstract void setup();
 }
