@@ -1,14 +1,16 @@
 package edu.mit.rocket_team.zephyrus.util.data;
 
-public enum RTPyroConnectStatus {
+public enum RTPyroStatus {
     PYRO_FAILURE(1),
     PYRO_UNCONNECTED(2),
     PYRO_CONNECTED(3),
-    PYRO_SUCCESS(4);
+    PYRO_ARMED(4),
+    PYRO_SUCCESS(5),
+    PYRO_FIRING(6);
 
     public int ID = -1;
 
-    RTPyroConnectStatus(int ID) {
+    RTPyroStatus(int ID) {
         this.ID = ID;
     }
 }

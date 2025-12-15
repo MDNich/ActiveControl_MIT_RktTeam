@@ -84,8 +84,9 @@ public class RTFC {
                 worldAngleRate.z
         );
         RTMagData magDat = new RTMagData(
-                worldAngle.x,
-                worldAngle.y,
+                0.00001, // mimic small magnetic field values
+                Math.tan(worldAngle.z)*0.00001,
+                0.00001,
                 worldAngle.z
         );
 

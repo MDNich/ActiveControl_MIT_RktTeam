@@ -10,6 +10,7 @@ public class RTMag extends RTInstrument {
     float magX;
     float magY;
     float magZ;
+    float rollAngle;
 
     public RTMag() {
 
@@ -30,7 +31,8 @@ public class RTMag extends RTInstrument {
         return magZ;
     }
     public float getRoll() {
-        return getMagZ();
+        //return (float) Math.atan(magY / magX); // real calculation
+        return this.rollAngle; // real calculation
     }
 
     @Override
@@ -39,6 +41,7 @@ public class RTMag extends RTInstrument {
             this.magX = magFudged.getMagX();
             this.magY = magFudged.getMagY();
             this.magZ = magFudged.getMagZ();
+            this.rollAngle = magFudged.getRollAngle();
         }
         else {
             throw new IllegalArgumentException("Invalid fudged data type for RTMag");
