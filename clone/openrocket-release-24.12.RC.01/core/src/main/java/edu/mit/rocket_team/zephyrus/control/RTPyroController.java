@@ -2,6 +2,7 @@ package edu.mit.rocket_team.zephyrus.control;
 
 import edu.mit.rocket_team.zephyrus.util.RTController;
 import edu.mit.rocket_team.zephyrus.util.data.RTPyroStatus;
+import edu.mit.rocket_team.zephyrus.util.RTRocketState;
 import info.openrocket.core.simulation.SimulationStatus;
 
 public class RTPyroController extends RTController {
@@ -10,14 +11,21 @@ public class RTPyroController extends RTController {
 
     public static SimulationStatus SIMULATION_STATUS;
 
-    RTPyroStatus[] pyroStatuses;
+    int pyroStatuses;
     double[] fire_times;
     boolean[] fired;
+    boolean[] armed;
+    //For Sim Use Only
+    boolean[] shouldMisfire;
+    boolean[] hasFired;
 
     public RTPyroController() {
-        pyroStatuses = new RTPyroStatus[NUM_PYROS];
         fire_times   = new double[NUM_PYROS];
         fired        = new boolean[NUM_PYROS];
+        armed        = new boolean[NUM_PYROS];
+        shouldMisfire= new boolean[NUM_PYROS];
+        hasFired     = new boolean[NUM_PYROS];
+        pyroStatuses = 0;
     }
 
     @Override
@@ -27,79 +35,77 @@ public class RTPyroController extends RTController {
         }
     }
 
-    public RTPyroStatus getPyroStatus(int pyro) {
-        pyroMonitor(pyro);
-        return pyroStatuses[pyro];
-    }
-
     public void armPyro(int pyro) {
-        if (isPyroConnected(pyro)) {
-            if (getPyroFireStatus(pyro) == RTPyroStatus.PYRO_CONNECTED) {
-                setPyroStatus(pyro, RTPyroStatus.PYRO_ARMED);
-            }
-        }
+        armed[pyro] = true;
     }
+
     public void disarmPyro(int pyro) {
-        if (isPyroConnected(pyro)) {
-            if (getPyroFireStatus(pyro) == RTPyroStatus.PYRO_ARMED) {
-                setPyroStatus(pyro, RTPyroStatus.PYRO_CONNECTED);
-            }
-        }
+        armed[pyro] = false;
     }
 
-    public void pyroMonitor(int pyro) {
-        pyroMonitor(pyro, false);
-    }
-
-    private void pyroMonitor(int pyro, boolean shouldMisfire) {
-        if (getPyroFireStatus(pyro) == RTPyroStatus.PYRO_FIRING) {
-            firePyroAction(pyro);
-            if (shouldMisfire) {
-                setPyroStatus(pyro, RTPyroStatus.PYRO_FAILURE);
-                fired[pyro] = false;
-            }
-            else {
-                setPyroStatus(pyro, RTPyroStatus.PYRO_SUCCESS);
-                fired[pyro] = true;
-            }
-        }
-    }
-
-    public boolean firePyro(int pyro) {
-        if (pyroStatuses[pyro] == RTPyroStatus.PYRO_CONNECTED) {
-            if (getPyroFireStatus(pyro) == RTPyroStatus.PYRO_ARMED) {
-                // assume works every time, fudgeable later.
-                setPyroStatus(pyro, RTPyroStatus.PYRO_FIRING);
-                if (SIMULATION_STATUS != null) {
-                    fire_times[pyro] = SIMULATION_STATUS.getSimulationTime()*1e3; // seconds to miliseconds
+    public void pyroMonitor(RTRocketState currentState) {
+        for (int i = 0; i < NUM_PYROS; i++) {
+            if (currentState == RTRocketState.GROUND_TESTING) {
+                //In ground testing, we only care if pyro is connected or disconnected
+                if (isPyroConnected(i)) {
+                    setPyroStatus(i, RTPyroStatus.PYRO_CONNECTED);
+                } else {
+                    setPyroStatus(i, RTPyroStatus.PYRO_UNCONNECTED);
                 }
-                else {
-                    fire_times[pyro] = System.currentTimeMillis();
+            } else {
+                //Otherwise, an unconnected pyro is a failure, unless it has been successfuly fired
+                if(!isPyroConnected(i) && getPyroStatus(i) != RTPyroStatus.PYRO_SUCCESS && !fired[i]) {
+                    setPyroStatus(i, RTPyroStatus.PYRO_FAILURE);
                 }
-                return true;
+            }
+
+            if (fired[i] && (millis() - fire_times[i]) > 1000) {
+                //digitalWrite(firePins[i], 0);
+                if(!isPyroConnected(i) &&  getPyroStatus(i) != RTPyroStatus.PYRO_FAILURE) {
+                    setPyroStatus(i, RTPyroStatus.PYRO_SUCCESS);
+                } else {
+                    setPyroStatus(i, RTPyroStatus.PYRO_FAILURE);
+                }
+                fired[i] = false;
             }
         }
-        return false;
+    }
+
+    public void firePyro(int pyro) {
+        if (armed[pyro]) {
+            //digitalWrite(firePins[pyro], 1);
+            fired[pyro] = true;
+            hasFired[pyro] = true;
+            armed[pyro] = false;
+            fire_times[pyro] = millis();
+        }
     }
 
     private boolean isPyroConnected(int pyro) {
         // placeholder for onboard logic to check pyro connectivity
-        return  (pyroStatuses[pyro] == RTPyroStatus.PYRO_CONNECTED) ||
-                (pyroStatuses[pyro] == RTPyroStatus.PYRO_ARMED)     ||
-                (pyroStatuses[pyro] == RTPyroStatus.PYRO_FIRING) ;
+        return  !(hasFired[pyro] & !shouldMisfire[pyro]);
+    }
+
+    private RTPyroStatus getPyroStatus(int pyro) {
+        return RTPyroStatus.values()[(pyroStatuses >> (pyro * 2)) & 0b11];
     }
 
     private void setPyroStatus(int pyro, RTPyroStatus status) {
-        pyroStatuses[pyro] = status;
-    }
-    private RTPyroStatus getPyroFireStatus(int pyro) {
-        return pyroStatuses[pyro];
-    }
-
-    private void firePyroAction(int pyro) {
-        // placeholder for actual pyro firing action
-        // digitalWrite(firePins[pyro],0);
+        int mask = 0b11 << (pyro * 2);
+        pyroStatuses &= ~mask;
+        pyroStatuses |= (status.ID & 0b11) << (pyro * 2);
     }
 
+    // For sim use only
+    private int millis() {
+        if (SIMULATION_STATUS != null) {
+            return (int)(SIMULATION_STATUS.getSimulationTime()*1e3); // seconds to miliseconds
+        } else {
+            return (int)System.currentTimeMillis();
+        }
+    }
 
+    // TODO : write Pyro Controller Fudging Procedure
+    // TODO : include misfire fudging
+    // TODO : make sure to provide SIMULATION_STATUS in order to have millis() work properly
 }
