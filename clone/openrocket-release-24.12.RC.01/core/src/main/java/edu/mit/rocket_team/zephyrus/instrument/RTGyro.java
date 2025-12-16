@@ -30,6 +30,10 @@ public class RTGyro extends RTInstrument {
 
     }
 
+    public void update() {
+        // no-op.
+    }
+
     public float getGyroX() {
         return gyroX;
     }
