@@ -21,6 +21,10 @@ public class RTAccel extends RTInstrument {
         accelZ = (float) 9.81;
     }
 
+    public void update() {
+        // no-op.
+    }
+
     public float getAccelX() {
         return this.accelX;
     }
