@@ -88,19 +88,12 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
         // if state is disabled, check if should start prep
         if (state == AirbrakesControllerState.DISABLED){
-            shouldPrep = shouldStartAirbrakesControlPrep(status);
-            if (shouldPrep) {
-                state = AirbrakesControllerState.PREP;
-            }
+            state =  (shouldStartAirbrakesControlPrep(status)) ? AirbrakesControllerState.PREP : AirbrakesControllerState.DISABLED;
         }
         else if (state == AirbrakesControllerState.PREP){
              velDat.setData(currentTime, status.getRocketVelocity().length());
              velocityMeasurements.add(velDat);
         }
-        //
-
-        //status.getRocketVelocity().length();
-
 
 
     }
