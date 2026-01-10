@@ -16,6 +16,23 @@ x_0 = (v_0**2)/(2*k) - 5358.82
 g = 9.81
 B = (aRef * rho * rocketCd) / (2*m)
 
+Dx = 100
+alpha = 0.2463
+
+
+rightSideOfExpression = -(2*(B**(3/2))*m*g*Dx)/(airbrakesCd*rho*(alpha**(3/2)))
+print(rightSideOfExpression)
+
+# 1.875 for 300m
+# 1.249 for 200m
+# 0.625 for 100m
+
+exit(0)
+
+
+
+
+
 
 fig,ax = plt.subplots(figsize=(5,5))
 

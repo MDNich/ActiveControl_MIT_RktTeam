@@ -413,6 +413,30 @@ if True:
     newCtrl.servoStepCount = float(SERVO_STEP_COUNT)
     newCtrl.velMinThresh = VELMINTHRESH
 
+    rocket = sim.getRocket()
+
+    rocketCD = newCtrl.getRocketCD(rocket)
+    refA = newCtrl.getRefAreaFromSimulation(sim)
+    rho = newCtrl.getDensityAtAltitude(sim,5000)
+    mass = newCtrl.getRocketMass(rocket)
+    print("Rocket CD is {}".format(rocketCD))
+    print("Rocket Reference area is {} m^2".format(refA))
+    print("air density at 5000m is {} kg/m^3".format(rho))
+    print("mass is {} kg".format(mass))
+
+    B = rocketCD*rho*refA/2/mass
+    print("B is {}".format(B))
+
+
+
+
+
+
+
+
+    print('FINISHED INIT PHASE')
+    exit(0)
+
 
 
     simThread = threading.Thread(target=lambda: sim.simulate(listener_array))

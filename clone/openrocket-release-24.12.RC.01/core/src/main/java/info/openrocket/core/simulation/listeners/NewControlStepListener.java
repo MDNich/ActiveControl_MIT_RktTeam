@@ -1,11 +1,17 @@
 package info.openrocket.core.simulation.listeners;
 
-import info.openrocket.core.rocketcomponent.FinSet;
-import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
+import info.openrocket.core.aerodynamics.AerodynamicCalculator;
+import info.openrocket.core.aerodynamics.AerodynamicForces;
+import info.openrocket.core.aerodynamics.BarrowmanCalculator;
+import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.document.Simulation;
+import info.openrocket.core.masscalc.MassCalculator;
+import info.openrocket.core.masscalc.RigidBody;
+import info.openrocket.core.models.atmosphere.AtmosphericConditions;
+import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.core.simulation.FlightDataType;
 import info.openrocket.core.simulation.MotorClusterState;
+import info.openrocket.core.simulation.SimulationConditions;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.ArrayList;
@@ -659,4 +665,47 @@ public class NewControlStepListener extends AbstractSimulationListener {
 
         return new Coordinate(angleX, angleY, angleZ);
     }
+
+
+    public static double getRocketCD(Rocket rocket) {
+        return getRocketCD(rocket, 0, 0, 0.5, 0);
+    }
+
+
+    public static double getRocketCD(Rocket rocket, double aoa, double theta, double mach, double rollRate) {
+        FlightConfiguration config = rocket.getSelectedConfiguration();
+        FlightConditions conditions = new FlightConditions(config);
+        conditions.setAOA(aoa);
+        conditions.setTheta(theta);
+        conditions.setMach(mach);
+        conditions.setRollRate(rollRate);
+
+        AerodynamicCalculator calc = new BarrowmanCalculator();
+        // You can pass a WarningSet if you want warnings; null is allowed.
+        AerodynamicForces totalForces = calc.getAerodynamicForces(config, conditions, null);
+
+        // totalForces.getCD() gives the drag coefficient per instance (for the rocket the total assembly)
+        return totalForces.getCD();
+    }
+
+    public static double getRefAreaFromSimulation(Simulation simulation) {
+        // returns reference area in m^2 (for the simulation's active configuration)
+        return simulation.getActiveConfiguration().getReferenceArea();
+    }
+
+    public static double getDensityAtAltitude(Simulation sim, double altitudeMeters) {
+        if (sim == null) throw new IllegalArgumentException("sim is null");
+        // Build a SimulationConditions from the simulation options (same atmospheric model as simulation will use)
+        SimulationConditions conditions = sim.getOptions().toSimulationConditions();
+        AtmosphericConditions atm = conditions.getAtmosphericModel().getConditions(altitudeMeters);
+        return atm.getDensity(); // kg/m^3
+    }
+
+    public static double getRocketMass(Rocket rocket) {
+        FlightConfiguration cfg = rocket.getSelectedConfiguration();
+        RigidBody launchData = MassCalculator.calculateLaunch(cfg);
+        return launchData.getMass();
+    }
+
+
 }
