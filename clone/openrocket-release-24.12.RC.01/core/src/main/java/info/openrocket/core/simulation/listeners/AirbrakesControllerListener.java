@@ -35,6 +35,17 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static boolean shouldPrep = false;
     public static AirbrakesVelocityMeasurement velDat;
 
+    public static double mass = 53.48;
+    public static double g = 9.81;
+    public static double rho = 0.736;
+    public static double airbrakesCd = 1.28;
+    public static double rocketCd = 0.5859;
+    public static double aRef = 0.01929;
+    public static double alpha = 11.12;
+    public static double B = (aRef * rho * rocketCd) / (2*mass);
+    public static double t_ap = 31.89; //time of apogee
+    public static double a_max = 0.0066; //maximum airbrakes area
+
 
     public AirbrakesControllerListener(){
         super();
@@ -109,6 +120,17 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             }
         }
         return sets.get(0);
+    }
+
+    /* computes A_0/A_max fraction given deploy time and desired delta x*/
+    public static double  percentArea(double t_0, double deltaX){
+        double eta = (2*mass*g*deltaX*(Math.pow(B, 1.5)))/(airbrakesCd*rho*Math.pow(alpha,1.5));
+        double denom1 = (4/5)*(t_ap-t_0)*(Math.pow(t_ap-t_0, 2.5) - Math.pow(t_ap - t_0 - 0.5, 2.5));
+        double denom2 = (4/7)*(Math.pow(t_ap-t_0, 3.5) - Math.pow(t_ap - t_0 - 0.5, 3.5));
+        double denom3 = (2/5)*Math.pow(t_ap - t_0 - 0.5, 2.5);
+
+        double a_0 = eta/(denom1 - denom2 + denom3);
+        return a_0/a_max;
     }
 
 
