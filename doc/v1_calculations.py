@@ -20,7 +20,7 @@ Dx = 100
 alpha = 0.2463
 
 
-rightSideOfExpression = -(2*(B**(3/2))*m*g*Dx)/(airbrakesCd*rho*(alpha**(3/2)))
+rightSideOfExpression = (2*(B**(3/2))*m*g*Dx)/(airbrakesCd*rho*(alpha**(3/2)))
 print(rightSideOfExpression)
 
 # 1.875 for 300m
