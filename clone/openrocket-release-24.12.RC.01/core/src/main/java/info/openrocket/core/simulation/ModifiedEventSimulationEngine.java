@@ -55,7 +55,9 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 	
 	@Override
 	public void simulate(SimulationConditions simulationConditions) throws SimulationException {
-
+		System.out.println("[JAVA] Simulator Init");
+		System.out.println("[JAVA] Listeners are: ");
+		System.out.println(simulationConditions.getSimulationListenerList());
 		// Set up flight data
 		flightData = new FlightData();
 			

@@ -492,12 +492,14 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 			
 			for (SimulationListener l : additionalListeners) {
+				System.out.println("[JAVA] Installing Simulation Listeners");
 				simulationConditions.getSimulationListenerList().add(l);
 			}
 			
 			long t1, t2;
 			log.info("Simulation: calling simulator");
 			t1 = System.currentTimeMillis();
+			System.out.println("[JAVA] Calling Simulator");
 			simulator.simulate(simulationConditions);
 			t2 = System.currentTimeMillis();
 			System.out.println("Simulation: returning from simulator, simulation took " + (t2 - t1)/1000 + "s");

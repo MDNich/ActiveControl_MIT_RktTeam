@@ -164,8 +164,10 @@ quatClass = or_obj.util.Quaternion
 doc, rktObj = loadRocket(orh, 'zephy_1.ork')
 
 newCtrl = or_obj.simulation.listeners.NewControlStepListener
+airbrakesCtrl = or_obj.simulation.listeners.AirbrakesControllerListener
 
 newCtrl.theRocket = rktObj
+airbrakesCtrl.theRocket = rktObj
 
 
 # load flight conf
@@ -292,7 +294,8 @@ if True:
     motorEnded = False
     motorEndLoc = 0
     timeStep=prefDt
-    listener_array = [newCtrl()]
+    #listener_array = [newCtrl()]
+
 
 
     # provide initial conditions
@@ -326,8 +329,11 @@ if True:
             print(propDict[key])
         print("== END INITIAL CONDITIONS ==")
 
-    newCtrl.initialStat = theNextSimulationStatus
-    newCtrl.iniVel = v0z
+    #newCtrl.initialStat = theNextSimulationStatus
+    #newCtrl.iniVel = v0z
+
+    airbrakesCtrl.initialStatus = theNextSimulationStatus
+
 
 
 
@@ -435,39 +441,45 @@ if True:
 
 
     print('FINISHED INIT PHASE')
-    exit(0)
+    #exit(0)
 
 
-
-    simThread = threading.Thread(target=lambda: sim.simulate(listener_array))
+    airBrkCtrlInstance = airbrakesCtrl()
+    simThread = threading.Thread(target=lambda: sim.simulate([airbrakesCtrl()]))
     simThread.start()
 
     simThread.join()
     logging.info("Simulation done, plotting.")
 
 
-    omegaZ = np.array(newCtrl.pastOmegaZ)
-    thetaZ = np.array(newCtrl.pastThetaZ)
+    #omegaZ = np.array(newCtrl.pastOmegaZ)
+    omegaZ = np.array(airbrakesCtrl.pastOmegaZ)
+    #thetaZ = np.array(newCtrl.pastThetaZ)
+    thetaZ = np.array(airbrakesCtrl.pastThetaZ)
 
 
 
-    Qlog = np.array(newCtrl.Qlog)
-    CldArefDLog = np.array(newCtrl.CldArefDLog)
-    CldLog = np.array(newCtrl.CldLog)
+    #Qlog = np.array(newCtrl.Qlog)
+    Qlog = np.array(airbrakesCtrl.Qlog)
+    #CldArefDLog = np.array(newCtrl.CldArefDLog)
+    CldArefDLog = np.array(airbrakesCtrl.CldArefDLog)
+    #CldLog = np.array(newCtrl.CldLog)
+    CldLog = np.array(airbrakesCtrl.CldLog)
 
 
 
 
     realThetaZ = []
     for i in range(len(omegaZ)):
-        realThetaZ.append(np.sum(omegaZ[:i])*newCtrl.latestTimeStep)
+        #realThetaZ.append(np.sum(omegaZ[:i])*newCtrl.latestTimeStep)
+        realThetaZ.append(np.sum(omegaZ[:i])*airbrakesCtrl.latestTimeStep)
 
     realThetaZ = np.array(realThetaZ)
-    finCantLog = np.array(newCtrl.finCantLog)
-    finTabAngleLog = np.array(newCtrl.finTabAngleLog)
-    smoothTabAngleHist = np.array(newCtrl.desiredFinTabAngleLog)
+    #finCantLog = np.array(newCtrl.finCantLog)
+    #finTabAngleLog = np.array(newCtrl.finTabAngleLog)
+    #smoothTabAngleHist = np.array(newCtrl.desiredFinTabAngleLog)
 
-    finHistory = finCantLog if not USE_TABS else finTabAngleLog
+    #finHistory = finCantLog if not USE_TABS else finTabAngleLog
 
 
     data = orh.get_timeseries(sim, [dT.TYPE_ALTITUDE,dT.TYPE_VELOCITY_Z,dT.TYPE_TIME])
@@ -475,10 +487,12 @@ if True:
     t = np.array(data[dT.TYPE_TIME].tolist())
     alt = np.array(data[dT.TYPE_ALTITUDE].tolist())
     vel = np.array(data[dT.TYPE_VELOCITY_Z].tolist())
-    velMagnitude = np.array(newCtrl.rktVelMagLog)
+    #velMagnitude = np.array(newCtrl.rktVelMagLog)
+    velMagnitude = np.array(airbrakesCtrl.rktVelMagLog)
 
     if not MASTER_NOISE_OVERRIDE:
-        alt = np.array(newCtrl.rktAltLog)
+        #alt = np.array(newCtrl.rktAltLog)
+        alt = np.array(airbrakesCtrl.rktAltLog)
 
 
 
@@ -531,22 +545,19 @@ if True:
     ax.set_xticks([])
     ax2.set_xticks([])
 
+    plt.subplots()
+    ax = plt.gca()
+
 
     ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
     ax.plot(t[:apogeeInd],velMagnitude[:apogeeInd],label="Velocity Mag.",color='steelblue',linewidth=3,alpha=0.4,zorder=-1)
     ax.set_xlim(t[0],t[apogeeInd-1])
-    ax2.set_xlim(t[0],t[apogeeInd-1])
-    ax9.set_xlim(t[0],t[apogeeInd-1])
-    ax.set_ylim(0,ax.get_ylim()[1])
     ax.plot([-1],[-1],label="Altitude",color='red')
     ax.legend(loc='center right',bbox_to_anchor=(1, 0.61))
+    ax.set_ylim(0,ax.get_ylim()[1])
     ax0 = ax.twinx()
     ax0.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='red')
     ax0.set_ylim(0,ax0.get_ylim()[1])
-    if showControlCutoffLine:
-        ax.vlines(controlCutoffTime,0,ax.get_ylim()[1],color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
-        ax9.vlines(controlCutoffTime,-1e10,1e10,color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
-
     ax0.spines['right'].set_color('blue')
     ax0.spines['left'].set_color('blue')
     ax0.yaxis.label.set_color('red')
@@ -556,6 +567,21 @@ if True:
     ax.set_ylabel("Velocity (m/s)")
     ax0.set_ylabel("Altitude (m)")
     ax.hlines(VELMINTHRESH,*ax.get_xlim(),color='k',linestyle='dotted')
+
+    plt.savefig(figPath)
+    plt.show()
+    exit(0)
+
+
+
+    ax2.set_xlim(t[0],t[apogeeInd-1])
+    ax9.set_xlim(t[0],t[apogeeInd-1])
+
+    if showControlCutoffLine:
+        ax.vlines(controlCutoffTime,0,ax.get_ylim()[1],color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
+        ax9.vlines(controlCutoffTime,-1e10,1e10,color='black',linestyle='dashed',linewidth=0.75,alpha=0.5)
+
+
     ax3 = ax9.twinx()#9#.twinx()
 
 
