@@ -139,6 +139,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 			}
 			
 		} catch (SimulationException e) {
+			System.out.println("[JAVA] Caught simulation exception");
 			throw e;
 		} finally {
 			flightData.calculateInterestingValues();
@@ -173,9 +174,9 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 
 				// Take the step
 				double oldAlt = currentStatus.getRocketPosition().z;
-                System.out.println("[JAVA] Firing Pre Step");
+                //System.out.println("[JAVA] Firing Pre Step");
                 boolean preStepOutput = SimulationListenerHelper.firePreStep(currentStatus);
-                System.out.println("[JAVA] Fired Pre Step: Returned " +  preStepOutput);
+                //System.out.println("[JAVA] Fired Pre Step: Returned " +  preStepOutput);
                 if (preStepOutput) {
 					// Step at most to the next event
 					double maxStepTime = Double.MAX_VALUE;
@@ -183,21 +184,21 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 
 					if (nextEvent != null) {
 						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(), 0.001);
-                        System.out.println("[JAVA] Next Event: max step time " +  maxStepTime);
+                        //System.out.println("[JAVA] Next Event: max step time " +  maxStepTime);
 					} else if (currentStatus.isLanded()) {
 						maxStepTime = 0.0;
-                        System.out.println("[JAVA] detected landed");
+                        //System.out.println("[JAVA] detected landed");
 					}
 
 					if (maxStepTime > MathUtil.EPSILON) {
 						log.trace(
 								  "Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
-						System.out.println("[JAVA] Current simulation time: " + currentStatus.getSimulationTime() + "s                 ");
+						//System.out.println("[JAVA] Current simulation time: " + currentStatus.getSimulationTime() + "s                 \r");
 						currentStepper.step(currentStatus, maxStepTime);
 					}
 				}
 				SimulationListenerHelper.firePostStep(currentStatus);
-                System.out.println("[JAVA] Fired Post Step");
+                //System.out.println("[JAVA] Fired Post Step");
 
 
                 // Check for NaN values in the simulation status
@@ -208,7 +209,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
                     currentStatus.addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, currentStatus.getSimulationTime(),
                             currentStatus.getConfiguration().getRocket(),
                             new Pair<>(oldAlt, currentStatus.getRocketPosition().z)));
-                    System.out.println("[JAVA] Landed");
+                    //System.out.println("[JAVA] Landed");
                 }
 
 
@@ -224,7 +225,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					
 					// Avoid sinking into ground before liftoff
 					if (relativePosition.z < 0) {
-                        System.out.println("[JAVA] Fixing Sinking in Ground");
+                        //System.out.println("[JAVA] Fixing Sinking in Ground");
                         currentStatus.setRocketPosition(origin);
 						relativePosition = Coordinate.ZERO;
 						currentStatus.setRocketVelocity(originVelocity);
@@ -232,7 +233,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					// Detect lift-off
 					if (relativePosition.z > 0.02) {
 						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, currentStatus.getSimulationTime()));
-                        System.out.println("[JAVA] Liftoff");
+                        //System.out.println("[JAVA] Liftoff");
 
                     }
 
@@ -242,7 +243,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					// Check ground hit after liftoff
 					if ((currentStatus.getRocketPosition().z < MathUtil.EPSILON) && !currentStatus.isLanded()) {
 						currentStatus.addEvent(new FlightEvent(FlightEvent.Type.GROUND_HIT, currentStatus.getSimulationTime()));
-                        System.out.println("[JAVA] Ground hit after liftoff");
+                        //System.out.println("[JAVA] Ground hit after liftoff");
 
                         // currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
 					}
@@ -254,7 +255,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 						!currentStatus.isLaunchRodCleared() &&
 						relativePosition.length() > currentStatus.getSimulationConditions().getLaunchRodLength()) {
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.LAUNCHROD, currentStatus.getSimulationTime(), null));
-                    System.out.println("[JAVA] Off Launch Rod");
+                    //System.out.println("[JAVA] Off Launch Rod");
                 }
 				
 				
@@ -263,7 +264,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					currentStatus.setMaxAltTime(previousSimulationTime);
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.APOGEE, previousSimulationTime,
 							currentStatus.getConfiguration().getRocket()));
-                    System.out.println("[JAVA] Apogee");
+                    //System.out.println("[JAVA] Apogee");
                 }
 				
 //				//@Obsolete
@@ -282,7 +283,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				if (!currentStatus.isTumbling() &&
 					(currentStatus.getDeployedRecoveryDevices().size() == 0) &&
 					!currentStatus.isLanded()) {
-                    System.out.println("[JAVA] Tumbling");
+                    //System.out.println("[JAVA] Tumbling");
                     final double cp = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CP_LOCATION);
 					final double cg = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_CG_LOCATION);
 					final double aoa = currentStatus.getFlightDataBranch().getLast(FlightDataType.TYPE_AOA);
@@ -315,7 +316,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 		} catch (SimulationException e) {
 			
 			SimulationListenerHelper.fireEndSimulation(currentStatus, e);
-            System.out.println("[JAVA] Caught simulation exception");
+            //System.out.println("[JAVA] Caught simulation exception");
             System.out.println(e.toString());
 
             // Add FlightEvent for exception.

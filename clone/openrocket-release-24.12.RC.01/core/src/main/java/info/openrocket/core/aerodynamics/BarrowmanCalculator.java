@@ -1079,7 +1079,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 
 			RocketComponentCalc calcObj = (RocketComponentCalc) Reflection.construct(BARROWMAN_PACKAGE, comp,
 					BARROWMAN_SUFFIX, comp);
-            System.out.println("Got calc object: " + calcObj);
+            //System.out.println("Got calc object: " + calcObj);
 			calcMap.put(comp, calcObj);
 		}
 	}

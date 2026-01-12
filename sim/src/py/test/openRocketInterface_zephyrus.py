@@ -147,8 +147,8 @@ if not useVelocityPID:
     KI_VEL = 0
     KD_VEL = 0
 
-figPath = 'dat/zephy_1/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
-CSVSAVEPATH = 'dat/zephy_1/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+figPath = 'dat/zephy_testlaunch/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+CSVSAVEPATH = 'dat/zephy_testlaunch/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
 
 
 # Start
@@ -161,7 +161,7 @@ worldCoordClass = or_obj.util.WorldCoordinate
 quatClass = or_obj.util.Quaternion
 
 # Load rocket
-doc, rktObj = loadRocket(orh, 'zephy_1.ork')
+doc, rktObj = loadRocket(orh, 'zephy_testlaunch.ork')
 
 newCtrl = or_obj.simulation.listeners.NewControlStepListener
 airbrakesCtrl = or_obj.simulation.listeners.AirbrakesControllerListener
@@ -179,8 +179,8 @@ logging.info(flightConfig)
 sim = doc.getSimulation(0)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/zephy_1_out_long.csv'
-#figPath = 'dat/simResults/zephy_1_out_long.pdf'
+datPath = 'dat/simResults/zephy_testlaunch_out_long.csv'
+#figPath = 'dat/simResults/zephy_testlaunch_out_long.pdf'
 
 
 # Get all components, filter for fins.
@@ -231,10 +231,10 @@ import pandas as pd
 
 if True:
     # startParams
-    alt0 = 0 # m
+    alt0 = 0.01 # m
     v0x = 0 # m/s
     v0y = 0 # m/s
-    v0z = 0 # m/s
+    v0z = 0.1 # m/s
 
     rotAxis = coordClass(0,0,1) # z axis, for now
     angle = 0.0
@@ -405,8 +405,8 @@ if True:
         print("Using PID coefficients from plant dynamics.")
 
         if usePositionPID:
-            figPath = 'dat/zephy_1/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
-            CSVSAVEPATH = 'dat/zephy_1/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+            figPath = 'dat/zephy_testlaunch/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+            CSVSAVEPATH = 'dat/zephy_testlaunch/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
 
             newCtrl.kP_ANG = KP_ANG_gen
             newCtrl.kI_ANG = KI_ANG_gen
@@ -438,17 +438,15 @@ if True:
 
 
 
-
+    airbrakesCtrl.roundToHowMuch = 1000
 
     print('FINISHED INIT PHASE')
     #exit(0)
 
+    airbrakesCtrl.TIME_DELAY_MOTOR = 0
 
-    airBrkCtrlInstance = airbrakesCtrl()
-    simThread = threading.Thread(target=lambda: sim.simulate([airbrakesCtrl()]))
-    simThread.start()
 
-    simThread.join()
+    sim.simulate()
     logging.info("Simulation done, plotting.")
 
 
@@ -460,11 +458,11 @@ if True:
 
 
     #Qlog = np.array(newCtrl.Qlog)
-    Qlog = np.array(airbrakesCtrl.Qlog)
+    #Qlog = np.array(airbrakesCtrl.Qlog)
     #CldArefDLog = np.array(newCtrl.CldArefDLog)
-    CldArefDLog = np.array(airbrakesCtrl.CldArefDLog)
+    #CldArefDLog = np.array(airbrakesCtrl.CldArefDLog)
     #CldLog = np.array(newCtrl.CldLog)
-    CldLog = np.array(airbrakesCtrl.CldLog)
+    #CldLog = np.array(airbrakesCtrl.CldLog)
 
 
 
@@ -481,14 +479,18 @@ if True:
 
     #finHistory = finCantLog if not USE_TABS else finTabAngleLog
 
-
-    data = orh.get_timeseries(sim, [dT.TYPE_ALTITUDE,dT.TYPE_VELOCITY_Z,dT.TYPE_TIME])
+    data = orh.get_timeseries(sim, [dT.TYPE_ALTITUDE,dT.TYPE_VELOCITY_Z,dT.TYPE_TIME,dT.TYPE_VELOCITY_TOTAL,dT.TYPE_ACCELERATION_Z])
 
     t = np.array(data[dT.TYPE_TIME].tolist())
     alt = np.array(data[dT.TYPE_ALTITUDE].tolist())
     vel = np.array(data[dT.TYPE_VELOCITY_Z].tolist())
     #velMagnitude = np.array(newCtrl.rktVelMagLog)
-    velMagnitude = np.array(airbrakesCtrl.rktVelMagLog)
+    velMagnitude = np.array(data[dT.TYPE_VELOCITY_TOTAL].tolist())
+    accelZ = np.array(data[dT.TYPE_ACCELERATION_Z].tolist())
+    #velMagnitude = np.array(data[dT.TYPE_VELOCITY_TOTAL].tolist())
+
+    # patch
+    finHistory = vel
 
     if not MASTER_NOISE_OVERRIDE:
         #alt = np.array(newCtrl.rktAltLog)
@@ -510,8 +512,8 @@ if True:
     apogeeInd = alt.argmax()
     np.set_printoptions(legacy='1.13')
     velMagProcess = velMagnitude[int(len(t)/4):apogeeInd]
-    controlCutoffIndex = np.argmin(np.abs(velMagProcess - VELMINTHRESH)) + int(len(t)/4)
-    controlCutoffTime = t[controlCutoffIndex]
+    #controlCutoffIndex = np.argmin(np.abs(velMagProcess - VELMINTHRESH)) + int(len(t)/4)
+    #controlCutoffTime = t[controlCutoffIndex]
 
 
     #plt.subplots()
@@ -534,7 +536,7 @@ if True:
 
 
     #fig, axs = plt.subplots(nrows=3,sharex='col',figsize=(8.5,11/2))
-    fig, axs = plt.subplot_mosaic(
+    """fig, axs = plt.subplot_mosaic(
         [['A'],['A'],
          ['B'],['B'],['C'],['C'],['C']],figsize=(7,11/2)
     )
@@ -544,29 +546,49 @@ if True:
     ax9 = axs['C']
     ax.set_xticks([])
     ax2.set_xticks([])
-
+    plt.close()"""
     plt.subplots()
     ax = plt.gca()
+
+    g = 9.81
+    def line_accel(t,alpha,t_apog):
+        return -g + alpha*(t-t_apog)
+    def vel_from_accel(t,alpha,t_apog):
+        return -g*(t-t_apog) + alpha*((t -t_apog)**2)/2
+
+    import scipy.optimize as spopt
+
+    opt0,pcov = spopt.curve_fit(line_accel,t[int(apogeeInd*3/4):apogeeInd],accelZ[int(apogeeInd*3/4):apogeeInd])
+    accelLinFit = line_accel(t[:apogeeInd],*opt0)
+    alpha,t_apog = opt0
+    print("Got Alpha {} t_apog {}".format(alpha,t_apog))
+    integratedVel = vel_from_accel(t[:apogeeInd],alpha,t_apog)
+
+
+
 
 
     ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
     ax.plot(t[:apogeeInd],velMagnitude[:apogeeInd],label="Velocity Mag.",color='steelblue',linewidth=3,alpha=0.4,zorder=-1)
+    ax.plot(t[:apogeeInd],integratedVel,label="Velocity Predict",color='blue',linewidth=5,alpha=0.2,zorder=-1)
     ax.set_xlim(t[0],t[apogeeInd-1])
-    ax.plot([-1],[-1],label="Altitude",color='red')
+    ax.plot([-1],[-1],label="Z Acceleration",color='red')
+    ax.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='purple')
     ax.legend(loc='center right',bbox_to_anchor=(1, 0.61))
-    ax.set_ylim(0,ax.get_ylim()[1])
     ax0 = ax.twinx()
-    ax0.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='red')
-    ax0.set_ylim(0,ax0.get_ylim()[1])
-    ax0.spines['right'].set_color('blue')
+    ax.set_ylim(0,ax.get_ylim()[1])
+    ax0.plot(t[:apogeeInd],accelZ[:apogeeInd],label="Z Acceleration",color='red')
+    ax0.plot(t[:apogeeInd],accelLinFit,label="Fitted Z Acceleration",color='purple',linewidth=5,alpha=0.2)
+    ax0.spines['right'].set_color('red')
     ax0.spines['left'].set_color('blue')
     ax0.yaxis.label.set_color('red')
     ax.yaxis.label.set_color('blue')
     ax0.tick_params(axis='y', colors='red')
     ax.tick_params(axis='y', colors='blue')
-    ax.set_ylabel("Velocity (m/s)")
-    ax0.set_ylabel("Altitude (m)")
+    ax.set_ylabel("Velocity (m/s) and Altitude (m)")
+    ax0.set_ylabel("Z Accel ($\\rm m/s^2$)")
     ax.hlines(VELMINTHRESH,*ax.get_xlim(),color='k',linestyle='dotted')
+    ax0.set_ylim(np.min(accelZ[:apogeeInd]),np.max(accelZ[:apogeeInd]))
 
     plt.savefig(figPath)
     plt.show()

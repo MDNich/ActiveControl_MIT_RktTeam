@@ -3,7 +3,9 @@ package info.openrocket.core.simulation.listeners;
 import info.openrocket.core.rocketcomponent.AirbrakeSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
+import info.openrocket.core.simulation.FlightData;
 import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 
@@ -14,8 +16,7 @@ import java.util.List;
 
 import static info.openrocket.core.simulation.listeners.AirbrakesControllerState.*;
 import static info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener.*;
-import static info.openrocket.core.simulation.listeners.NewControlStepListener.getRocketCD;
-import static info.openrocket.core.simulation.listeners.NewControlStepListener.getRocketMass;
+import static info.openrocket.core.simulation.listeners.NewControlStepListener.*;
 import static java.lang.Math.toDegrees;
 
 public class AirbrakesControllerListener extends AbstractSimulationListener{
@@ -30,12 +31,8 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double predictedAlt;
     public static ArrayList<Double> pastOmegaZ;
     public static ArrayList<Double> pastThetaZ;
-    public static ArrayList<Double> finTabAngleLog;
     public static ArrayList<Double> rktVelMagLog;
     public static ArrayList<Double> rktAltLog;
-    public static ArrayList<Double> CldLog;
-    public static ArrayList<Double> Qlog;
-    public static ArrayList<Double> CldArefDLog;
     public static ArrayList<AirbrakesAccelerationMeasurement> accelMeasurements;
     public static AirbrakesControllerState state = AirbrakesControllerState.DISABLED;
     public static boolean shouldPrep = false;
@@ -47,27 +44,25 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double airbrakesCd = AirbrakeSet.CD_perp;//1.28;
     public static double rocketCd = 0.5859;
     public static double aRef = 0.01929;
-    public static double alpha = 0.2463;
-    public static double t_apog = 31.89; //time of apogee
+    public static double alpha = 0.07931287846446676;
+    public static double t_apog = 30.9968; //time of apogee
     // maximum airbrakes area
     public static double a_max = 0.0066; // TODO get from AirbrakesSet
     public static int counter = 0;
-    public static int roundToHowMuch = 100; // desired altitude correction
+    public static int roundToHowMuch = 1000; // desired altitude correction
     public static double desiredDeltaX = 0;
 
     public static double airbrakesCtrlStartTime = 1e10;
     public static double A0_req = 0;
 
+    public static double TIME_DELAY_MOTOR = 0;
+
     public AirbrakesControllerListener(){
         super();
         pastOmegaZ = new ArrayList<>();
         pastThetaZ = new ArrayList<>();
-        finTabAngleLog = new ArrayList<>();
         rktVelMagLog = new ArrayList<>();
         rktAltLog = new ArrayList<>();
-        CldLog = new ArrayList<>();
-        CldArefDLog = new ArrayList<>();
-        Qlog = new ArrayList<>();
         accelMeasurements = new ArrayList<>();
         accelDat = new AirbrakesAccelerationMeasurement(0.0, 0.0);
 
@@ -76,10 +71,24 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     @Override
     public void startSimulation(SimulationStatus status) throws SimulationException {
-        status.copySimStatParameters(initialStatus);
+        super.startSimulation(status);
+
+        /*if (initialStatus != null) {
+            status.copySimStatParameters(initialStatus);
+        }
+        else {
+            System.out.println("[JAVA] Initializing simulation status, could not read from Python.");
+            initialStatus = status.clone();
+        }*/
         theRocket = status.getConfiguration().getRocket();
 
-        super.startSimulation(status);
+        /*if (TIME_DELAY_MOTOR > 0) {
+            ((MotorClusterState) status.getActiveMotors().toArray()[0]).ignite(status.getSimulationTime()-TIME_DELAY_MOTOR); // 3.5 seconds before
+        }
+        if (TIME_DELAY_MOTOR > 100) {
+            ((MotorClusterState) status.getActiveMotors().toArray()[0]).burnOut(status.getSimulationTime()-TIME_DELAY_MOTOR); // 3.5 seconds before
+        }*/
+
         currentStatus = status.clone();
 
         theAirbrakes = getAirbrakes(status);
@@ -95,17 +104,12 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
         pastOmegaZ.add(status.getRocketRotationVelocity().z);
         pastThetaZ.add(toDegrees(toEulerAngles_rocketCoord(status.getRocketOrientationQuaternion()).z));
-        finTabAngleLog.add(getFinTabAngleDeg());
         rktVelMagLog.add(realVelocity);
 
-        List<Double> CldFlightBranch = status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF);
-        CldLog.add(CldFlightBranch.get(CldFlightBranch.toArray().length-1));
-        CldArefDLog.add(status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF).get(CldFlightBranch.toArray().length-1)*status.getFlightConfiguration().getReferenceLength()*status.getFlightConfiguration().getReferenceArea());
-        Qlog.add(status.getSimulationConditions().getAtmosphericModel().getConditions(status.getRocketWorldPosition().getAltitude()).getDensity()*realVelocity*realVelocity/2.0);
 
 
         double currentTime = status.getSimulationTime();
-        System.out.println("[JAVA] current time " + currentTime + "                     \r");
+        System.out.print("[JAVA] current time " + currentTime + "                     \r");
 
         mass = getRocketMass(theRocket);
         rocketCd = getRocketCD(theRocket);
@@ -154,8 +158,10 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             airbrakesCtrlStartTime = currentTime + 1;
             if (A0_req < 0.2) {
                 A0_req = reqDeployedAreaAirbrakes(currentTime + 5, desiredDeltaX);
+                System.out.println("[JAVA] Got Req A " + A0_req);
                 if (A0_req > 1.0) {
                     A0_req = reqDeployedAreaAirbrakes(currentTime+1, desiredDeltaX);
+                    System.out.println("[JAVA] Got Req A " + A0_req);
                 }
                 else {
                     airbrakesCtrlStartTime = currentTime + 5;
@@ -164,8 +170,10 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             }
             else if (A0_req < 0.5) {
                 A0_req = reqDeployedAreaAirbrakes(currentTime + 2, desiredDeltaX);
+                System.out.println("[JAVA] Got Req A " + A0_req);
                 if (A0_req > 1.0) {
                     A0_req = reqDeployedAreaAirbrakes(currentTime+1, desiredDeltaX);
+                    System.out.println("[JAVA] Got Req A " + A0_req);
                 }
                 else {
                     airbrakesCtrlStartTime = currentTime + 2;
@@ -174,6 +182,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
 
             if (A0_req > 1.0) {
+                System.out.println("[JAVA] Got Req A " + A0_req);
                 System.out.println("[JAVA] Cannot reach desired apogee with airbrakes.");
                 state = INFEASIBLE;
             }
