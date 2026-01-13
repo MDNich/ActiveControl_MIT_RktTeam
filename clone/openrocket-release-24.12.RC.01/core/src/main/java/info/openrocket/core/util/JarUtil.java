@@ -31,13 +31,13 @@ public class JarUtil {
 		CodeSource codeSource;
 		try {
 			codeSource = new URL("rsrc:.").openConnection().getClass().getProtectionDomain().getCodeSource();
-			logger.debug("Found jar file using rsrc URL");
+			//logger.debug("Found jar file using rsrc URL");
 		} catch (Throwable e) {
 			codeSource = Database.class.getProtectionDomain().getCodeSource();
 		}
 
 		if (codeSource != null) {
-			logger.debug("Found jar file using codeSource");
+			//logger.debug("Found jar file using codeSource");
 			jarUrl = codeSource.getLocation();
 		}
 
@@ -55,9 +55,9 @@ public class JarUtil {
 				urlString = urlString.substring(0, urlString.length() - "!/README.TXT".length());
 				// cut off the prefix jar:
 				urlString = urlString.substring("jar:".length());
-				logger.debug("jar file location using README.TXT is {}", urlString);
+				//logger.debug("jar file location using README.TXT is {}", urlString);
 				jarUrl = new URL(urlString);
-				logger.debug("Found jar file using README.TXT location");
+				//logger.debug("Found jar file using README.TXT location");
 			} catch (IOException e1) {
 			}
 		}

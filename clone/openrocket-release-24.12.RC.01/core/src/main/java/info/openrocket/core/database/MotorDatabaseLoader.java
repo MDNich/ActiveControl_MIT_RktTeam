@@ -67,7 +67,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	private void loadUserDefinedMotors() {
 		GeneralMotorLoader loader = new GeneralMotorLoader();
 		SimpleFileFilter fileFilter = new SimpleFileFilter("", loader.getSupportedExtensions());
-		log.info("Starting reading user-defined motors");
+		//log.info("Starting reading user-defined motors");
 		for (File file : (Application.getPreferences()).getUserThrustCurveFiles()) {
 			if (file.isFile()) {
 				loadFile(loader, file);
@@ -77,7 +77,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 				log.warn("User-defined motor file " + file + " is neither file nor directory");
 			}
 		}
-		log.info("Ending reading user-defined motors, motorCount=" + motorCount);
+		//log.info("Ending reading user-defined motors, motorCount=" + motorCount);
 	}
 
 
@@ -86,13 +86,13 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	 * uses directory "datafiles/thrustcurves" for data  
 	 */
 	private void loadSerializedMotorDatabase() {
-		log.info("Starting reading serialized motor database");
+		//log.info("Starting reading serialized motor database");
 		FileIterator iterator = DirectoryIterator.findDirectory(THRUSTCURVE_DIRECTORY, new SimpleFileFilter("", false, "ser"));
 		while (iterator.hasNext()) {
 			Pair<File, InputStream> f = iterator.next();
 			loadSerialized(f);
 		}
-		log.info("Ending reading serialized motor database, motorCount=" + motorCount);
+		//log.info("Ending reading serialized motor database, motorCount=" + motorCount);
 	}
 	
 	
@@ -103,7 +103,7 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	 */
 	@SuppressWarnings("unchecked")
 	private void loadSerialized(Pair<File, InputStream> f) {
-		log.debug("Reading motors from file " + f.getU().getPath());
+		//log.debug("Reading motors from file " + f.getU().getPath());
 		try (ObjectInputStream ois = new ObjectInputStream(f.getV())) {
 			List<ThrustCurveMotor> motors = (List<ThrustCurveMotor>) ois.readObject();
 			addMotors(motors);
@@ -120,14 +120,14 @@ public class MotorDatabaseLoader extends AsynchronousDatabaseLoader {
 	 */
 	private void loadFile(GeneralMotorLoader loader, File file) {
 		try {
-			log.debug("Loading motors from file " + file);
+			//log.debug("Loading motors from file " + file);
 			loadFile(
 					loader,
 					new Pair<>(
 							file,
 							new BufferedInputStream(new FileInputStream(file))));
 		} catch (Exception e) {
-			log.warn("Exception while reading " + file + ": " + e, e);
+			//log.warn("Exception while reading " + file + ": " + e, e);
 		}
 	}
 	

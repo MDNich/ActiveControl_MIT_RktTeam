@@ -413,7 +413,12 @@ public class AirbrakeSet extends LeafSet implements AxialPositionable, BoxBounde
      */
     public void setFracExposed(double fracExposed) {
         if (fracExposed < 0 || fracExposed > 1) {
-            System.out.println("AirbrakeSet: fraction exposed must be between 0 and 1");
+            System.out.println("AirbrakeSet: fraction exposed must be between 0 and 1, received " + fracExposed);
+            if (fracExposed -1 > 0) {
+                this.setFracExposed(1);
+            } else {
+                this.setFracExposed(0);
+            }
             return;
         }
         double radiusOfBodyTube = ((BodyTube) this.parent).getOuterRadius();

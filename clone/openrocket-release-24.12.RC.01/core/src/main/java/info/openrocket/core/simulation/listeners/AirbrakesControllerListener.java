@@ -44,7 +44,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double airbrakesCd = AirbrakeSet.CD_perp;//1.28;
     public static double rocketCd = 0.5859;
     public static double aRef = 0.01929;
-    public static double alpha = 0.07931287846446676;
+    public static double alpha = 1;
     public static double t_apog = 30.9968; //time of apogee
     // maximum airbrakes area
     public static double a_max = 0.0066; // TODO get from AirbrakesSet
@@ -54,6 +54,10 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     public static double airbrakesCtrlStartTime = 1e10;
     public static double A0_req = 0;
+
+    public static double START_AIRBRAKES_PREP_TIME = 10.0;
+
+    public static double overriden_A0 = 0.99;
 
     public static double TIME_DELAY_MOTOR = 0;
 
@@ -154,25 +158,25 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             System.out.println("[JAVA] desired apogee: " + desiredAlt + " m");
             desiredDeltaX = predictedAlt - desiredAlt;
 
-            A0_req = reqDeployedAreaAirbrakes(currentTime+1, desiredDeltaX);
-            airbrakesCtrlStartTime = currentTime + 1;
+            A0_req = reqDeployedAreaAirbrakes(currentTime+1.0, desiredDeltaX);
+            airbrakesCtrlStartTime = currentTime + 1.0;
             if (A0_req < 0.2) {
-                A0_req = reqDeployedAreaAirbrakes(currentTime + 5, desiredDeltaX);
+                A0_req = reqDeployedAreaAirbrakes(currentTime + 5.0, desiredDeltaX);
                 System.out.println("[JAVA] Got Req A " + A0_req);
                 if (A0_req > 1.0) {
-                    A0_req = reqDeployedAreaAirbrakes(currentTime+1, desiredDeltaX);
+                    A0_req = reqDeployedAreaAirbrakes(currentTime+1.0, desiredDeltaX);
                     System.out.println("[JAVA] Got Req A " + A0_req);
                 }
                 else {
-                    airbrakesCtrlStartTime = currentTime + 5;
+                    airbrakesCtrlStartTime = currentTime + 5.0;
                 }
 
             }
             else if (A0_req < 0.5) {
-                A0_req = reqDeployedAreaAirbrakes(currentTime + 2, desiredDeltaX);
+                A0_req = reqDeployedAreaAirbrakes(currentTime + 2.0, desiredDeltaX);
                 System.out.println("[JAVA] Got Req A " + A0_req);
                 if (A0_req > 1.0) {
-                    A0_req = reqDeployedAreaAirbrakes(currentTime+1, desiredDeltaX);
+                    A0_req = reqDeployedAreaAirbrakes(currentTime+1.0, desiredDeltaX);
                     System.out.println("[JAVA] Got Req A " + A0_req);
                 }
                 else {
@@ -197,14 +201,16 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
         else if (state == WAIT_FOR_START){
             if (status.getSimulationTime() >= airbrakesCtrlStartTime){
-                state = CONTROLLING_RAMP;
+                //state = CONTROLLING_RAMP; //skip for now.
+                // todo fix controlling_ramp
+                state = CONTROLLING_PLATEAU;
             }
         }
         else if (state == CONTROLLING_RAMP){
             // implement airbrakes control ramp
             // A(t) = 2A_0(t-t_0) for t_0 <= t < t_0 + 0.5s
             if (status.getSimulationTime() >= airbrakesCtrlStartTime) {
-                double deployedFraction = 2 * A0_req * (status.getSimulationTime() - airbrakesCtrlStartTime);
+                double deployedFraction = 2.0 * A0_req * (status.getSimulationTime() - airbrakesCtrlStartTime);
                 theAirbrakes.setFracExposed(deployedFraction);
             }
             if (status.getSimulationTime() >= airbrakesCtrlStartTime + 0.5){
@@ -218,6 +224,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             // check if apogee reached
             if (status.getRocketVelocity().z <= 0 || status.apogeeReached){
                 state = DONE;
+                theAirbrakes.setFracExposed(0);
             }
         }
 
@@ -243,19 +250,28 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     /* computes A_0/A_max fraction given deploy time and desired delta x*/
     public static double reqDeployedAreaAirbrakes(double t_0, double deltaX){
-        double B = (aRef * rho * rocketCd) / (2*mass);
-        double eta = (2*mass*g*deltaX*(Math.pow(B, 1.5)))/(airbrakesCd*rho*Math.pow(alpha,1.5));
-        double denom1 = (4/5)*(t_apog -t_0)*(Math.pow(t_apog -t_0, 2.5) - Math.pow(t_apog - t_0 - 0.5, 2.5));
-        double denom2 = (4/7)*(Math.pow(t_apog -t_0, 3.5) - Math.pow(t_apog - t_0 - 0.5, 3.5));
-        double denom3 = (2/5)*Math.pow(t_apog - t_0 - 0.5, 2.5);
+        double B = (aRef * rho * rocketCd) / (2.0*mass);
+        System.out.println("[JAVA] B: " + B);
+        System.out.println("[JAVA] rho: " + rho);
+        double eta = (2.0*mass*g*deltaX*(Math.pow(B, 1.5)))/(airbrakesCd*rho*Math.pow(alpha,1.5));
+        System.out.println("[JAVA] eta: " + eta);
+        double denom1 = (4.0/5.0)*(t_apog -t_0)*(Math.pow(t_apog -t_0, 2.5) - Math.pow(t_apog - t_0 - 0.5, 2.5));
+        //System.out.println("[JAVA] denom1: " + denom1);
+        System.out.println("[JAVA] t_apog: " + t_apog);
+        System.out.println("[JAVA] t_0: " + t_0);
+        double denom2 = (4.0/7.0)*(Math.pow(t_apog -t_0, 3.5) - Math.pow(t_apog - t_0 - 0.5, 3.5));
+        //System.out.println("[JAVA] denom2: " + denom2);
+        double denom3 = (2.0/5.0)*Math.pow(t_apog - t_0 - 0.5, 2.5);
+        //System.out.println("[JAVA] denom3: " + denom3);
 
         double a_0 = eta/(denom1 - denom2 + denom3);
-        return a_0/a_max;
+        return overriden_A0;
+        //return a_0/a_max;
     }
 
 
     public static boolean shouldStartAirbrakesControlPrep(SimulationStatus status) {
-        if (status.getSimulationTime() > 15.0 && !status.apogeeReached) {
+        if (status.getSimulationTime() > START_AIRBRAKES_PREP_TIME && !status.apogeeReached) {
             return true;
         }
         else return false;

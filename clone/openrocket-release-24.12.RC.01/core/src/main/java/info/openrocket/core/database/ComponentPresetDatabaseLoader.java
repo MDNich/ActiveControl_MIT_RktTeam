@@ -54,7 +54,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 		loadPresetComponents();
 		loadUserComponents();
 		long end = System.currentTimeMillis();
-		log.debug("Time to load presets: " + (end - startTime) + "ms " + presetCount + " loaded from " + fileCount + " files");
+		//log.debug("Time to load presets: " + (end - startTime) + "ms " + presetCount + " loaded from " + fileCount + " files");
 		
 	}
 
@@ -63,7 +63,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	 * uses the directory defined in the preferences
 	 */
 	private void loadUserComponents() {
-		log.info("Starting reading user-defined component presets");
+		//log.info("Starting reading user-defined component presets");
 		SimpleFileFilter orcFilter = new SimpleFileFilter("", false, "orc");
 		int initialCount = presetCount;
 		for (File file : (Application.getPreferences()).getUserComponentPresetFiles()) {
@@ -77,10 +77,10 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 			} else if (file.isDirectory()) {
 				loadDirectory(orcFilter, file);
 			} else {
-				log.warn("User-defined motor file " + file + " is neither file nor directory");
+				//log.warn("User-defined motor file " + file + " is neither file nor directory");
 			}
 		}
-		log.info("Ending reading user-defined component presets, presetCount=" + (presetCount-initialCount));
+		//log.info("Ending reading user-defined component presets, presetCount=" + (presetCount-initialCount));
 	}
 
 	/**
@@ -88,7 +88,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	 * uses the file directory from "datafiles/components"
 	 */
 	private void loadPresetComponents() {
-		log.info("Loading component presets from " + SYSTEM_PRESET_DIR);
+		//log.info("Loading component presets from " + SYSTEM_PRESET_DIR);
 		FileIterator iterator = DirectoryIterator.findDirectory(SYSTEM_PRESET_DIR, new SimpleFileFilter("", false, "orc"));
 		
 		if (iterator == null)
@@ -112,7 +112,7 @@ public class ComponentPresetDatabaseLoader extends AsynchronousDatabaseLoader {
 	 * @return	a collection of components preset from the file
 	 */
 	private Collection<ComponentPreset> loadFile(String fileName, InputStream stream) {
-		log.debug("loading from file: " + fileName);
+		//log.debug("loading from file: " + fileName);
 		OpenRocketComponentLoader loader = new OpenRocketComponentLoader();
 		Collection<ComponentPreset> presets = loader.load(stream, fileName);
 		return presets;

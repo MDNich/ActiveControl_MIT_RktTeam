@@ -378,11 +378,11 @@ if True:
     ts_des = 0.8 # Desired settling time of 0.5 seconds
     Mp_des = 0.2 # Desired max peak of less than 20%
     s0 = set_dominant_poles(ts_des, Mp_des)
-    print(f'Desired Poles: {s0} and its conjugate')
+    #print(f'Desired Poles: {s0} and its conjugate')
 
     gamma = 2 # Assume ratio between two compensator zeros.  Between 1-3 said to be a heuristic range
     KP_ANG_gen, KI_ANG_gen, KD_ANG_gen = return_PID_coeffs(G_plant, gamma, s0, show=True)
-    print("Obtained from PLANT dynamics: KP_ANG: {}, KI_ANG: {}, KD_ANG: {}".format(KP_ANG_gen,KI_ANG_gen,KD_ANG_gen))
+    #print("Obtained from PLANT dynamics: KP_ANG: {}, KI_ANG: {}, KD_ANG: {}".format(KP_ANG_gen,KI_ANG_gen,KD_ANG_gen))
     newCtrl.useRK6 = USE_RK6
 
     if overrideI:
@@ -396,13 +396,13 @@ if True:
         newCtrl.kD_VEL = KD_VEL
 
     if not getPID_from_plant:
-        print("Override: using ANG PID coeffs KP_ANG: {}, KI_ANG: {}, KD_ANG: {}".format(KP_ANG_gen,KI_ANG_gen,KD_ANG_gen))
+        #print("Override: using ANG PID coeffs KP_ANG: {}, KI_ANG: {}, KD_ANG: {}".format(KP_ANG_gen,KI_ANG_gen,KD_ANG_gen))
         newCtrl.kP_ANG = KP_ANG
         newCtrl.kI_ANG = KI_ANG
         newCtrl.kD_ANG = KD_ANG
 
     else:
-        print("Using PID coefficients from plant dynamics.")
+        #print("Using PID coefficients from plant dynamics.")
 
         if usePositionPID:
             figPath = 'dat/zephy_testlaunch/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
@@ -438,12 +438,16 @@ if True:
 
 
 
-    airbrakesCtrl.roundToHowMuch = 1000
 
     print('FINISHED INIT PHASE')
     #exit(0)
 
     airbrakesCtrl.TIME_DELAY_MOTOR = 0
+    airbrakesCtrl.alpha = 0.05
+    airbrakesCtrl.START_AIRBRAKES_PREP_TIME = 11.0
+    airbrakesCtrl.roundToHowMuch = 100
+    airbrakesCtrl.overriden_A0 = 0#.999
+    # 0.0985 for 95% airbrakes
 
 
     sim.simulate()
@@ -551,21 +555,40 @@ if True:
     ax = plt.gca()
 
     g = 9.81
-    def line_accel(t,alpha,t_apog):
-        return -g + alpha*(t-t_apog)
+
     def vel_from_accel(t,alpha,t_apog):
         return -g*(t-t_apog) + alpha*((t -t_apog)**2)/2
 
+    def vel_fit(t, a, b, t_apog):
+        return a*(t-t_apog)**3 + b*(t-t_apog)**2 - g*(t - t_apog)
+
+    def altitude_model(t, a, b, t_apog, x0):
+        return a*(t-t_apog)**4/4 + b*(t-t_apog)**3/3 - g*(t - t_apog)**2/2+x0
+
+    def accel_model(t, a, b, t_apog):
+        return 3*a*(t-t_apog)**2 + 2*b*(t-t_apog) - g
+
+
     import scipy.optimize as spopt
+    t = np.array(t)
+    vel = np.array(vel)
+    index0 = np.argmin((vel-343)**2)
+    index1 = np.argmin((t-12)**2)
+    opt0,pcov = spopt.curve_fit(vel_fit, t[index0:index1], vel[index0:index1], maxfev=1000000, p0=(5, 5, 31),bounds=([-np.inf,-np.inf,20],[np.inf,np.inf,35]))
+    a,b,t_apog = opt0
+    print("Got a {} t_apog {}".format(a,b,t_apog))
+    integratedVel = vel_fit(t[:apogeeInd], *opt0)
+    x0 = alt[index0] - altitude_model(t[index0], a, b,t_apog, 0)
+    maxAlt = altitude_model(t_apog, a, b,t_apog, x0)
+    maxAltReal = np.max(alt[:apogeeInd])
+    print("Got max altitude {}".format(maxAltReal))
+    print("Predicted max altitude {}".format(maxAlt))
+    print("Error {}".format(np.abs(maxAltReal-maxAlt)))
 
-    opt0,pcov = spopt.curve_fit(line_accel,t[int(apogeeInd*3/4):apogeeInd],accelZ[int(apogeeInd*3/4):apogeeInd])
-    accelLinFit = line_accel(t[:apogeeInd],*opt0)
-    alpha,t_apog = opt0
-    print("Got Alpha {} t_apog {}".format(alpha,t_apog))
-    integratedVel = vel_from_accel(t[:apogeeInd],alpha,t_apog)
 
 
-
+    ax.vlines(t[index0],0,10000,linestyle='dotted',color='k')
+    ax.vlines(t[index1],0,10000,linestyle='dotted',color='k')
 
 
     ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
@@ -574,11 +597,12 @@ if True:
     ax.set_xlim(t[0],t[apogeeInd-1])
     ax.plot([-1],[-1],label="Z Acceleration",color='red')
     ax.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='purple')
+    ax.plot(t[:apogeeInd], altitude_model(t[:apogeeInd], a, b, t_apog, x0), label="Altitude Fit", color='purple', linewidth=5, alpha=0.2)
     ax.legend(loc='center right',bbox_to_anchor=(1, 0.61))
     ax0 = ax.twinx()
-    ax.set_ylim(0,ax.get_ylim()[1])
+    ax.set_ylim(0,7000)
     ax0.plot(t[:apogeeInd],accelZ[:apogeeInd],label="Z Acceleration",color='red')
-    ax0.plot(t[:apogeeInd],accelLinFit,label="Fitted Z Acceleration",color='purple',linewidth=5,alpha=0.2)
+    ax0.plot(t[:apogeeInd], accel_model(t[:apogeeInd], *opt0), label="Fitted Z Acceleration", color='red', linewidth=5, alpha=0.2)
     ax0.spines['right'].set_color('red')
     ax0.spines['left'].set_color('blue')
     ax0.yaxis.label.set_color('red')

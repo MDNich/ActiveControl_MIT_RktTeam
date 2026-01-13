@@ -43,11 +43,10 @@ public class TranslatorProvider implements Provider<Translator> {
 			// Check user-configured locale
 			Locale l = getUserLocale();
 			if (l != null) {
-				log.info("Setting user-selected locale " + l);
-				log.info("Hehe boiii we're in business");
+				//log.info("Setting user-selected locale " + l);
 				Locale.setDefault(l);
 			} else {
-				log.info("Using default locale " + Locale.getDefault());
+				//log.info("Using default locale " + Locale.getDefault());
 			}
 			
 		}
@@ -59,8 +58,8 @@ public class TranslatorProvider implements Provider<Translator> {
 			newTranslator = new DebugTranslator(newTranslator);
 		}
 		
-		log.info("Set up translation for locale " + Locale.getDefault() +
-				", debug.currentFile=" + newTranslator.get("debug.currentFile"));
+		//log.info("Set up translation for locale " + Locale.getDefault() +
+		//		", debug.currentFile=" + newTranslator.get("debug.currentFile"));
 		
 		if (translator.compareAndSet(null, newTranslator)) {
 			return newTranslator;
