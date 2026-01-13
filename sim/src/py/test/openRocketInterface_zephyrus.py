@@ -536,10 +536,14 @@ if True:
 #print("Got cutoff time: {} s at index {}, velMag: {}".format(controlCutoffTime,controlCutoffIndex,velMagnitude[controlCutoffIndex]))
     #print(finCantLog[:apogeeInd])
 
-    dataArr = np.array([t[:apogeeInd],alt[:apogeeInd],vel[:apogeeInd],omegaZ[:apogeeInd],finHistory[:apogeeInd], thetaZ[:apogeeInd]])
-    label = 'Fin Cant Angle (deg)' if not USE_TABS else 'Fin Tab Angle (deg)'
-    np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time (s),Altitude (m),Velocity (m/s),Angular Velocity (rad/s),{},Angular Position (deg)'.format(label), comments='')
+    dataArr = np.array([t[:apogeeInd],alt[:apogeeInd],vel[:apogeeInd],velMagnitude[:apogeeInd],accelZ[:apogeeInd]])
+    np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time (s),Altitude (m),Velocity (m/s),Velocity Magnitude (m/s),Accel <Z> (rad/s)', comments='')
     print("Saved data to {}".format(CSVSAVEPATH))
+
+
+
+
+
 
 
     #fig, axs = plt.subplots(nrows=3,sharex='col',figsize=(8.5,11/2))
