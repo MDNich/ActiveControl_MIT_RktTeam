@@ -447,6 +447,9 @@ if True:
     airbrakesCtrl.START_AIRBRAKES_PREP_TIME = 11.0
     airbrakesCtrl.roundToHowMuch = 100
     airbrakesCtrl.overriden_A0 = 0#.999
+    airbrakesCtrl.fudge_factor = 0#3
+    airbrakesCtrl.overriden_desiredApog = 6200#.999
+    airbrakesCtrl.t_apog = 35#.999
     # 0.0985 for 95% airbrakes
 
 
@@ -559,14 +562,30 @@ if True:
     def vel_from_accel(t,alpha,t_apog):
         return -g*(t-t_apog) + alpha*((t -t_apog)**2)/2
 
-    def vel_fit(t, a, b, t_apog):
-        return a*(t-t_apog)**3 + b*(t-t_apog)**2 - g*(t - t_apog)
+    def vel_fit(t, a, b, c,t_apog):
+        return a*(t-t_apog)**3 + b*(t-t_apog)**2  + c*(t - t_apog)
 
-    def altitude_model(t, a, b, t_apog, x0):
-        return a*(t-t_apog)**4/4 + b*(t-t_apog)**3/3 - g*(t - t_apog)**2/2+x0
+    def vel_fit_refactor(t,alpha,beta,gamma):
+        return alpha*t**2 + beta*t + gamma
 
-    def accel_model(t, a, b, t_apog):
-        return 3*a*(t-t_apog)**2 + 2*b*(t-t_apog) - g
+    def quintic(t,a,b,c,d,e,f):
+        return a*t**5 + b*t**4 + c*t**3 + d*t**2 + e*t + f
+
+    def convertABGtoABTapog(alpha,beta,gamma):
+        a = alpha
+        t_apog = (-1*beta-np.sqrt(beta*beta - 3*alpha*(g+gamma)))/3/alpha
+        b = beta + 3*alpha*t_apog
+        return a,b,t_apog
+
+    def altitude_model(t, a, b, c, t_apog, x0):
+        return a*(t-t_apog)**4/4 + b*(t-t_apog)**3/3  + c*(t - t_apog)**2/2+x0
+
+    def altitude_model2(t, alpha, beta, gamma, x0):
+        return alpha*t**3/3 + beta*t**2/2  + gamma*t + x0
+
+
+    def accel_model(t, a, b, c, t_apog):
+        return 3*a*(t-t_apog)**2 + 2*b*(t-t_apog) + c
 
 
     import scipy.optimize as spopt
@@ -574,12 +593,25 @@ if True:
     vel = np.array(vel)
     index0 = np.argmin((vel-343)**2)
     index1 = np.argmin((t-12)**2)
-    opt0,pcov = spopt.curve_fit(vel_fit, t[index0:index1], vel[index0:index1], maxfev=1000000, p0=(5, 5, 31),bounds=([-np.inf,-np.inf,20],[np.inf,np.inf,35]))
-    a,b,t_apog = opt0
-    print("Got a {} t_apog {}".format(a,b,t_apog))
+    print(len(vel[index0:index1][::70][:25]))
+    opt0,pcov = spopt.curve_fit(vel_fit, t[index0:index1][::70][:25], vel[index0:index1][::70][:25], maxfev=1000000, p0=(5, 5, -9.81,31),bounds=([-np.inf,-np.inf,-np.inf,20],[np.inf,np.inf,-5,35]))
+    opt1,pcov1 = spopt.curve_fit(quintic,t[index0:index1][::70][:25], vel[index0:index1][::70][:25],maxfev=100000)
+    a,b,c,t_apog = opt0
+    a1,b1,c1,d1,e1,f1 = opt1
+    print("Got a {} b {} g_eff {} t_apog {}".format(a,b,c,t_apog))
+    #g = c
+    #opt1_proc = convertABGtoABTapog(*opt1)
+    #opt0 = opt1_proc # override
+    #a,b,t_apog = opt0
+    #print("VERSION 2\nGot a {} b {} t_apog {}".format(*opt1_proc))
     integratedVel = vel_fit(t[:apogeeInd], *opt0)
-    x0 = alt[index0] - altitude_model(t[index0], a, b,t_apog, 0)
-    maxAlt = altitude_model(t_apog, a, b,t_apog, x0)
+    integratedVel2 = quintic(t[:apogeeInd], *opt1)
+    #integratedVel3 = vel_fit(t[:apogeeInd], *opt1_proc) 
+    x0 = alt[index0] - altitude_model(t[index0], a, b,c, t_apog, 0)
+    #x0 = alt[index0] - altitude_model2(t[index0], alpha, beta,gamma, 0)
+    print("Got x0 {}".format(x0))
+    maxAlt = altitude_model(t_apog, a, b,c, t_apog, x0)
+    #maxAlt = altitude_model2(t[apogeeInd], alpha, beta,gamma, 0)
     maxAltReal = np.max(alt[:apogeeInd])
     print("Got max altitude {}".format(maxAltReal))
     print("Predicted max altitude {}".format(maxAlt))
@@ -590,14 +622,18 @@ if True:
     ax.vlines(t[index0],0,10000,linestyle='dotted',color='k')
     ax.vlines(t[index1],0,10000,linestyle='dotted',color='k')
 
+    ax.scatter(t[index0:index1][::70][:25], vel[index0:index1][::70][:25],marker='^',color='r')
+
 
     ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
     ax.plot(t[:apogeeInd],velMagnitude[:apogeeInd],label="Velocity Mag.",color='steelblue',linewidth=3,alpha=0.4,zorder=-1)
-    ax.plot(t[:apogeeInd],integratedVel,label="Velocity Predict",color='blue',linewidth=5,alpha=0.2,zorder=-1)
+    #ax.plot(t[:apogeeInd],integratedVel,label="Velocity Predict",color='blue',linewidth=5,alpha=0.2,zorder=-1)
+    ax.plot(t[:apogeeInd],integratedVel2,label="Velocity Predict 2",color='orange',linewidth=5,alpha=0.2,zorder=-1)
     ax.set_xlim(t[0],t[apogeeInd-1])
     ax.plot([-1],[-1],label="Z Acceleration",color='red')
     ax.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='purple')
-    ax.plot(t[:apogeeInd], altitude_model(t[:apogeeInd], a, b, t_apog, x0), label="Altitude Fit", color='purple', linewidth=5, alpha=0.2)
+    ax.plot(t[:apogeeInd], altitude_model(t[:apogeeInd], a, b, c, t_apog, x0), label="Altitude Fit", color='purple', linewidth=5, alpha=0.2)
+    #ax.plot(t[:apogeeInd], altitude_model2(t[:apogeeInd], alpha,beta,gamma, x0), label="Altitude Fit 2", color='purple', linewidth=5, alpha=0.2)
     ax.legend(loc='center right',bbox_to_anchor=(1, 0.61))
     ax0 = ax.twinx()
     ax.set_ylim(0,7000)

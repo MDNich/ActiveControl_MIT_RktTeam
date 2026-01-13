@@ -17,6 +17,7 @@ import java.util.List;
 import static info.openrocket.core.simulation.listeners.AirbrakesControllerState.*;
 import static info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener.*;
 import static info.openrocket.core.simulation.listeners.NewControlStepListener.*;
+import static info.openrocket.core.util.MathUtil.max;
 import static java.lang.Math.toDegrees;
 
 public class AirbrakesControllerListener extends AbstractSimulationListener{
@@ -45,7 +46,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double rocketCd = 0.5859;
     public static double aRef = 0.01929;
     public static double alpha = 1;
-    public static double t_apog = 30.9968; //time of apogee
+    public static double t_apog = 35; //time of apogee
     // maximum airbrakes area
     public static double a_max = 0.0066; // TODO get from AirbrakesSet
     public static int counter = 0;
@@ -58,8 +59,14 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double START_AIRBRAKES_PREP_TIME = 10.0;
 
     public static double overriden_A0 = 0.99;
+    public static double overriden_desiredApog = -1.0;
 
     public static double TIME_DELAY_MOTOR = 0;
+
+    public static double coeffA = -0.013498522289161072;
+    public static double coeffB = -0.27159399218754415;
+    public static double alt0 = 6333.741403445408;
+    public static double fudge_factor = 3.0;
 
     public AirbrakesControllerListener(){
         super();
@@ -151,16 +158,19 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             // calculate apogee height.
             double x0 = status.getRocketWorldPosition().getAltitude();
             double v0 = status.getRocketVelocity().z;
-            predictedAlt = alpha*Math.pow(t_apog,3)/6.0 -
-                    t_apog*t_apog/2*(g + alpha*t_apog) + v0*t_apog + x0;
+            System.out.println("[JAVA] got coeffs: a = " + coeffA + " ; b = " + coeffB + " ; t_apog = " + t_apog + " ; g = " + g);
+            predictedAlt = getAltitudeEstimate(t_apog);
             System.out.println("[JAVA] predicted apogee: " + predictedAlt + " m");
             double desiredAlt = Math.floor(predictedAlt/roundToHowMuch)*roundToHowMuch;
+            if (overriden_desiredApog > 0) {
+                desiredAlt = overriden_desiredApog;
+            }
             System.out.println("[JAVA] desired apogee: " + desiredAlt + " m");
             desiredDeltaX = predictedAlt - desiredAlt;
 
             A0_req = reqDeployedAreaAirbrakes(currentTime+1.0, desiredDeltaX);
             airbrakesCtrlStartTime = currentTime + 1.0;
-            if (A0_req < 0.2) {
+            /*if (A0_req < 0.2) {
                 A0_req = reqDeployedAreaAirbrakes(currentTime + 5.0, desiredDeltaX);
                 System.out.println("[JAVA] Got Req A " + A0_req);
                 if (A0_req > 1.0) {
@@ -182,7 +192,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
                 else {
                     airbrakesCtrlStartTime = currentTime + 2;
                 }
-            }
+            }*/
 
 
             if (A0_req > 1.0) {
@@ -250,23 +260,23 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     /* computes A_0/A_max fraction given deploy time and desired delta x*/
     public static double reqDeployedAreaAirbrakes(double t_0, double deltaX){
-        double B = (aRef * rho * rocketCd) / (2.0*mass);
-        System.out.println("[JAVA] B: " + B);
-        System.out.println("[JAVA] rho: " + rho);
-        double eta = (2.0*mass*g*deltaX*(Math.pow(B, 1.5)))/(airbrakesCd*rho*Math.pow(alpha,1.5));
-        System.out.println("[JAVA] eta: " + eta);
-        double denom1 = (4.0/5.0)*(t_apog -t_0)*(Math.pow(t_apog -t_0, 2.5) - Math.pow(t_apog - t_0 - 0.5, 2.5));
-        //System.out.println("[JAVA] denom1: " + denom1);
-        System.out.println("[JAVA] t_apog: " + t_apog);
-        System.out.println("[JAVA] t_0: " + t_0);
-        double denom2 = (4.0/7.0)*(Math.pow(t_apog -t_0, 3.5) - Math.pow(t_apog - t_0 - 0.5, 3.5));
-        //System.out.println("[JAVA] denom2: " + denom2);
-        double denom3 = (2.0/5.0)*Math.pow(t_apog - t_0 - 0.5, 2.5);
-        //System.out.println("[JAVA] denom3: " + denom3);
+        double a = coeffA;
+        double b = coeffB;
+        double t0 = t_0;
+        double t1 = t_apog;
+        double xi = -(Math.pow(a,3)*Math.pow(t0-t1,10)/10.0 + (a*a*b)*Math.pow(t0-t1,9)/3.0 + (3.0*a*b*b - 3.0*a*a*g)*Math.pow(t0-t1,8)/8.0 + (b*b*b - 6.0*a*b*g)*Math.pow(t0-t1,7)/7.0 + (a*g*g - b*b*g)*Math.pow(t0-t1,6)/2.0 + (3.0*b*g*g)*Math.pow(t0-t1,5)/5.0 - (g*g*g)*Math.pow(t0-t1,4)/4.0);
+        System.out.println("[JAVA] xi: " + xi);
 
-        double a_0 = eta/(denom1 - denom2 + denom3);
-        return overriden_A0;
-        //return a_0/a_max;
+        double a_0 = fudge_factor*2*mass*g*deltaX/airbrakesCd/rho/xi;
+        //return overriden_A0;
+        return max(0,a_0/a_max);
+    }
+
+    public static double getVelocityEstimate(double t){
+        return coeffA*Math.pow(t-t_apog,3) + coeffB*Math.pow(t-t_apog,2) - g*(t-t_apog);
+    }
+    public static double getAltitudeEstimate(double t){
+        return coeffA*Math.pow(t-t_apog,4)/4 + coeffB*Math.pow(t-t_apog,3)/3 - g*(t-t_apog)*(t-t_apog)/2+alt0;
     }
 
 
