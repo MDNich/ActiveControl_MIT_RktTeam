@@ -9,10 +9,7 @@ import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.masscalc.RigidBody;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
 import info.openrocket.core.rocketcomponent.*;
-import info.openrocket.core.simulation.FlightDataType;
-import info.openrocket.core.simulation.MotorClusterState;
-import info.openrocket.core.simulation.SimulationConditions;
-import info.openrocket.core.simulation.SimulationStatus;
+import info.openrocket.core.simulation.*;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.ArrayList;
 import info.openrocket.core.util.Coordinate;
@@ -149,7 +146,7 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static ArrayList<Double> altitudeToUseList = null;
     public static double velocity_randomness_size = 5;
     public static double amplitude_randomness_size = 5;
-
+    public static double omega0 = 0;
 
     public NewControlStepListener() {
         super();
@@ -176,13 +173,15 @@ public class NewControlStepListener extends AbstractSimulationListener {
     public static double initial = -1;
     @Override
     public void startSimulation(SimulationStatus status) throws SimulationException {
-        status.copySimStatParameters(initialStat);
-        if (TIME_DELAY_MOTOR > 0) {
+        //status.copySimStatParameters(initialStat);
+        /*if (TIME_DELAY_MOTOR > 0) {
             ((MotorClusterState) status.getActiveMotors().toArray()[0]).ignite(status.getSimulationTime()-TIME_DELAY_MOTOR); // 3.5 seconds before
         }
         if (TIME_DELAY_MOTOR > 100) {
             ((MotorClusterState) status.getActiveMotors().toArray()[0]).burnOut(status.getSimulationTime()-TIME_DELAY_MOTOR); // 3.5 seconds before
-        }
+        }*/
+
+        status.setRocketRotationVelocity(new Coordinate(0,0,omega0));
 
         super.startSimulation(status);
         lastStat = status.clone();
@@ -393,11 +392,16 @@ public class NewControlStepListener extends AbstractSimulationListener {
             rocketVelMagnitudeLog.add(velocityToUse);
             rocketAltitudeLog.add(altitudeToUse);
 
-
-            List<Double> CldFlightBranch = status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF);
-            CldLog.add(CldFlightBranch.get(CldFlightBranch.toArray().length-1));
-            CldArefDLog.add(status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF).get(CldFlightBranch.toArray().length-1)*status.getFlightConfiguration().getReferenceLength()*status.getFlightConfiguration().getReferenceArea());
-            Qlog.add(status.getSimulationConditions().getAtmosphericModel().getConditions(status.getRocketWorldPosition().getAltitude()).getDensity()*velocityToUse*velocityToUse/2.0);
+            try {
+                List<Double> CldFlightBranch = status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF);
+                CldLog.add(CldFlightBranch.get(CldFlightBranch.toArray().length - 1));
+                CldArefDLog.add(status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF).get(CldFlightBranch.toArray().length - 1) * status.getFlightConfiguration().getReferenceLength() * status.getFlightConfiguration().getReferenceArea());
+                Qlog.add(status.getSimulationConditions().getAtmosphericModel().getConditions(status.getRocketWorldPosition().getAltitude()).getDensity() * velocityToUse * velocityToUse / 2.0);
+            }
+            catch (Exception e) {
+                // nothing
+                System.out.println("[JAVA] Could not log Cld and Q values.");
+            }
         }
 
 

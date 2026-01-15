@@ -572,8 +572,15 @@ if True:
     def vel_fit_refactor(t,alpha,beta,gamma):
         return alpha*t**2 + beta*t + gamma
 
-    def quintic(t,a,b,c,d,e,f):
-        return a*t**5 + b*t**4 + c*t**3 + d*t**2 + e*t + f
+    def cubic(t,a,b,c,d):
+        return a*t**3 + b*t**2 + c*t + d
+
+    def cubicDeriv(t,a,b,c):
+        return 3*a*t**2 + 2*b*t + c
+
+    def erf(t,a,b):
+        return a*spspec.erf(t) + b
+
 
     def convertABGtoABTapog(alpha,beta,gamma):
         a = alpha
@@ -598,10 +605,12 @@ if True:
     index0 = np.argmin((vel-343)**2)
     index1 = np.argmin((t-12)**2)
     print(len(vel[index0:index1][::70][:25]))
+    opt1,pcov1 = spopt.curve_fit(erf,t[index0:index1][::70][:25], vel[index0:index1][::70][:25],maxfev=100000)
+
+    t_apog_guess = 1
+    print("Guessed t_apog {}".format(t_apog_guess))
     opt0,pcov = spopt.curve_fit(vel_fit, t[index0:index1][::70][:25], vel[index0:index1][::70][:25], maxfev=1000000, p0=(5, 5, -9.81,31),bounds=([-np.inf,-np.inf,-np.inf,20],[np.inf,np.inf,-5,35]))
-    opt1,pcov1 = spopt.curve_fit(quintic,t[index0:index1][::70][:25], vel[index0:index1][::70][:25],maxfev=100000)
     a,b,c,t_apog = opt0
-    a1,b1,c1,d1,e1,f1 = opt1
     print("Got a {} b {} g_eff {} t_apog {}".format(a,b,c,t_apog))
     #g = c
     #opt1_proc = convertABGtoABTapog(*opt1)
@@ -609,7 +618,7 @@ if True:
     #a,b,t_apog = opt0
     #print("VERSION 2\nGot a {} b {} t_apog {}".format(*opt1_proc))
     integratedVel = vel_fit(t[:apogeeInd], *opt0)
-    integratedVel2 = quintic(t[:apogeeInd], *opt1)
+    #integratedVel2 = cubic(t[:apogeeInd], *opt1)
     #integratedVel3 = vel_fit(t[:apogeeInd], *opt1_proc) 
     x0 = alt[index0] - altitude_model(t[index0], a, b,c, t_apog, 0)
     #x0 = alt[index0] - altitude_model2(t[index0], alpha, beta,gamma, 0)
@@ -632,7 +641,7 @@ if True:
     ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
     ax.plot(t[:apogeeInd],velMagnitude[:apogeeInd],label="Velocity Mag.",color='steelblue',linewidth=3,alpha=0.4,zorder=-1)
     #ax.plot(t[:apogeeInd],integratedVel,label="Velocity Predict",color='blue',linewidth=5,alpha=0.2,zorder=-1)
-    ax.plot(t[:apogeeInd],integratedVel2,label="Velocity Predict 2",color='orange',linewidth=5,alpha=0.2,zorder=-1)
+    #ax.plot(t[:apogeeInd],integratedVel2,label="Velocity Predict 2",color='orange',linewidth=5,alpha=0.2,zorder=-1)
     ax.set_xlim(t[0],t[apogeeInd-1])
     ax.plot([-1],[-1],label="Z Acceleration",color='red')
     ax.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='purple')

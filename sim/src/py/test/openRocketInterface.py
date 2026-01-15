@@ -89,7 +89,7 @@ KD_ANG = 0.0175
 '''''
 import threading
 
-JXX = 0.011*1.5
+JXX = 0.0131
 OVERRIDE_JXX_CALC = True
 
 VELMINTHRESH = 20
@@ -101,9 +101,9 @@ KP_VEL = 10
 KI_VEL = 0.1#.1#0.75
 KD_VEL = 1
 # ANG PID
-KP_ANG = 0.5284#0.189
+KP_ANG = 0.2600#0.189
 KI_ANG = 0
-KD_ANG = 0#0.1057#0.0377
+KD_ANG = 0.0520#0.1057#0.0377
 # OTHER PARAMS
 INI_ROT_VEL = 0
 DESIRED_ROT_VEL = 0
@@ -123,7 +123,7 @@ DEG_PER_SEC = 300
 REFRESH_TIME = 2e-2
 ALTITUDE_NOISE_AMPLITUDE = 100
 MASTER_NOISE_OVERRIDE = True
-TIME_DELAY_MOTOR = 600
+TIME_DELAY_MOTOR = 0#600
 overrideCNA = 15*1.5
 
 
@@ -135,9 +135,9 @@ overrideCNA = 15*1.5
 
 
 
-WIND_EVENT_1_TIMESTAMP = -0.7
-WIND_EVENT_2_TIMESTAMP = -1.5
-WIND_EVENT_3_TIMESTAMP = -3
+WIND_EVENT_1_TIMESTAMP = 0.7
+WIND_EVENT_2_TIMESTAMP = 2.5
+WIND_EVENT_3_TIMESTAMP = 5
 WIND_EVENT_1_GUST = 5e0
 WIND_EVENT_2_GUST = -7e0
 WIND_EVENT_3_GUST = 5e0
@@ -159,8 +159,8 @@ if not useVelocityPID:
     KI_VEL = 0
     KD_VEL = 0
 
-figPath = 'dat/demonstrator_6/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
-CSVSAVEPATH = 'dat/demonstrator_6/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+figPath = 'dat/demonstrator_8/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+CSVSAVEPATH = 'dat/demonstrator_8/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG,KI_ANG,KD_ANG,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
 
 
 # Start
@@ -173,7 +173,7 @@ worldCoordClass = or_obj.util.WorldCoordinate
 quatClass = or_obj.util.Quaternion
 
 # Load rocket
-doc, rktObj = loadRocket(orh, 'demonstrator_6.ork')
+doc, rktObj = loadRocket(orh, 'demonstrator_8.ork')
 
 newCtrl = or_obj.simulation.listeners.NewControlStepListener
 
@@ -186,11 +186,11 @@ logging.info("Motor identifier: ")
 logging.info(flightConfig)
 
 # load sim
-sim = doc.getSimulation(0)
+sim = doc.getSimulation(4)
 logging.warning("loaded document + simulation")
 
-datPath = 'dat/simResults/demonstrator_6_out_long.csv'
-#figPath = 'dat/simResults/demonstrator_6_out_long.pdf'
+datPath = 'dat/simResults/demonstrator_8_out_long.csv'
+#figPath = 'dat/simResults/demonstrator_8_out_long.pdf'
 
 
 # Get all components, filter for fins.
@@ -238,10 +238,10 @@ logging.error("RUNNING A NEW SIMULATION")
 
 import pandas as pd
 
-alt0 = 194.4285888671875
-v0 = 72.10404205322266
-rotRate0 = -2.71606445268
-rot0 = 26.965709686279297 + 10
+alt0 = 0#194.4285888671875
+v0 = 0#72.10404205322266
+rotRate0 = 1#2#-2.71606445268
+rot0 = 0#26.965709686279297 + 10
 
 
 if True:
@@ -260,7 +260,7 @@ if True:
     omega0z = rotRate0# 0.0 # override for particular test case.
 
 
-
+    newCtrl.omega0 = omega0z
     initialPropDict = {
         "positionX" : 0,
         "positionY" : 0,
@@ -434,8 +434,8 @@ if True:
         print("Using PID coefficients from plant dynamics.")
 
         if usePositionPID:
-            figPath = 'dat/demonstrator_6/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
-            CSVSAVEPATH = 'dat/demonstrator_6/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+            figPath = 'dat/demonstrator_8/pdf/turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.pdf'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
+            CSVSAVEPATH = 'dat/demonstrator_8/csv/run_turb{}_Tabs{}_VEL_PID_KP{}_KI{}_KD{}_desiredVel{}_iniVel{}_ANG_PID_KP{}_KI{}_KD{}_constInput{}_desiredPos{}_servoSteps{}.csv'.format(TURBULENCE,'YES' if USE_TABS else 'NO',KP_VEL,KI_VEL,KD_VEL,DESIRED_ROT_VEL,INI_ROT_VEL,KP_ANG_gen,KI_ANG_gen,KD_ANG_gen,CONST_FIXED,DESIRED_ROT_ANG,SERVO_STEP_COUNT)
 
             newCtrl.kP_ANG = KP_ANG_gen
             newCtrl.kI_ANG = KI_ANG_gen
@@ -486,12 +486,12 @@ if True:
 
     t = np.array(data[dT.TYPE_TIME].tolist())
 
-    t += 3
+    #t += 3
 
 
     alt = np.array(data[dT.TYPE_ALTITUDE].tolist())
     vel = np.array(data[dT.TYPE_VELOCITY_Z].tolist())
-    velMagnitude = np.array(newCtrl.rktVelMagLog)
+    velMagnitude = np.array(newCtrl.rocketVelMagnitudeLog)
 
     if not MASTER_NOISE_OVERRIDE:
         alt = np.array(newCtrl.rktAltLog)
@@ -511,9 +511,9 @@ if True:
 
     apogeeInd = alt.argmax()
 
-    for i in range(len(t)):
+    """for i in range(len(t)):
         if t[i] > 8:
-            break
+            break"""
 
     apogeeInd = i
 
