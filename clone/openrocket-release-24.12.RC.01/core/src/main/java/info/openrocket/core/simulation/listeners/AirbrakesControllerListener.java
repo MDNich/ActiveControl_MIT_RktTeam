@@ -265,7 +265,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         double t0 = t_0;
         double t1 = t_apog;
         double xi = -(Math.pow(a,3)*Math.pow(t0-t1,10)/10.0 + (a*a*b)*Math.pow(t0-t1,9)/3.0 + (3.0*a*b*b - 3.0*a*a*g)*Math.pow(t0-t1,8)/8.0 + (b*b*b - 6.0*a*b*g)*Math.pow(t0-t1,7)/7.0 + (a*g*g - b*b*g)*Math.pow(t0-t1,6)/2.0 + (3.0*b*g*g)*Math.pow(t0-t1,5)/5.0 - (g*g*g)*Math.pow(t0-t1,4)/4.0);
-        System.out.println("[JAVA] xi: " + xi);
+        //System.out.println("[JAVA] xi: " + xi);
 
         double a_0 = fudge_factor*2*mass*g*deltaX/airbrakesCd/rho/xi;
         //return overriden_A0;

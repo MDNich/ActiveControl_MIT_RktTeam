@@ -69,10 +69,10 @@ def set_PID_coeffs(G_plant, gamma, s0, show):
     '''
     Kd, Kp, Ki, z1_opt, K, Gc_PID = find_PID(G_plant, gamma, s0)
 
-    if show:
+    """if show:
         print("Results for G1:")
         print(f"Kd: {Kd}, Kp: {Kp}, Ki: {Ki}, z1_opt: {z1_opt}, K: {K}")
-        print(f"Gc_PID: {Gc_PID}")
+        print(f"Gc_PID: {Gc_PID}")"""
 
     return Gc_PID
 
@@ -86,10 +86,10 @@ def return_PID_coeffs(G_plant, gamma, s0, show):
     '''
     Kd, Kp, Ki, z1_opt, K, Gc_PID = find_PID(G_plant, gamma, s0)
 
-    if show:
+    """if show:
         print("Results for G1:")
         print(f"Kd: {Kd}, Kp: {Kp}, Ki: {Ki}, z1_opt: {z1_opt}, K: {K}")
-        print(f"Gc_PID: {Gc_PID}")
+        print(f"Gc_PID: {Gc_PID}")"""
 
     return Kp, Ki, Kd
 
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     ts_des = 0.5 # Desired settling time of 0.5 seconds
     Mp_des = 0.2 # Desired max peak of less than 20%
     s0 = set_dominant_poles(ts_des, Mp_des)
-    print(f'Desired Poles: {s0} and its conjugate')
+    #print(f'Desired Poles: {s0} and its conjugate')
 
     gamma = 2 # Assume ratio between two compensator zeros.  Between 1-3 said to be a heuristic range
     Gc_PID = set_PID_coeffs(G_plant, gamma, s0, show=True)
