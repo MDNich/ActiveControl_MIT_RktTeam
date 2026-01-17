@@ -56,8 +56,6 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 	@Override
 	public void simulate(SimulationConditions simulationConditions) throws SimulationException {
 		System.out.println("[JAVA] Simulator Init");
-		System.out.println("[JAVA] Listeners are: ");
-		System.out.println(simulationConditions.getSimulationListenerList());
 		// Set up flight data
 		flightData = new FlightData();
 			
@@ -309,7 +307,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				// If I'm on the ground and have no events in the queue, I'm done
 				if (currentStatus.isLanded() && currentStatus.getEventQueue().isEmpty()) {
                     currentStatus.addEvent(new FlightEvent(FlightEvent.Type.SIMULATION_END, currentStatus.getSimulationTime()));
-                    System.out.println("[JAVA] Ended Simulation");
+                    System.out.println("[JAVA] Ended Simulation.                           ");
                 }
 				previousSimulationTime = currentStatus.getSimulationTime();
 			}

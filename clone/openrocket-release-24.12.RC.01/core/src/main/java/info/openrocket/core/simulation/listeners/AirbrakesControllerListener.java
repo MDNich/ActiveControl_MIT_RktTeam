@@ -3,14 +3,14 @@ package info.openrocket.core.simulation.listeners;
 import info.openrocket.core.rocketcomponent.AirbrakeSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.simulation.FlightData;
+import info.openrocket.core.simulation.AccelerationData;
 import info.openrocket.core.simulation.FlightDataType;
-import info.openrocket.core.simulation.MotorClusterState;
 import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,9 +35,9 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static ArrayList<Double> rktVelMagLog;
     public static ArrayList<Double> rktAltLog;
     public static ArrayList<AirbrakesAccelerationMeasurement> accelMeasurements;
+    public static ArrayList<AirbrakesVelocityMeasurement> velMeasurements;
     public static AirbrakesControllerState state = AirbrakesControllerState.DISABLED;
     public static boolean shouldPrep = false;
-    public static AirbrakesAccelerationMeasurement accelDat;
 
     public static double mass = 53.48;
     public static double g = 9.81;
@@ -45,8 +45,6 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double airbrakesCd = AirbrakeSet.CD_perp;//1.28;
     public static double rocketCd = 0.5859;
     public static double aRef = 0.01929;
-    public static double alpha = 1;
-    public static double t_apog = 35; //time of apogee
     // maximum airbrakes area
     public static double a_max = 0.0066; // TODO get from AirbrakesSet
     public static int counter = 0;
@@ -56,17 +54,32 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double airbrakesCtrlStartTime = 1e10;
     public static double A0_req = 0;
 
-    public static double START_AIRBRAKES_PREP_TIME = 10.0;
+    public static double EARLIEST_START_AIRBRAKES_PREP_TIME = 4.0;
+    public static double START_AIRBRAKES_PREP_VEL = 400.0;
+    public static double START_AIRBRAKES_PREPROC_TIME = 12.0;
+    public static double AIRBRAKES_TIME_DELAY = 1.0;
+    public static int AIRBRAKES_N_MEASUREMENTS = 13;
+    public static int AIRBRAKES_MEASUREMENT_FREQ_HZ = 5;
+    public static int AIRBRAKES_SIMULATION_T_APOG = 34;
+    public static double AIRBRAKES_T_APOG_FUDGEDIFF = 1.5;
 
     public static double overriden_A0 = 0.99;
     public static double overriden_desiredApog = -1.0;
 
     public static double TIME_DELAY_MOTOR = 0;
 
+    /*public static double t_apog = 35; //time of apogee
     public static double coeffA = -0.013498522289161072;
     public static double coeffB = -0.27159399218754415;
-    public static double alt0 = 6333.741403445408;
+    public static double alt0 = 6333.741403445408;*/
+    public static double t_apog = 35.5; //time of apogee
+    public static double coeffA = -0.01543975114159146;
+    public static double coeffB = -0.3379534958690176;
+    public static double alt0 = 6320.235959562471;
     public static double fudge_factor = 3.0;
+
+    public static boolean DEBUG_AIRBRAKES_ON = false;
+
 
     public AirbrakesControllerListener(){
         super();
@@ -75,7 +88,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         rktVelMagLog = new ArrayList<>();
         rktAltLog = new ArrayList<>();
         accelMeasurements = new ArrayList<>();
-        accelDat = new AirbrakesAccelerationMeasurement(0.0, 0.0);
+        velMeasurements = new ArrayList<>();
 
     }
 
@@ -132,28 +145,99 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
         super.postStep(status);
 
-        int everyHowMany = 10;
-        int nMeasurements = 5;
+        int everyHowMany = 1000/AIRBRAKES_MEASUREMENT_FREQ_HZ; // 5 Hz -> 1 s/ 5 s^{-1} -> 1/5 times per sec -> 1/5*1000 times per ms
+        int nMeasurements = AIRBRAKES_N_MEASUREMENTS;
 
         // if state is disabled, check if should start prep
         if (state == DISABLED){
             state =  (shouldStartAirbrakesControlPrep(status)) ? PREP : DISABLED;
         }
-        else if (state == PREP){
+        else if (state == PREP) {
+
             if (counter % everyHowMany == 0) {
                 List<Double> accelZ = status.getFlightDataBranch().get(FlightDataType.TYPE_ACCELERATION_Z);
-                accelDat.setData(currentTime, accelZ.get(accelZ.size() - 1));
+                List<Double> velZ = status.getFlightDataBranch().get(FlightDataType.TYPE_VELOCITY_Z);
+                AirbrakesAccelerationMeasurement accelDat = new AirbrakesAccelerationMeasurement(currentTime, accelZ.get(accelZ.size() - 1));
+                AirbrakesVelocityMeasurement velDat = new AirbrakesVelocityMeasurement(currentTime, velZ.get(velZ.size() - 1));
                 accelMeasurements.add(accelDat);
+                velMeasurements.add(velDat);
             }
             counter++;
-            if (counter > nMeasurements*everyHowMany) {
+            if (counter >= nMeasurements) {
                 state = PREPROCESS;
                 counter = 0;
             }
+            // TODO PREP ACTION: collect accel and vel data, total 13 points, 5 Hz data freq
+            state =  (shouldStartAirbrakesControlPreprocess(status)) ? PREPROCESS : PREP;
         }
         else if (state == PREPROCESS){
             // calculate alpha and t_apog from linear fit to accel measurements
             // TODO implement preprocessing to estimate alpha and t_apog
+
+            double[] t_apog_trials = new double[]{AIRBRAKES_SIMULATION_T_APOG - 1.0, AIRBRAKES_SIMULATION_T_APOG, AIRBRAKES_SIMULATION_T_APOG + 1.0};
+            double[] resulting_R2_values = new double[3];
+            for (int i = 0; i < t_apog_trials.length; i++) {
+                // fit the following function to the acceleration data:
+                // \ddot{x}(t) = a*Math.pow(t-t_apog_i,5) - g
+                // Use linear least squares fit.
+                // a = \frac{\sum_i (y_i+g)(t_i-t_{\rm apog})^5}{\sum_i (t_i-t_{\rm apog})^{10}}
+                double sum_numerator = 0.0;
+                double sum_denominator = 0.0;
+                for (int j = 0; j < accelMeasurements.size(); j++) {
+                    AirbrakesAccelerationMeasurement accelDat = accelMeasurements.get(j);
+                    sum_denominator += Math.pow(accelDat.timeStamp - t_apog_trials[i],10);
+                    sum_numerator += (accelDat.accelMeasurement + g)*Math.pow(accelDat.timeStamp - t_apog_trials[i],5);
+                }
+                double resulting_a_coeff = sum_numerator / sum_denominator;
+                resulting_R2_values[i] = getR2fromFit_accel(accelMeasurements,resulting_a_coeff,t_apog_trials[i]);
+            }
+            System.out.println("[JAVA] Fitted Acceleration model to t_apogs: " + Arrays.toString(t_apog_trials));
+            System.out.println("[JAVA] R2 values were: " + Arrays.toString(resulting_R2_values));
+            double best_t_apog = t_apog_trials[argmax(resulting_R2_values)] + AIRBRAKES_T_APOG_FUDGEDIFF;
+            System.out.println("[JAVA] Choosing t_apog " + best_t_apog);
+            t_apog = best_t_apog;
+
+            // Phase 2: fit velocity.
+            // We wish to fit the following function once:
+            // \dot{x}(t) = a*(t-t_{\rm apog})^3 + b*(t-t_{\rm apog})^2 - g*(t-t_{\rm apog})
+            // two parameters: a,b
+            // Linear least squares.
+            // X^T X matrix is given by
+            /*         __                                                              __
+                       |   \sum_i (t_i-t_{\rm apog})^6     \sum_i (t_i-t_{\rm apog})^5   |
+               X^T X = |                                                                 |
+                       |__ \sum_i (t_i-t_{\rm apog})^5     \sum_i (t_i-t_{\rm apog})^4 __|
+
+             */
+            // X^T y vector is given by
+            /*          __                                                 __
+                       |   (t_1-t_{\rm apog})^3  •••  (t_n-t_{\rm apog})^3   |
+                 X^T = |                                                     |
+                       |__ (t_1-t_{\rm apog})^2  •••  (t_n-t_{\rm apog})^2 __|
+
+             matrix product with
+
+                 y  =  < \dot{x}_1 + g(t_1-t_{\rm apog}) ••• \dot{x}_n + g(t_1-t_{\rm apog}) >
+
+             which gives
+                         ___                                                                 ___
+                         |    \sum_i (t_i-t_{\rm apog})^3(\dot{x}_i + g(t_i-t_{\rm apog}))     |
+                 X^T y = |                                                                     |
+                         |__  \sum_i (t_i-t_{\rm apog})^2(\dot{x}_i + g(t_i-t_{\rm apog}))   __|
+             */
+            // the coefficients a and b are given by
+            /*
+                      ___      ___
+                      |     a     |
+                      |           |   = ( X^T X )^{-1}X^T y
+                      |__   b   __|
+
+             */
+
+
+
+
+
 
             // calculate apogee height.
             double x0 = status.getRocketWorldPosition().getAltitude();
@@ -168,8 +252,8 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             System.out.println("[JAVA] desired apogee: " + desiredAlt + " m");
             desiredDeltaX = predictedAlt - desiredAlt;
 
-            A0_req = reqDeployedAreaAirbrakes(currentTime+1.0, desiredDeltaX);
-            airbrakesCtrlStartTime = currentTime + 1.0;
+            A0_req = reqDeployedAreaAirbrakes(currentTime+AIRBRAKES_TIME_DELAY, desiredDeltaX);
+            airbrakesCtrlStartTime = currentTime + AIRBRAKES_TIME_DELAY;
             /*if (A0_req < 0.2) {
                 A0_req = reqDeployedAreaAirbrakes(currentTime + 5.0, desiredDeltaX);
                 System.out.println("[JAVA] Got Req A " + A0_req);
@@ -179,8 +263,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
                 }
                 else {
                     airbrakesCtrlStartTime = currentTime + 5.0;
-                }
-
+                }            
             }
             else if (A0_req < 0.5) {
                 A0_req = reqDeployedAreaAirbrakes(currentTime + 2.0, desiredDeltaX);
@@ -198,7 +281,15 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             if (A0_req > 1.0) {
                 System.out.println("[JAVA] Got Req A " + A0_req);
                 System.out.println("[JAVA] Cannot reach desired apogee with airbrakes.");
-                state = INFEASIBLE;
+                if(DEBUG_AIRBRAKES_ON) {
+                    System.out.println("[JAVA] Trying anyway .... setting A to 1");
+                    A0_req = 1.0;
+                    state = WAIT_FOR_START;
+                }
+                else {
+                    System.out.println("[JAVA] Disabling Airbrakes.");
+                    state = INFEASIBLE;
+                }
             }
 
             else {
@@ -281,10 +372,80 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
 
     public static boolean shouldStartAirbrakesControlPrep(SimulationStatus status) {
-        if (status.getSimulationTime() > START_AIRBRAKES_PREP_TIME && !status.apogeeReached) {
+        if (status.getSimulationTime() > EARLIEST_START_AIRBRAKES_PREP_TIME && !status.apogeeReached && status.getRocketVelocity().length() < START_AIRBRAKES_PREP_VEL) {
             return true;
         }
         else return false;
+    }
+
+    public static boolean shouldStartAirbrakesControlPreprocess(SimulationStatus status) {
+        if (status.getSimulationTime() > START_AIRBRAKES_PREPROC_TIME && !status.apogeeReached) {
+            return true;
+        }
+        else return false;
+    }
+
+    public static double accelModel(double t,double a,double custom_t_apog) {
+        return a*Math.pow(t-custom_t_apog,5) - g;
+    }
+
+    public static double getR2fromFit_accel(ArrayList<AirbrakesAccelerationMeasurement> data, double a,double custom_t_apog) {
+        double[] residuals =  new double[data.size()];
+        double ss_res = 0;
+        double ss_tot = 0;
+        double sum_accel_dat = 0;
+        for (int i = 0; i < residuals.length; i++){
+            AirbrakesAccelerationMeasurement dat = data.get(i);
+            residuals[i] = dat.accelMeasurement - accelModel(dat.timeStamp,a,custom_t_apog);
+            ss_res += Math.pow(residuals[i],2);
+            sum_accel_dat +=  dat.accelMeasurement;
+        }
+        double meanAccel = sum_accel_dat/((double) residuals.length);
+        for (int i = 0; i < residuals.length; i++) {
+            AirbrakesAccelerationMeasurement dat = data.get(i);
+            ss_tot += Math.pow(dat.accelMeasurement - meanAccel,2);
+        }
+        return 1 - ss_res/ss_tot;
+    }
+
+    public static int argmin(double[] arr) {
+        double lowestval = arr[0];
+        int index = 0;
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] < lowestval) {
+                lowestval = arr[i];
+                index = i;
+            }
+        }
+        return index;
+    }
+    public static int argmax(double[] arr) {
+        double largestval = arr[0];
+        int index = 0;
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] > largestval) {
+                largestval = arr[i];
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    public static double[][] inverse2x2Matrix(double[][] A) {
+        // give zero matrix if singular
+        double a = A[0][0];
+        double b = A[0][1];
+        double c = A[1][0];
+        double d = A[1][1];
+
+        double det = a*d - b*c;
+        if (det == 0) {
+            return new double[][]{{0,0},{0,0}};
+        }
+        else {
+            double factor = 1.0/det;
+            return new double[][]{{factor*d,-factor*c},{-factor*b,factor*a}};
+        }
     }
 
 

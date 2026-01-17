@@ -4,8 +4,8 @@ public class AirbrakesAccelerationMeasurement {
     public double accelMeasurement;
     public double timeStamp;
 
-    AirbrakesAccelerationMeasurement(double ts, double vm){
-        accelMeasurement = vm;
+    AirbrakesAccelerationMeasurement(double ts, double am){
+        accelMeasurement = am;
         timeStamp = ts;
     }
 
@@ -17,8 +17,8 @@ public class AirbrakesAccelerationMeasurement {
         return timeStamp;
     }
 
-    public void setData(double ts, double vm){
+    public void setData(double ts, double am){
         timeStamp = ts;
-        accelMeasurement = vm;
+        accelMeasurement = am;
     }
 }

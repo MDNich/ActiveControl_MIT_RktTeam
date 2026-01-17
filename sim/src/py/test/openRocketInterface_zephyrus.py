@@ -443,13 +443,16 @@ if True:
     #exit(0)
 
     airbrakesCtrl.TIME_DELAY_MOTOR = 0
-    airbrakesCtrl.alpha = 0.05
-    airbrakesCtrl.START_AIRBRAKES_PREP_TIME = 11.0
+    airbrakesCtrl.EARLIEST_START_AIRBRAKES_PREP_TIME = 4.0
+    airbrakesCtrl.START_AIRBRAKES_PREP_VEL = 400.0
+    airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME = 12.0
+    airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     airbrakesCtrl.roundToHowMuch = 100
-    airbrakesCtrl.overriden_A0 = 0#.999
-    airbrakesCtrl.fudge_factor = 0#3
-    airbrakesCtrl.overriden_desiredApog = 6200#.999
-    airbrakesCtrl.t_apog = 35#.999
+    airbrakesCtrl.overriden_A0 = -1#.999
+    airbrakesCtrl.overriden_desiredApog = 6250#.999
+    airbrakesCtrl.fudge_factor = 3 if airbrakesCtrl.overriden_desiredApog <= 6275 else 3.25#3
+    airbrakesCtrl.DEBUG_AIRBRAKES_ON = True
+    #airbrakesCtrl.t_apog = 35#.999
     # 0.0985 for 95% airbrakes
 
 
@@ -605,18 +608,18 @@ if True:
     fit_T = t[index0:index1][::200][:13]
     fit_V = vel[index0:index1][::200][:13]
     fit_A = accelZ[index0:index1][::200][:13]
-    print("Fitting a timeseries of {} points.".format(len(fit_V)))
+    #print("Fitting a timeseries of {} points.".format(len(fit_V)))
 
     global shared_t_apog
     
     shared_t_apogs = [33,34,35]
     R2s = []
     optsA = []
-    print("quintic fit for accel")
+    #print("quintic fit for accel")
     for shared_t_apog in shared_t_apogs:
         opt_Q_A,pcov = spopt.curve_fit(accel_quintic,fit_T,fit_A,maxfev=10000000)
         R2_Q_A = R2(accel_quintic,fit_A,fit_T,*opt_Q_A)
-        print("Got fit with R2 {} for t_apog ".format(np.round(R2_Q_A,5), shared_t_apog))
+        #print("Got fit with R2 {} for t_apog ".format(np.round(R2_Q_A,5), shared_t_apog))
         R2s.append(R2_Q_A)
         optsA.append(opt_Q_A)
 
@@ -629,22 +632,24 @@ if True:
         p0=(5, 5),bounds=([-np.inf,-np.inf],[np.inf,np.inf]))
     a,b = optA
     R2_A = R2(vel_fit_hardcoded_t_apog,fit_V,fit_T,*optA)
-    print("normal fit for velocity for t_apog {}".format(shared_t_apog))
-    print("Got fit with R2 {}".format(np.round(R2_A,5)))
+    #print("normal fit for velocity for t_apog {}".format(shared_t_apog))
+    #print("Got fit with R2 {}".format(np.round(R2_A,5)))
     opt0 = a,b,shared_t_apog
+    #print("parameters are: a {} b {}".format(a,b))
     t_apog = shared_t_apog
 
 
     integratedVel = vel_fit(t, *opt0)
     x0 = (alt[index1] - altitude_model(t[index1], a, b, t_apog, 0))#*1.04
-    print("Got x0 {}".format(x0))
+    #print("Got x0 {}".format(x0))
     maxAlt = altitude_model(t_apog, a, b, t_apog, x0)
     maxAltReal = np.max(alt)
-    print("Got max altitude {}".format(maxAltReal))
-    print("Predicted max altitude {}".format(maxAlt))
-    print("Error {}".format(np.abs(maxAltReal-maxAlt)))
+    print("Got apogee {}".format(maxAltReal))
+    print("Predicted apogee without airbrakes {}".format(maxAlt))
+    print("Error from prediction: {}".format(np.abs(maxAltReal-maxAlt)))
+    diff = np.abs(maxAltReal-airbrakesCtrl.overriden_desiredApog)
+    print("Airbrakes Goal Diff: {} ; {}%".format(np.round(diff,4),int(np.round(100*diff/airbrakesCtrl.desiredDeltaX,0))))
 
-    print("Got vel at end of timeseries {}".format(integratedVel[apogeeInd]))
 
 
 
