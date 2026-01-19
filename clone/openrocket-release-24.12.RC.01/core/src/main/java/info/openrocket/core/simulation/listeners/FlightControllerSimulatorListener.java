@@ -66,6 +66,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     public static boolean roundToNearest5 = true;
 
 
+
     public FlightControllerSimulatorListener() {
         super();
         pastOmegaZ = new ArrayList<>();

@@ -442,15 +442,25 @@ if True:
     print('FINISHED INIT PHASE')
     #exit(0)
 
-    airbrakesCtrl.TIME_DELAY_MOTOR = 0
-    airbrakesCtrl.EARLIEST_START_AIRBRAKES_PREP_TIME = 4.0
-    airbrakesCtrl.START_AIRBRAKES_PREP_VEL = 400.0
-    airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME = 12.0
-    airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
-    airbrakesCtrl.roundToHowMuch = 100
-    airbrakesCtrl.overriden_A0 = -1#.999
-    airbrakesCtrl.overriden_desiredApog = 6250#.999
-    airbrakesCtrl.fudge_factor = 3 if airbrakesCtrl.overriden_desiredApog <= 6275 else 3.25#3
+    #airbrakesCtrl.EARLIEST_START_AIRBRAKES_PREP_TIME = 4.0
+    #airbrakesCtrl.START_AIRBRAKES_PREP_VEL = 400.0
+    #airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME = 12.0
+    #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
+    #airbrakesCtrl.roundToHowMuch = 100
+    #airbrakesCtrl.overriden_A0 = 0#.999
+    airbrakesCtrl.overriden_desiredApog = 6240#.999
+    airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 33
+    #airbrakesCtrl.override_t_apog = 33
+
+    # For mass 114 lbs, P-motor mass 48.5 lbs
+    airbrakesCtrl.fudge_factor = 3.2
+    airbrakesCtrl.fudge_factor_2 = 3.5
+
+    # For mass 116 lbs, P-motor mass 50 lbs
+    airbrakesCtrl.fudge_factor = 2.9
+    airbrakesCtrl.fudge_factor_2 = 2.5
+
+
     airbrakesCtrl.DEBUG_AIRBRAKES_ON = True
     #airbrakesCtrl.t_apog = 35#.999
     # 0.0985 for 95% airbrakes
@@ -497,6 +507,8 @@ if True:
     #velMagnitude = np.array(newCtrl.rktVelMagLog)
     velMagnitude = np.array(data[dT.TYPE_VELOCITY_TOTAL].tolist())
     accelZ = np.array(data[dT.TYPE_ACCELERATION_Z].tolist())
+    airbrakesLog = np.array(airbrakesCtrl.airbrakesLog)
+    timeLog = np.array(airbrakesCtrl.timeLog)
     #velMagnitude = np.array(data[dT.TYPE_VELOCITY_TOTAL].tolist())
 
     # patch
@@ -656,7 +668,7 @@ if True:
     ax.vlines(t[index0],0,10000,linestyle='dotted',color='k')
     ax.vlines(t[index1],0,10000,linestyle='dotted',color='k')
 
-    ax.scatter(fit_T, fit_V,marker='^',color='r')
+    ax.scatter(fit_T, fit_V,marker='^',color='b')
 
 
     ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
@@ -666,8 +678,8 @@ if True:
     ax.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='purple')
 
 
-    ax.plot(t,integratedVel,label="Velocity Fit",color='blue',linewidth=5,alpha=0.2,zorder=-1)
-    ax.plot(t, altitude_model(t, a, b, t_apog, x0), label="Altitude Fit", color='purple', linewidth=5, alpha=0.2)
+    #ax.plot(t,integratedVel,label="Velocity Fit",color='blue',linewidth=5,alpha=0.2,zorder=-1)
+    #ax.plot(t, altitude_model(t, a, b, t_apog, x0), label="Altitude Fit", color='purple', linewidth=5, alpha=0.2)
 
 
     ax.legend(loc='center right',bbox_to_anchor=(1, 0.61))
@@ -675,11 +687,11 @@ if True:
     ax0.scatter(fit_T, fit_A,marker='^',color='r')
     ax.set_ylim(0,7000)
     ax0.plot(t[np.argmin(accelZ):],accelZ[np.argmin(accelZ):],color='red',label='Z Acceleration ($\\rm m/s^2$)')
-    ax0.plot(t[np.argmin(accelZ):], accel_model(t[np.argmin(accelZ):], *opt0), label="Fitted Z Acceleration", color='red', linewidth=5, alpha=0.2)
-    ax0.plot(t[np.argmin(accelZ):], accel_quintic(t[np.argmin(accelZ):], *opt_A_best), label="Fitted Z Acceleration", color='orange', linewidth=5, alpha=0.5)
+    #ax0.plot(t[np.argmin(accelZ):], accel_model(t[np.argmin(accelZ):], *opt0), label="Fitted Z Acceleration", color='red', linewidth=5, alpha=0.2)
+    #ax0.plot(t[np.argmin(accelZ):], accel_quintic(t[np.argmin(accelZ):], *opt_A_best), label="Fitted Z Acceleration", color='orange', linewidth=5, alpha=0.5)
 
     ax.plot([-1],[-1],color='red',label='Z Acceleration ($\\rm m/s^2$)')
-    ax.plot([-1],[-1],color='red',label='Fitted Z Acceleration',linewidth=5, alpha=0.2)
+    #ax.plot([-1],[-1],color='red',label='Fitted Z Acceleration',linewidth=5, alpha=0.2)
 
 
     ax0.spines['right'].set_color('red')

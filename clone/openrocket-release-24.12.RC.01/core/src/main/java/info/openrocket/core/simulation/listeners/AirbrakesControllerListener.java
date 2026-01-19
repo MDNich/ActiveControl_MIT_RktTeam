@@ -34,6 +34,8 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static ArrayList<Double> pastThetaZ;
     public static ArrayList<Double> rktVelMagLog;
     public static ArrayList<Double> rktAltLog;
+    public static ArrayList<Double> airbrakesLog;
+    public static ArrayList<Double> timeLog;
     public static ArrayList<AirbrakesAccelerationMeasurement> accelMeasurements;
     public static ArrayList<AirbrakesVelocityMeasurement> velMeasurements;
     public static AirbrakesControllerState state = AirbrakesControllerState.DISABLED;
@@ -63,10 +65,9 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static int AIRBRAKES_SIMULATION_T_APOG = 34;
     public static double AIRBRAKES_T_APOG_FUDGEDIFF = 1.5;
 
-    public static double overriden_A0 = 0.99;
+    public static double overriden_A0 = -1;
     public static double overriden_desiredApog = -1.0;
 
-    public static double TIME_DELAY_MOTOR = 0;
 
     /*public static double t_apog = 35; //time of apogee
     public static double coeffA = -0.013498522289161072;
@@ -75,11 +76,15 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double t_apog = 35.5; //time of apogee
     public static double coeffA = -0.01543975114159146;
     public static double coeffB = -0.3379534958690176;
+
+
+    public static double override_t_apog = -1;
+
     public static double alt0 = 6320.235959562471;
-    public static double fudge_factor = 3.0;
+    public static double fudge_factor = 3.2;
+    public static double fudge_factor_2 = 3.5;
 
     public static boolean DEBUG_AIRBRAKES_ON = false;
-
 
     public AirbrakesControllerListener(){
         super();
@@ -87,6 +92,8 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         pastThetaZ = new ArrayList<>();
         rktVelMagLog = new ArrayList<>();
         rktAltLog = new ArrayList<>();
+        airbrakesLog = new ArrayList<>();
+        timeLog = new ArrayList<>();
         accelMeasurements = new ArrayList<>();
         velMeasurements = new ArrayList<>();
 
@@ -120,15 +127,16 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     @Override
     public void postStep(SimulationStatus status) throws SimulationException {
-        status.clone();
         double airbrakesTimeStep = status.getSimulationTime();
-        latestTimeStep = airbrakesTimeStep - loopStart;
+        latestTimeStep = airbrakesTimeStep;
 
         double realVelocity = status.getRocketVelocity().length();
 
         pastOmegaZ.add(status.getRocketRotationVelocity().z);
         pastThetaZ.add(toDegrees(toEulerAngles_rocketCoord(status.getRocketOrientationQuaternion()).z));
         rktVelMagLog.add(realVelocity);
+        airbrakesLog.add(theAirbrakes.getFracExposed());
+        timeLog.add(status.getSimulationTime());
 
 
 
@@ -163,7 +171,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
                 velMeasurements.add(velDat);
             }
             counter++;
-            if (counter >= nMeasurements) {
+            if (velMeasurements.size() >= nMeasurements) {
                 state = PREPROCESS;
                 counter = 0;
             }
@@ -196,6 +204,10 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             double best_t_apog = t_apog_trials[argmax(resulting_R2_values)] + AIRBRAKES_T_APOG_FUDGEDIFF;
             System.out.println("[JAVA] Choosing t_apog " + best_t_apog);
             t_apog = best_t_apog;
+            if (override_t_apog >= 0) {
+                t_apog = override_t_apog;
+                System.out.println("[JAVA] OVERRIDE t_apog is now " + t_apog);
+            }
 
             // Phase 2: fit velocity.
             // We wish to fit the following function once:
@@ -209,6 +221,15 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
                        |__ \sum_i (t_i-t_{\rm apog})^5     \sum_i (t_i-t_{\rm apog})^4 __|
 
              */
+
+            double[][] XT_X = new double[2][2];
+            for(int i = 0; i < nMeasurements; i++) {
+                double t = velMeasurements.get(i).timeStamp;
+                XT_X[0][0] += Math.pow(t - t_apog,6);
+                XT_X[0][1] += Math.pow(t - t_apog,5);
+                XT_X[1][0] += Math.pow(t - t_apog,5);
+                XT_X[1][1] += Math.pow(t - t_apog,4);
+            }
             // X^T y vector is given by
             /*          __                                                 __
                        |   (t_1-t_{\rm apog})^3  •••  (t_n-t_{\rm apog})^3   |
@@ -225,6 +246,13 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
                  X^T y = |                                                                     |
                          |__  \sum_i (t_i-t_{\rm apog})^2(\dot{x}_i + g(t_i-t_{\rm apog}))   __|
              */
+            double[] XT_y = new double[2];
+            for(int i = 0; i < nMeasurements; i++) {
+                double t = velMeasurements.get(i).timeStamp;
+                double vi = velMeasurements.get(i).velocityMeasurement;
+                XT_y[0] += Math.pow(t - t_apog,3)*(vi + g*(t-t_apog));
+                XT_y[1] += Math.pow(t - t_apog,2)*(vi + g*(t-t_apog));
+            }
             // the coefficients a and b are given by
             /*
                       ___      ___
@@ -233,6 +261,14 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
                       |__   b   __|
 
              */
+            double[][] XT_X_inv = inverse2x2Matrix(XT_X);
+            double a = XT_X_inv[0][0] * XT_y[0] + XT_X_inv[0][1] * XT_y[1];
+            double b = XT_X_inv[1][0] * XT_y[0] + XT_X_inv[1][1] * XT_y[1];
+            // THESE ARE THE COEFFICIENTS.
+
+            System.out.println("[JAVA] Fitted Velocity model to t_apogs; coeffs are a " + a + " and b " + b);
+            coeffA = a;
+            coeffB = b;
 
 
 
@@ -243,6 +279,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             double x0 = status.getRocketWorldPosition().getAltitude();
             double v0 = status.getRocketVelocity().z;
             System.out.println("[JAVA] got coeffs: a = " + coeffA + " ; b = " + coeffB + " ; t_apog = " + t_apog + " ; g = " + g);
+            alt0 = x0-getAltitudeEstimate(status.getSimulationTime(),0);
             predictedAlt = getAltitudeEstimate(t_apog);
             System.out.println("[JAVA] predicted apogee: " + predictedAlt + " m");
             double desiredAlt = Math.floor(predictedAlt/roundToHowMuch)*roundToHowMuch;
@@ -302,16 +339,14 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
         else if (state == WAIT_FOR_START){
             if (status.getSimulationTime() >= airbrakesCtrlStartTime){
-                //state = CONTROLLING_RAMP; //skip for now.
-                // todo fix controlling_ramp
-                state = CONTROLLING_PLATEAU;
+                state = CONTROLLING_RAMP;
             }
         }
         else if (state == CONTROLLING_RAMP){
             // implement airbrakes control ramp
             // A(t) = 2A_0(t-t_0) for t_0 <= t < t_0 + 0.5s
             if (status.getSimulationTime() >= airbrakesCtrlStartTime) {
-                double deployedFraction = 2.0 * A0_req * (status.getSimulationTime() - airbrakesCtrlStartTime);
+                double deployedFraction = 2.0*A0_req * (status.getSimulationTime() - airbrakesCtrlStartTime);
                 theAirbrakes.setFracExposed(deployedFraction);
             }
             if (status.getSimulationTime() >= airbrakesCtrlStartTime + 0.5){
@@ -319,7 +354,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             }
         }
         else if (state == CONTROLLING_PLATEAU){
-            // implement airbrakes control plateau
+            // airbrakes control plateau
             // A(t) = A_0 for t >= t_0 + 0.5s
             theAirbrakes.setFracExposed(A0_req);
             // check if apogee reached
@@ -356,18 +391,23 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         double t0 = t_0;
         double t1 = t_apog;
         double xi = -(Math.pow(a,3)*Math.pow(t0-t1,10)/10.0 + (a*a*b)*Math.pow(t0-t1,9)/3.0 + (3.0*a*b*b - 3.0*a*a*g)*Math.pow(t0-t1,8)/8.0 + (b*b*b - 6.0*a*b*g)*Math.pow(t0-t1,7)/7.0 + (a*g*g - b*b*g)*Math.pow(t0-t1,6)/2.0 + (3.0*b*g*g)*Math.pow(t0-t1,5)/5.0 - (g*g*g)*Math.pow(t0-t1,4)/4.0);
-        //System.out.println("[JAVA] xi: " + xi);
-
-        double a_0 = fudge_factor*2*mass*g*deltaX/airbrakesCd/rho/xi;
-        //return overriden_A0;
+        double local_fudge_factor = deltaX > 40 ? fudge_factor : fudge_factor_2;
+        double a_0 = local_fudge_factor*2*mass*g*deltaX/airbrakesCd/rho/xi;
+        if(overriden_A0 >= 0) {
+            System.out.println("[JAVA] WARNING: OVERRIDING A0 FROM CALCULATION");
+            return overriden_A0;
+        }
         return max(0,a_0/a_max);
     }
 
     public static double getVelocityEstimate(double t){
         return coeffA*Math.pow(t-t_apog,3) + coeffB*Math.pow(t-t_apog,2) - g*(t-t_apog);
     }
+    public static double getAltitudeEstimate(double t,double alt0_local){
+        return coeffA*Math.pow(t-t_apog,4)/4 + coeffB*Math.pow(t-t_apog,3)/3 - g*Math.pow(t-t_apog,2)/2+alt0_local;
+    }
     public static double getAltitudeEstimate(double t){
-        return coeffA*Math.pow(t-t_apog,4)/4 + coeffB*Math.pow(t-t_apog,3)/3 - g*(t-t_apog)*(t-t_apog)/2+alt0;
+        return getAltitudeEstimate(t,alt0);
     }
 
 
