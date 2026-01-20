@@ -50,7 +50,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     // maximum airbrakes area
     public static double a_max = 0.0066; // TODO get from AirbrakesSet
     public static int counter = 0;
-    public static int roundToHowMuch = 1000; // desired altitude correction
+    public static int roundToHowMuch = 100; // desired altitude correction
     public static double desiredDeltaX = 0;
 
     public static double airbrakesCtrlStartTime = 1e10;
