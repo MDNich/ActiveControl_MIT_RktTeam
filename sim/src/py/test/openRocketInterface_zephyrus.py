@@ -447,8 +447,8 @@ if True:
     #airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME = 12.0
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     #airbrakesCtrl.roundToHowMuch = 100
-    airbrakesCtrl.overriden_A0 = 0#.999
-    airbrakesCtrl.overriden_desiredApog = 6240#.999
+    airbrakesCtrl.overriden_A0 = -1#.999
+    airbrakesCtrl.overriden_desiredApog = 6225#.999
     airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 33
     #airbrakesCtrl.override_t_apog = 33
 
@@ -551,8 +551,15 @@ if True:
 #print("Got cutoff time: {} s at index {}, velMag: {}".format(controlCutoffTime,controlCutoffIndex,velMagnitude[controlCutoffIndex]))
     #print(finCantLog[:apogeeInd])
 
-    dataArr = np.array([t[:apogeeInd],alt[:apogeeInd],vel[:apogeeInd],velMagnitude[:apogeeInd],accelZ[:apogeeInd]])
-    np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time (s),Altitude (m),Velocity (m/s),Velocity Magnitude (m/s),Accel <Z> (rad/s)', comments='')
+    #dataArr = np.array([t[:apogeeInd],alt[:apogeeInd],vel[:apogeeInd],velMagnitude[:apogeeInd],accelZ[:apogeeInd]])
+    #np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time (s),Altitude (m),Velocity (m/s),Velocity Magnitude (m/s),Accel <Z> (rad/s)', comments='')
+    #print("Saved data to {}".format(CSVSAVEPATH))
+    apogeeHappened = np.array(list(np.zeros(apogeeInd)) + list(np.ones(len(t)-apogeeInd)))
+
+
+    dataArr = np.array([t,vel,accelZ,apogeeHappened,airbrakesLog])
+    CSVSAVEPATH = "dat/zephy_testlaunch/csv/{}/airbrakes_input.csv".format(int(airbrakesCtrl.overriden_desiredApog))
+    np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time,Velocity,Acceleration,Apogee,Predicted DP', comments='')
     print("Saved data to {}".format(CSVSAVEPATH))
 
 
@@ -659,7 +666,7 @@ if True:
     maxAltReal = np.max(alt)
     print("Got apogee {}".format(maxAltReal))
     print("Predicted apogee without airbrakes {}".format(maxAlt))
-    print("Error from prediction: {}".format(np.abs(maxAltReal-maxAlt)))
+    print("Diff from airbrakeless prediction: {}".format(np.abs(maxAltReal-maxAlt)))
     diff = np.abs(maxAltReal-airbrakesCtrl.overriden_desiredApog)
     print("Airbrakes Goal Diff: {} ; {}%".format(np.round(diff,4),int(np.round(100*diff/airbrakesCtrl.desiredDeltaX,0))))
 
@@ -668,6 +675,7 @@ if True:
 
     ax.vlines(t[index0],0,10000,linestyle='dotted',color='k')
     ax.vlines(t[index1],0,10000,linestyle='dotted',color='k')
+    print("Measurement time is between {} and {}".format(t[index0],t[index1]))
 
     #ax.scatter(fit_T, fit_V,marker='^',color='b')
 
