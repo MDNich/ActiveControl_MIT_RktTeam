@@ -557,9 +557,9 @@ if True:
     apogeeHappened = np.array(list(np.zeros(apogeeInd)) + list(np.ones(len(t)-apogeeInd)))
 
 
-    dataArr = np.array([t,vel,accelZ,apogeeHappened,airbrakesLog])
+    dataArr = np.array([t,alt,vel,accelZ,apogeeHappened,airbrakesLog])
     CSVSAVEPATH = "dat/zephy_testlaunch/csv/{}/airbrakes_input.csv".format(int(airbrakesCtrl.overriden_desiredApog))
-    np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time,Velocity,Acceleration,Apogee,Predicted DP', comments='')
+    np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time,Altitude,Velocity,Acceleration,Apogee,Predicted DP', comments='')
     print("Saved data to {}".format(CSVSAVEPATH))
 
 
