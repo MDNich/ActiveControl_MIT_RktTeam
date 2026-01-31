@@ -706,8 +706,8 @@ public class NewControlStepListener extends AbstractSimulationListener {
     }
 
     public static double getRocketMass(Rocket rocket) {
-        FlightConfiguration cfg = rocket.getSelectedConfiguration();
-        RigidBody launchData = MassCalculator.calculateLaunch(cfg);
+        FlightConfiguration cfg = rocket.getSelectedConfiguration().clone();
+        RigidBody launchData = MassCalculator.calculateBurnout(cfg);
         return launchData.getMass();
     }
 

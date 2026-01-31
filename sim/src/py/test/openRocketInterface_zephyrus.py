@@ -424,7 +424,7 @@ if True:
     rocketCD = newCtrl.getRocketCD(rocket)
     refA = newCtrl.getRefAreaFromSimulation(sim)
     rho = newCtrl.getDensityAtAltitude(sim,5000)
-    mass = newCtrl.getRocketMass(rocket)
+    mass = 39.140453380154554#newCtrl.getRocketMass(rocket)
     #print("Rocket CD is {}".format(rocketCD))
     #print("Rocket Reference area is {} m^2".format(refA))
     #print("air density at 5000m is {} kg/m^3".format(rho))
@@ -448,17 +448,13 @@ if True:
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     #airbrakesCtrl.roundToHowMuch = 100
     airbrakesCtrl.overriden_A0 = -1#.999
-    airbrakesCtrl.overriden_desiredApog = 6275#.999
+    airbrakesCtrl.overriden_desiredApog = 6225#.999
     airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 33
     #airbrakesCtrl.override_t_apog = 33
 
     # For mass 114 lbs, P-motor mass 48.5 lbs
-    airbrakesCtrl.fudge_factor = 3.2
-    airbrakesCtrl.fudge_factor_2 = 3.5
-
-    # For mass 116 lbs, P-motor mass 50 lbs
-    #airbrakesCtrl.fudge_factor = 2.9
-    #airbrakesCtrl.fudge_factor_2 = 2.5
+    airbrakesCtrl.fudge_factor = 4.22
+    airbrakesCtrl.fudge_factor_2 = 4.7
 
 
     airbrakesCtrl.DEBUG_AIRBRAKES_ON = True
@@ -604,6 +600,15 @@ if True:
     def altitude_model(t, a, b, t_apog, x0):
         return a*(t-t_apog)**4/4 + b*(t-t_apog)**3/3  - g*(t - t_apog)**2/2+x0
 
+    def altitude_model_short_term(t, a, b, x0):
+        global shared_t_apog
+        return a*(t-shared_t_apog)**3 + b*(t-shared_t_apog)**2  - g*(t - shared_t_apog)+x0
+
+    def altitude_model_short_term2(t, a, b, x0):
+        global shared_t_apog2
+        # e^{-\left(x-t_{apog}\right)^{2.16}}
+        return a*(t-shared_t_apog2)**2 + x0*np.exp(b*(shared_t_apog2-t)**1.75)
+
     def accel_model(t, a, b, t_apog):
         return 3*a*(t-t_apog)**2 + 2*b*(t-t_apog) - g
 
@@ -621,12 +626,20 @@ if True:
         return correlation
 
 
+    def actualPositionModel(t,b,c1,c2):
+        a = g
+        # b = hardcoded C_D*A*rho/2
+        return np.log(np.cos(np.sqrt(a*b)*(c1+t)))/b + c2
+
+
+
 
     index0 = np.argmin((vel-400)**2)
     index1 = np.argmin((t-12)**2)
     fit_T = t[index0:index1][::200][:13]
     fit_V = vel[index0:index1][::200][:13]
     fit_A = accelZ[index0:index1][::200][:13]
+    fit_alt = alt[index0:index1][::200][:13]
     #print("Fitting a timeseries of {} points.".format(len(fit_V)))
 
     global shared_t_apog
@@ -671,13 +684,46 @@ if True:
     print("Airbrakes Goal Diff: {} ; {}%".format(np.round(diff,4),int(np.round(100*diff/airbrakesCtrl.desiredDeltaX,0))))
 
 
+    index2 = np.argmin((t-16)**2)
+    index3 = np.argmin((t-18.8)**2)
+    fit_T2 = t[index2:index3][::100][:13]
+    fit_V2 = vel[index2:index3][::100][:13]
+    fit_alt2 = alt[index2:index3][::100][:13]
+    fit_A2 = accelZ[index2:index3][::100][:13]
+    optA2,pcovA2 = spopt.curve_fit(altitude_model_short_term, fit_T2, fit_alt2, maxfev=1000000)
+    optA3,pcovA3 = spopt.curve_fit(actualPositionModel, t[np.argmin((t-14)**2):np.argmin((t-21)**2)], alt[np.argmin((t-14)**2):np.argmin((t-21)**2)], maxfev=1000000,p0=(0.00012,-32.72,6275))
+    a2,b2,x02 = optA2
+    x022 = (alt[index3] - altitude_model_short_term(t[index3], a2,b2, 0))#*1.04
+    print(x022-x02)
+    print("Estimate from 16 to 19 seconds: predicted modified apogee {}".format(x022))
+    print("Estimate from closed form solution: {}".format(list(optA3)[-1]))
+    print("b: {}".format(list(optA3)[0]))
+    print("c1: {}".format(list(optA3)[1]))
+
+
+    # Conrad's Formula
+    print("mass is {}".format(mass))
+    h0 = fit_alt[-1] 
+    c = rho*rocketCD*refA/2
+    blind_estimate = h0 + mass/(2*c)*np.log(fit_V[-1]**2*(c)/g/mass+1)
+    alpha = rho*1.28*airbrakesCtrl.A0_req*airbrakesCtrl.a_max/2
+    c += alpha
+    blind_air_estimate = h0 + mass/(2*c)*np.log(fit_V[-1]**2*(c)/g/mass+1)
+    print("Estimate of no-airbrakes alt from Conrad: {}".format(blind_estimate))
+    print("Estimate of chosen-airbrakes-deploy alt from Conrad: {}".format(blind_air_estimate))
+
+
 
 
     ax.vlines(t[index0],0,10000,linestyle='dotted',color='k')
     ax.vlines(t[index1],0,10000,linestyle='dotted',color='k')
-    print("Measurement time is between {} and {}".format(t[index0],t[index1]))
+    print("First Measurement time is between {} and {}".format(t[index0],t[index1]))
+    ax.vlines(t[index2],0,10000,linestyle='dotted',color='purple')
+    ax.vlines(t[index3],0,10000,linestyle='dotted',color='purple')
+    print("Second Measurement time is between {} and {}".format(t[index2],t[index3]))
 
-    #ax.scatter(fit_T, fit_V,marker='^',color='b')
+    ax.scatter(fit_T2, fit_alt2,marker='^',color='purple')
+    ax.scatter(fit_T, fit_V,marker='^',color='blue')
 
 
     ax.plot(t[:apogeeInd],vel[:apogeeInd],label="Velocity",color='blue')
@@ -688,6 +734,8 @@ if True:
 
     ax.plot(t,integratedVel,label="Velocity Fit",color='blue',linewidth=5,alpha=0.2,zorder=-1)
     ax.plot(t, altitude_model(t, a, b, t_apog, x0), label="Altitude Fit", color='purple', linewidth=5, alpha=0.2)
+    ax.plot(t, altitude_model_short_term(t, a2, b2, x02), label="Altitude Fit 2", color='steelblue', linewidth=5, alpha=0.2)
+    ax.plot(t, actualPositionModel(t, *optA3), label="Altitude Fit global", color='red', linewidth=5, alpha=0.2)
 
 
     ax0 = ax.twinx()
