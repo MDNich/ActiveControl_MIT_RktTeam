@@ -109,6 +109,7 @@ open module info.openrocket.core {
 	exports edu.mit.rocket_team.zephyrus.telemetry;
 	exports edu.mit.rocket_team.zephyrus.util;
     exports edu.mit.rocket_team.zephyrus.util.data;
+    exports edu.mit.rocket_team.zephyrus.control.airbrakes;
 
     // Service providers
 	// Also edit core/src/main/resources/META-INF/services !! (until gradle-modules-plugin supports service

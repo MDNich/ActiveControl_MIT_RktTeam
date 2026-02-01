@@ -1,6 +1,7 @@
 package edu.mit.rocket_team.zephyrus.control;
 
 import edu.mit.rocket_team.zephyrus.util.RTController;
+import edu.mit.rocket_team.zephyrus.util.data.RTFudgedData;
 import edu.mit.rocket_team.zephyrus.util.data.RTPyroStatus;
 import edu.mit.rocket_team.zephyrus.util.RTRocketState;
 import info.openrocket.core.simulation.SimulationStatus;
@@ -34,6 +35,17 @@ public class RTPyroController extends RTController {
             setPyroStatus(i,RTPyroStatus.PYRO_CONNECTED); // assume ready, fudgable later
         }
     }
+
+    @Override
+    public void backdoorFudge(RTFudgedData fudged) {
+        // no-op for now
+    }
+
+    @Override
+    public void performLoopAction() {
+        // no-op for now
+    }
+
 
     public void armPyro(int pyro) {
         armed[pyro] = true;

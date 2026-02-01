@@ -1,7 +1,9 @@
 package info.openrocket.core.simulation.listeners;
 
 import edu.mit.rocket_team.zephyrus.FC.RTFC;
+import edu.mit.rocket_team.zephyrus.util.RTSimulationCommunicator;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
+import info.openrocket.core.rocketcomponent.AirbrakeSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
@@ -97,6 +99,9 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         if (overrideCNA > 0) {
             theFinsToModify.setCNALPHA(overrideCNA);
         }
+
+        RTSimulationCommunicator.setAirbrakes(getAirbrakes(status));
+        RTSimulationCommunicator.setTabCtrlFins(getTheFinsToModifyTabs(status));
 
         RTFC.init();
     }
@@ -343,5 +348,19 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         }
 
         return new Coordinate(angleX, angleY, angleZ);
+    }
+
+
+    public static AirbrakeSet getAirbrakes(SimulationStatus status){
+        java.util.ArrayList<AirbrakeSet> sets = new java.util.ArrayList<>();
+        Rocket rocket = status.getConfiguration().getRocket();
+        for(Iterator<RocketComponent> it = rocket.iterator(true); it.hasNext(); ){
+            RocketComponent component = it.next();
+
+            if(component instanceof AirbrakeSet){
+                sets.add((AirbrakeSet) component);
+            }
+        }
+        return sets.get(0);
     }
 }
