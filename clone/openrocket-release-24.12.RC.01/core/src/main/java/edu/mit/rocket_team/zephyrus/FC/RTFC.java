@@ -1,6 +1,11 @@
 package edu.mit.rocket_team.zephyrus.FC;
 
+import edu.mit.rocket_team.zephyrus.control.RTAirbrakesController;
+import edu.mit.rocket_team.zephyrus.control.RTPyroController;
+import edu.mit.rocket_team.zephyrus.control.RTRollController;
 import edu.mit.rocket_team.zephyrus.instrument.*;
+import edu.mit.rocket_team.zephyrus.internal.RTFlashDriver;
+import edu.mit.rocket_team.zephyrus.internal.RTPowerBoard;
 import edu.mit.rocket_team.zephyrus.util.RTInstrument;
 import edu.mit.rocket_team.zephyrus.util.data.*;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
@@ -23,6 +28,14 @@ public class RTFC {
     static RTGPS gps;
     static RTGyro gyro;
     static RTMag mag;
+
+    static RTRollController rollController;
+    static RTAirbrakesController airbrakesController;
+    static RTPyroController pyroController;
+
+    static RTPowerBoard powerBoard;
+    static RTFlashDriver flashDriver;
+
 
     public static void init() {
         // FC code from C.
@@ -99,5 +112,7 @@ public class RTFC {
 
     public static void loop() {
         // FC code from C
+
+
     }
 }
