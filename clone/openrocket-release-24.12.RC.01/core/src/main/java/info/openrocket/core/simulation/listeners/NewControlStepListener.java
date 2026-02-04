@@ -687,7 +687,6 @@ public class NewControlStepListener extends AbstractSimulationListener {
         AerodynamicCalculator calc = new BarrowmanCalculator();
         // You can pass a WarningSet if you want warnings; null is allowed.
         AerodynamicForces totalForces = calc.getAerodynamicForces(config, conditions, null);
-
         // totalForces.getCD() gives the drag coefficient per instance (for the rocket the total assembly)
         return totalForces.getCD();
     }

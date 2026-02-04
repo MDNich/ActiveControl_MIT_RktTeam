@@ -424,7 +424,7 @@ if True:
     rocketCD = newCtrl.getRocketCD(rocket)
     refA = newCtrl.getRefAreaFromSimulation(sim)
     rho = newCtrl.getDensityAtAltitude(sim,5000)
-    mass = 39.140453380154554#newCtrl.getRocketMass(rocket)
+    mass = newCtrl.getRocketMass(rocket)
     #print("Rocket CD is {}".format(rocketCD))
     #print("Rocket Reference area is {} m^2".format(refA))
     #print("air density at 5000m is {} kg/m^3".format(rho))
@@ -448,7 +448,7 @@ if True:
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     #airbrakesCtrl.roundToHowMuch = 100
     airbrakesCtrl.overriden_A0 = -1#.999
-    airbrakesCtrl.overriden_desiredApog = 6225#.999
+    airbrakesCtrl.overriden_desiredApog = 6234#.999
     airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 33
     #airbrakesCtrl.override_t_apog = 33
 
@@ -701,16 +701,23 @@ if True:
     print("c1: {}".format(list(optA3)[1]))
 
 
+
     # Conrad's Formula
+
+    fudge_factor_conrad = 3.2    
+    fudged_alt_diff = 13
+
+
     print("mass is {}".format(mass))
-    h0 = fit_alt[-1] 
-    c = rho*rocketCD*refA/2
-    blind_estimate = h0 + mass/(2*c)*np.log(fit_V[-1]**2*(c)/g/mass+1)
+    h0 = alt[np.argmin((t-13)**2)] # alt at 13 seconds
+    v0 = vel[np.argmin((t-13)**2)] # vel at 13 seconds
+    c = rho*rocketCD*refA/2 
+    blind_estimate = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
     alpha = rho*1.28*airbrakesCtrl.A0_req*airbrakesCtrl.a_max/2
-    c += alpha
-    blind_air_estimate = h0 + mass/(2*c)*np.log(fit_V[-1]**2*(c)/g/mass+1)
+    c += alpha/fudge_factor_conrad
+    blind_estimate_for_airbrakes = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
     print("Estimate of no-airbrakes alt from Conrad: {}".format(blind_estimate))
-    print("Estimate of chosen-airbrakes-deploy alt from Conrad: {}".format(blind_air_estimate))
+    print("Estimate of chosen-airbrakes-deploy alt from Conrad: {}".format(blind_estimate_for_airbrakes))
 
 
 
@@ -735,7 +742,7 @@ if True:
     ax.plot(t,integratedVel,label="Velocity Fit",color='blue',linewidth=5,alpha=0.2,zorder=-1)
     ax.plot(t, altitude_model(t, a, b, t_apog, x0), label="Altitude Fit", color='purple', linewidth=5, alpha=0.2)
     ax.plot(t, altitude_model_short_term(t, a2, b2, x02), label="Altitude Fit 2", color='steelblue', linewidth=5, alpha=0.2)
-    ax.plot(t, actualPositionModel(t, *optA3), label="Altitude Fit global", color='red', linewidth=5, alpha=0.2)
+    #ax.plot(t, actualPositionModel(t, *optA3), label="Altitude Fit global", color='red', linewidth=5, alpha=0.2)
 
 
     ax0 = ax.twinx()
