@@ -2,7 +2,7 @@ from control import tf, feedback, step_response, bode_plot
 from control.matlab import rlocus
 import numpy as np
 import matplotlib.pyplot as plt
-from PID_coefficients import find_PID
+from src.py.test.PID_coefficients import find_PID
 
 # TODO: Rewrite this as a CLASS called Rocket_Controller
 

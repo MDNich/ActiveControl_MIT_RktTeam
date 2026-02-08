@@ -86,6 +86,24 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     public static boolean DEBUG_AIRBRAKES_ON = false;
 
+    public static double K = 1;
+    public static double factorK = 1;
+    public static double kp_factor = 1;
+    public static double ki_factor = 1;
+
+    public static ArrayList<Double> I;
+    public static ArrayList<Double> deltaA;
+    public static ArrayList<Double> timeStampDeltas;
+    public static ArrayList<Double> A;
+    public static ArrayList<Double> deltaH;
+    public static ArrayList<Double> Hf;
+    public static double Astar = 0;
+    public static double patchingAltitude = 0;
+    public static double velContribFudge = 0.75;
+    public static double cFudge = 0.825;
+
+    public static double AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 1;
+
     public AirbrakesControllerListener(){
         super();
         pastOmegaZ = new ArrayList<>();
@@ -96,6 +114,17 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         timeLog = new ArrayList<>();
         accelMeasurements = new ArrayList<>();
         velMeasurements = new ArrayList<>();
+
+        I = new ArrayList<>();
+        deltaA = new ArrayList<>();
+        timeStampDeltas = new ArrayList<>();
+        deltaH = new ArrayList<>();
+        Hf = new ArrayList<>();
+        A = new ArrayList<>();
+        I.add(0.0);
+        deltaA.add(0.0);
+        deltaH.add(0.0);
+        //Hf.add(0.0);
 
     }
 
@@ -123,6 +152,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         currentStatus = status.clone();
 
         theAirbrakes = getAirbrakes(status);
+        theAirbrakes.fudgefactor = AIRBRAKES_MEASUREMENT_FUDGE_FACTOR;
     }
 
     @Override
@@ -152,7 +182,14 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
 
         super.postStep(status);
+        this.handleAirbrakesState(status);
 
+
+        lastIterTime = status.getSimulationTime();
+    }
+
+    public void handleAirbrakesState(SimulationStatus status) {
+        double currentTime = status.getSimulationTime();
         int everyHowMany = 1000/AIRBRAKES_MEASUREMENT_FREQ_HZ; // 5 Hz -> 1 s/ 5 s^{-1} -> 1/5 times per sec -> 1/5*1000 times per ms
         int nMeasurements = AIRBRAKES_N_MEASUREMENTS;
 
@@ -282,37 +319,34 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             alt0 = x0-getAltitudeEstimate(status.getSimulationTime(),0);
             predictedAlt = getAltitudeEstimate(t_apog);
             System.out.println("[JAVA] predicted apogee: " + predictedAlt + " m");
+            double conrad_predict = computeFinalAltitude_Conrad(0,status);
+            System.out.println("[JAVA] <Conrad> predicted apogee: " + conrad_predict + " m");
             double desiredAlt = Math.floor(predictedAlt/roundToHowMuch)*roundToHowMuch;
             if (overriden_desiredApog > 0) {
                 desiredAlt = overriden_desiredApog;
             }
+            targetAlt = desiredAlt;
             System.out.println("[JAVA] desired apogee: " + desiredAlt + " m");
             desiredDeltaX = predictedAlt - desiredAlt;
 
             A0_req = reqDeployedAreaAirbrakes(currentTime+AIRBRAKES_TIME_DELAY, desiredDeltaX);
             airbrakesCtrlStartTime = currentTime + AIRBRAKES_TIME_DELAY;
-            /*if (A0_req < 0.2) {
-                A0_req = reqDeployedAreaAirbrakes(currentTime + 5.0, desiredDeltaX);
-                System.out.println("[JAVA] Got Req A " + A0_req);
-                if (A0_req > 1.0) {
-                    A0_req = reqDeployedAreaAirbrakes(currentTime+1.0, desiredDeltaX);
-                    System.out.println("[JAVA] Got Req A " + A0_req);
-                }
-                else {
-                    airbrakesCtrlStartTime = currentTime + 5.0;
-                }            
-            }
-            else if (A0_req < 0.5) {
-                A0_req = reqDeployedAreaAirbrakes(currentTime + 2.0, desiredDeltaX);
-                System.out.println("[JAVA] Got Req A " + A0_req);
-                if (A0_req > 1.0) {
-                    A0_req = reqDeployedAreaAirbrakes(currentTime+1.0, desiredDeltaX);
-                    System.out.println("[JAVA] Got Req A " + A0_req);
-                }
-                else {
-                    airbrakesCtrlStartTime = currentTime + 2;
-                }
-            }*/
+
+
+
+
+
+
+
+
+
+            // Verify Conrad algorithm
+            Astar = A0_req*a_max;
+            double hf_guess2 = computeFinalAltitude_Conrad(Astar,status);
+            System.out.println("[JAVA] predicted apogee from Conrad when airbrakes are deployed: " + hf_guess2 + " m");
+            A.add(Astar);
+            K = computeK(Astar,status);
+            K *= factorK;
 
 
             if (A0_req > 1.0) {
@@ -347,7 +381,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             // A(t) = 2A_0(t-t_0) for t_0 <= t < t_0 + 0.5s
             if (status.getSimulationTime() >= airbrakesCtrlStartTime) {
                 double deployedFraction = 2.0*A0_req * (status.getSimulationTime() - airbrakesCtrlStartTime);
-                theAirbrakes.setFracExposed(deployedFraction);
+                theAirbrakes.setFracExposed_fudged_for_simulation(deployedFraction);
             }
             if (status.getSimulationTime() >= airbrakesCtrlStartTime + 0.5){
                 state = CONTROLLING_PLATEAU;
@@ -356,19 +390,67 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         else if (state == CONTROLLING_PLATEAU){
             // airbrakes control plateau
             // A(t) = A_0 for t >= t_0 + 0.5s
-            theAirbrakes.setFracExposed(A0_req);
+            double samplingTime = 1;//status.getSimulationTime()-lastIterTime; // for the moment
+            double a_max_fudged = a_max;
+            // Control Scheme
+            double Ki = ki_factor*2/K;
+            double Kp = kp_factor/K;
+
+            // data collection: A, deltaH, deltaA
+            A.add(theAirbrakes.getFracExposed_fudged_for_simulation()*a_max_fudged);
+            double lastA = A.get(A.size()-1);
+            deltaA.add(lastA-Astar);
+            timeStampDeltas.add(status.getSimulationTime());
+
+
+            double current_hf = computeFinalAltitude_Conrad(lastA,status);
+            if (patchingAltitude == 0) {
+                patchingAltitude = targetAlt-current_hf;
+            }
+            current_hf = computeFinalAltitude_Conrad(lastA,status);
+            double supposedLinearizationPoint = computeFinalAltitude_Conrad(Astar,status);
+            deltaH.add(current_hf-targetAlt);
+            Hf.add(current_hf);
+            //System.out.println("[JAVA] Predicted Altitude = " + current_hf + " m");
+            //System.out.println("[JAVA] Predicted Altitude without change = " + supposedLinearizationPoint + " m");
+            //System.out.println("[JAVA] Desired Altitude = " + targetAlt + " m");
+
+
+
+            // decide integral term
+            double IofKplus1 = 0;
+            if (
+                    ((lastA >= 1) &&
+                            (deltaH.get(deltaH.size()-1) >= 0)) ||
+                    (lastA <= 1e-5) &&
+                            (deltaH.get(deltaH.size()-1) < 0)) {
+                IofKplus1 = I.get(I.size()-1);
+            }
+            else {
+                IofKplus1 = I.get(I.size()-1) + 2/K*samplingTime*(deltaH.get(deltaH.size()-1));
+            }
+            I.add(IofKplus1);
+
+            // calculate the control step
+            double nextDeltaA = Kp* deltaH.get(deltaH.size()-1) +Ki*IofKplus1;
+
+            double nextA = Astar + nextDeltaA;
+            // actuate
+            /*System.out.println("[JAVA] A[k] = " + lastA/a_max);
+            System.out.println("[JAVA] ∆A[k] = " + (lastA-Astar)/a_max);
+            System.out.println("[JAVA] ∆h[k] = " + deltaH.get(deltaH.size()-1) + " m");
+            System.out.println("[JAVA] I[k+1] = " + IofKplus1);
+            System.out.println("[JAVA] ∆A[k+1] = " + nextDeltaA/a_max);
+            System.out.println("[JAVA] A[k+1] = " + nextA/a_max);*/
+            theAirbrakes.setFracExposed_fudged_for_simulation(nextA/a_max_fudged);
+
+
             // check if apogee reached
             if (status.getRocketVelocity().z <= 0 || status.apogeeReached){
                 state = DONE;
                 theAirbrakes.setFracExposed(0);
             }
         }
-
-
-
-
-
-
     }
 
     public static AirbrakeSet getAirbrakes(SimulationStatus status){
@@ -382,6 +464,53 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             }
         }
         return sets.get(0);
+    }
+
+
+    public static double computeFinalAltitude_Conrad(double A,SimulationStatus status) {
+        final double fudge_factor_conrad = 3.2;
+        final double fudged_alt_diff = 13;
+
+
+        /*  h0 = alt[np.argmin((t-13)**2)] # alt at 13 seconds
+            v0 = vel[np.argmin((t-13)**2)] # vel at 13 seconds
+            c = rho*rocketCD*refA/2
+            blind_estimate = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
+            alpha = rho*1.28*airbrakesCtrl.A0_req*airbrakesCtrl.a_max/2
+            c += alpha/fudge_factor_conrad
+            blind_estimate_for_airbrakes = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
+        */
+
+
+        double h0 = status.getRocketWorldPosition().getAltitude();
+        double v0 = status.getRocketVelocity().z;
+        double m = mass;
+        double c = rho*rocketCd*aRef/2.0;
+        c *= cFudge;
+        double alpha = rho*airbrakesCd*A/2.0;
+
+        // Fudging
+        alpha /= fudge_factor_conrad;
+
+        double hf = h0 + velContribFudge*m/(2.0*(alpha + c))*Math.log((v0*v0*(alpha+c))/g/m+1);
+        return hf - fudged_alt_diff + patchingAltitude;
+    }
+
+    public static double computeK(double Astar,SimulationStatus status) {
+        final double fudge_factor_conrad = 3.2;
+        final double fudged_alt_diff = 13;
+
+        double h0 = status.getRocketWorldPosition().getAltitude();
+        double m = mass;
+        double c = rho*rocketCd*aRef/2.0;
+        double v0 = status.getRocketVelocity().z;
+        double alphaStar = rho*airbrakesCd*Astar/2.0;
+        // Fudging
+        alphaStar /= fudge_factor_conrad;
+
+        double K0 = m/2 * (-1/(c+alphaStar)/(c+alphaStar) * Math.log(v0*v0/g/m*(c+alphaStar)+1) + 1/(c+alphaStar)*v0*v0/g/m/(v0*v0/g/m*(c+alphaStar)+1));
+
+        return K0;
     }
 
     /* computes A_0/A_max fraction given deploy time and desired delta x*/

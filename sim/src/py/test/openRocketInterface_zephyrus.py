@@ -6,7 +6,7 @@ from time import sleep
 
 import scipy.signal
 
-from Simplified_plant_dynamics import *
+from src.py.test.Simplified_plant_dynamics import *
 import numpy as np
 import jpype
 from src.py.orhelper.util import *
@@ -439,6 +439,8 @@ if True:
 
 
 
+
+
     print('FINISHED INIT PHASE')
     #exit(0)
 
@@ -448,13 +450,29 @@ if True:
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     #airbrakesCtrl.roundToHowMuch = 100
     airbrakesCtrl.overriden_A0 = -1#.999
-    airbrakesCtrl.overriden_desiredApog = 6234#.999
+    airbrakesCtrl.overriden_desiredApog = 6275#.999
     airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 33
     #airbrakesCtrl.override_t_apog = 33
 
     # For mass 114 lbs, P-motor mass 48.5 lbs
     airbrakesCtrl.fudge_factor = 4.22
     airbrakesCtrl.fudge_factor_2 = 4.7
+
+
+    airbrakesCtrl.factorK = 1e7#0.5
+    airbrakesCtrl.kp_factor = 2.5
+    airbrakesCtrl.ki_factor = 0.5
+    airbrakesCtrl.velContribFudge = 1#1.04
+
+    def getCfudge(alt):
+        return 8.99999871e-06*alt*alt - 1.10354984e-01*alt + 3.38925325e+02
+
+    """airbrakesCtrl.cFudge = 0.825 # for 6275
+    airbrakesCtrl.cFudge = 0.72 # for 6225
+    airbrakesCtrl.cFudge = 0.7725 # for 6250
+    airbrakesCtrl.cFudge = 0.9 # for 6300"""
+    airbrakesCtrl.cFudge = getCfudge(airbrakesCtrl.overriden_desiredApog)
+    airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 0.75
 
 
     airbrakesCtrl.DEBUG_AIRBRAKES_ON = True
@@ -576,8 +594,8 @@ if True:
     ax.set_xticks([])
     ax2.set_xticks([])
     plt.close()"""
-    plt.subplots()
-    ax = plt.gca()
+    fig,axs = plt.subplots(nrows=2,sharex='col',figsize=(8.5,11))
+    ax = axs[0]#plt.gca()
 
 
     import scipy.optimize as spopt
@@ -720,7 +738,10 @@ if True:
     print("Estimate of chosen-airbrakes-deploy alt from Conrad: {}".format(blind_estimate_for_airbrakes))
 
 
-
+    deltaA = np.array(airbrakesCtrl.deltaA)
+    times = np.array(airbrakesCtrl.timeStampDeltas)
+    deltaH = np.array(airbrakesCtrl.deltaH)
+    Hf = np.array(airbrakesCtrl.Hf)
 
     ax.vlines(t[index0],0,10000,linestyle='dotted',color='k')
     ax.vlines(t[index1],0,10000,linestyle='dotted',color='k')
@@ -737,6 +758,8 @@ if True:
     ax.plot(t[:apogeeInd],velMagnitude[:apogeeInd],label="Velocity Mag.",color='steelblue',linewidth=3,alpha=0.4,zorder=-1)
     ax.set_xlim(t[0],t[apogeeInd-1])
     ax.plot(t[:apogeeInd],alt[:apogeeInd],label="Altitude",color='purple')
+    ax.plot(times,Hf,label="Mid-Flt Predict Alt",color='magenta')
+
 
 
     ax.plot(t,integratedVel,label="Velocity Fit",color='blue',linewidth=5,alpha=0.2,zorder=-1)
@@ -769,8 +792,27 @@ if True:
     ax0.set_ylim(np.min(accelZ[:apogeeInd]),np.max(accelZ[:apogeeInd]))
     ax.set_xlabel("Time (s)")
 
+    #plt.show()
+
+
+    axs[1].plot(times[1:],deltaA[2:],color='b',label="$\\Delta A$") 
+    ax22 = axs[1].twinx()
+    ax22.plot(times[1:],deltaH[2:],color='r',label="$\\Delta h$")
+
+    axs[1].legend(loc='upper left')
+    ax22.legend(loc='upper right')
+
+
+
     plt.savefig(figPath)
     plt.show()
+
+    dataArr = np.array([t,alt,vel,accelZ,apogeeHappened,airbrakesLog])
+    CSVSAVEPATH = "dat/zephy_testlaunch/csv/{}/airbrakes_input.csv".format(int(airbrakesCtrl.overriden_desiredApog))
+    np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time,Altitude,Velocity,Acceleration,Apogee,Predicted DP', comments='')
+    print("Saved data to {}".format(CSVSAVEPATH))
+
+
     exit(0)
 
 

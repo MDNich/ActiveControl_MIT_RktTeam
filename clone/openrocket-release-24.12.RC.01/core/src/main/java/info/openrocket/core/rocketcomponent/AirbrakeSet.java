@@ -55,6 +55,9 @@ public class AirbrakeSet extends LeafSet implements AxialPositionable, BoxBounde
     private double localOverrideCD = 1;
 
 
+    public double fudgefactor = 1;
+
+
     /**
      * Default constructor that creates an AirbrakeSet with preset dimensions and properties.
      */
@@ -406,11 +409,17 @@ public class AirbrakeSet extends LeafSet implements AxialPositionable, BoxBounde
     }
 
 
-    /**
-     * Sets the fraction of the airbrake that should be exposed by adjusting the CG offset.
-     *
-     * @param fracExposed The desired fraction (between 0 and 1) of the airbrake to expose
-     */
+    // lol
+    public void setFracExposed_fudged_for_simulation(double fracExposed) {
+        this.setFracExposed(fudgefactor*fracExposed);
+    }
+
+    // lol
+    public double getFracExposed_fudged_for_simulation() {
+        return this.getFracExposed()*fudgefactor;
+    }
+
+
     public void setFracExposed(double fracExposed) {
         if (fracExposed < 0 || fracExposed > 1) {
             System.out.println("AirbrakeSet: fraction exposed must be between 0 and 1, received " + fracExposed);
