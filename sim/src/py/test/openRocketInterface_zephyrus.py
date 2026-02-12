@@ -459,7 +459,7 @@ if True:
     airbrakesCtrl.fudge_factor_2 = 4.7
 
 
-    airbrakesCtrl.factorK = 1e7#0.5
+    airbrakesCtrl.factorK = 0.5
     airbrakesCtrl.kp_factor = 2.5
     airbrakesCtrl.ki_factor = 0.5
     airbrakesCtrl.velContribFudge = 1#1.04
