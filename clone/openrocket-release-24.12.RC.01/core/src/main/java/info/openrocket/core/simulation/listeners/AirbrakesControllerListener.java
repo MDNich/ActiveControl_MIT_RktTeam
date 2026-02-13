@@ -104,6 +104,10 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     public static double AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 1;
 
+
+    public static double lastControlStepTime =0;
+    public static double rate =0.1;
+
     public AirbrakesControllerListener(){
         super();
         pastOmegaZ = new ArrayList<>();
@@ -385,9 +389,16 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             }
             if (status.getSimulationTime() >= airbrakesCtrlStartTime + 0.5){
                 state = CONTROLLING_PLATEAU;
+                lastControlStepTime = status.getSimulationTime();
             }
         }
         else if (state == CONTROLLING_PLATEAU){
+            if (status.getSimulationTime() - lastControlStepTime < rate) {
+                // don't actually do a control step.
+                System.out.print("[JAVA] Airbrakes controller is waiting for next control step.      \r");
+                return;
+            }
+
             // airbrakes control plateau
             // A(t) = A_0 for t >= t_0 + 0.5s
             double samplingTime = 1;//status.getSimulationTime()-lastIterTime; // for the moment
@@ -443,6 +454,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             System.out.println("[JAVA] ∆A[k+1] = " + nextDeltaA/a_max);
             System.out.println("[JAVA] A[k+1] = " + nextA/a_max);*/
             theAirbrakes.setFracExposed_fudged_for_simulation(nextA/a_max_fudged);
+            lastControlStepTime = status.getSimulationTime();
 
 
             // check if apogee reached

@@ -473,7 +473,7 @@ if True:
     airbrakesCtrl.cFudge = 0.9 # for 6300"""
     airbrakesCtrl.cFudge = getCfudge(airbrakesCtrl.overriden_desiredApog)
     airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 0.75
-
+    airbrakesCtrl.rate = 1
 
     airbrakesCtrl.DEBUG_AIRBRAKES_ON = True
     #airbrakesCtrl.t_apog = 35#.999
@@ -571,7 +571,7 @@ if True:
     apogeeHappened = np.array(list(np.zeros(apogeeInd)) + list(np.ones(len(t)-apogeeInd)))
 
 
-    dataArr = np.array([t,alt,vel,accelZ,apogeeHappened,airbrakesLog])
+    dataArr = np.array([t[:apogeeInd+5],alt[:apogeeInd+5],vel[:apogeeInd+5],accelZ[:apogeeInd+5],apogeeHappened[:apogeeInd+5],airbrakesLog[:apogeeInd+5]])
     CSVSAVEPATH = "dat/zephy_testlaunch/csv/{}/airbrakes_input.csv".format(int(airbrakesCtrl.overriden_desiredApog))
     np.savetxt(CSVSAVEPATH, dataArr.T, delimiter=',', header='Time,Altitude,Velocity,Acceleration,Apogee,Predicted DP', comments='')
     print("Saved data to {}".format(CSVSAVEPATH))
