@@ -450,7 +450,7 @@ if True:
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     #airbrakesCtrl.roundToHowMuch = 100
     airbrakesCtrl.overriden_A0 = -1#.999
-    airbrakesCtrl.overriden_desiredApog = 6275#.999
+    airbrakesCtrl.overriden_desiredApog = 6225#.999
     airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 33
     #airbrakesCtrl.override_t_apog = 33
 
@@ -462,7 +462,7 @@ if True:
     airbrakesCtrl.factorK = 0.5
     airbrakesCtrl.kp_factor = 2.5
     airbrakesCtrl.ki_factor = 0.5
-    airbrakesCtrl.velContribFudge = 1#1.04
+    airbrakesCtrl.velContribFudge = 1#1.04 
 
     def getCfudge(alt):
         return 8.99999871e-06*alt*alt - 1.10354984e-01*alt + 3.38925325e+02
@@ -472,7 +472,7 @@ if True:
     airbrakesCtrl.cFudge = 0.7725 # for 6250
     airbrakesCtrl.cFudge = 0.9 # for 6300"""
     airbrakesCtrl.cFudge = getCfudge(airbrakesCtrl.overriden_desiredApog)
-    airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 0.75
+    airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 1#0.75
     airbrakesCtrl.rate = 1
 
     airbrakesCtrl.DEBUG_AIRBRAKES_ON = True

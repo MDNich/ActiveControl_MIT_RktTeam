@@ -216,7 +216,6 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
                 state = PREPROCESS;
                 counter = 0;
             }
-            // TODO PREP ACTION: collect accel and vel data, total 13 points, 5 Hz data freq
             state =  (shouldStartAirbrakesControlPreprocess(status)) ? PREPROCESS : PREP;
         }
         else if (state == PREPROCESS){
