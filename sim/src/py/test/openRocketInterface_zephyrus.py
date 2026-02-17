@@ -444,7 +444,7 @@ if True:
     print('FINISHED INIT PHASE')
     #exit(0)
 
-    #airbrakesCtrl.EARLIEST_START_AIRBRAKES_PREP_TIME = 4.0
+    #airbrakesCtrl.EARLIEST_AIRBRAKES_PREP_TIME = 4.0
     #airbrakesCtrl.START_AIRBRAKES_PREP_VEL = 400.0
     #airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME = 12.0
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0

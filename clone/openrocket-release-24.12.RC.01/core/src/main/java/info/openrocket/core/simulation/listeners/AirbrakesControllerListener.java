@@ -56,7 +56,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double airbrakesCtrlStartTime = 1e10;
     public static double A0_req = 0;
 
-    public static double EARLIEST_START_AIRBRAKES_PREP_TIME = 4.0;
+    public static double EARLIEST_AIRBRAKES_PREP_TIME = 4.0;
     public static double START_AIRBRAKES_PREP_VEL = 400.0;
     public static double START_AIRBRAKES_PREPROC_TIME = 12.0;
     public static double AIRBRAKES_TIME_DELAY = 1.0;
@@ -552,7 +552,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
 
     public static boolean shouldStartAirbrakesControlPrep(SimulationStatus status) {
-        if (status.getSimulationTime() > EARLIEST_START_AIRBRAKES_PREP_TIME && !status.apogeeReached && status.getRocketVelocity().length() < START_AIRBRAKES_PREP_VEL) {
+        if (status.getSimulationTime() > EARLIEST_AIRBRAKES_PREP_TIME && !status.apogeeReached && status.getRocketVelocity().length() < START_AIRBRAKES_PREP_VEL) {
             return true;
         }
         else return false;
