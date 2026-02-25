@@ -450,17 +450,17 @@ if True:
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     #airbrakesCtrl.roundToHowMuch = 100
     airbrakesCtrl.overriden_A0 = -1#.999
-    airbrakesCtrl.overriden_desiredApog = 6225#.999
-    airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 33
+    airbrakesCtrl.overriden_desiredApog = 4600#.999
+    airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 31
     #airbrakesCtrl.override_t_apog = 33
 
     # For mass 114 lbs, P-motor mass 48.5 lbs
-    airbrakesCtrl.fudge_factor = 4.22
-    airbrakesCtrl.fudge_factor_2 = 4.7
+    airbrakesCtrl.fudge_factor = 3.4
+    airbrakesCtrl.fudge_factor_2 = 0
 
 
-    airbrakesCtrl.factorK = 0.5
-    airbrakesCtrl.kp_factor = 2.5
+    airbrakesCtrl.factorK = 1e10#0.5
+    airbrakesCtrl.kp_factor = 4
     airbrakesCtrl.ki_factor = 0.5
     airbrakesCtrl.velContribFudge = 1#1.04 
 
@@ -654,15 +654,15 @@ if True:
 
     index0 = np.argmin((vel-400)**2)
     index1 = np.argmin((t-12)**2)
-    fit_T = t[index0:index1][::200][:13]
-    fit_V = vel[index0:index1][::200][:13]
-    fit_A = accelZ[index0:index1][::200][:13]
-    fit_alt = alt[index0:index1][::200][:13]
+    fit_T = t[index0:index1][::200][:20]
+    fit_V = vel[index0:index1][::200][:20]
+    fit_A = accelZ[index0:index1][::200][:20]
+    fit_alt = alt[index0:index1][::200][:20]
     #print("Fitting a timeseries of {} points.".format(len(fit_V)))
 
     global shared_t_apog
     
-    shared_t_apogs = [33,34,35]
+    shared_t_apogs = [29,30,31]
     R2s = []
     optsA = []
     #print("quintic fit for accel")
@@ -676,7 +676,7 @@ if True:
     best_t_apog = shared_t_apogs[np.argmax(R2s)]
     opt_A_best = optsA[np.argmax(R2s)]
 
-    shared_t_apog = best_t_apog + 1.5
+    shared_t_apog = best_t_apog# - 0.5
     print("Using t_apog {}".format(shared_t_apog))
 
     optA,pcovA = spopt.curve_fit(vel_fit_hardcoded_t_apog, fit_T, fit_V, maxfev=1000000, 
@@ -699,7 +699,7 @@ if True:
     print("Predicted apogee without airbrakes {}".format(maxAlt))
     print("Diff from airbrakeless prediction: {}".format(np.abs(maxAltReal-maxAlt)))
     diff = np.abs(maxAltReal-airbrakesCtrl.overriden_desiredApog)
-    print("Airbrakes Goal Diff: {} ; {}%".format(np.round(diff,4),int(np.round(100*diff/airbrakesCtrl.desiredDeltaX,0))))
+    print("Airbrakes Goal Diff: {}".format(np.round(diff,4)))
 
 
     index2 = np.argmin((t-16)**2)
@@ -727,8 +727,8 @@ if True:
 
 
     print("mass is {}".format(mass))
-    h0 = alt[np.argmin((t-13)**2)] # alt at 13 seconds
-    v0 = vel[np.argmin((t-13)**2)] # vel at 13 seconds
+    h0 = alt[np.argmin((t-12)**2)] # alt at 12 seconds
+    v0 = vel[np.argmin((t-12)**2)] # vel at 12 seconds
     c = rho*rocketCD*refA/2 
     blind_estimate = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
     alpha = rho*1.28*airbrakesCtrl.A0_req*airbrakesCtrl.a_max/2
@@ -795,7 +795,7 @@ if True:
     #plt.show()
 
 
-    axs[1].plot(times[1:],deltaA[2:],color='b',label="$\\Delta A$") 
+    axs[1].plot(times[1:],airbrakesCtrl.Astar/0.0066 + deltaA[2:]/0.0066,color='b',label="$A(t)$") 
     ax22 = axs[1].twinx()
     ax22.plot(times[1:],deltaH[2:],color='r',label="$\\Delta h$")
 

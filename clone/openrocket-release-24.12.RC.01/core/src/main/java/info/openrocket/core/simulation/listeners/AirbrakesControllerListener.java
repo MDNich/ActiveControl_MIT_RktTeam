@@ -43,10 +43,10 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     public static double mass = 53.48;
     public static double g = 9.81;
-    public static double rho = 0.736;
+    public static double rho = 0.736115423712237;
     public static double airbrakesCd = AirbrakeSet.CD_perp;//1.28;
-    public static double rocketCd = 0.5859;
-    public static double aRef = 0.01929;
+    public static double rocketCd = 0.4843927669074317;
+    public static double aRef = 0.019289796351014733;
     // maximum airbrakes area
     public static double a_max = 0.0066; // TODO get from AirbrakesSet
     public static int counter = 0;
@@ -60,9 +60,9 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double START_AIRBRAKES_PREP_VEL = 400.0;
     public static double START_AIRBRAKES_PREPROC_TIME = 12.0;
     public static double AIRBRAKES_TIME_DELAY = 1.0;
-    public static int AIRBRAKES_N_MEASUREMENTS = 13;
+    public static int AIRBRAKES_N_MEASUREMENTS = 20;
     public static int AIRBRAKES_MEASUREMENT_FREQ_HZ = 5;
-    public static int AIRBRAKES_SIMULATION_T_APOG = 34;
+    public static int AIRBRAKES_SIMULATION_T_APOG = 35;
     public static double AIRBRAKES_T_APOG_FUDGEDIFF = 1.5;
 
     public static double overriden_A0 = -1;
@@ -263,7 +263,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
              */
 
             double[][] XT_X = new double[2][2];
-            for(int i = 0; i < nMeasurements; i++) {
+            for(int i = 0; i < velMeasurements.size(); i++) {
                 double t = velMeasurements.get(i).timeStamp;
                 XT_X[0][0] += Math.pow(t - t_apog,6);
                 XT_X[0][1] += Math.pow(t - t_apog,5);
@@ -287,7 +287,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
                          |__  \sum_i (t_i-t_{\rm apog})^2(\dot{x}_i + g(t_i-t_{\rm apog}))   __|
              */
             double[] XT_y = new double[2];
-            for(int i = 0; i < nMeasurements; i++) {
+            for(int i = 0; i < velMeasurements.size(); i++) {
                 double t = velMeasurements.get(i).timeStamp;
                 double vi = velMeasurements.get(i).velocityMeasurement;
                 XT_y[0] += Math.pow(t - t_apog,3)*(vi + g*(t-t_apog));
@@ -324,6 +324,8 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             System.out.println("[JAVA] predicted apogee: " + predictedAlt + " m");
             double conrad_predict = computeFinalAltitude_Conrad(0,status);
             System.out.println("[JAVA] <Conrad> predicted apogee: " + conrad_predict + " m");
+            predictedAlt = conrad_predict;
+            alt0 = predictedAlt;
             double desiredAlt = Math.floor(predictedAlt/roundToHowMuch)*roundToHowMuch;
             if (overriden_desiredApog > 0) {
                 desiredAlt = overriden_desiredApog;
@@ -392,6 +394,17 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             }
         }
         else if (state == CONTROLLING_PLATEAU){
+            if(overriden_A0 == 0.0) {
+                if (status.getRocketVelocity().z <= 0 || status.apogeeReached){
+                    state = DONE;
+                    theAirbrakes.setFracExposed(0);
+                }
+                else {
+                    return;
+                }
+            }
+            
+
             if (status.getSimulationTime() - lastControlStepTime < rate) {
                 // don't actually do a control step.
                 System.out.print("[JAVA] Airbrakes controller is waiting for next control step.      \r");
@@ -485,26 +498,29 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
         /*  h0 = alt[np.argmin((t-13)**2)] # alt at 13 seconds
             v0 = vel[np.argmin((t-13)**2)] # vel at 13 seconds
-            c = rho*rocketCD*refA/2
+            c = rho*rocketCD*refA/2 
             blind_estimate = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
             alpha = rho*1.28*airbrakesCtrl.A0_req*airbrakesCtrl.a_max/2
             c += alpha/fudge_factor_conrad
             blind_estimate_for_airbrakes = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
         */
 
-
-        double h0 = status.getRocketWorldPosition().getAltitude();
-        double v0 = status.getRocketVelocity().z;
-        double m = mass;
+        List<Double> velZ = status.getFlightDataBranch().get(FlightDataType.TYPE_VELOCITY_Z);
+        List<Double> altZ = status.getFlightDataBranch().get(FlightDataType.TYPE_ALTITUDE);
+        double h0 = altZ.get(altZ.size()-1);
+        double v0 = velZ.get(velZ.size()-1);
+        double mass = 34.15380231015455;
+        rho = 0.736115423712237;
+        rocketCd = 0.4843927669074317;
+        aRef = 0.019289796351014733;
+        g = 9.81;
         double c = rho*rocketCd*aRef/2.0;
-        c *= cFudge;
+        // c *= cFudge;
         double alpha = rho*airbrakesCd*A/2.0;
 
         // Fudging
         alpha /= fudge_factor_conrad;
-
-        double hf = h0 + velContribFudge*m/(2.0*(alpha + c))*Math.log((v0*v0*(alpha+c))/g/m+1);
-        return hf - fudged_alt_diff + patchingAltitude;
+        return h0 + mass/(2*c)*Math.log(v0*v0*(c+alpha)/g/mass+1) - fudged_alt_diff + patchingAltitude;
     }
 
     public static double computeK(double Astar,SimulationStatus status) {
@@ -531,7 +547,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         double t0 = t_0;
         double t1 = t_apog;
         double xi = -(Math.pow(a,3)*Math.pow(t0-t1,10)/10.0 + (a*a*b)*Math.pow(t0-t1,9)/3.0 + (3.0*a*b*b - 3.0*a*a*g)*Math.pow(t0-t1,8)/8.0 + (b*b*b - 6.0*a*b*g)*Math.pow(t0-t1,7)/7.0 + (a*g*g - b*b*g)*Math.pow(t0-t1,6)/2.0 + (3.0*b*g*g)*Math.pow(t0-t1,5)/5.0 - (g*g*g)*Math.pow(t0-t1,4)/4.0);
-        double local_fudge_factor = deltaX > 40 ? fudge_factor : fudge_factor_2;
+        double local_fudge_factor = fudge_factor;//= deltaX > 40 ? fudge_factor : fudge_factor_2;
         double a_0 = local_fudge_factor*2*mass*g*deltaX/airbrakesCd/rho/xi;
         if(overriden_A0 >= 0) {
             System.out.println("[JAVA] WARNING: OVERRIDING A0 FROM CALCULATION");
