@@ -58,7 +58,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     public static double EARLIEST_AIRBRAKES_PREP_TIME = 4.0;
     public static double START_AIRBRAKES_PREP_VEL = 400.0;
-    public static double START_AIRBRAKES_PREPROC_TIME = 12.0;
+    public static double START_AIRBRAKES_PREPROC_TIME = 8.0;
     public static double AIRBRAKES_TIME_DELAY = 1.0;
     public static int AIRBRAKES_N_MEASUREMENTS = 20;
     public static int AIRBRAKES_MEASUREMENT_FREQ_HZ = 5;
@@ -426,12 +426,12 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             timeStampDeltas.add(status.getSimulationTime());
 
 
-            double current_hf = computeFinalAltitude_Conrad(lastA,status);
+            double current_hf = computeFinalAltitude_Conrad_fudging(lastA,status);
             if (patchingAltitude == 0) {
                 patchingAltitude = targetAlt-current_hf;
             }
-            current_hf = computeFinalAltitude_Conrad(lastA,status);
-            double supposedLinearizationPoint = computeFinalAltitude_Conrad(Astar,status);
+            current_hf = computeFinalAltitude_Conrad_fudging(lastA,status);
+            double supposedLinearizationPoint = computeFinalAltitude_Conrad_fudging(Astar,status);
             deltaH.add(current_hf-targetAlt);
             Hf.add(current_hf);
             //System.out.println("[JAVA] Predicted Altitude = " + current_hf + " m");
@@ -516,6 +516,38 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         g = 9.81;
         double c = rho*rocketCd*aRef/2.0;
         // c *= cFudge;
+        double alpha = rho*airbrakesCd*A/2.0;
+
+        // Fudging
+        alpha /= fudge_factor_conrad;
+        return h0 + mass/(2*c)*Math.log(v0*v0*(c+alpha)/g/mass+1) - fudged_alt_diff + patchingAltitude;
+    }
+
+    public static double computeFinalAltitude_Conrad_fudging(double A,SimulationStatus status) {
+        final double fudge_factor_conrad = 3.2;
+        final double fudged_alt_diff = 13;
+
+
+        /*  h0 = alt[np.argmin((t-13)**2)] # alt at 13 seconds
+            v0 = vel[np.argmin((t-13)**2)] # vel at 13 seconds
+            c = rho*rocketCD*refA/2 
+            blind_estimate = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
+            alpha = rho*1.28*airbrakesCtrl.A0_req*airbrakesCtrl.a_max/2
+            c += alpha/fudge_factor_conrad
+            blind_estimate_for_airbrakes = h0 + mass/(2*c)*np.log(v0**2*(c)/g/mass+1) - fudged_alt_diff
+        */
+
+        List<Double> velZ = status.getFlightDataBranch().get(FlightDataType.TYPE_VELOCITY_Z);
+        List<Double> altZ = status.getFlightDataBranch().get(FlightDataType.TYPE_ALTITUDE);
+        double h0 = altZ.get(altZ.size()-1);
+        double v0 = velZ.get(velZ.size()-1);
+        double mass = 34.15380231015455;
+        rho = 0.736115423712237;
+        rocketCd = 0.4843927669074317;
+        aRef = 0.019289796351014733;
+        g = 9.81;
+        double c = rho*rocketCd*aRef/2.0;
+        c *= cFudge;
         double alpha = rho*airbrakesCd*A/2.0;
 
         // Fudging
