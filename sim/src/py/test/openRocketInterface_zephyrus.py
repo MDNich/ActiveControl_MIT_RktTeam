@@ -444,24 +444,24 @@ if True:
     print('FINISHED INIT PHASE')
     #exit(0)
 
-    #airbrakesCtrl.EARLIEST_AIRBRAKES_PREP_TIME = 4.0
-    #airbrakesCtrl.START_AIRBRAKES_PREP_VEL = 400.0
-    #airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME = 12.0
+    airbrakesCtrl.EARLIEST_AIRBRAKES_PREP_TIME = 4.0
+    airbrakesCtrl.START_AIRBRAKES_PREP_VEL = 400.0
+    airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME = 12.0
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     #airbrakesCtrl.roundToHowMuch = 100
-    airbrakesCtrl.overriden_A0 = 1#.999
-    airbrakesCtrl.overriden_desiredApog = 4610#.999
+    airbrakesCtrl.overriden_A0 = -1#.999
+    airbrakesCtrl.overriden_desiredApog = 4550#.999
     airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 31
     #airbrakesCtrl.override_t_apog = 33
 
-    # For mass 114 lbs, P-motor mass 48.5 lbs
-    airbrakesCtrl.fudge_factor = 3.4
+    airbrakesCtrl.fudge_factor = 1.35
     airbrakesCtrl.fudge_factor_2 = 0
 
+    airbrakesCtrl.fudge_factor_conrad = 1
 
-    airbrakesCtrl.factorK = 1e10#0.5#0.5
-    airbrakesCtrl.kp_factor = 0.5
-    airbrakesCtrl.ki_factor = 0.5
+    airbrakesCtrl.factorK = 1e10#0.5
+    airbrakesCtrl.kp_factor = 2
+    airbrakesCtrl.ki_factor = 1
     airbrakesCtrl.velContribFudge = 1#1.04 
 
     def getCfudge(alt):
@@ -471,7 +471,7 @@ if True:
     airbrakesCtrl.cFudge = 0.72 # for 6225
     airbrakesCtrl.cFudge = 0.7725 # for 6250
     airbrakesCtrl.cFudge = 0.9 # for 6300"""
-    airbrakesCtrl.cFudge = getCfudge(6320-4634+airbrakesCtrl.overriden_desiredApog)
+    airbrakesCtrl.cFudge = 1#getCfudge(6320-4634+airbrakesCtrl.overriden_desiredApog)
     airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 1#0.75
     airbrakesCtrl.rate = 1
 
@@ -696,10 +696,14 @@ if True:
     maxAlt = altitude_model(t_apog, a, b, t_apog, x0)
     maxAltReal = np.max(alt)
     print("Got apogee {}".format(maxAltReal))
-    print("Predicted apogee without airbrakes {}".format(maxAlt))
-    print("Diff from airbrakeless prediction: {}".format(np.abs(maxAltReal-maxAlt)))
+    print("Airbrakes Deployed at {}".format(airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME + 1))
+    print("Velocity at deployment: {}".format(vel[np.argmin((t-airbrakesCtrl.START_AIRBRAKES_PREPROC_TIME + 1)**2)]))
+    #print("Predicted apogee without airbrakes {}".format(maxAlt))
+    #print("Diff from airbrakeless prediction: {}".format(np.abs(maxAltReal-maxAlt)))
+    noAirbrakesAlt = 4634
     diff = np.abs(maxAltReal-airbrakesCtrl.overriden_desiredApog)
-    print("Airbrakes Goal Diff: {}".format(np.round(diff,4)))
+    print("Airbrakes Goal Diff: {}, {}%".format(np.round(diff,4), int(diff/(noAirbrakesAlt-airbrakesCtrl.overriden_desiredApog)*100)))
+    exit(0)
 
 
     index2 = np.argmin((t-16)**2)
@@ -715,8 +719,8 @@ if True:
     print(x022-x02)
     print("Estimate from 16 to 19 seconds: predicted modified apogee {}".format(x022))
     print("Estimate from closed form solution: {}".format(list(optA3)[-1]))
-    print("b: {}".format(list(optA3)[0]))
-    print("c1: {}".format(list(optA3)[1]))
+    #print("b: {}".format(list(optA3)[0]))
+    #print("c1: {}".format(list(optA3)[1]))
 
 
 
@@ -726,7 +730,7 @@ if True:
     fudged_alt_diff = 13
 
 
-    print("mass is {}".format(mass))
+    #print("mass is {}".format(mass))
     h0 = alt[np.argmin((t-12)**2)] # alt at 12 seconds
     v0 = vel[np.argmin((t-12)**2)] # vel at 12 seconds
     c = rho*rocketCD*refA/2 

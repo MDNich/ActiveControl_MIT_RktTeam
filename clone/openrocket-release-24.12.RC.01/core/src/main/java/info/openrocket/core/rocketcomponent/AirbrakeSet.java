@@ -474,7 +474,7 @@ public class AirbrakeSet extends LeafSet implements AxialPositionable, BoxBounde
      * @return The exposed area of the airbrake
      */
     public double getExposedArea() {
-        return length * width * this.getFracExposed();
+        return length * width * this.getFracExposed() * numAirbrakes;
     }
 
     /**

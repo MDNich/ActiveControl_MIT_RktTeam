@@ -48,7 +48,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double rocketCd = 0.4843927669074317;
     public static double aRef = 0.019289796351014733;
     // maximum airbrakes area
-    public static double a_max = 0.0066; // TODO get from AirbrakesSet
+    public static double a_max = 0.008226048064; // TODO get from AirbrakesSet
     public static int counter = 0;
     public static int roundToHowMuch = 100; // desired altitude correction
     public static double desiredDeltaX = 0;
@@ -58,7 +58,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
     public static double EARLIEST_AIRBRAKES_PREP_TIME = 4.0;
     public static double START_AIRBRAKES_PREP_VEL = 400.0;
-    public static double START_AIRBRAKES_PREPROC_TIME = 8.0;
+    public static double START_AIRBRAKES_PREPROC_TIME = 12.0;
     public static double AIRBRAKES_TIME_DELAY = 1.0;
     public static int AIRBRAKES_N_MEASUREMENTS = 20;
     public static int AIRBRAKES_MEASUREMENT_FREQ_HZ = 5;
@@ -100,10 +100,13 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
     public static double Astar = 0;
     public static double patchingAltitude = 0;
     public static double velContribFudge = 0.75;
-    public static double cFudge = 0.825;
+    public static double cFudge = 1.0;
 
     public static double AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 1;
 
+
+
+    public static double fudge_factor_conrad = 2.0;
 
     public static double lastControlStepTime =0;
     public static double rate =0.1;
@@ -156,6 +159,10 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         currentStatus = status.clone();
 
         theAirbrakes = getAirbrakes(status);
+        theAirbrakes.setFracExposed(1);
+        a_max = theAirbrakes.getExposedArea();
+        System.out.println("[JAVA] a_max = " + a_max);
+        theAirbrakes.setFracExposed(0);
         theAirbrakes.fudgefactor = AIRBRAKES_MEASUREMENT_FUDGE_FACTOR;
     }
 
@@ -312,17 +319,11 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
 
 
-
-
-
             // calculate apogee height.
-            double x0 = status.getRocketWorldPosition().getAltitude();
-            double v0 = status.getRocketVelocity().z;
-            System.out.println("[JAVA] got coeffs: a = " + coeffA + " ; b = " + coeffB + " ; t_apog = " + t_apog + " ; g = " + g);
-            alt0 = x0-getAltitudeEstimate(status.getSimulationTime(),0);
-            predictedAlt = getAltitudeEstimate(t_apog);
-            System.out.println("[JAVA] predicted apogee: " + predictedAlt + " m");
+            
             double conrad_predict = computeFinalAltitude_Conrad(0,status);
+            patchingAltitude = 4637 - conrad_predict;
+            conrad_predict = computeFinalAltitude_Conrad(0,status);
             System.out.println("[JAVA] <Conrad> predicted apogee: " + conrad_predict + " m");
             predictedAlt = conrad_predict;
             alt0 = predictedAlt;
@@ -333,22 +334,16 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             targetAlt = desiredAlt;
             System.out.println("[JAVA] desired apogee: " + desiredAlt + " m");
             desiredDeltaX = predictedAlt - desiredAlt;
+            System.out.println("[JAVA] delta X: " + desiredDeltaX + " m");
 
             A0_req = reqDeployedAreaAirbrakes(currentTime+AIRBRAKES_TIME_DELAY, desiredDeltaX);
             airbrakesCtrlStartTime = currentTime + AIRBRAKES_TIME_DELAY;
 
 
-
-
-
-
-
-
-
             // Verify Conrad algorithm
             Astar = A0_req*a_max;
-            double hf_guess2 = computeFinalAltitude_Conrad(Astar,status);
-            System.out.println("[JAVA] predicted apogee from Conrad when airbrakes are deployed: " + hf_guess2 + " m");
+            /*double hf_guess2 = computeFinalAltitude_Conrad(Astar,status);
+            System.out.println("[JAVA] predicted apogee from Conrad when airbrakes are deployed: " + hf_guess2 + " m");*/
             A.add(Astar);
             K = computeK(Astar,status);
             K *= factorK;
@@ -394,12 +389,13 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             }
         }
         else if (state == CONTROLLING_PLATEAU){
-            if(overriden_A0 == 0.0) {
+            if(overriden_A0 != -1) {
                 if (status.getRocketVelocity().z <= 0 || status.apogeeReached){
                     state = DONE;
                     theAirbrakes.setFracExposed(0);
                 }
                 else {
+                    theAirbrakes.setFracExposed(overriden_A0);
                     return;
                 }
             }
@@ -426,16 +422,17 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             timeStampDeltas.add(status.getSimulationTime());
 
 
-            double current_hf = computeFinalAltitude_Conrad_fudging(lastA,status);
-            if (patchingAltitude == 0) {
-                patchingAltitude = targetAlt-current_hf;
+            double current_hf = computeFinalAltitude_Conrad(lastA,status);
+            if (A.size() == 2) {
+                patchingAltitude = targetAlt-current_hf + 4;
+                System.out.println("[JAVA] reset patchingAltitude to " + patchingAltitude + " m");
             }
-            current_hf = computeFinalAltitude_Conrad_fudging(lastA,status);
-            double supposedLinearizationPoint = computeFinalAltitude_Conrad_fudging(Astar,status);
+            current_hf = computeFinalAltitude_Conrad(lastA,status);
+            double supposedLinearizationPoint = computeFinalAltitude_Conrad(Astar,status);
             deltaH.add(current_hf-targetAlt);
             Hf.add(current_hf);
-            //System.out.println("[JAVA] Predicted Altitude = " + current_hf + " m");
-            //System.out.println("[JAVA] Predicted Altitude without change = " + supposedLinearizationPoint + " m");
+            System.out.println("[JAVA] Predicted Altitude = " + current_hf + " m");
+            System.out.println("[JAVA] Predicted Altitude without change = " + supposedLinearizationPoint + " m");
             //System.out.println("[JAVA] Desired Altitude = " + targetAlt + " m");
 
 
@@ -492,7 +489,6 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
 
     public static double computeFinalAltitude_Conrad(double A,SimulationStatus status) {
-        final double fudge_factor_conrad = 3.2;
         final double fudged_alt_diff = 13;
 
 
@@ -515,12 +511,12 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         aRef = 0.019289796351014733;
         g = 9.81;
         double c = rho*rocketCd*aRef/2.0;
-        // c *= cFudge;
+        c *= cFudge;
         double alpha = rho*airbrakesCd*A/2.0;
 
         // Fudging
         alpha /= fudge_factor_conrad;
-        return h0 + mass/(2*c)*Math.log(v0*v0*(c+alpha)/g/mass+1) - fudged_alt_diff + patchingAltitude;
+        return h0 + velContribFudge*mass/2/(c+alpha)*Math.log(v0*v0*(c+alpha)/g/mass+1) - fudged_alt_diff + patchingAltitude;
     }
 
     public static double computeFinalAltitude_Conrad_fudging(double A,SimulationStatus status) {
@@ -552,7 +548,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
         // Fudging
         alpha /= fudge_factor_conrad;
-        return h0 + mass/(2*c)*Math.log(v0*v0*(c+alpha)/g/mass+1) - fudged_alt_diff + patchingAltitude;
+        return h0 + mass/(2*c+alpha)*Math.log(v0*v0*(c+alpha)/g/mass+1) - fudged_alt_diff + patchingAltitude;
     }
 
     public static double computeK(double Astar,SimulationStatus status) {
