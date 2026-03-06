@@ -28,6 +28,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
 
     public static double targetAlt = 5500.0;
+    public static double adjusting = 10;
     public static double latestTimeStep = -1;
     public static double predictedAlt;
     public static ArrayList<Double> pastOmegaZ;
@@ -424,15 +425,15 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
             double current_hf = computeFinalAltitude_Conrad(lastA,status);
             if (A.size() == 2) {
-                patchingAltitude = targetAlt-current_hf + 4;
+                patchingAltitude = targetAlt-current_hf + adjusting;
                 System.out.println("[JAVA] reset patchingAltitude to " + patchingAltitude + " m");
             }
             current_hf = computeFinalAltitude_Conrad(lastA,status);
             double supposedLinearizationPoint = computeFinalAltitude_Conrad(Astar,status);
-            deltaH.add(current_hf-targetAlt);
+            deltaH.add(targetAlt-current_hf);
             Hf.add(current_hf);
             System.out.println("[JAVA] Predicted Altitude = " + current_hf + " m");
-            System.out.println("[JAVA] Predicted Altitude without change = " + supposedLinearizationPoint + " m");
+            //System.out.println("[JAVA] Predicted Altitude without change = " + supposedLinearizationPoint + " m");
             //System.out.println("[JAVA] Desired Altitude = " + targetAlt + " m");
 
 
@@ -456,12 +457,12 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
 
             double nextA = Astar + nextDeltaA;
             // actuate
-            /*System.out.println("[JAVA] A[k] = " + lastA/a_max);
+            System.out.println("[JAVA] A[k] = " + lastA/a_max);
             System.out.println("[JAVA] ∆A[k] = " + (lastA-Astar)/a_max);
             System.out.println("[JAVA] ∆h[k] = " + deltaH.get(deltaH.size()-1) + " m");
             System.out.println("[JAVA] I[k+1] = " + IofKplus1);
             System.out.println("[JAVA] ∆A[k+1] = " + nextDeltaA/a_max);
-            System.out.println("[JAVA] A[k+1] = " + nextA/a_max);*/
+            System.out.println("[JAVA] A[k+1] = " + nextA/a_max);
             theAirbrakes.setFracExposed_fudged_for_simulation(nextA/a_max_fudged);
             lastControlStepTime = status.getSimulationTime();
 
@@ -511,7 +512,8 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
         aRef = 0.019289796351014733;
         g = 9.81;
         double c = rho*rocketCd*aRef/2.0;
-        c *= cFudge;
+        double cFudgeLocal = 1+cFudge*(200-v0)/200; // dependence on velocity only. 1 for high velocities, 1.5 at 0
+        c *= cFudgeLocal;
         double alpha = rho*airbrakesCd*A/2.0;
 
         // Fudging

@@ -458,21 +458,19 @@ if True:
     airbrakesCtrl.fudge_factor_2 = 0
 
     airbrakesCtrl.fudge_factor_conrad = 1
+    airbrakesCtrl.adjusting = 0
 
     airbrakesCtrl.factorK = 1e10#0.5
-    airbrakesCtrl.kp_factor = 2
-    airbrakesCtrl.ki_factor = 1
+    airbrakesCtrl.kp_factor = 5
+    airbrakesCtrl.ki_factor = 10
     airbrakesCtrl.velContribFudge = 1#1.04 
-
-    def getCfudge(alt):
-        return 8.99999871e-06*alt*alt - 1.10354984e-01*alt + 3.38925325e+02
 
     """airbrakesCtrl.cFudge = 0.825 # for 6275
     airbrakesCtrl.cFudge = 0.72 # for 6225
     airbrakesCtrl.cFudge = 0.7725 # for 6250
     airbrakesCtrl.cFudge = 0.9 # for 6300"""
-    airbrakesCtrl.cFudge = 1#getCfudge(6320-4634+airbrakesCtrl.overriden_desiredApog)
-    airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 1#0.75
+    airbrakesCtrl.cFudge = 0#getCfudge(6320-4634+airbrakesCtrl.overriden_desiredApog)
+    airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 0.75#0.75
     airbrakesCtrl.rate = 1
 
     airbrakesCtrl.DEBUG_AIRBRAKES_ON = True
@@ -703,7 +701,7 @@ if True:
     noAirbrakesAlt = 4634
     diff = np.abs(maxAltReal-airbrakesCtrl.overriden_desiredApog)
     print("Airbrakes Goal Diff: {}, {}%".format(np.round(diff,4), int(diff/(noAirbrakesAlt-airbrakesCtrl.overriden_desiredApog)*100)))
-    exit(0)
+    #exit(0)
 
 
     index2 = np.argmin((t-16)**2)
