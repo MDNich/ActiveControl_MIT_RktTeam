@@ -450,7 +450,7 @@ if True:
     #airbrakesCtrl.AIRBRAKES_TIME_DELAY = 1.0
     #airbrakesCtrl.roundToHowMuch = 100
     airbrakesCtrl.overriden_A0 = -1#.999
-    airbrakesCtrl.overriden_desiredApog = 4550#.999
+    airbrakesCtrl.overriden_desiredApog = 4600#.999
     airbrakesCtrl.AIRBRAKES_SIMULATION_T_APOG = 31
     #airbrakesCtrl.override_t_apog = 33
 
@@ -460,17 +460,17 @@ if True:
     airbrakesCtrl.fudge_factor_conrad = 1
     airbrakesCtrl.adjusting = 0
 
-    airbrakesCtrl.factorK = 1e10#0.5
-    airbrakesCtrl.kp_factor = 5
-    airbrakesCtrl.ki_factor = 10
-    airbrakesCtrl.velContribFudge = 1#1.04 
+    airbrakesCtrl.factorK = 0.5#0.5
+    airbrakesCtrl.kp_factor = 1
+    airbrakesCtrl.ki_factor = 1
+    airbrakesCtrl.velContribFudge = 1.#1.04 
 
     """airbrakesCtrl.cFudge = 0.825 # for 6275
     airbrakesCtrl.cFudge = 0.72 # for 6225
     airbrakesCtrl.cFudge = 0.7725 # for 6250
     airbrakesCtrl.cFudge = 0.9 # for 6300"""
-    airbrakesCtrl.cFudge = 0#getCfudge(6320-4634+airbrakesCtrl.overriden_desiredApog)
-    airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 0.75#0.75
+    airbrakesCtrl.cFudge = 1#getCfudge(6320-4634+airbrakesCtrl.overriden_desiredApog)
+    airbrakesCtrl.AIRBRAKES_MEASUREMENT_FUDGE_FACTOR = 0.875#0.75
     airbrakesCtrl.rate = 1
 
     airbrakesCtrl.DEBUG_AIRBRAKES_ON = True
