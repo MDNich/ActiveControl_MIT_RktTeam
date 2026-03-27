@@ -327,7 +327,7 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             // calculate apogee height.
             
             double conrad_predict = computeFinalAltitude_Conrad(0,status);
-            patchingAltitude = 4637 - conrad_predict;
+            patchingAltitude = 4546 - conrad_predict;
             conrad_predict = computeFinalAltitude_Conrad(0,status);
             System.out.println("[JAVA] <Conrad> predicted apogee: " + conrad_predict + " m");
             predictedAlt = conrad_predict;
