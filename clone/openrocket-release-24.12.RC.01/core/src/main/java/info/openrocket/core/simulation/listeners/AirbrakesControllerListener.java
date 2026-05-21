@@ -321,6 +321,9 @@ public class AirbrakesControllerListener extends AbstractSimulationListener{
             System.out.println("[JAVA] Fitted Velocity model to t_apogs; coeffs are a " + a + " and b " + b);
             coeffA = a;
             coeffB = b;
+            double alt000 = getAltitudeEstimate(currentTime,status.getRocketWorldPosition().getAltitude());
+            System.out.println("[JAVA] Predicted Altitude:" + alt000);
+
 
 
 
