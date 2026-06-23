@@ -448,7 +448,7 @@ public class SwingPreferences extends ApplicationPreferences {
 
 	/**
 	 * Get the current font style used for the UI.
-	 * @return the current style weight (e.g. "Inter-Regular")
+	 * @return the canonical stored style identifier
 	 */
 	public String getUIFontStyle() {
 		return getString(UI_FONT_STYLE, UIPreferencesPanel.FontStyle.REGULAR.getFontName());

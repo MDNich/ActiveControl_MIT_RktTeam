@@ -2,6 +2,7 @@ package info.openrocket.core.aerodynamics;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import info.openrocket.core.logging.WarningSet;
 import org.junit.jupiter.api.BeforeAll;
@@ -15,6 +16,7 @@ import info.openrocket.core.ServicesForTesting;
 import info.openrocket.core.aerodynamics.barrowman.FinSetCalc;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
+import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.Rocket;
 import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.startup.Application;
@@ -177,5 +179,63 @@ public class FinSetCalcTest {
 		assertFalse(Double.isNaN(forces.getCP().x), "CP x-coordinate should not be NaN for very small fin");
 		assertFalse(Double.isNaN(forces.getCP().y), "CP y-coordinate should not be NaN for very small fin");
 		assertFalse(Double.isNaN(forces.getCP().z), "CP z-coordinate should not be NaN for very small fin");
+	}
+
+	@Test
+	public void testTriangularLeadingEdgePressureAndBaseDrag() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+		fins.setCrossSection(FinSet.CrossSection.TRIANGULAR);
+		fins.setLeadingEdgeAngle(Math.toRadians(30));
+
+		FlightConfiguration config = rocket.getSelectedConfiguration();
+		FlightConditions conditions = new FlightConditions(config);
+		WarningSet warnings = new WarningSet();
+		FinSetCalc calc = new FinSetCalc(fins);
+
+		conditions.setMach(0.3);
+		double subsonicPressureCD = calc.calculatePressureCD(conditions, 1.0, 0.5, warnings);
+		assertTrue(subsonicPressureCD > 0, "Triangular fin subsonic pressure CD should be positive");
+
+		conditions.setMach(2.0);
+		double supersonicPressureCD = calc.calculatePressureCD(conditions, 1.0, 0.5, warnings);
+		assertTrue(supersonicPressureCD > 0, "Triangular fin supersonic pressure CD should be positive");
+
+		fins.setCrossSection(FinSet.CrossSection.SQUARE);
+		double squarePressureCD = new FinSetCalc(fins).calculatePressureCD(conditions, 1.0, 0.5, warnings);
+		assertTrue(supersonicPressureCD < squarePressureCD,
+				"Triangular fin supersonic pressure CD should stay below square stagnation scaling");
+	}
+
+	@Test
+	public void testTriangularLeadingEdgeAngleDistanceConversion() {
+		double thickness = 0.003;
+		double angle = Math.toRadians(20);
+		double distance = FinSet.leadingEdgeDistanceFromAngle(thickness, angle);
+		assertEquals(angle, FinSet.leadingEdgeAngleFromDistance(thickness, distance), EPSILON,
+				"Leading-edge angle and distance should round trip");
+	}
+
+	@Test
+	public void testTriangularLeadingEdgeIncreasesProjectedRollDampingArea() {
+		Rocket rocket = TestRockets.makeEstesAlphaIII();
+		TrapezoidFinSet fins = (TrapezoidFinSet) rocket.getChild(0).getChild(1).getChild(0);
+
+		FlightConditions conditions = new FlightConditions(rocket.getSelectedConfiguration());
+		conditions.setMach(0.3);
+		conditions.setRollRate(5.0);
+		WarningSet warnings = new WarningSet();
+
+		fins.setCrossSection(FinSet.CrossSection.SQUARE);
+		AerodynamicForces squareForces = new AerodynamicForces();
+		new FinSetCalc(fins).calculateNonaxialForces(conditions, Transformation.IDENTITY, squareForces, warnings);
+
+		fins.setCrossSection(FinSet.CrossSection.TRIANGULAR);
+		fins.setLeadingEdgeAngle(Math.toRadians(20));
+		AerodynamicForces triangularForces = new AerodynamicForces();
+		new FinSetCalc(fins).calculateNonaxialForces(conditions, Transformation.IDENTITY, triangularForces, warnings);
+
+		assertTrue(triangularForces.getCrollDamp() > squareForces.getCrollDamp(),
+				"Triangular leading-edge projected area should contribute to roll damping");
 	}
 }

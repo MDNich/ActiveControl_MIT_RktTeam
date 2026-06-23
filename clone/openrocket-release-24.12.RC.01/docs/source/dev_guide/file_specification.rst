@@ -545,6 +545,13 @@ The ``<ellipticalfinset>`` element defines the **Elliptical Fin Set** component:
       <height>0.05</height>
    </ellipticalfinset>
 
+The ``<crosssection>`` value for standard fin sets is one of ``square``,
+``rounded``, ``airfoil``, or ``triangular``. For ``triangular`` cross sections,
+``<leadingedgeangle>`` may be written after ``<crosssection>``. The value is the
+included angle, in degrees, between the top and bottom leading-edge bevel
+surfaces. If omitted, OpenRocket uses its automatic triangular leading-edge
+angle.
+
 <tubefinset>
 """"""""""""
 
@@ -1124,4 +1131,3 @@ Important Notes
 2. When a component is first created in a .ork file, the material definition is copied from the .orc file. Subsequent changes to the material definition in the .orc file will not automatically update existing components in .ork files.
 3. To update a component's material properties, you must manually reselect the component preset from the database.
 4. The XML schema for .orc files is not formally defined in an XSD file.
-

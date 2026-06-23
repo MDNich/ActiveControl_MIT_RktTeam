@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
@@ -30,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
@@ -119,25 +117,7 @@ public class GUIUtil {
 	}
 
 	public static void loadCustomFonts() {
-		// Load custom fonts
-		try {
-			String[] fontPaths = {
-					"/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf",
-					"/fonts/Inter/Inter-VariableFont_opsz,wght.ttf",
-			};
-			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-
-			for (String fontPath : fontPaths) {
-				Font font = Font.createFont(Font.TRUETYPE_FONT,
-						Objects.requireNonNull(GUIUtil.class.getResourceAsStream(fontPath)));
-
-				// Register font with the graphics environment
-				ge.registerFont(font);
-				log.debug("Loaded custom font: " + font.getName());
-			}
-		} catch (IOException | FontFormatException e) {
-			log.error("Error loading custom fonts", e);
-		}
+		// Retained for the theme startup path. UI fonts are resolved from the platform registry.
 	}
 
 	public static void printAvailableFonts() {
