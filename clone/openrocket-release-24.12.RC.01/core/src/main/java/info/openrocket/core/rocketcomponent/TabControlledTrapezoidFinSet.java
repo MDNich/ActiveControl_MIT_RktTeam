@@ -40,7 +40,6 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
         boolean freezeRocket = true;
         final FinSet finset = trapezoidFinSet;
         final RocketComponent root = trapezoidFinSet.getRoot();
-        FreeformFinSet freeform;
         List<RocketComponent> toInvalidate = new ArrayList<>();
 
         try {
@@ -58,33 +57,16 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
                 position = -1;
             }
 
+            toInvalidate = copyFinSetProperties(this, finset);
+            updateConvertedName(finset, this);
 
-
-            // Set name
-            final String componentTypeName = finset.getComponentName();
-            final String name = this.getName();
-
-            this.setAxialOffset(finset.getAxialOffset());
-            this.setThickness(finset.getThickness());
-            this.setMaterial(finset.getMaterial());
-            this.setFilletMaterial(finset.getFilletMaterial());
-            this.setAppearance(finset.getAppearance());
-
-            if (name.startsWith(componentTypeName)) {
-                this.setName(this.getComponentName() +
-                        name.substring(componentTypeName.length()));
-            }
-            this.setName(finset.getName() + " (Tab Ctrlled)");
-
-            this.setAppearance(finset.getAppearance());
-
-            // Add freeform fin set to parent
+            // Add replacement fin set to parent
             if (parent != null) {
                 parent.addChild(this, position);
             }
 
             // Convert config listeners
-            for (RocketComponent listener : finset.configListeners) {
+            for (RocketComponent listener : new ArrayList<>(finset.configListeners)) {
                 if (listener instanceof FinSet) {
                     finset.removeConfigListener(listener);
                     this.addConfigListener(listener);
@@ -117,6 +99,78 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
         this.tabChord = tabChord;
         this.tabAngle = tabAngle;
         this.tabOffset = tabOffset;
+    }
+
+    public TrapezoidFinSet removeTabs() {
+        TabControlledTrapezoidFinSet oldset = this;
+        TrapezoidFinSet newset = new TrapezoidFinSet(oldset.getFinCount(), oldset.getRootChord(), oldset.getTipChord(),
+                oldset.getSweep(), oldset.getHeight());
+
+        boolean freezeRocket = true;
+        final FinSet finset = oldset;
+        final RocketComponent root = oldset.getRoot();
+        List<RocketComponent> toInvalidate = new ArrayList<>();
+
+        try {
+            if (freezeRocket && root instanceof Rocket) {
+                ((Rocket) root).freeze();
+            }
+
+            // Get fin set position and remove fin set
+            final RocketComponent parent = finset.getParent();
+            final int position;
+            if (parent != null) {
+                position = parent.getChildPosition(finset);
+                parent.removeChild(position);
+            } else {
+                position = -1;
+            }
+
+            toInvalidate = copyFinSetProperties(newset, finset);
+            updateConvertedName(finset, newset);
+
+            // Add replacement fin set to parent
+            if (parent != null) {
+                parent.addChild(newset, position);
+            }
+
+            // Convert config listeners
+            for (RocketComponent listener : new ArrayList<>(finset.configListeners)) {
+                if (listener instanceof FinSet) {
+                    finset.removeConfigListener(listener);
+                    newset.addConfigListener(listener);
+                }
+            }
+
+        } finally {
+            if (freezeRocket && root instanceof Rocket) {
+                ((Rocket) root).thaw();
+            }
+            // Invalidate components after events have been fired
+            for (RocketComponent c : toInvalidate) {
+                c.invalidate();
+            }
+        }
+        return newset;
+    }
+
+    private static List<RocketComponent> copyFinSetProperties(FinSet target, FinSet source) {
+        List<RocketComponent> toInvalidate = target.copyFrom(source);
+        target.setAppearance(source.getAppearance());
+        target.setVisible(source.isVisible());
+        if (source.isCDOverridden()) {
+            target.setOverrideCD(source.getOverrideCD());
+        }
+        target.setCDOverridden(source.isCDOverridden());
+        return toInvalidate;
+    }
+
+    private static void updateConvertedName(FinSet source, FinSet target) {
+        String sourceComponentTypeName = source.getComponentName();
+        String name = target.getName();
+        if (name.startsWith(sourceComponentTypeName)) {
+            target.setName(target.getComponentName() + name.substring(sourceComponentTypeName.length()));
+        }
     }
 
     public void setTabShape(double tabLength, double tabDepth, double tabOffset, double tabAngle) {

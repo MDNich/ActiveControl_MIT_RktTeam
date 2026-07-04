@@ -117,33 +117,59 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		}
 
         if((component instanceof TrapezoidFinSet)){// & !(component instanceof TabControlledTrapezoidFinSet)) {
-            tabify = new JButton("Add Roll Control Tabs");
-            if (component instanceof TabControlledTrapezoidFinSet) {
-                tabify.setEnabled(false);
-            }
-            tabify.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    log.info(Markers.USER_MARKER, "Converting " + component.getComponentName() + " into tab-controlled fin set");
+			if (component instanceof TabControlledTrapezoidFinSet) {
+				tabify = new JButton("Remove Roll Control Tabs");
+				tabify.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						log.info(Markers.USER_MARKER, "Removing fin roll control tabs from " + component.getComponentName());
 
-                    // Do change in future for overall safety
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            //// Convert fin set
-                            document.addUndoPosition("Convert trapezoid fin set to tab-controlled one.");
+						// Do change in future for overall safety
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								//// Un-convert fin set
+								document.addUndoPosition("Remove roll control tabs");
 
-                            RocketComponent tabctrlled =
-                                    new TabControlledTrapezoidFinSet((TrapezoidFinSet) component);
+								RocketComponent notabs = ((TabControlledTrapezoidFinSet) component).removeTabs();
 
-                            ComponentConfigDialog.showDialog(tabctrlled);
+								ComponentConfigDialog.showDialog(notabs);
 
-                        }
-                    });
+							}
+						});
 
-                    ComponentConfigDialog.disposeDialog();
-                }
-            });
+						ComponentConfigDialog.disposeDialog();
+					}
+				});
+
+
+			}
+			else {
+				tabify = new JButton("Add Roll Control Tabs");
+				tabify.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						log.info(Markers.USER_MARKER, "Converting " + component.getComponentName() + " into tab-controlled fin set");
+
+						// Do change in future for overall safety
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								//// Convert fin set
+								document.addUndoPosition("Convert trapezoid fin set to tab-controlled one.");
+
+								RocketComponent tabctrlled =
+										new TabControlledTrapezoidFinSet((TrapezoidFinSet) component);
+
+								ComponentConfigDialog.showDialog(tabctrlled);
+
+							}
+						});
+
+						ComponentConfigDialog.disposeDialog();
+					}
+				});
+			}
 
         }
 

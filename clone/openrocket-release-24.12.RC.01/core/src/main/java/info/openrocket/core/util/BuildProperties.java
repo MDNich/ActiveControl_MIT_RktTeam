@@ -13,6 +13,9 @@ public class BuildProperties {
 	private static final String BUILD_SOURCE;
 	private static final boolean DEFAULT_CHECK_UPDATES;
 	private static final boolean DEFAULT_CHECK_BETA_UPDATES;
+	private static final boolean MIT_EDITION;
+	private static final String MIT_VERSION;
+	private static final String MIT_UPDATE_URL;
 
 	/**
 	 * Return the OpenRocket version number.
@@ -34,6 +37,18 @@ public class BuildProperties {
 
 	public static boolean getDefaultCheckBetaUpdates() {
 		return DEFAULT_CHECK_BETA_UPDATES;
+	}
+
+	public static boolean isMitEdition() {
+		return MIT_EDITION;
+	}
+
+	public static String getMitVersion() {
+		return MIT_VERSION;
+	}
+
+	public static String getMitUpdateUrl() {
+		return MIT_UPDATE_URL;
 	}
 
 	public static String getCopyrightYear() {
@@ -82,6 +97,9 @@ public class BuildProperties {
 				DEFAULT_CHECK_BETA_UPDATES = true;
 
 			BUILD_COPYRIGHT = PROPERTIES.getProperty("build.copyright", "2021");
+			MIT_EDITION = Boolean.parseBoolean(PROPERTIES.getProperty("build.mit.edition", "false"));
+			MIT_VERSION = PROPERTIES.getProperty("build.mit.version", "").trim();
+			MIT_UPDATE_URL = PROPERTIES.getProperty("build.mit.updateurl", "").trim();
 
 		} catch (IOException e) {
 			throw new MissingResourceException(

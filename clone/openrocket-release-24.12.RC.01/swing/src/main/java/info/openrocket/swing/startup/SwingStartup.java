@@ -23,11 +23,14 @@ import info.openrocket.core.startup.Application;
 import net.miginfocom.layout.LayoutUtil;
 import info.openrocket.core.arch.SystemInfo;
 import info.openrocket.core.arch.SystemInfo.Platform;
+import info.openrocket.core.communication.MitUpdateInfo;
+import info.openrocket.core.communication.MitUpdateInfoRetriever;
 import info.openrocket.core.communication.UpdateInfo;
 import info.openrocket.core.communication.UpdateInfoRetriever;
 import info.openrocket.core.communication.UpdateInfoRetriever.ReleaseStatus;
 import info.openrocket.core.communication.WelcomeInfoRetriever;
 import info.openrocket.core.database.Databases;
+import info.openrocket.swing.gui.dialogs.MitUpdateDialog;
 import info.openrocket.swing.gui.dialogs.UpdateInfoDialog;
 import info.openrocket.swing.gui.dialogs.WelcomeDialog;
 import info.openrocket.swing.gui.main.BasicFrame;
@@ -57,6 +60,7 @@ import static info.openrocket.core.file.rasaero.export.BodyTubeDTOAdapter.trans;
  */
 public class SwingStartup {
 	private final static Logger log = LoggerFactory.getLogger(SwingStartup.class);
+	private static final boolean SHOW_MIT_UPDATE_CHECK_ERRORS = true;
 	
 	/**
 	 * OpenRocket startup main method.
@@ -205,6 +209,7 @@ public class SwingStartup {
 		
 		// Start update info fetching
 		final UpdateInfoRetriever updateRetriever = startUpdateChecker();
+		final MitUpdateInfoRetriever mitUpdateRetriever = startMitUpdateChecker();
 		
 		// Set the look-and-feel
 		log.info("Setting LAF");
@@ -241,6 +246,7 @@ public class SwingStartup {
 		// Check whether update info has been fetched or whether it needs more time
 		log.info("Checking update status");
 		checkUpdateStatus(updateRetriever);
+		checkMitUpdateStatus(mitUpdateRetriever);
 
 		// Check if plugins were migrated, if so, display a message
 		final List<File> files = PluginHelper.getPluginJars();
@@ -286,6 +292,17 @@ public class SwingStartup {
 		}
 		return updateRetriever;
 	}
+
+	public static MitUpdateInfoRetriever startMitUpdateChecker() {
+		if (!BuildProperties.isMitEdition()) {
+			log.debug("MIT edition update check skipped for non-MIT build");
+			return null;
+		}
+		log.info("Starting MIT edition update check");
+		MitUpdateInfoRetriever updateRetriever = new MitUpdateInfoRetriever();
+		updateRetriever.startFetchUpdateInfo();
+		return updateRetriever;
+	}
 	
 	public static void checkUpdateStatus(final UpdateInfoRetriever updateRetriever) {
 		if (updateRetriever == null)
@@ -314,6 +331,53 @@ public class SwingStartup {
 							(checkAllUpdates || !preferences.getIgnoreUpdateVersions().contains(info.getLatestRelease().getReleaseName()))) {
 						UpdateInfoDialog infoDialog = new UpdateInfoDialog(info);
 						infoDialog.setVisible(true);
+					}
+				}
+				count--;
+				if (count <= 0)
+					timer.stop();
+			}
+		};
+		timer.addActionListener(listener);
+		timer.start();
+	}
+
+	public static void checkMitUpdateStatus(final MitUpdateInfoRetriever updateRetriever) {
+		if (updateRetriever == null)
+			return;
+
+		int delay = 1000;
+		if (!updateRetriever.isRunning())
+			delay = 100;
+
+		final Timer timer = new Timer(delay, null);
+
+		ActionListener listener = new ActionListener() {
+			private int count = 15;
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!updateRetriever.isRunning()) {
+					timer.stop();
+
+					MitUpdateInfo info = updateRetriever.getUpdateInfo();
+					if (info == null) {
+						return;
+					}
+					if (info.getException() != null) {
+						log.info("MIT edition update check did not complete: {}", info.getException().getMessage());
+						if (SHOW_MIT_UPDATE_CHECK_ERRORS) {
+							JOptionPane.showMessageDialog(null,
+									"The MIT edition update check could not be completed.\n\n" + info.getException().getMessage(),
+									"MIT edition update check failed",
+									JOptionPane.INFORMATION_MESSAGE);
+						}
+						return;
+					}
+					if (info.isUpdateAvailable() && !Application.getPreferences().getIgnoreMitUpdateVersions()
+							.contains(info.getLatestRelease().getReleaseVersion())) {
+						MitUpdateDialog dialog = new MitUpdateDialog(info);
+						dialog.setVisible(true);
 					}
 				}
 				count--;

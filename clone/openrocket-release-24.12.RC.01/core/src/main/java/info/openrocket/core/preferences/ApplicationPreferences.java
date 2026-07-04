@@ -75,6 +75,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	private static final String CHECK_UPDATES = "CheckUpdates";
 
 	private static final String IGNORE_UPDATE_VERSIONS = "IgnoreUpdateVersions";
+	private static final String IGNORE_MIT_UPDATE_VERSIONS = "IgnoreMitUpdateVersions";
 	private static final String CHECK_BETA_UPDATES = "CheckBetaUpdates";
 
 	public static final String MOTOR_DIAMETER_FILTER = "MotorDiameterMatch";
@@ -255,6 +256,14 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 
 	public final void setIgnoreUpdateVersions(List<String> versions) {
 		this.putString(IGNORE_UPDATE_VERSIONS, String.join("\n", versions));
+	}
+
+	public final List<String> getIgnoreMitUpdateVersions() {
+		return List.of(this.getString(IGNORE_MIT_UPDATE_VERSIONS, "").split("\n"));
+	}
+
+	public final void setIgnoreMitUpdateVersions(List<String> versions) {
+		this.putString(IGNORE_MIT_UPDATE_VERSIONS, String.join("\n", versions));
 	}
 
 	public final boolean getCheckBetaUpdates() {
