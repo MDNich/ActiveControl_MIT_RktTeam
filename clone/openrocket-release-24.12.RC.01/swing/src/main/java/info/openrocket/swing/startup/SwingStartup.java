@@ -60,7 +60,7 @@ import static info.openrocket.core.file.rasaero.export.BodyTubeDTOAdapter.trans;
  */
 public class SwingStartup {
 	private final static Logger log = LoggerFactory.getLogger(SwingStartup.class);
-	private static final boolean SHOW_MIT_UPDATE_CHECK_ERRORS = true;
+	private static final boolean SHOW_MIT_UPDATE_CHECK_ERRORS = false;
 	
 	/**
 	 * OpenRocket startup main method.
