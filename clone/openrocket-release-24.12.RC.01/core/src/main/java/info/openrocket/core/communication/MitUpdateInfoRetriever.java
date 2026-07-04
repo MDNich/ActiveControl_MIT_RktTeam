@@ -132,13 +132,14 @@ public class MitUpdateInfoRetriever {
 			if (jarAsset == null) {
 				throw new UpdateException("Latest MIT release has no jar asset");
 			}
+			String expectedSha256 = jarAsset.getSha256Digest();
 			MitReleaseInfo.Asset sha256Asset = release.getSha256AssetFor(jarAsset);
-			if (sha256Asset == null) {
+			if (expectedSha256.isBlank() && sha256Asset == null) {
 				throw new UpdateException("Latest MIT release has no SHA-256 asset for " + jarAsset.name());
 			}
 
 			log.info("Found MIT edition update: current={}, latest={}", currentVersion, latestVersion);
-			return new MitUpdateInfo(release, jarAsset, sha256Asset, true);
+			return new MitUpdateInfo(release, jarAsset, sha256Asset, true, expectedSha256);
 		}
 
 		private MitReleaseInfo retrieveLatestRelease(String updateUrl) throws UpdateException {

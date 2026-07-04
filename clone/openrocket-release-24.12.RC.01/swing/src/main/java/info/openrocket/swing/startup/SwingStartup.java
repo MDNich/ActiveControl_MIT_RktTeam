@@ -43,6 +43,7 @@ import info.openrocket.swing.logging.LoggingSystemSetup;
 import info.openrocket.swing.logging.PrintStreamToSLF4J;
 import info.openrocket.core.plugin.PluginModule;
 import info.openrocket.core.util.BuildProperties;
+import info.openrocket.core.util.JarUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,7 @@ public class SwingStartup {
 		// Initialize logging first so we can use it
 		initializeLogging();
 		log.info("Starting up OpenRocket version {}", BuildProperties.getVersion());
+		System.out.println("JarUtil.getCurrentJarFile(): " + JarUtil.getCurrentJarFile());
 
 		// Check JRE version
 		boolean ignoreJRE = System.getProperty("openrocket.ignore-jre") != null;

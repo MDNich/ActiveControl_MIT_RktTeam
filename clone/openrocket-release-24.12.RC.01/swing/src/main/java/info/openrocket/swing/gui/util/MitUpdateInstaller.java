@@ -33,14 +33,24 @@ public final class MitUpdateInstaller {
 	}
 
 	public static void downloadVerifyAndLaunchInstaller(MitUpdateInfo info) throws UpdateInstallException {
+		downloadVerifyAndLaunchInstaller(info, ProgressListener.NONE);
+	}
+
+	public static void downloadVerifyAndLaunchInstaller(MitUpdateInfo info, ProgressListener progressListener)
+			throws UpdateInstallException {
+		ProgressListener progress = progressListener != null ? progressListener : ProgressListener.NONE;
 		if (info == null || !info.isUpdateAvailable()) {
 			throw new UpdateInstallException("No MIT edition update is available");
 		}
 
 		MitReleaseInfo.Asset jarAsset = info.getJarAsset();
 		MitReleaseInfo.Asset sha256Asset = info.getSha256Asset();
-		if (jarAsset == null || sha256Asset == null) {
-			throw new UpdateInstallException("MIT edition update is missing jar or SHA-256 asset");
+		if (jarAsset == null) {
+			throw new UpdateInstallException("MIT edition update is missing jar asset");
+		}
+		boolean needsSha256Asset = info.getExpectedSha256() == null || info.getExpectedSha256().isBlank();
+		if (needsSha256Asset && sha256Asset == null) {
+			throw new UpdateInstallException("MIT edition update is missing SHA-256 asset");
 		}
 
 		Path tempDir;
@@ -51,11 +61,17 @@ public final class MitUpdateInstaller {
 		}
 
 		Path downloadedJar = tempDir.resolve(sanitizeFilename(jarAsset.name()));
-		Path downloadedSha256 = tempDir.resolve(sanitizeFilename(sha256Asset.name()));
-		downloadAsset(jarAsset.browserDownloadUrl(), downloadedJar);
-		downloadAsset(sha256Asset.browserDownloadUrl(), downloadedSha256);
+		downloadAsset(jarAsset.browserDownloadUrl(), downloadedJar, progress, "Downloading update", 0, 90);
+		String expectedSha256 = info.getExpectedSha256();
+		if (needsSha256Asset) {
+			Path downloadedSha256 = tempDir.resolve(sanitizeFilename(sha256Asset.name()));
+			downloadAsset(sha256Asset.browserDownloadUrl(), downloadedSha256, progress, "Downloading checksum", 90, 95);
+			expectedSha256 = readExpectedSha256(downloadedSha256);
+		} else {
+			progress.onProgress("Using release checksum", 95);
+		}
 
-		String expectedSha256 = readExpectedSha256(downloadedSha256);
+		progress.onProgress("Verifying checksum", 96);
 		String actualSha256 = sha256(downloadedJar);
 		if (!expectedSha256.equalsIgnoreCase(actualSha256)) {
 			throw new UpdateInstallException(String.format(
@@ -71,7 +87,9 @@ public final class MitUpdateInstaller {
 			throw new UpdateInstallException("Current jar directory is not writable: " + currentJar.getParent());
 		}
 
+		progress.onProgress("Preparing installer", 99);
 		launchReplacementScript(downloadedJar, currentJar);
+		progress.onProgress("Ready to install", 100);
 	}
 
 	private static Path getCurrentJarPath() throws UpdateInstallException {
@@ -85,7 +103,8 @@ public final class MitUpdateInstaller {
 		return path;
 	}
 
-	private static void downloadAsset(String url, Path destination) throws UpdateInstallException {
+	private static void downloadAsset(String url, Path destination, ProgressListener progress, String status,
+			int startPercent, int endPercent) throws UpdateInstallException {
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) new URL(url).openConnection();
@@ -96,13 +115,15 @@ public final class MitUpdateInstaller {
 			connection.setReadTimeout(CONNECTION_TIMEOUT);
 			connection.connect();
 
-			int status = connection.getResponseCode();
-			if (status != HttpURLConnection.HTTP_OK) {
-				throw new UpdateInstallException("Download failed with HTTP status " + status + ": " + url);
+			int statusCode = connection.getResponseCode();
+			if (statusCode != HttpURLConnection.HTTP_OK) {
+				throw new UpdateInstallException("Download failed with HTTP status " + statusCode + ": " + url);
 			}
 
+			long contentLength = connection.getContentLengthLong();
+			progress.onProgress(status, contentLength > 0 ? startPercent : -1);
 			try (InputStream in = new BufferedInputStream(connection.getInputStream())) {
-				Files.copy(in, destination, StandardCopyOption.REPLACE_EXISTING);
+				copyWithProgress(in, destination, contentLength, progress, status, startPercent, endPercent);
 			}
 		} catch (IOException e) {
 			throw new UpdateInstallException("Could not download MIT edition update asset: " + url, e);
@@ -111,6 +132,32 @@ public final class MitUpdateInstaller {
 				connection.disconnect();
 			}
 		}
+	}
+
+	private static void copyWithProgress(InputStream in, Path destination, long contentLength, ProgressListener progress,
+			String status, int startPercent, int endPercent) throws IOException {
+		Path tempDestination = destination.resolveSibling(destination.getFileName() + ".part");
+		long totalRead = 0;
+		int lastProgress = -1;
+		try (var out = Files.newOutputStream(tempDestination)) {
+			byte[] buffer = new byte[8192];
+			int read;
+			while ((read = in.read(buffer)) != -1) {
+				out.write(buffer, 0, read);
+				totalRead += read;
+				if (contentLength > 0) {
+					int currentProgress = startPercent +
+							(int) Math.min(endPercent - startPercent,
+									((totalRead * (endPercent - startPercent)) / contentLength));
+					if (currentProgress != lastProgress) {
+						progress.onProgress(status, currentProgress);
+						lastProgress = currentProgress;
+					}
+				}
+			}
+		}
+		Files.move(tempDestination, destination, StandardCopyOption.REPLACE_EXISTING);
+		progress.onProgress(status, endPercent);
 	}
 
 	private static String readExpectedSha256(Path sha256File) throws UpdateInstallException {
@@ -160,7 +207,9 @@ public final class MitUpdateInstaller {
 					sleep 1
 				done
 
-				cp "$TARGET" "$BACKUP" 2>/dev/null || true
+				rm -f "$BACKUP"
+				cp -p "$TARGET" "$BACKUP" 2>/dev/null || true
+				rm -f "$TARGET"
 				cp "$SOURCE" "$TARGET"
 				rm -f "$SOURCE"
 
@@ -212,5 +261,16 @@ public final class MitUpdateInstaller {
 		public UpdateInstallException(String message, Throwable cause) {
 			super(message, cause);
 		}
+	}
+
+	public interface ProgressListener {
+		ProgressListener NONE = (message, percent) -> {
+		};
+
+		/**
+		 * @param message progress status
+		 * @param percent progress from 0 to 100, or -1 for indeterminate progress
+		 */
+		void onProgress(String message, int percent);
 	}
 }

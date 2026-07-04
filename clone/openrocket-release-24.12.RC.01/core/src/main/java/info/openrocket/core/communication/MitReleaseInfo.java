@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
@@ -12,6 +14,8 @@ import jakarta.json.JsonObject;
  * MIT-edition release metadata from the GitHub releases API.
  */
 public class MitReleaseInfo {
+	private static final Pattern SHA256_DIGEST_PATTERN = Pattern.compile("^(?:sha256:)?([0-9a-fA-F]{64})$");
+
 	private final JsonObject obj;
 	private final List<Asset> assets;
 
@@ -104,9 +108,10 @@ public class MitReleaseInfo {
 			JsonObject assetObj = assetArray.getJsonObject(i);
 			String name = getString(assetObj, "name");
 			String browserDownloadUrl = getString(assetObj, "browser_download_url");
+			String digest = getString(assetObj, "digest");
 			long size = assetObj.containsKey("size") ? assetObj.getJsonNumber("size").longValue() : -1;
 			if (!name.isBlank() && !browserDownloadUrl.isBlank()) {
-				parsed.add(new Asset(name, browserDownloadUrl, size));
+				parsed.add(new Asset(name, browserDownloadUrl, digest, size));
 			}
 		}
 		return List.copyOf(parsed);
@@ -119,6 +124,16 @@ public class MitReleaseInfo {
 		return obj.getString(key, "");
 	}
 
-	public record Asset(String name, String browserDownloadUrl, long size) {
+	public record Asset(String name, String browserDownloadUrl, String digest, long size) {
+		public String getSha256Digest() {
+			if (digest == null || digest.isBlank()) {
+				return "";
+			}
+			Matcher matcher = SHA256_DIGEST_PATTERN.matcher(digest);
+			if (!matcher.matches()) {
+				return "";
+			}
+			return matcher.group(1).toLowerCase(Locale.ROOT);
+		}
 	}
 }

@@ -13,8 +13,10 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.event.HyperlinkEvent;
 
@@ -39,6 +41,9 @@ import org.slf4j.LoggerFactory;
  */
 public class MitUpdateDialog extends JDialog {
 	private static final Logger log = LoggerFactory.getLogger(MitUpdateDialog.class);
+
+	private final JLabel progressLabel = new JLabel(" ");
+	private final JProgressBar progressBar = new JProgressBar(0, 100);
 
 	private static Color textColor;
 
@@ -81,6 +86,12 @@ public class MitUpdateDialog extends JDialog {
 
 		panel.add(new JScrollPane(textPane), "skip 1, left, spanx, grow, push, gapbottom 6px, wrap");
 
+		progressLabel.setVisible(false);
+		progressBar.setStringPainted(true);
+		progressBar.setVisible(false);
+		panel.add(progressLabel, "skip 1, spanx, growx, wrap");
+		panel.add(progressBar, "skip 1, spanx, growx, wrap para");
+
 		JButton btnLater = new JButton("Later");
 		btnLater.addActionListener(e -> MitUpdateDialog.this.dispose());
 		panel.add(btnLater, "skip 1, split 4");
@@ -117,11 +128,17 @@ public class MitUpdateDialog extends JDialog {
 	private void runInstallWorker(MitUpdateInfo info, JButton btnInstall) {
 		btnInstall.setEnabled(false);
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		updateProgress("Starting download", -1);
+		progressLabel.setVisible(true);
+		progressBar.setVisible(true);
+		revalidate();
+		pack();
 
 		SwingWorker<Void, Void> worker = new SwingWorker<>() {
 			@Override
 			protected Void doInBackground() throws Exception {
-				MitUpdateInstaller.downloadVerifyAndLaunchInstaller(info);
+				MitUpdateInstaller.downloadVerifyAndLaunchInstaller(info,
+						(message, percent) -> SwingUtilities.invokeLater(() -> updateProgress(message, percent)));
 				return null;
 			}
 
@@ -138,6 +155,7 @@ public class MitUpdateDialog extends JDialog {
 				} catch (Exception ex) {
 					log.warn("MIT edition update installation failed", ex);
 					btnInstall.setEnabled(true);
+					updateProgress("Update failed", 0);
 					JOptionPane.showMessageDialog(MitUpdateDialog.this,
 							errorMessage(ex),
 							"MIT edition update failed",
@@ -146,6 +164,18 @@ public class MitUpdateDialog extends JDialog {
 			}
 		};
 		worker.execute();
+	}
+
+	private void updateProgress(String message, int percent) {
+		progressLabel.setText(message);
+		if (percent < 0) {
+			progressBar.setIndeterminate(true);
+			progressBar.setString(message);
+		} else {
+			progressBar.setIndeterminate(false);
+			progressBar.setValue(percent);
+			progressBar.setString(percent + "%");
+		}
 	}
 
 	private static String buildReleaseHtml(MitReleaseInfo release) {
