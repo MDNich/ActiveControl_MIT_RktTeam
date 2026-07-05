@@ -1,6 +1,9 @@
 # Active Control: MIT Rocket Team
 *Active Control Algorithms and Simulation Testing for MIT Rocket Team.*
 
+In this repository, among testing frameworks, is an alternate "MIT Edition" of OpenRocket. Latest release can be downloaded [here](https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases/latest).
+
+
 *For a more comprehensive explanation, see [README.pdf](https://github.com/MDNich/ActiveControl_MIT_RktTeam/blob/main/README.pdf).*
 
 This repository contains tools and code for advanced simulation and control of rocket flight using both Java (OpenRocket) and Python. The workflow integrates custom Java simulation logic with Python scripting and visualization.
