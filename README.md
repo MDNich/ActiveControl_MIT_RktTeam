@@ -3,13 +3,14 @@
 
 In this repository, among testing frameworks, is an alternate "MIT Edition" of OpenRocket. Latest release can be downloaded [here](https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases/latest).
 
+The content below describes the python-to-openrocket scripting.
+
+## Overview
+A Python-based tool for rocket flight simulation that integrates with OpenRocket to analyze and visualize flight characteristics. This project focuses on processing and visualizing rocket flight data, particularly useful for analyzing pitch rates and velocities during flight.
 
 *For a more comprehensive explanation, see [README.pdf](https://github.com/MDNich/ActiveControl_MIT_RktTeam/blob/main/README.pdf).*
 
 This repository contains tools and code for advanced simulation and control of rocket flight using both Java (OpenRocket) and Python. The workflow integrates custom Java simulation logic with Python scripting and visualization.
-
-## Overview
-A Python-based tool for rocket flight simulation that integrates with OpenRocket to analyze and visualize flight characteristics. This project focuses on processing and visualizing rocket flight data, particularly useful for analyzing pitch rates and velocities during flight.
 
 ## Prerequisites
 - Python 3.12+
