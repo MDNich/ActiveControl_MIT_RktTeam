@@ -90,6 +90,11 @@ dependencies {
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'
 
     implementation group: 'org.jogamp.gluegen', name: 'gluegen-rt', version: '2.5.0'
+    // GlueGen's Java artifact does not include its native runtime. Match JOGL 2.5.0.
+    runtimeOnly files('lib/gluegen-rt-2.5.0-natives-macosx-universal.jar')
+    runtimeOnly 'org.jogamp.gluegen:gluegen-rt:2.5.0:natives-windows-amd64'
+    runtimeOnly 'org.jogamp.gluegen:gluegen-rt:2.5.0:natives-linux-amd64'
+    runtimeOnly 'org.jogamp.gluegen:gluegen-rt:2.5.0:natives-linux-aarch64'
     implementation group: 'org.jogamp.jogl', name: 'jogl-all-main', version: '2.5.0'
 
     testImplementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'

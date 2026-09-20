@@ -93,6 +93,7 @@ public class RTFC {
         telemetry.deliverDue(trace.bootUs());
         trace.log("fc.loop_end", "state="+currentState+" flight_ms="+elapsed32(FCtime,flightBeginTime)+" airbrakes_enabled="+airbrakesEnabled+" roll_enabled="+rollControlEnabled);
     }
+
     /** FC.ino handleState; repeated preflight is deliberately not a complete reset. */
     private void handleState() {
         RTRocketState previous=currentState;

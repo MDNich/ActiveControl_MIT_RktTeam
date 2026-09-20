@@ -80,6 +80,7 @@ class SimulationOptionsPanel extends JPanel {
 
 		final SimulationOptions conditions = simulation.getOptions();
 		
+        JPanel leftColumn = new JPanel(new MigLayout("fillx, insets 0", "[grow]", "[]12[]"));
 		JPanel sub, subsub;
 		String tip;
 		JLabel label;
@@ -94,7 +95,8 @@ class SimulationOptionsPanel extends JPanel {
 		// // Simulator options
 		sub.setBorder(BorderFactory.createTitledBorder(trans
 				.get("simedtdlg.border.Simopt")));
-		this.add(sub, "growx, growy, aligny 0");
+		leftColumn.add(sub, "growx, wrap");
+        this.add(leftColumn, "growx, growy, aligny 0");
 		
 		// Separate panel for computation methods, as they use a different
 		// layout
@@ -230,6 +232,9 @@ class SimulationOptionsPanel extends JPanel {
 		
 		
 		
+        flightComputerPanel = new FlightComputerPanel(simulation, this::updateCurrentExtensions);
+        leftColumn.add(flightComputerPanel, "growx, aligny 0");
+
 		//// Simulation extensions
 		sub = new JPanel(new MigLayout("fill, gap 0 0"));
 		sub.setBorder(BorderFactory.createTitledBorder(trans.get("simedtdlg.border.SimExt")));
@@ -249,8 +254,7 @@ class SimulationOptionsPanel extends JPanel {
 				}
 			});
 		sub.add(addExtension, "growx, wrap 0");
-        flightComputerPanel = new FlightComputerPanel(simulation, this::updateCurrentExtensions);
-        sub.add(flightComputerPanel, "growx, wrap para");
+
 		
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
@@ -338,7 +342,7 @@ class SimulationOptionsPanel extends JPanel {
 						SimulationExtension e = ext.clone();
 						if (ZephyrusFlightComputer.isFlightComputer(e)) {
                             var fc = ZephyrusFlightComputer.read(sim);
-                            ZephyrusFlightComputer.apply(simulation, fc.isEnabled(), fc.getLinkSettings());
+                            ZephyrusFlightComputer.apply(simulation, fc.isEnabled(), fc.getLinkSettings(), fc.getOutputSettings());
                         } else {
                             simulation.getSimulationExtensions().add(e);
                             simulation.extensionConfigurationChanged();

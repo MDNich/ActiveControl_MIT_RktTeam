@@ -34,7 +34,7 @@ mkdir -p sim/FCsim/output
 sim/FCsim/run-java-fc.sh --synthetic 2>&1 | tee sim/FCsim/output/synthetic-console.log
 ```
 
-The supporting runner compiles against `build/libs/OpenRocket-24.12.RC.01.jar` and calls the existing `Simulation.simulate(...)` method. It uses the packaged FC classes. Set `FC_OUTPUT_DIR=/absolute/path` to change the output parent directory. Console filenames in these examples are overwritten when reused; telemetry directories remain unique.
+The supporting runner compiles against `build/libs/OpenRocket-MIT-6.2.jar` and calls the existing `Simulation.simulate(...)` method. It uses the packaged FC classes. Set `FC_OUTPUT_DIR=/absolute/path` to change the output parent directory. Console filenames in these examples are overwritten when reused; telemetry directories remain unique.
 
 To inspect the supplied benchmark rocket and resolve its motor without simulating:
 
@@ -53,7 +53,7 @@ To launch the GUI from a terminal and capture its output:
 ```sh
 java -Xmx2g \
   -Dopenrocket.fc.telemetryDir=/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/output \
-  -jar /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/build/libs/OpenRocket-24.12.RC.01.jar \
+  -jar /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/build/libs/OpenRocket-MIT-6.2.jar \
   /Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/examples/zephy_testlaunch-java-fc.ork \
   2>&1 | tee /Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/output/gui-console.log
 ```

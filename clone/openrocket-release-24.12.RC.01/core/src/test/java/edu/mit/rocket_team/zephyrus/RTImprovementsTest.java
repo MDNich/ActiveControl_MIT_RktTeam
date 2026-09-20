@@ -16,6 +16,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RTImprovementsTest extends BaseTestCase {
+    @BeforeAll static void motorDatabaseForLoader() {
+        var parent = info.openrocket.core.startup.Application.getInjector();
+        info.openrocket.core.startup.Application.setInjector(parent.createChildInjector(new com.google.inject.AbstractModule() {
+            @Override protected void configure() {
+                bind(info.openrocket.core.database.motor.MotorDatabase.class).toInstance(new info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase());
+            }
+        }));
+    }
     @TempDir Path directory;
     private String previous;
     @BeforeEach void output() { previous=System.getProperty("openrocket.fc.telemetryDir"); System.setProperty("openrocket.fc.telemetryDir",directory.toString()); }
@@ -43,6 +51,26 @@ class RTImprovementsTest extends BaseTestCase {
         RTFC cancelled=packets(new TelemetryLinkSettings(0,10000,1),180); cancelled.telemetry.finish(false);
         assertEquals(0,cancelled.telemetry.getReceivedCount()); assertEquals(3,cancelled.telemetry.getPendingCount());
         assertTrue(Files.readString(cancelled.telemetry.getCsvPath().getParent().resolve("metadata.txt")).contains("completion=incomplete"));
+    }
+    @Test void customPathsProduceLogAndNeverOverwriteExistingFiles() throws Exception {
+        Path csv = directory.resolve("chosen/flight.csv"), log = directory.resolve("logs/flight.log");
+        var files = new FlightComputerOutputSettings(csv.toString(),log.toString());
+        Simulation sim = RTFCVerificationRocket.simulation(RTFCVerificationRocket.rocket());
+        sim.getOptions().setMaxSimulationTime(.1);
+        var listener = new FlightControllerSimulatorListener(line -> {},.0025,false,TelemetryLinkSettings.DEFAULT,files);
+        sim.simulate(listener);
+        assertEquals(csv,sim.getFlightComputerTelemetryPath()); assertEquals(log,sim.getFlightComputerLogPath());
+        String actions = Files.readString(log);
+        assertTrue(actions.contains("action=fc.setup")); assertTrue(actions.contains("action=fc.loop_begin"));
+        assertTrue(actions.contains("action=telemetry.close"));
+        assertTrue(Files.exists(directory.resolve("chosen/flight-transmitted.csv")));
+        byte[] original = Files.readAllBytes(csv);
+        var duplicate = new RTTelemetryEngine(new Trace(line -> {}));
+        assertThrows(java.io.UncheckedIOException.class,()->duplicate.open(directory,files));
+        assertArrayEquals(original,Files.readAllBytes(csv));
+        assertEquals(actions,Files.readString(log));
+        ZephyrusFlightComputer.apply(sim,false,TelemetryLinkSettings.DEFAULT,files);
+        assertEquals(files,ZephyrusFlightComputer.read(sim.clone()).getOutputSettings());
     }
     @Test void seededReceiverDoesNotAlterTransmittedData() throws Exception {
         RTFC a=packets(new TelemetryLinkSettings(.37,25,82),6000), b=packets(new TelemetryLinkSettings(.37,25,82),6000), c=packets(TelemetryLinkSettings.DEFAULT,6000);
@@ -100,7 +128,7 @@ class RTImprovementsTest extends BaseTestCase {
         }
     }
     @Test void downlinkEffectsLeaveFullFlightAndTicksUnchanged() throws Exception {
-        Simulation a=RTFCVerificationRocket.simulation(RTFCVerificationRocket.rocket()), b=RTFCVerificationRocket.simulation(RTFCVerificationRocket.rocket());
+        Simulation a=RTFCVerificationRocket.simulation(RTFCVerificationRocket.rocket()), b=a.clone();
         java.util.ArrayList<String> ticksA=new java.util.ArrayList<>(), ticksB=new java.util.ArrayList<>();
         var ca=new FlightControllerSimulatorListener(s->{if(s.contains("action=fc.loop_begin"))ticksA.add(s.substring(s.indexOf("boot_us=")));},.0025,false);
         var cb=new FlightControllerSimulatorListener(s->{if(s.contains("action=fc.loop_begin"))ticksB.add(s.substring(s.indexOf("boot_us=")));},.0025,false,new TelemetryLinkSettings(.3,137,19));

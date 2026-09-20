@@ -4,9 +4,10 @@ import edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.Trace;
 /** Deterministic byte queue in place of the FC's CC1200, no RF simulation. */
 public class RTTelemetryEngine implements AutoCloseable {
     public static final String CSV_HEADER="timestamp,pyros,servos,servos_deg,accelerometer,barofilteredalt,temp,gyro,gps_fix,lat,lon,gpsalt,gps_horiz_prec,gps_vert_prec,gps_num_sat,flight_time,yaw_gyro_int,pitch_gyro_int,roll_gyro_int,state,pktnum,rssi,armed_pyros,fired_pyros,badpackets,rxrssi,accel_integrated_velo,baro_max_alt,gps_max_alt,pyro_resistances,cell_voltages,total_current,converter_voltages,converter_currents,bms_protections_enabled,bms_protection_status,bms_temp,enabled_status,angleFromVertical,gnd_lat,gnd_lon,gnd_fix,gnd_alt";
-    private java.io.BufferedWriter csv, transmittedCsv;
+    private java.io.BufferedWriter csv, transmittedCsv, logWriter;
     private java.io.OutputStream binary, transmittedBinary;
-    private java.nio.file.Path csvPath, packetPath, metadataPath;
+    private java.nio.file.Path csvPath, packetPath, metadataPath, logPath, transmittedCsvPath, transmittedPacketPath;
+    private boolean metadataCreated;
     private final double epochSeconds = Double.parseDouble(System.getProperty("openrocket.fc.epochSeconds", "0"));
     private final TelemetryLinkSettings settings;
     private final java.util.Random random;
@@ -17,28 +18,60 @@ public class RTTelemetryEngine implements AutoCloseable {
 
     public java.nio.file.Path getCsvPath() { return csvPath; }
     public java.nio.file.Path getPacketPath() { return packetPath; }
+    public java.nio.file.Path getLogPath() { return logPath; }
+    public java.nio.file.Path getTransmittedCsvPath() { return transmittedCsvPath; }
+    public java.nio.file.Path getTransmittedPacketPath() { return transmittedPacketPath; }
+    public java.nio.file.Path getMetadataPath() { return metadataPath; }
+    public void logLine(String line) {
+        if (logWriter == null) return;
+        try { logWriter.write(line); logWriter.newLine(); }
+        catch (java.io.IOException e) { throw new java.io.UncheckedIOException(e); }
+    }
     public long getGeneratedCount() { return generated; }
     public long getReceivedCount() { return received; }
     public long getDroppedCount() { return dropped; }
     public int getPendingCount() { return pending.size(); }
 
-    public void open(java.nio.file.Path parent) {
+    public void open(java.nio.file.Path parent) { open(parent, FlightComputerOutputSettings.DEFAULT); }
+    public void open(java.nio.file.Path parent, FlightComputerOutputSettings output) {
         if (csvPath != null || finished) throw new IllegalStateException("Telemetry already opened or closed");
         try {
-            java.nio.file.Files.createDirectories(parent);
-            java.nio.file.Path dir = java.nio.file.Files.createTempDirectory(parent, "zephyrus-").toAbsolutePath();
-            csvPath = dir.resolve("telemetry.csv");
-            packetPath = dir.resolve("packets.bin");
-            metadataPath = dir.resolve("metadata.txt");
+            java.nio.file.Path dir;
+            if (output.csvFile().isEmpty()) {
+                java.nio.file.Files.createDirectories(parent);
+                dir = java.nio.file.Files.createTempDirectory(parent, "zephyrus-").toAbsolutePath();
+                csvPath = dir.resolve("telemetry.csv"); packetPath = dir.resolve("packets.bin");
+                metadataPath = dir.resolve("metadata.txt");
+                transmittedCsvPath = dir.resolve("transmitted-telemetry.csv");
+                transmittedPacketPath = dir.resolve("transmitted-packets.bin");
+                logPath = dir.resolve("OR.log");
+            } else {
+                csvPath = java.nio.file.Path.of(output.csvFile()); dir = csvPath.getParent();
+                String stem = csvPath.getFileName().toString(); stem = stem.substring(0, stem.length()-4);
+                packetPath = dir.resolve(stem + "-packets.bin"); metadataPath = dir.resolve(stem + "-metadata.txt");
+                transmittedCsvPath = dir.resolve(stem + "-transmitted.csv");
+                transmittedPacketPath = dir.resolve(stem + "-transmitted-packets.bin");
+                logPath = dir.resolve(stem + ".log");
+            }
+            if (!output.logFile().isEmpty()) logPath = java.nio.file.Path.of(output.logFile());
+            var paths = java.util.List.of(csvPath, packetPath, metadataPath, transmittedCsvPath, transmittedPacketPath, logPath);
+            if (new java.util.HashSet<>(paths).size() != paths.size()) throw new java.io.IOException("CSV, log and supporting output paths must be different");
+            for (var path : paths) {
+                if (java.nio.file.Files.exists(path)) throw new java.nio.file.FileAlreadyExistsException(path.toString(), null, "Choose a new output filename; existing files are preserved");
+                java.nio.file.Files.createDirectories(path.getParent());
+            }
+            // CREATE_NEW remains authoritative even if another process creates a file after preflight.
+            java.nio.file.Files.createFile(metadataPath); metadataCreated = true;
+            logWriter = java.nio.file.Files.newBufferedWriter(logPath, java.nio.file.StandardOpenOption.CREATE_NEW);
             csv = java.nio.file.Files.newBufferedWriter(csvPath, java.nio.file.StandardOpenOption.CREATE_NEW);
             binary = java.nio.file.Files.newOutputStream(packetPath, java.nio.file.StandardOpenOption.CREATE_NEW);
-            transmittedCsv = java.nio.file.Files.newBufferedWriter(dir.resolve("transmitted-telemetry.csv"), java.nio.file.StandardOpenOption.CREATE_NEW);
-            transmittedBinary = java.nio.file.Files.newOutputStream(dir.resolve("transmitted-packets.bin"), java.nio.file.StandardOpenOption.CREATE_NEW);
+            transmittedCsv = java.nio.file.Files.newBufferedWriter(transmittedCsvPath, java.nio.file.StandardOpenOption.CREATE_NEW);
+            transmittedBinary = java.nio.file.Files.newOutputStream(transmittedPacketPath, java.nio.file.StandardOpenOption.CREATE_NEW);
             for (var writer : new java.io.BufferedWriter[]{csv, transmittedCsv}) {
                 writer.write(CSV_HEADER); writer.newLine(); writer.flush();
             }
             writeMetadata("running");
-            trace.log("telemetry.files", "csv=" + csvPath + " packets=" + packetPath + " transmitted=" + dir.resolve("transmitted-telemetry.csv") + " metadata=" + metadataPath);
+            trace.log("telemetry.files", "csv=" + csvPath + " packets=" + packetPath + " transmitted=" + transmittedCsvPath + " log=" + logPath + " metadata=" + metadataPath);
         } catch (java.io.IOException e) {
             try { finish(false); } catch (RuntimeException closeError) { e.addSuppressed(closeError); }
             throw new java.io.UncheckedIOException(e);
@@ -46,12 +79,13 @@ public class RTTelemetryEngine implements AutoCloseable {
     }
 
     private void writeMetadata(String completion) throws java.io.IOException {
-        if (metadataPath == null) return;
+        if (!metadataCreated) return;
         java.nio.file.Files.writeString(metadataPath,
             "Zephyrus Java FC telemetry; link format version=1\n" +
+            "csvFile=" + csvPath + "\npacketFile=" + packetPath + "\ntransmittedCsvFile=" + transmittedCsvPath + "\ntransmittedPacketFile=" + transmittedPacketPath + "\nlogFile=" + logPath + "\n" +
             "CSV schema: ZEPH_TEST_FLIGHT_GS1/2/3.csv (43 columns).\n" +
-            "telemetry.csv / packets.bin: received packets in arrival order.\n" +
-            "transmitted-telemetry.csv / transmitted-packets.bin: every generated packet.\n" +
+            "csvFile / packetFile: received packets in arrival order.\n" +
+            "transmittedCsvFile / transmittedPacketFile: every generated packet.\n" +
             "Binary: consecutive 128-byte FC payloads; checksum at byte 127, no RF framing.\n" +
             "Received timestamp=epochSeconds+scheduled arrival boot microseconds/1e6; transmitted timestamp uses transmission time.\n" +
             "epochSeconds=" + epochSeconds + "\nflight_time retains firmware transmission-time boot milliseconds.\n" +
@@ -139,7 +173,11 @@ public class RTTelemetryEngine implements AutoCloseable {
         csv = null; binary = null; transmittedCsv = null; transmittedBinary = null;
         try { writeMetadata(complete ? "complete" : "incomplete"); }
         catch (java.io.IOException e) { if (error == null) error = new java.io.UncheckedIOException(e); else error.addSuppressed(e); }
-        trace.log("telemetry.close", "csv=" + csvPath + " generated=" + generated + " received=" + received + " dropped=" + dropped + " pending=" + pending.size() + " complete=" + complete);
+        try { trace.log("telemetry.close", "csv=" + csvPath + " log=" + logPath + " generated=" + generated + " received=" + received + " dropped=" + dropped + " pending=" + pending.size() + " complete=" + complete); }
+        catch (RuntimeException e) { if (error == null) error = e; else error.addSuppressed(e); }
+        try { if (logWriter != null) logWriter.close(); }
+        catch (java.io.IOException e) { if (error == null) error = new java.io.UncheckedIOException(e); else error.addSuppressed(e); }
+        finally { logWriter = null; }
         if (error != null) throw error;
     }
     @Override public void close() { finish(true); }

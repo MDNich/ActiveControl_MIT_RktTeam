@@ -140,9 +140,11 @@ public class Simulation implements ChangeSource, Cloneable {
 	
 	private ArrayList<SimulationExtension> simulationExtensions = new ArrayList<>();
     private List<Object> simulatedExtensionSignature;
-    private java.nio.file.Path flightComputerTelemetryPath;
+    private java.nio.file.Path flightComputerTelemetryPath, flightComputerLogPath;
 
     /** Runtime output belonging to the latest run; not persisted as a machine-specific path. */
+    public java.nio.file.Path getFlightComputerLogPath() { return flightComputerLogPath; }
+    public void setFlightComputerLogPath(java.nio.file.Path path) { flightComputerLogPath = path; }
     public java.nio.file.Path getFlightComputerTelemetryPath() { return flightComputerTelemetryPath; }
     public void setFlightComputerTelemetryPath(java.nio.file.Path path) { flightComputerTelemetryPath = path; }
 
@@ -511,6 +513,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 
 			flightComputerTelemetryPath = null;
+            flightComputerLogPath = null;
 			SimulationConditions simulationConditions = options.toSimulationConditions();
 			simulationConditions.setSimulation(this);
 			
@@ -655,6 +658,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			copy.simulatedConditions = null;
             copy.simulatedExtensionSignature = null;
             copy.flightComputerTelemetryPath = null;
+            copy.flightComputerLogPath = null;
 			copy.simulatedConfigurationDescription = null;
 			copy.simulatedData = null;
 			copy.simulatedConfigurationModID = ModID.INVALID;
@@ -722,6 +726,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			copyExtensionsFrom(simulation.getSimulationExtensions());
 			this.simulatedExtensionSignature = simulation.simulatedExtensionSignature;
             this.flightComputerTelemetryPath = simulation.flightComputerTelemetryPath;
+            this.flightComputerLogPath = simulation.flightComputerLogPath;
             this.status = simulation.status;
 			this.simulatedData = simulation.simulatedData;
 			this.simulationStepperClass = simulation.simulationStepperClass;

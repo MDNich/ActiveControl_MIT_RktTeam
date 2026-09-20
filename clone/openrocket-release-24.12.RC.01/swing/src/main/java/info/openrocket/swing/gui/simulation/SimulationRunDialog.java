@@ -232,7 +232,7 @@ public class SimulationRunDialog extends JDialog {
                 StringBuilder files = new StringBuilder();
                 for (Simulation sim : simulations) {
                     var path = sim.getFlightComputerTelemetryPath();
-                    if (path != null) files.append(sim.getName()).append("\n").append(path).append("\n\n");
+                    if (path != null) files.append(sim.getName()).append("\nCSV: ").append(path).append("\nLog: ").append(sim.getFlightComputerLogPath()).append("\n\n");
                 }
                 if (files.length() > 0) javax.swing.SwingUtilities.invokeLater(() -> {
                     javax.swing.JTextArea area = new javax.swing.JTextArea(files.toString(), Math.min(8, simulations.length*3), 65);

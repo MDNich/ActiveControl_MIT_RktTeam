@@ -287,8 +287,10 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		radioIcon.setToolTipText(isTime ? null : trans.get("simplotpanel.MarkerStyle.OnlyInTime"));
 	}
 
-	@Override
-	public JDialog doPlot(Window parent) {
+	public boolean isTrajectoryPlot() { return plotMode.getSelectedIndex() == 1; }
+
+    @Override
+    public JDialog doPlot(Window parent) {
         if (plotMode.getSelectedIndex() == 1) return new info.openrocket.swing.gui.plot.Trajectory3DDialog(parent, simulation, trajectoryBranch.getSelectedIndex());
 		if (configuration.getDataCount() == 0) {
 			JOptionPane.showMessageDialog(SimulationPlotPanel.this,

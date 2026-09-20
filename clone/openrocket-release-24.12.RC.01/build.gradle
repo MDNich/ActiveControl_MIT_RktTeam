@@ -115,9 +115,16 @@ dependencies {
     implementation(project(path: ":swing", configuration: "default"))
 }
 
+// The root project has no application classes of its own. Keep its thin JAR
+// away from the compatibility filename used by existing desktop launchers.
+jar {
+    archiveClassifier.set('plain')
+}
+
 shadowJar {
-    archiveBaseName.set('OpenRocket')
-    archiveVersion.set(buildProperties['build.version'])
+    def mitEdition = buildProperties['build.mit.edition'] == 'true'
+    archiveBaseName.set(mitEdition ? 'OpenRocket-MIT' : 'OpenRocket')
+    archiveVersion.set(mitEdition ? buildProperties['build.mit.version'] : buildProperties['build.version'])
     archiveClassifier.set('')
     dependsOn(distTar, distZip)
 
@@ -126,7 +133,8 @@ shadowJar {
         attributes(
                 'Description': 'Model-rocketry aerodynamics and trajectory simulation software',
                 'SplashScreen-Image': 'pix/splashscreen.png',
-                'Implementation-Version': buildProperties['build.version'],
+                'Implementation-Version': mitEdition ? buildProperties['build.mit.version'] : buildProperties['build.version'],
+                'OpenRocket-Upstream-Version': buildProperties['build.version'],
                 'Implementation-Vendor': 'OpenRocket',
                 'Implementation-Vendor-Id': 'info.openrocket',
                 'Implementation-URL': 'https://openrocket.info/',
@@ -135,6 +143,32 @@ shadowJar {
         )
     }
 }
+
+// Existing MIT desktop installations link to the upstream-named shadow JAR.
+// Publish that alias atomically so a rebuild never leaves a partial launcher target.
+def launcherJar = tasks.register('launcherJar') {
+    dependsOn tasks.named('shadowJar')
+    def sourceJar = tasks.named('shadowJar').flatMap { it.archiveFile }
+    def targetJar = layout.buildDirectory.file("libs/OpenRocket-${buildProperties['build.version']}.jar")
+    inputs.file(sourceJar)
+    outputs.file(targetJar)
+    doLast {
+        def source = sourceJar.get().asFile.toPath()
+        def target = targetJar.get().asFile.toPath()
+        if (source != target) {
+            new java.util.jar.JarFile(source.toFile()).withCloseable { jarFile ->
+                if (jarFile.getJarEntry('info/openrocket/swing/startup/OpenRocket.class') == null) {
+                    throw new GradleException('Refusing to publish a launcher JAR without the startup class')
+                }
+            }
+            def temporary = target.resolveSibling(target.fileName.toString() + '.tmp')
+            java.nio.file.Files.copy(source, temporary, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            java.nio.file.Files.move(temporary, target, java.nio.file.StandardCopyOption.ATOMIC_MOVE,
+                    java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        }
+    }
+}
+tasks.named('shadowJar') { finalizedBy launcherJar }
 
 // Package the application for distribution.
 tasks.register('dist') {

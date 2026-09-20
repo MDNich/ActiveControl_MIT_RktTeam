@@ -386,6 +386,12 @@ public class SimulationConfigDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				copyChangesToAllSims();
 
+                if (tabbedPane.getSelectedIndex() == PLOT_IDX && plotTab != null && plotTab.isTrajectoryPlot()) {
+                    JDialog plot = plotTab.doPlot(SimulationConfigDialog.this.parentWindow);
+                    if (plot != null) plot.setVisible(true);
+                    return;
+                }
+
 				// Run outdated simulations
 				Simulation[] outdatedSims = getOutdatedSimulations();
 				if (outdatedSims.length > 0) {
@@ -424,10 +430,7 @@ public class SimulationConfigDialog extends JDialog {
 		if (isMultiCompEdit()) {
 			for (int i = 1; i < simulationList.length; i++) {
 				simulationList[i].getOptions().copyConditionsFrom(simulationList[0].getOptions());
-				simulationList[i].getSimulationExtensions().clear();
-				for (SimulationExtension c : simulationList[0].getSimulationExtensions()) {
-					simulationList[i].getSimulationExtensions().add(c.clone());
-				}
+				simulationList[i].copyExtensionsFrom(simulationList[0].getSimulationExtensions());
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package info.openrocket.core.simulation.extension.impl;
 
 import edu.mit.rocket_team.zephyrus.telemetry.TelemetryLinkSettings;
+import edu.mit.rocket_team.zephyrus.telemetry.FlightComputerOutputSettings;
 import info.openrocket.core.document.Simulation;
 import info.openrocket.core.simulation.SimulationConditions;
 import info.openrocket.core.simulation.exception.SimulationException;
@@ -16,6 +17,12 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
     public boolean isEnabled() { return config.getBoolean("enabled", false); }
     public TelemetryLinkSettings getLinkSettings() { return settings(config); }
 
+    public FlightComputerOutputSettings getOutputSettings() { return outputs(config); }
+    private static FlightComputerOutputSettings outputs(Config c) {
+        for (String key : new String[]{"csvFile", "logFile"})
+            if (c.containsKey(key) && !(c.get(key, null) instanceof String)) throw new IllegalArgumentException("Invalid output path: " + key);
+        return new FlightComputerOutputSettings(c.getString("csvFile", ""), c.getString("logFile", ""));
+    }
     private static TelemetryLinkSettings settings(Config c) {
         for (String key : new String[]{"version", "downlinkDelayMs", "randomSeed"}) {
             if (c.containsKey(key)) {
@@ -35,22 +42,25 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
                 c.getInt("downlinkDelayMs", 0), c.getInt("randomSeed", 1));
     }
 
-    public void configure(boolean enabled, TelemetryLinkSettings link) {
+    public void configure(boolean enabled, TelemetryLinkSettings link) { configure(enabled, link, getOutputSettings()); }
+    public void configure(boolean enabled, TelemetryLinkSettings link, FlightComputerOutputSettings output) {
         Config c = getConfig();
         c.put("version", 1);
         c.put("enabled", enabled);
         c.put("packetLossFraction", link.packetLossFraction());
         c.put("downlinkDelayMs", link.delayMs());
         c.put("randomSeed", link.randomSeed());
+        c.put("csvFile", output.csvFile());
+        c.put("logFile", output.logFile());
         setConfig(c);
     }
 
-    @Override public void setConfig(Config c) { settings(c); super.setConfig(c); }
+    @Override public void setConfig(Config c) { settings(c); outputs(c); super.setConfig(c); }
 
     @Override public void initialize(SimulationConditions conditions) throws SimulationException {
         try {
             TelemetryLinkSettings link = getLinkSettings();
-            if (isEnabled()) conditions.getSimulationListenerList().add(new FlightControllerSimulatorListener(link));
+            if (isEnabled()) conditions.getSimulationListenerList().add(new FlightControllerSimulatorListener(link, getOutputSettings()));
         } catch (IllegalArgumentException e) {
             throw new SimulationException(e.getMessage());
         }
@@ -73,8 +83,11 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
 
     /** Replace only FC entries; unrelated extensions retain their order and settings. */
     public static void apply(Simulation simulation, boolean enabled, TelemetryLinkSettings link) {
+        apply(simulation, enabled, link, read(simulation).getOutputSettings());
+    }
+    public static void apply(Simulation simulation, boolean enabled, TelemetryLinkSettings link, FlightComputerOutputSettings output) {
         ZephyrusFlightComputer fc = new ZephyrusFlightComputer();
-        fc.configure(enabled, link);
+        fc.configure(enabled, link, output);
         var extensions = new java.util.ArrayList<>(simulation.getSimulationExtensions());
         int index = extensions.size();
         for (int i = 0; i < extensions.size(); i++) if (isFlightComputer(extensions.get(i))) { index = i; break; }

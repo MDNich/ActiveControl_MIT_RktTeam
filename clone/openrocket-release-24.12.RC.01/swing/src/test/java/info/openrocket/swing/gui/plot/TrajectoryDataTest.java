@@ -47,4 +47,22 @@ class TrajectoryDataTest extends BaseTestCase {
         nanos.set(10_000_000_000L); assertEquals(5,clock.time()); nanos.set(20_000_000_000L); assertEquals(10,clock.time()); assertFalse(clock.isPlaying());
         assertThrows(IllegalArgumentException.class,()->clock.setSpeed(Double.NaN));
     }
+    @Test void separatedBranchKeepsAttitudeAndOnlyItsOwnRecoveryEvents() {
+        var rocket=new info.openrocket.core.rocketcomponent.Rocket();
+        var upper=new info.openrocket.core.rocketcomponent.AxialStage();
+        var booster=new info.openrocket.core.rocketcomponent.AxialStage();
+        rocket.addChild(upper); rocket.addChild(booster);
+        FlightDataBranch parent=new FlightDataBranch("upper",TYPE_TIME);
+        point(parent,0,new Quaternion());
+        point(parent,1,Quaternion.rotation(new Coordinate(0,0,Math.PI/2)));
+        parent.addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,.5,upper));
+        FlightDataBranch separated=new FlightDataBranch("booster",booster,parent);
+        point(separated,2,new Quaternion());
+        separated.addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,1.5,booster));
+        var upperTrack=new TrajectoryData(parent); var boosterTrack=new TrajectoryData(separated);
+        assertTrue(upperTrack.at(1).recovery());
+        assertFalse(boosterTrack.at(1).recovery()); assertTrue(boosterTrack.at(2).recovery());
+        assertEquals(2,boosterTrack.at(1).position().x,1e-12);
+        assertEquals(1,boosterTrack.at(1).attitude().rotate(new Coordinate(1,0,0)).y,1e-12);
+    }
 }

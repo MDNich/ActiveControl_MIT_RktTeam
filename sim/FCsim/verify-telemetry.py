@@ -9,8 +9,25 @@ from pathlib import Path
 import struct
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('run', type=Path, help='Directory containing telemetry.csv and packets.bin')
+parser.add_argument('run', type=Path, help='Run directory, received CSV, or metadata file')
 args = parser.parse_args()
+chosen = args.run.resolve()
+if chosen.is_dir():
+    csv_path = chosen/'telemetry.csv'
+    metadata_path = chosen/'metadata.txt'
+elif chosen.suffix.lower() == '.csv':
+    csv_path = chosen
+    metadata_path = chosen.with_name(chosen.stem+'-metadata.txt')
+    if chosen.name == 'telemetry.csv' and not metadata_path.exists(): metadata_path = chosen.parent/'metadata.txt'
+else:
+    metadata_path = chosen
+    csv_path = chosen.parent/'telemetry.csv'
+metadata = dict(line.split('=', 1) for line in metadata_path.read_text().splitlines() if '=' in line) if metadata_path.exists() else {}
+csv_path = Path(metadata.get('csvFile', str(csv_path)))
+raw_path = Path(metadata.get('packetFile', str(csv_path.parent/'packets.bin')))
+tx_csv_path = Path(metadata.get('transmittedCsvFile', str(csv_path.parent/'transmitted-telemetry.csv')))
+tx_raw_path = Path(metadata.get('transmittedPacketFile', str(csv_path.parent/'transmitted-packets.bin')))
+args.run = csv_path.parent
 def verify_pair(csv_name, raw_name, receiver=False):
     with (args.run / csv_name).open(newline='') as stream:
         reader = csv.DictReader(stream)
@@ -60,11 +77,10 @@ def verify_pair(csv_name, raw_name, receiver=False):
 
     return rows, payloads
 
-has_transmitted = (args.run / 'transmitted-packets.bin').exists()
-rows, payloads = verify_pair('telemetry.csv', 'packets.bin', receiver=has_transmitted)
+has_transmitted = tx_raw_path.exists()
+rows, payloads = verify_pair(csv_path, raw_path, receiver=has_transmitted)
 if has_transmitted:
-    tx_rows, tx_bytes = verify_pair('transmitted-telemetry.csv', 'transmitted-packets.bin')
-    metadata = dict(line.split('=', 1) for line in (args.run/'metadata.txt').read_text().splitlines() if '=' in line)
+    tx_rows, tx_bytes = verify_pair(tx_csv_path, tx_raw_path)
     assert int(metadata['generated']) == len(tx_rows)
     assert int(metadata['received']) == len(rows)
     assert len(tx_rows) == len(rows) + int(metadata['dropped']) + int(metadata['pending'])
@@ -78,7 +94,7 @@ if has_transmitted:
         j += 1
 else:
     assert rows, 'Legacy export unexpectedly has no packets'
-print(json.dumps({'result': 'PASS', 'csv': str((args.run/'telemetry.csv').resolve()),
+print(json.dumps({'result': 'PASS', 'csv': str(csv_path),
                   'columns': 43, 'packets': len(rows), 'payload_bytes': len(payloads),
                   'transmitted_packets': len(tx_rows) if has_transmitted else len(rows),
                   'first_boot_ms': int(rows[0]['flight_time']) if rows else None,

@@ -1,6 +1,7 @@
 package info.openrocket.core.simulation.listeners;
 import edu.mit.rocket_team.zephyrus.FC.RTFC;
 import edu.mit.rocket_team.zephyrus.telemetry.TelemetryLinkSettings;
+import edu.mit.rocket_team.zephyrus.telemetry.FlightComputerOutputSettings;
 import edu.mit.rocket_team.zephyrus.util.RTSimulationCommunicator;
 import edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.Trace;
 import edu.mit.rocket_team.zephyrus.util.data.*;
@@ -69,6 +70,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     private final double maxPhysicsStep;
     private final boolean holdAirbrakesClosed;
     private final TelemetryLinkSettings linkSettings;
+    private final FlightComputerOutputSettings outputSettings;
     private Run run;
     /** Shared only across framework copies belonging to this flight, never across new starts. */
     private static final class Run {
@@ -78,14 +80,24 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         double stepStart;
         RTFC.Inputs candidate,latest;
         boolean intervalOpen,closed;
-        Run(Consumer<String> console, TelemetryLinkSettings link) { fc=new RTFC(new Trace(console), link); communicator=new RTSimulationCommunicator(fc.trace); }
+        private Consumer<String> fileLog = line -> {};
+        Run(Consumer<String> console, TelemetryLinkSettings link) {
+            fc=new RTFC(new Trace(line -> { console.accept(line); fileLog.accept(line); }), link);
+            fileLog=fc.telemetry::logLine;
+            communicator=new RTSimulationCommunicator(fc.trace);
+        }
     }
     public FlightControllerSimulatorListener() { this(line -> System.out.println(line),0.0025,false); }
-    public FlightControllerSimulatorListener(TelemetryLinkSettings link) { this(System.out::println, 0.0025, false, link); }
+    public FlightControllerSimulatorListener(TelemetryLinkSettings link) { this(link, FlightComputerOutputSettings.DEFAULT); }
+    public FlightControllerSimulatorListener(TelemetryLinkSettings link, FlightComputerOutputSettings output) { this(System.out::println, 0.0025, false, link, output); }
     public FlightControllerSimulatorListener(Consumer<String> console,double maxPhysicsStep,boolean holdAirbrakesClosed) {
         this(console, maxPhysicsStep, holdAirbrakesClosed, TelemetryLinkSettings.DEFAULT);
     }
     public FlightControllerSimulatorListener(Consumer<String> console,double maxPhysicsStep,boolean holdAirbrakesClosed, TelemetryLinkSettings link) {
+        this(console, maxPhysicsStep, holdAirbrakesClosed, link, FlightComputerOutputSettings.DEFAULT);
+    }
+    public FlightControllerSimulatorListener(Consumer<String> console,double maxPhysicsStep,boolean holdAirbrakesClosed, TelemetryLinkSettings link, FlightComputerOutputSettings output) {
+        this.outputSettings=java.util.Objects.requireNonNull(output);
         if(!(maxPhysicsStep>0 && maxPhysicsStep<=0.0025)) throw new IllegalArgumentException("FC physics step must be in (0, 0.0025] seconds");
         this.linkSettings=java.util.Objects.requireNonNull(link);
         this.console=console; this.maxPhysicsStep=maxPhysicsStep; this.holdAirbrakesClosed=holdAirbrakesClosed;
@@ -98,12 +110,14 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         if(status.getSimulationTime()!=0) throw new SimulationException("Zephyrus FC requires pad startup; mid-flight checkpoints are not implemented");
         run.communicator.bind(status);
         status.getSimulationConditions().setTimeStep(maxPhysicsStep);
-        run.fc.trace.log("simulation.start", "rocket="+status.getConfiguration().getRocket().getName()+" max_step_s="+maxPhysicsStep+" mounting=X:bodyZ,Y:bodyX,Z:bodyY noise=off recovery=OpenRocket pyro=recorded_only roll_physics=off hold_closed="+holdAirbrakesClosed);
-        run.fc.init();
-        run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")));
-        if (status.getSimulationConditions().getSimulation() != null)
+        run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")), outputSettings);
+        if (status.getSimulationConditions().getSimulation() != null) {
             status.getSimulationConditions().getSimulation().setFlightComputerTelemetryPath(run.fc.telemetry.getCsvPath());
+            status.getSimulationConditions().getSimulation().setFlightComputerLogPath(run.fc.telemetry.getLogPath());
+        }
         try {
+            run.fc.trace.log("simulation.start", "rocket="+status.getConfiguration().getRocket().getName()+" max_step_s="+maxPhysicsStep+" mounting=X:bodyZ,Y:bodyX,Z:bodyY noise=off recovery=OpenRocket pyro=recorded_only roll_physics=off hold_closed="+holdAirbrakesClosed);
+            run.fc.init();
             for(long us=0;us<WARMUP_US;us+=RTFC.LOOP_US) {
                 if(us==500_000) run.fc.enqueueCommand(RTFC.stateCommand(edu.mit.rocket_team.zephyrus.util.RTRocketState.PRE_FLIGHT));
                 RTFC.Inputs pad=sample(status,Coordinate.ZERO,us);
