@@ -86,7 +86,8 @@ public class RTFC {
             if(loggingEnabled) flashDriver.append(packet);
         }
         readTelem();
-        if(elapsed32(trace.millis(),lastPowerPkt)>100) { lastPowerPkt=trace.millis(); powerBoard.sendCommand(); }
+        // FC.ino never advances lastPowerPkt: after boot 100 ms it transmits on every loop.
+        if(elapsed32(trace.millis(),lastPowerPkt)>100) powerBoard.sendCommand();
         trace.log("fc.loop_end", "state="+currentState+" flight_ms="+elapsed32(FCtime,flightBeginTime)+" airbrakes_enabled="+airbrakesEnabled+" roll_enabled="+rollControlEnabled);
     }
     /** FC.ino handleState; repeated preflight is deliberately not a complete reset. */
@@ -239,7 +240,7 @@ public class RTFC {
         long sens=(long)((float)0xA579*(1L<<16)+dT*(float)0x68AC/(1<<7));
         int rawP=clampCount((baro.getPressure()*100.0+off/(double)(1<<15))*(1<<15)/(sens/(double)(1<<21)),0,0xffffff);
         put24(p,53,rawP); put24(p,56,rawT);
-        p[31]=(byte)gps.getFixType(); out.putInt(32,(int)(gps.getLatitude()*1e7)); out.putInt(36,(int)(gps.getLongitude()*1e7)); out.putFloat(40,gps.getHeight());
+        p[31]=(byte)gps.getFixType(); out.putInt(32,gps.getLatE7()); out.putInt(36,gps.getLonE7()); out.putFloat(40,gps.getHeight());
         out.putFloat(59,baro.getFilteredAltitude()); p[63]=(byte)currentState.ID;
         out.putFloat(64,gyro.getRoll()); out.putFloat(68,gyro.getPitch()); out.putFloat(72,gyro.getYaw());
         out.putShort(76,(short)baro.getMaxAlt()); out.putShort(78,(short)gps.getMaxAlt()); out.putInt(80,(int)FCtime); out.putShort(84,(short)packetNum);

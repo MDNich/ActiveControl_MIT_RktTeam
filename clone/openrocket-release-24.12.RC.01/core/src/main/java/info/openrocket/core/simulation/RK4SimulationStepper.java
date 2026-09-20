@@ -159,6 +159,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		if (!status.isLaunchRodCleared()) {
 			dt[0] /= 5.0;
 			dt[6] = status.getSimulationConditions().getLaunchRodLength() / k1.v.length() / 10;
+            if(FlightControllerSimulatorListener.active(status)!=null && status.getSimulationConditions().getLaunchRodLength()==0) dt[6]=Double.POSITIVE_INFINITY;
 		}
 		dt[7] = 1.5 * store.timeStep;
 		
@@ -177,6 +178,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
         FlightControllerSimulatorListener fc = FlightControllerSimulatorListener.active(status);
         if(fc!=null) {
             store.timeStep = Math.min(store.timeStep, fc.limitStep(status,maxTimeStep));
+            if(store.timeStep<=Math.ulp(status.getSimulationTime())) throw new SimulationException("FC degenerate dt="+Arrays.toString(dt)+" at "+status.getSimulationTime());
         } else {
 		// try to hardcode
 		store.timeStep = theTimeStep;

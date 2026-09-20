@@ -1,0 +1,59 @@
+{
+  "airbrake_command_comparison": {
+    "window_start_s": 14.04,
+    "window_end_s": 28.956,
+    "valid_duration_s": 14.916,
+    "mae_us": 61.427460445159554,
+    "rmse_us": 99.28929940938093,
+    "bias_OR_minus_GS1_us": 38.31858407079648,
+    "mae_percent_of_command_span": 14.766216453163356,
+    "OR_deployment_time_integral_s": 8.655288461538474,
+    "GS1_deployment_time_integral_s": 10.029230769230761,
+    "note": "Same observed time; different sensor inputs. Hold each received command until next packet. Exclude intervals longer than 0.5s. Deployment integral is a command-span proxy, not drag/energy."
+  },
+  "execution": {
+    "loop_count": 13296,
+    "first_loop_us": 0,
+    "last_loop_us": 132950000,
+    "loop_intervals_us": [
+      10000
+    ],
+    "unique_pwm_latch_intervals_us": [
+      20000
+    ],
+    "pwm_initialization_duplicates": 1,
+    "max_sample_age_us": 2500,
+    "reported_simulation_wall_time_s": 10.0,
+    "simulated_flight_duration_s": 131.95244253167274,
+    "approximate_real_time_factor": 13.195244253167274
+  },
+  "hardware_timing_audit": {
+    "reference_sketch_sha256": "6e2afd0ea832a466d5b72608b94506f0cdc4ccc9164c8114a5d4fcda9a4d4c93",
+    "reference_source_matches_manifest": true,
+    "overall": "PARTIAL: nominal virtual timing verified; power timer translation mismatch; physical hardware timing unmodeled",
+    "gps_new_fix_intervals_us": [
+      100000
+    ],
+    "power_command_count": 13285,
+    "power_command_first_us": 110000,
+    "power_command_intervals_us": [
+      10000
+    ],
+    "power_nominal_expected_interval_us": 110000,
+    "power_timer_contract": "FAIL: Java omits lastPowerPkt update present at FC.ino:169",
+    "pyro_on_to_off_us": {
+      "0": 260000,
+      "1": 260000,
+      "3": 260000,
+      "4": 260000,
+      "5": 260000,
+      "2": 260000
+    },
+    "sample_delivery_age_min_us": 0,
+    "sample_delivery_age_max_us": 2500,
+    "future_sample_deliveries": 0,
+    "barometer_explicit_conversion_wait_us_per_hardware_loop": 3000,
+    "hardware_loop_execution_and_interrupt_jitter": "not modeled or measured",
+    "sensor_delivery_age_scope": "adapter acquisition-to-delivery only; excludes sensor conversion, filtering, and retained GPS-fix age"
+  }
+}

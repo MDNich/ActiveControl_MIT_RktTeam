@@ -137,7 +137,11 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				log.info("Warnings at the end of simulation:  " + flightData.getWarningSet());
 			}
 			
-		} catch (SimulationException e) {
+		} catch (SimulationException | RuntimeException e) {
+            if(currentStatus!=null) {
+                FlightControllerSimulatorListener fc=FlightControllerSimulatorListener.active(currentStatus);
+                if(fc!=null && fc.getFlightComputer()!=null) fc.getFlightComputer().trace.log("simulation.error", "exception="+e);
+            }
 			System.out.println("[JAVA] Caught simulation exception");
 			throw e;
 		} finally {
@@ -200,7 +204,10 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 						log.trace(
 								  "Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
 						//System.out.println("[JAVA] Current simulation time: " + currentStatus.getSimulationTime() + "s                 \r");
-						currentStepper.step(currentStatus, maxStepTime);
+						double beforeStep=currentStatus.getSimulationTime();
+                        currentStepper.step(currentStatus, maxStepTime);
+                        if(fc!=null && currentStatus.getSimulationTime()<=beforeStep)
+                            throw new SimulationException("FC physics made no progress at "+beforeStep+" with limit "+maxStepTime);
 					}
 				}
 				SimulationListenerHelper.firePostStep(currentStatus);
@@ -454,7 +461,8 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				ThrustCurveMotor motor = (ThrustCurveMotor) motorState.getMotor();
 				double[] timePoints = motor.getTimePoints();
 				for (double point : timePoints) {
-					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, point, event.getSource(), null));
+                    double sampleTime=FlightControllerSimulatorListener.active(currentStatus)==null ? point : event.getTime()+point;
+					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.ALTITUDE, sampleTime, event.getSource(), null));
 				}
 
 				// and queue up the burnout for this motor, as well.
@@ -686,7 +694,10 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 		
 		
 		// If no motor has ignited, abort
-		if (!currentStatus.isMotorIgnited()) {
+        // In FC mode, advance normally through an ignition delay so firmware ticks are not skipped.
+        boolean pendingFcIgnition=FlightControllerSimulatorListener.active(currentStatus)!=null &&
+                currentStatus.getEventQueue().stream().anyMatch(e->e.getType()==FlightEvent.Type.IGNITION);
+		if (!currentStatus.isMotorIgnited() && !pendingFcIgnition) {
 			// TODO MEDIUM: display this as a warning to the user (e.g. highlight the cell in the simulation panel in red and a hover: 'make sure the motor ignition is correct' or something)
 			currentStatus.abortSimulation(SimulationAbort.Cause.NO_MOTORS_FIRED);
 		}
@@ -712,7 +723,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 			return null;
 		
 		// Jump to event if no motors have been ignited
-		if (!currentStatus.isMotorIgnited() &&
+		if (FlightControllerSimulatorListener.active(currentStatus)==null && !currentStatus.isMotorIgnited() &&
 				event.getTime() > currentStatus.getSimulationTime()) {
 			currentStatus.setSimulationTime(event.getTime());
 		}

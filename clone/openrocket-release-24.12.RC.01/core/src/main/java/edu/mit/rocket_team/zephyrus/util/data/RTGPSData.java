@@ -1,9 +1,9 @@
 package edu.mit.rocket_team.zephyrus.util.data;
 
 public class RTGPSData extends RTFudgedData {
-    private float latitude;
-    private float longitude;
-    private float altitude;
+    private double latitude;
+    private double longitude;
+    private double altitude;
     private float PDOP;
     private float VDOP;
     private float HDOP;
@@ -26,9 +26,9 @@ public class RTGPSData extends RTFudgedData {
 
     public RTGPSData(Double lat, Double lon, Double alt,
                      Double p, Double v, Double h, boolean hF) {
-        this.latitude  = lat.floatValue();
-        this.longitude = lon.floatValue();
-        this.altitude  = alt.floatValue();
+        this.latitude  = lat.doubleValue();
+        this.longitude = lon.doubleValue();
+        this.altitude  = alt.doubleValue();
         this.PDOP      = p.floatValue();
         this.VDOP      = v.floatValue();
         this.HDOP      = h.floatValue();
@@ -36,15 +36,15 @@ public class RTGPSData extends RTFudgedData {
         this.fixType = hF ? 3 : 0;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public float getAltitude() {
+    public double getAltitude() {
         return altitude;
     }
 
@@ -64,13 +64,13 @@ public class RTGPSData extends RTFudgedData {
         return hasFix;
     }
 
-    public void setLatitude(float lat) {
+    public void setLatitude(double lat) {
         this.latitude = lat;
     }
-    public void setLongitude(float lon) {
+    public void setLongitude(double lon) {
         this.longitude = lon;
     }
-    public void setAltitude(float alt) {
+    public void setAltitude(double alt) {
         this.altitude = alt;
     }
     public void setPDOP(float p) {

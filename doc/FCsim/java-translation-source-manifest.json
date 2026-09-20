@@ -20,5 +20,16 @@
     "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/pyro.cpp": "bddac2bfc5f19a5eb19c1f0d06b809f0afebfe6f3a089073705ab268384839ae",
     "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/myTypes.h": "1bb197f49ac7f919215a3255daed214efec1a684984377a52f81ed06760c2a37"
   },
-  "baseline_jar_sha256": "8fc73350b98baf4bd05f0f7dbe66d597c86c4ce5433e09050aae75aa64e10bfe"
+  "baseline_jar_sha256": "8fc73350b98baf4bd05f0f7dbe66d597c86c4ce5433e09050aae75aa64e10bfe",
+  "ground_station_revision": "3316d1e626b8c81ae1fad17272e31e5d761fbe9e",
+  "ground_station_decoder": {
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Python_Lib/ground_station/rocket.py": "c19c2e4d2d6a7fd28da2592a200d2de70e622756fc5a464a4c23e5570c4aedfe"
+  },
+  "benchmark_inputs": {
+    "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/benchmarking/ork/zephy_testlaunch.ork": "87c99089644b784ded637983212bf23f93e02bdf0a475389ac56fd058f647127",
+    "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/old/dat/ork/TestLaunch_v14.eng": "c18d886508d26ad86eff21c1a7db51b7d25d389027a09e404c5fce3105168a0e",
+    "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/benchmarking/telem/ZEPH_TEST_FLIGHT_GS3.csv": "d4765ef36ee810dc2948a8a96fe7bb899a7ebe544bb2a2a23da113edd5987968",
+    "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/benchmarking/telem/ZEPH_TEST_FLIGHT_GS2.csv": "528df6e7bd5235b5198dce8ac4380f04788c257e5d86f25222118e96a76fc398",
+    "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/benchmarking/telem/ZEPH_TEST_FLIGHT_GS1.csv": "2417e0b5664a5ed559ba31e4861ec527e7e2fba6ad752c289dcde9b9d02a7512"
+  }
 }

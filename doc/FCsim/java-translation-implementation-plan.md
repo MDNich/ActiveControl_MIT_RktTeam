@@ -1,6 +1,6 @@
 # Zephyrus FC: first implementation in Java
 
-Updated direction, 20 September 2026. **This is the implementation plan to follow first.** It supersedes the JNI-first recommendation in the [earlier integration plan](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/FCsim/cpp-integration-plan.md). The [framework overview](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/FCsim/flight-computer-simulation-framework.md) remains background source analysis. This document proposes work; it does not claim the translation has been implemented.
+Updated direction, 20 September 2026. **This is the implementation plan to follow first.** It supersedes the JNI-first recommendation in the [earlier integration plan](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/FCsim/cpp-integration-plan.md). The [framework overview](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/FCsim/flight-computer-simulation-framework.md) remains background source analysis. Implementation completed on 20 September 2026. See the [completion report](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/FCsim/java-translation-implementation-report.md) for evidence, differences, telemetry outputs and test coverage.
 
 ## 1. Scope and fixed decisions
 
@@ -63,16 +63,16 @@ flowchart LR
 
 ## 4. Implementation checklist
 
-Follow the steps in order. Each step states what to edit and what must pass before moving on. New test names below are proposed files under `core/src/test/java/edu/mit/rocket_team/zephyrus/`, not files that already exist. In early steps, use simple recording stubs for dependencies completed in later steps; do not wait for a full simulated flight to test a translation.
+Follow the steps in order. Each step states what to edit and what must pass before moving on. Test names below were planning labels under `core/src/test/java/edu/mit/rocket_team/zephyrus/`; the completion report maps them to the implemented, partly consolidated test classes. In early steps, use simple recording stubs for dependencies completed in later steps; do not wait for a full simulated flight to test a translation.
 
 ### Step 1 — Record the translation baseline
 
 **Edit:** add source provenance and a short behavior-difference ledger under `doc/FCsim/`; add replay inputs under `core/src/test/resources/zephyrus/`.
 
-- [ ] Record the FC sketch revision `4cd2660eec92a47be42c09ed7b61f38295bcf970` and firmware-library revision `1db1f223c0c7d2287611c9f66d5de6c691455359`, plus file hashes and any local changes at implementation time. Record the then-current OpenRocket revision too.
-- [ ] Confirm that the translation uses the explicitly named adjacent firmware library, rather than relying on the machine's Arduino include search order.
-- [ ] Preserve the current root `shadowJar` build result as the packaging baseline.
-- [ ] Define deterministic replay rows: boot microseconds, sensor values/new-data flags, optional command bytes, and expected observations. Start with stationary-pad, synthetic ascent/coast, and forced state-transition cases.
+- [x] Record the FC sketch revision `4cd2660eec92a47be42c09ed7b61f38295bcf970` and firmware-library revision `1db1f223c0c7d2287611c9f66d5de6c691455359`, plus file hashes and any local changes at implementation time. Record the then-current OpenRocket revision too.
+- [x] Confirm that the translation uses the explicitly named adjacent firmware library, rather than relying on the machine's Arduino include search order.
+- [x] Preserve the current root `shadowJar` build result as the packaging baseline.
+- [x] Define deterministic replay rows: boot microseconds, sensor values/new-data flags, optional command bytes, and expected observations. Start with stationary-pad, synthetic ascent/coast, and forced state-transition cases.
 
 **Done when:** every translated function can be traced to one selected source file, and replay inputs are saved independently of the Java implementation.
 
@@ -80,14 +80,14 @@ Follow the steps in order. Each step states what to edit and what must pass befo
 
 **Edit:** `RTFC`, the FC listener, `RTSimulationCommunicator`, and existing controller/instrument base classes only as required; make the small engine listener-filter change described below for its auxiliary coast calculation.
 
-- [ ] Give the listener one `RTFC` and one communicator instance. Convert FC/controller mutable statics to instance fields, passing clock values explicitly to instruments and controllers.
-- [ ] Keep `init`, `pre_loop`, and `loop`. Add a typed `pre_loop` overload using existing data classes, with a small nested input holder if useful. Avoid storing measured values by modifying a shallow-cloned `SimulationStatus.extraData` map.
-- [ ] Make `init` perform the source-equivalent setup of instruments, controllers, and peripheral stubs. Remove the current missing-controller-setup failure.
-- [ ] Remove the incorrect controller-injection loop bounded by the sensor count. `pre_loop` supplies instruments; `RTFC.loop` constructs controller inputs after instrument processing.
-- [ ] Allow normal startup with no `initialStatus`. Bind components in the simulated rocket copy. An airbrake-only test must work without tab-controlled fins; missing or ambiguous required airbrakes must produce a useful configuration error.
-- [ ] Preserve public signatures needed by unrelated code if compilation requires it, but do not route the FC through legacy static state or refactor the excluded listener.
-- [ ] At same-flight status/listener copies, preserve the live FC, clock, and tick counters. A new top-level run gets fresh objects. Rebind copied components when necessary. Initially support one FC-bearing branch; report unsupported staging explicitly.
-- [ ] Exclude the live FC listener from the engine's auxiliary coast calculation. That calculation must neither reset nor advance the real FC.
+- [x] Give the listener one `RTFC` and one communicator instance. Convert FC/controller mutable statics to instance fields, passing clock values explicitly to instruments and controllers.
+- [x] Keep `init`, `pre_loop`, and `loop`. Add a typed `pre_loop` overload using existing data classes, with a small nested input holder if useful. Avoid storing measured values by modifying a shallow-cloned `SimulationStatus.extraData` map.
+- [x] Make `init` perform the source-equivalent setup of instruments, controllers, and peripheral stubs. Remove the current missing-controller-setup failure.
+- [x] Remove the incorrect controller-injection loop bounded by the sensor count. `pre_loop` supplies instruments; `RTFC.loop` constructs controller inputs after instrument processing.
+- [x] Allow normal startup with no `initialStatus`. Bind components in the simulated rocket copy. An airbrake-only test must work without tab-controlled fins; missing or ambiguous required airbrakes must produce a useful configuration error.
+- [x] Preserve public signatures needed by unrelated code if compilation requires it, but do not route the FC through legacy static state or refactor the excluded listener.
+- [x] At same-flight status/listener copies, preserve the live FC, clock, and tick counters. A new top-level run gets fresh objects. Rebind copied components when necessary. Initially support one FC-bearing branch; report unsupported staging explicitly.
+- [x] Exclude the live FC listener from the engine's auxiliary coast calculation. That calculation must neither reset nor advance the real FC.
 
 **Check:** `RTFCLifecycleTest`: initialize without a special initial status, run with airbrakes and no roll tabs, repeat a run, interleave two independent FC instances, and exercise a same-flight listener copy.
 
@@ -97,12 +97,12 @@ Follow the steps in order. Each step states what to edit and what must pass befo
 
 **Edit:** `RTAirbrakesController`, its existing state/measurement classes, and `RTFudgedAirbrakesData`.
 
-- [ ] Add source-shaped `update`, `getDeployment`, and `getState` methods. Let `setup` represent `begin`. Keep required `RTController` methods as thin delegates where needed, with one execution path.
-- [ ] Copy header defaults, including 20 measurements at 5 Hz, mass/density/drag parameters, trial apogee times 34/35/36 s, the 1.5 s offset, start/preparation thresholds, and `SIM_PREDICTED_ALTITUDE=5046`.
-- [ ] Translate helpers and the entire state handler in source order: `DISABLED → PREP → PREPROCESS → WAIT_FOR_START → CONTROLLING_RAMP → CONTROLLING_PLATEAU → DONE`. Retain the source enum's `INFEASIBLE` value without inventing transitions into it.
-- [ ] Translate the altitude prediction, dynamic target calculation, area request, `computeK`, integral update, saturation, and anti-windup behavior. Remove the old Java constant-plateau behavior and conflicting fit logic.
-- [ ] Use boot milliseconds for the library's `millis()` sample spacing. Use the separately supplied flight-time argument for fits and state timing. Preserve the source's `>= 200 ms` sampling comparison.
-- [ ] Make `setAirbrakesServo` update the controller's requested deployment only. Physical actuation belongs to the FC's gated output path in Step 7.
+- [x] Add source-shaped `update`, `getDeployment`, and `getState` methods. Let `setup` represent `begin`. Keep required `RTController` methods as thin delegates where needed, with one execution path.
+- [x] Copy header defaults, including 20 measurements at 5 Hz, mass/density/drag parameters, trial apogee times 34/35/36 s, the 1.5 s offset, start/preparation thresholds, and `SIM_PREDICTED_ALTITUDE=5046`.
+- [x] Translate helpers and the entire state handler in source order: `DISABLED → PREP → PREPROCESS → WAIT_FOR_START → CONTROLLING_RAMP → CONTROLLING_PLATEAU → DONE`. Retain the source enum's `INFEASIBLE` value without inventing transitions into it.
+- [x] Translate the altitude prediction, dynamic target calculation, area request, `computeK`, integral update, saturation, and anti-windup behavior. Remove the old Java constant-plateau behavior and conflicting fit logic.
+- [x] Use boot milliseconds for the library's `millis()` sample spacing. Use the separately supplied flight-time argument for fits and state timing. Preserve the source's `>= 200 ms` sampling comparison.
+- [x] Make `setAirbrakesServo` update the controller's requested deployment only. Physical actuation belongs to the FC's gated output path in Step 7.
 
 **Check:** `RTAirbrakesReplayTest`. Compare saved traces from the selected C++ library with Java for nominal coast, late preparation/partial samples, apogee, nonpositive velocity, and area limits. A tiny standalone C++ reference runner is test tooling only; it introduces no JNI or native dependency in OpenRocket. Initialize its controller with the same zero-initialized static storage used by the FC sketch, and supply a fake boot clock. Generate fixtures from that runner and keep ordinary Gradle tests Java-only. Include the FC's integer-time input path as well as fractional-time library-only cases, so these two contracts cannot be confused.
 
@@ -114,11 +114,11 @@ Require identical states, sample counts, and decision times for identical inputs
 
 **Edit:** `RTAccel`, `RTBaro`, `RTGPS`, `RTGyro`, and their existing data classes.
 
-- [ ] Translate accelerometer update/data-ready behavior, X-axis gravity subtraction, `PRE_FLIGHT` integration threshold of 10 m/s², integrated velocity, and zeroing. Keep raw-count conversion/calibration as pure helpers if raw samples are supplied; do not apply calibration twice to engineering-unit inputs.
-- [ ] Translate barometric altitude computation, the 20-entry zero-initialized moving average, offset, maximum, and reset methods. Inject pressure/temperature before altitude processing; do not inject already-filtered truth altitude into the FC path.
-- [ ] Extend GPS data beyond a boolean fix: preserve fix type, fresh/stale observations, decoded height, height offset, and maximum-altitude updates. Translate the source's `height` semantics and millimeter-to-meter conversion. UBX transport parsing can remain outside the physical sensor adapter.
-- [ ] Translate gyro integration, degrees-per-second units, negative-X roll sign, attitude zeroing, and angle-from-vertical calculation. Retain raw conversion/bias helpers for raw replay inputs.
-- [ ] Keep sample acquisition time and availability explicit. No new accelerometer observation means no fabricated data-ready update. A source method called twice at the same firmware time must not accidentally integrate two elapsed intervals.
+- [x] Translate accelerometer update/data-ready behavior, X-axis gravity subtraction, `PRE_FLIGHT` integration threshold of 10 m/s², integrated velocity, and zeroing. Keep raw-count conversion/calibration as pure helpers if raw samples are supplied; do not apply calibration twice to engineering-unit inputs.
+- [x] Translate barometric altitude computation, the 20-entry zero-initialized moving average, offset, maximum, and reset methods. Inject pressure/temperature before altitude processing; do not inject already-filtered truth altitude into the FC path.
+- [x] Extend GPS data beyond a boolean fix: preserve fix type, fresh/stale observations, decoded height, height offset, and maximum-altitude updates. Translate the source's `height` semantics and millimeter-to-meter conversion. UBX transport parsing can remain outside the physical sensor adapter.
+- [x] Translate gyro integration, degrees-per-second units, negative-X roll sign, attitude zeroing, and angle-from-vertical calculation. Retain raw conversion/bias helpers for raw replay inputs.
+- [x] Keep sample acquisition time and availability explicit. No new accelerometer observation means no fabricated data-ready update. A source method called twice at the same firmware time must not accidentally integrate two elapsed intervals.
 
 **Check:** `RTInstrumentProcessingTest`: stationary pad, constant acceleration, stale/new readings, preflight threshold, gyro sign, barometer filter startup and repeated zeroing, GPS fix loss/recovery, and unsigned clock wrap. Assert source formulas and offsets, not equality with perfect simulator velocity/altitude.
 
@@ -128,14 +128,14 @@ Require identical states, sample counts, and decision times for identical inputs
 
 **Edit:** `RTFC`, `RTRocketState`, and existing peripheral stubs.
 
-- [ ] Replace `DISREEF` with the source's `MAIN` state/ID and update relevant Java callers.
-- [ ] Translate FC fields and `handleState` directly, including timestamps, received state, logging flag, enable flags, converter commands, and the one-shot flags.
-- [ ] Run each nominal 10 ms FC iteration in this order: barometer, accelerometer, gyro, GPS, pyros, power; set `FCtime`; handle state; update enabled roll controller; update enabled airbrakes; telemetry/logging if elapsed time is `>50 ms`; read commands; send power command if elapsed time is `>100 ms`.
-- [ ] Preserve the extra `updateAirbrakes` and `updateRollControl` calls inside the transition to `FLIGHT`, followed by the normal enabled-controller calls in that same loop.
-- [ ] Fill airbrake input with `baro.getFilteredAltitude()`, `accel.getIntegratedVelo()`, `accel.getAccelZ()`, and `currentState.ID > FLIGHT.ID`. Remove true velocity and simulator-apogee injection from this path.
-- [ ] Preserve `(elapsedFlightMillis / 1000)` integer division before conversion to float for airbrakes. Keep fractional seconds for roll. Fractional airbrake time is a later firmware correction, not part of the first translation.
-- [ ] Translate the 16-byte uplink validation and FC command effects into an in-memory queue consumed at the source's `readTelem` position. Preserve checksum, byte order, allowed-state checks, and command latency; validate state values and six-channel bounds.
-- [ ] Record flash/logging, telemetry, power, camera, and video side effects in their existing stubs. Do not emulate SPI, UART electrical timing, flash erase waits, or RF propagation.
+- [x] Replace `DISREEF` with the source's `MAIN` state/ID and update relevant Java callers.
+- [x] Translate FC fields and `handleState` directly, including timestamps, received state, logging flag, enable flags, converter commands, and the one-shot flags.
+- [x] Run each nominal 10 ms FC iteration in this order: barometer, accelerometer, gyro, GPS, pyros, power; set `FCtime`; handle state; update enabled roll controller; update enabled airbrakes; telemetry/logging if elapsed time is `>50 ms`; read commands; send power command if elapsed time is `>100 ms`.
+- [x] Preserve the extra `updateAirbrakes` and `updateRollControl` calls inside the transition to `FLIGHT`, followed by the normal enabled-controller calls in that same loop.
+- [x] Fill airbrake input with `baro.getFilteredAltitude()`, `accel.getIntegratedVelo()`, `accel.getAccelZ()`, and `currentState.ID > FLIGHT.ID`. Remove true velocity and simulator-apogee injection from this path.
+- [x] Preserve `(elapsedFlightMillis / 1000)` integer division before conversion to float for airbrakes. Keep fractional seconds for roll. Fractional airbrake time is a later firmware correction, not part of the first translation.
+- [x] Translate the 16-byte uplink validation and FC command effects into an in-memory queue consumed at the source's `readTelem` position. Preserve checksum, byte order, allowed-state checks, and command latency; validate state values and six-channel bounds.
+- [x] Record flash/logging, telemetry, power, camera, and video side effects in their existing stubs. Do not emulate SPI, UART electrical timing, flash erase waits, or RF propagation.
 
 **Check:** `RTFCStateMachineTest`, with values just below, exactly at, and just above each boundary:
 
@@ -156,10 +156,10 @@ Require identical states, sample counts, and decision times for identical inputs
 
 **Edit:** `RTPyroController`, `RTRollController`, and their `RTFC` calls.
 
-- [ ] Change the Java pyro model from 12 channels to the source's six. Port arm/fire/off, fire duration, packed status, and continuity handling in source order. Remove its wall-clock fallback.
-- [ ] Translate `rollcontrol.h/.cpp` into `RTRollController`, including atmosphere, gain calculation, angle limits, and servo effectiveness. Return the requested angle; do not add another control algorithm.
-- [ ] Keep logical roll computation active when the FC enables it. For the first airbrake test rocket, leave physical roll-tab coupling disabled and label that configuration. Absence of roll tabs must not stop FC/airbrake validation.
-- [ ] Record pyro events throughout. For this first milestone, use explicitly configured OpenRocket recovery and label pyros **recorded only**. Mapping channels to physical recovery events is a later addition.
+- [x] Change the Java pyro model from 12 channels to the source's six. Port arm/fire/off, fire duration, packed status, and continuity handling in source order. Remove its wall-clock fallback.
+- [x] Translate `rollcontrol.h/.cpp` into `RTRollController`, including atmosphere, gain calculation, angle limits, and servo effectiveness. Return the requested angle; do not add another control algorithm.
+- [x] Keep logical roll computation active when the FC enables it. For the first airbrake test rocket, leave physical roll-tab coupling disabled and label that configuration. Absence of roll tabs must not stop FC/airbrake validation.
+- [x] Record pyro events throughout. For this first milestone, use explicitly configured OpenRocket recovery and label pyros **recorded only**. Mapping channels to physical recovery events is a later addition.
 
 **Check:** `RTPyroControllerTest` and `RTRollControllerTest`: armed/unarmed firing, pulse timeout, continuity results, invalid channels, zero/constant roll inputs, velocity bounds, and representative source-derived numerical cases.
 
@@ -169,11 +169,11 @@ Require identical states, sample counts, and decision times for identical inputs
 
 **Edit:** `RTFC` output methods and `RTSimulationCommunicator`.
 
-- [ ] Translate `dpToDeg`, `degToUsAirbrakes`, and the airbrake portion of `Update_IT_callback`. Keep closed/open angles at −67°/−117°, the source pulse conversion, and integer pulse-width truncation.
-- [ ] Select automatic deployment when `airbrakesEnabled` is true; otherwise select the source's manual/closed `airbrakesSetAngle`. An FC apogee transition therefore closes the effective output even if the airbrake controller stops receiving updates.
-- [ ] Latch PWM every 20 ms. Log requested deployment, selected angle, pulse width, and realized exposed fraction separately.
-- [ ] Start with ideal motion after the PWM latch. Derive exposed fraction from the latched pulse/angle using the declared linear closed-to-open mapping; clamp only at the physical component boundary. Record this as an assumed linkage model, not a calibrated mechanism.
-- [ ] Apply that fraction through the existing communicator and `AirbrakeSet.setFracExposed`. Use the existing component aerodynamics; do not add another drag multiplier in the FC adapter.
+- [x] Translate `dpToDeg`, `degToUsAirbrakes`, and the airbrake portion of `Update_IT_callback`. Keep closed/open angles at −67°/−117°, the source pulse conversion, and integer pulse-width truncation.
+- [x] Select automatic deployment when `airbrakesEnabled` is true; otherwise select the source's manual/closed `airbrakesSetAngle`. An FC apogee transition therefore closes the effective output even if the airbrake controller stops receiving updates.
+- [x] Latch PWM every 20 ms. Log requested deployment, selected angle, pulse width, and realized exposed fraction separately.
+- [x] Start with ideal motion after the PWM latch. Derive exposed fraction from the latched pulse/angle using the declared linear closed-to-open mapping; clamp only at the physical component boundary. Record this as an assumed linkage model, not a calibrated mechanism.
+- [x] Apply that fraction through the existing communicator and `AirbrakeSet.setFracExposed`. Use the existing component aerodynamics; do not add another drag multiplier in the FC adapter.
 
 **Check:** `RTFCOutputTest`: enabled automatic command, ground manual angle, preflight closure, apogee closure, pulse rounding, and 20 ms hold behavior. Also check that increasing exposed fraction increases modeled airbrake drag in a fixed flight condition.
 
@@ -191,10 +191,10 @@ Require identical states, sample counts, and decision times for identical inputs
 | Gyro | Rotate angular velocity into sensor axes and convert rad/s to degrees/s before source integration/sign handling |
 | Noise | Off for the first acceptance run; any later noise uses a per-run recorded seed |
 
-- [ ] Replace the current horizontal-acceleration-magnitude duplication and orientation-angle shortcuts. Capture an actual vector and matching attitude/time; fix the GPS radians/degrees error.
-- [ ] Use an explicit mounting rotation. Until hardware orientation is confirmed, the declared simulation default is sensor X = body Z, sensor Y = body X, sensor Z = body Y. Treat this as an assumption, not a board measurement. Preserve the FC's separate use of sensor X for velocity and sensor Z for airbrake acceleration; do not alias them.
-- [ ] Capture the first acceleration evaluation at an accepted physics-interval start, together with position, atmosphere, attitude, and sample time. Use the existing acceleration callback, restricted to that first evaluation. Publish the sample only after the interval completes; discard intermediate RK trial evaluations.
-- [ ] Deliver the latest coherent sample at the next FC tick. This intentionally models up to one physics-step acquisition latency. Record acquisition and delivery times; do not combine a start-of-step acceleration with an end-of-step attitude or label it an endpoint measurement.
+- [x] Replace the current horizontal-acceleration-magnitude duplication and orientation-angle shortcuts. Capture an actual vector and matching attitude/time; fix the GPS radians/degrees error.
+- [x] Use an explicit mounting rotation. Until hardware orientation is confirmed, the declared simulation default is sensor X = body Z, sensor Y = body X, sensor Z = body Y. Treat this as an assumption, not a board measurement. Preserve the FC's separate use of sensor X for velocity and sensor Z for airbrake acceleration; do not alias them.
+- [x] Capture the first acceleration evaluation at an accepted physics-interval start, together with position, atmosphere, attitude, and sample time. Use the existing acceleration callback, restricted to that first evaluation. Publish the sample only after the interval completes; discard intermediate RK trial evaluations.
+- [x] Deliver the latest coherent sample at the next FC tick. This intentionally models up to one physics-step acquisition latency. Record acquisition and delivery times; do not combine a start-of-step acceleration with an end-of-step attitude or label it an endpoint measurement.
 
 **Check:** `RTFCSensorAdapterTest`: upright stationary pad, free fall, upward thrust, tilted orientation, positive rotation, launch-site coordinates, and pressure/temperature units. Check the callback capture against both RK steppers. Simulator truth may be logged for comparison, but is not a controller input shortcut.
 
@@ -204,11 +204,11 @@ Require identical states, sample counts, and decision times for identical inputs
 
 **Edit:** the FC listener, [ModifiedEventSimulationEngine][engine], and the existing [RK6][rk6]/[RK4][rk4] step-limit handling where necessary. Keep scheduling counters with the run's existing FC/listener state; do not introduce another scheduler framework.
 
-- [ ] Run one FC iteration per 10,000 boot microseconds and one PWM latch per 20,000 microseconds. At a shared deadline: deliver samples, run FC, latch PWM, then hold the output for the next physics interval.
-- [ ] Start with a maximum physics step of 2.5 ms. In FC mode, bound each step by numerical limits, the next engine event, FC tick, and PWM deadline. Correct the existing hardcoded step override and minimum-step enlargement so neither can step across these deadlines. Cover landing/ground steppers too.
-- [ ] Guard unchanged-time `postStep` calls and terminal `step(..., NaN)` recording calls. Never run the controller inside RK trial evaluations, or replay several missed ticks using one future sample. If a deadline is skipped, fail the timing test rather than hiding the error.
-- [ ] Before OpenRocket time zero, run a stationary-pad warmup for 1,000 ms of firmware time. Queue the simulated `PRE_FLIGHT` command at boot 500 ms, after the barometer has filled its first window; consume it at the normal command-read point. Release the physical flight at boot 1,000 ms. The FC detects `FLIGHT` itself. Treat peripheral setup delays as an explicit nominal abstraction, with no real sleeps.
-- [ ] Preserve normal simulations' behavior when this FC listener is absent. Do not use global step changes that affect another concurrent simulation.
+- [x] Run one FC iteration per 10,000 boot microseconds and one PWM latch per 20,000 microseconds. At a shared deadline: deliver samples, run FC, latch PWM, then hold the output for the next physics interval.
+- [x] Start with a maximum physics step of 2.5 ms. In FC mode, bound each step by numerical limits, the next engine event, FC tick, and PWM deadline. Correct the existing hardcoded step override and minimum-step enlargement so neither can step across these deadlines. Cover landing/ground steppers too.
+- [x] Guard unchanged-time `postStep` calls and terminal `step(..., NaN)` recording calls. Never run the controller inside RK trial evaluations, or replay several missed ticks using one future sample. If a deadline is skipped, fail the timing test rather than hiding the error.
+- [x] Before OpenRocket time zero, run a stationary-pad warmup for 1,000 ms of firmware time. Queue the simulated `PRE_FLIGHT` command at boot 500 ms, after the barometer has filled its first window; consume it at the normal command-read point. Release the physical flight at boot 1,000 ms. The FC detects `FLIGHT` itself. Treat peripheral setup delays as an explicit nominal abstraction, with no real sleeps.
+- [x] Preserve normal simulations' behavior when this FC listener is absent. Do not use global step changes that affect another concurrent simulation.
 
 **Check:** `RTFCTimingTest`: compare runs with maximum physics steps of 2.5 ms and 1 ms. FC/PWM tick schedules must agree exactly; compare trajectories with a declared integration tolerance. Exercise an engine event at an off-grid time, repeated callbacks, same-flight copies, and a transition to a landing stepper.
 
@@ -218,12 +218,12 @@ Require identical states, sample counts, and decision times for identical inputs
 
 **Edit:** add a small FC-specific `.ork` fixture and a test using the existing `Simulation.simulate(...)` entry point. Add concise run instructions and a result log.
 
-- [ ] Use a single-stage rocket with one `AirbrakeSet`, explicitly configured recovery, and physical roll coupling off. Register `FlightControllerSimulatorListener` directly in the test. For a GUI example, use the existing Java-code extension with that listener's full class name.
-- [ ] Run from stationary preflight through ascent, braking, and FC apogee closure. Choose a fixture long enough to exercise controller preparation and deployment. Compare with an otherwise identical run whose physical airbrake output is held closed.
-- [ ] Record boot/flight time, acquisition/delivery time, measured and estimated state, FC/controller states, commands, PWM, realized deployment, and all six pyro events. Use bounded or streamed logs; remove per-physics-step console spam.
-- [ ] Confirm the closed-loop trajectory responds to airbrake drag. Do not require a tuned target altitude as proof of a faithful translation: the source's fixed prediction and other quirks remain in this baseline.
-- [ ] Run repeat/interleaved simulations and the relevant existing engine/event tests. Test descent timers by replay even if the chosen physical flight lands before the source's long `MAIN` lockout expires.
-- [ ] Build and launch the root shadow JAR. Verify the listener is actually registered and runs from the packaged artifact, rather than merely checking that its class exists.
+- [x] Use a single-stage rocket with one `AirbrakeSet`, explicitly configured recovery, and physical roll coupling off. Register `FlightControllerSimulatorListener` directly in the test. For a GUI example, use the existing Java-code extension with that listener's full class name.
+- [x] Run from stationary preflight through ascent, braking, and FC apogee closure. Choose a fixture long enough to exercise controller preparation and deployment. Compare with an otherwise identical run whose physical airbrake output is held closed.
+- [x] Record boot/flight time, acquisition/delivery time, measured and estimated state, FC/controller states, commands, PWM, realized deployment, and all six pyro events. Use streamed logs. Per the subsequent user request, print all actions, including physics steps, with `System.out.println`.
+- [x] Confirm the closed-loop trajectory responds to airbrake drag. Do not require a tuned target altitude as proof of a faithful translation: the source's fixed prediction and other quirks remain in this baseline.
+- [x] Run repeat/interleaved simulations and the relevant existing engine/event tests. Test descent timers by replay even if the chosen physical flight lands before the source's long `MAIN` lockout expires.
+- [x] Build and launch the root shadow JAR. Verify the listener is actually registered and runs from the packaged artifact, rather than merely checking that its class exists.
 
 **Done when:** the FC-specific end-to-end test, source-comparison checks, existing simulation regressions, and packaged-JAR smoke test pass. No native FC library is required.
 

@@ -1,0 +1,380 @@
+{
+  "OpenRocket": {
+    "rows": 2215,
+    "baseline": {
+      "barofilteredalt": 0.0,
+      "gpsalt": 0.0,
+      "lat": 28.61,
+      "lon": -80.6,
+      "temp": -16.148326897621153,
+      "samples": 5
+    },
+    "start_boot_ms": 1010,
+    "baro_peak_rise_m": 4463.704,
+    "baro_peak_reported_m": 4463.704,
+    "baro_peak_time_s": 27.91,
+    "baro_peak_csv_line": 483,
+    "gps_peak_low_confidence_rise_m": 4471.057,
+    "gps_peak_time_s": 27.79,
+    "gps_stable_from_s": 0.0,
+    "fc_velocity_peak_mps": 409.15887,
+    "fc_velocity_peak_time_s": 2.05,
+    "boost_accelerometer_x_peak_mps2": 235.0056412265625,
+    "boost_accelerometer_x_peak_time_s": 1.09,
+    "baro_velocity_at_100s_mps": -42.701813725490204,
+    "descending_first_sample_below_height_s": {
+      "4000": 40.87,
+      "1000": 107.53,
+      "500": 119.65
+    },
+    "airbrake_first_open_s": 14.05,
+    "airbrake_close_s": 27.79,
+    "airbrake_min_pulse_us": 670.0,
+    "state_events": [
+      {
+        "state": "state.GROUND_TESTING",
+        "t_s": -0.95,
+        "csv_line": 2
+      },
+      {
+        "state": "state.PRE_FLIGHT",
+        "t_s": -0.47,
+        "csv_line": 10
+      },
+      {
+        "state": "state.FLIGHT",
+        "t_s": 0.01,
+        "csv_line": 18
+      },
+      {
+        "state": "state.APOGEE",
+        "t_s": 29.89,
+        "csv_line": 516
+      },
+      {
+        "state": "state.MAIN",
+        "t_s": 120.67,
+        "csv_line": 2029
+      }
+    ],
+    "last_t_s": 131.89,
+    "last_baro_rise_m": 5.766023,
+    "last_horizontal_distance_m": 68.80405016885551,
+    "last_east_m": -68.80399304128082,
+    "last_north_m": 0.08866348609496998,
+    "gyro_saturated_sample_counts_xyz": [
+      0,
+      0,
+      0
+    ],
+    "maximum_flight_packet_gap_s": 0.060000000000016485,
+    "excluded_csv_lines": []
+  },
+  "GS1": {
+    "rows": 4366,
+    "baseline": {
+      "barofilteredalt": 145.26053619384766,
+      "gpsalt": -2.696000099182129,
+      "lat": 42.7042295,
+      "lon": -77.1919149,
+      "temp": 30.930426006317138,
+      "samples": 48
+    },
+    "start_boot_ms": 747766,
+    "baro_peak_rise_m": 5403.967002868652,
+    "baro_peak_reported_m": 5549.2275390625,
+    "baro_peak_time_s": 28.836,
+    "baro_peak_csv_line": 2298,
+    "gps_peak_low_confidence_rise_m": 4549.327836036682,
+    "gps_peak_time_s": 30.534,
+    "gps_stable_from_s": 14.154,
+    "fc_velocity_peak_mps": 437.740234375,
+    "fc_velocity_peak_time_s": 1.812,
+    "boost_accelerometer_x_peak_mps2": 354.66439255078126,
+    "boost_accelerometer_x_peak_time_s": 0.702,
+    "baro_velocity_at_100s_mps": -31.15838031844985,
+    "descending_first_sample_below_height_s": {
+      "4000": 58.614,
+      "1000": 135.426,
+      "500": 149.466
+    },
+    "airbrake_first_open_s": 14.04,
+    "airbrake_close_s": 28.956,
+    "airbrake_min_pulse_us": 525.0,
+    "state_events": [
+      {
+        "state": "state.GROUND_TESTING",
+        "t_s": -116.165,
+        "csv_line": 2
+      },
+      {
+        "state": "state.PRE_FLIGHT",
+        "t_s": -67.727,
+        "csv_line": 824
+      },
+      {
+        "state": "state.FLIGHT",
+        "t_s": 0.0,
+        "csv_line": 1832
+      },
+      {
+        "state": "state.POST_APOGEE",
+        "t_s": 28.956,
+        "csv_line": 2300
+      },
+      {
+        "state": "state.MAIN",
+        "t_s": 149.292,
+        "csv_line": 4243
+      }
+    ],
+    "last_t_s": 159.174,
+    "last_baro_rise_m": 176.1050033569336,
+    "last_horizontal_distance_m": 3053.5285875172813,
+    "last_east_m": 2516.8379416778603,
+    "last_north_m": -1729.0354565815107,
+    "gyro_saturated_sample_counts_xyz": [
+      439,
+      18,
+      26
+    ],
+    "maximum_flight_packet_gap_s": 1.524000000000001,
+    "excluded_csv_lines": [
+      2595,
+      3349,
+      3947
+    ]
+  },
+  "altitude_errors_sim_minus_GS1": {
+    "ascent_0_28s": {
+      "samples": 281,
+      "bias_m": -623.2934199137718,
+      "rmse_m": 656.1246910537428
+    },
+    "descent_35_130s": {
+      "samples": 947,
+      "bias_m": -950.8371190971937,
+      "rmse_m": 955.0298936865186
+    }
+  },
+  "sampled_height_rise_m": {
+    "2": {
+      "OpenRocket": 380.63804333333337,
+      "GS1": 748.3937708536783
+    },
+    "5": {
+      "OpenRocket": 1458.7217833333334,
+      "GS1": 1944.1058537801107
+    },
+    "10": {
+      "OpenRocket": 2733.7658500000002,
+      "GS1": 3313.2770614624023
+    },
+    "14": {
+      "OpenRocket": 3459.8077166666667,
+      "GS1": 4141.632041931152
+    },
+    "20": {
+      "OpenRocket": 4150.820666666667,
+      "GS1": 4910.332497660319
+    },
+    "28": {
+      "OpenRocket": 4463.6493,
+      "GS1": 5375.750606634678
+    },
+    "60": {
+      "OpenRocket": 3087.6136333333334,
+      "GS1": 3946.334996032715
+    },
+    "100": {
+      "OpenRocket": 1312.48465,
+      "GS1": 2320.09042409261
+    },
+    "120": {
+      "OpenRocket": 484.02272666666687,
+      "GS1": 1561.5251449584962
+    }
+  },
+  "simulated_ground_hit": {
+    "t_s": 131.94244253167275,
+    "velocity_mps": -39.823704287582416,
+    "GS1_baro_rise_at_same_time_m": 1125.2530570916388
+  },
+  "log_events": [
+    {
+      "run": "1",
+      "boot_us": "0",
+      "action": "simulation.start",
+      "rocket": "Rocket",
+      "max_step_s": "0.0025",
+      "mounting": "X:bodyZ,Y:bodyX,Z:bodyY",
+      "noise": "off",
+      "recovery": "OpenRocket",
+      "pyro": "recorded_only",
+      "roll_physics": "off",
+      "hold_closed": "false",
+      "log_line": 35
+    },
+    {
+      "run": "1",
+      "boot_us": "510000",
+      "action": "fc.transition",
+      "from": "GROUND_TESTING",
+      "to": "PRE_FLIGHT",
+      "flight_begin_ms": "0",
+      "apogee_ms": "0",
+      "log_line": 755
+    },
+    {
+      "run": "1",
+      "boot_us": "1010000",
+      "action": "fc.transition",
+      "from": "PRE_FLIGHT",
+      "to": "FLIGHT",
+      "flight_begin_ms": "1010",
+      "apogee_ms": "0",
+      "log_line": 1464
+    },
+    {
+      "run": "1",
+      "boot_us": "6010000",
+      "action": "airbrakes.transition",
+      "from": "DISABLED",
+      "to": "PREP",
+      "log_line": 15534
+    },
+    {
+      "run": "1",
+      "boot_us": "9820000",
+      "action": "airbrakes.transition",
+      "from": "PREP",
+      "to": "PREPROCESS",
+      "log_line": 24775
+    },
+    {
+      "run": "1",
+      "boot_us": "9830000",
+      "action": "airbrakes.transition",
+      "from": "PREPROCESS",
+      "to": "WAIT_FOR_START",
+      "log_line": 24800
+    },
+    {
+      "run": "1",
+      "boot_us": "14010000",
+      "action": "airbrakes.transition",
+      "from": "WAIT_FOR_START",
+      "to": "CONTROLLING_RAMP",
+      "log_line": 34922
+    },
+    {
+      "run": "1",
+      "boot_us": "15010000",
+      "action": "airbrakes.transition",
+      "from": "CONTROLLING_RAMP",
+      "to": "CONTROLLING_PLATEAU",
+      "log_line": 37446
+    },
+    {
+      "run": "1",
+      "boot_us": "28780000",
+      "action": "airbrakes.transition",
+      "from": "CONTROLLING_PLATEAU",
+      "to": "DONE",
+      "log_line": 72410
+    },
+    {
+      "run": "1",
+      "boot_us": "30900000",
+      "action": "pyro.fire",
+      "channel": "0",
+      "duration_ms": "250",
+      "log_line": 78815
+    },
+    {
+      "run": "1",
+      "boot_us": "30900000",
+      "action": "pyro.fire",
+      "channel": "1",
+      "duration_ms": "250",
+      "log_line": 78817
+    },
+    {
+      "run": "1",
+      "boot_us": "30900000",
+      "action": "fc.transition",
+      "from": "FLIGHT",
+      "to": "APOGEE",
+      "flight_begin_ms": "1010",
+      "apogee_ms": "30900",
+      "log_line": 78819
+    },
+    {
+      "run": "1",
+      "boot_us": "33910000",
+      "action": "pyro.fire",
+      "channel": "3",
+      "duration_ms": "250",
+      "log_line": 87320
+    },
+    {
+      "run": "1",
+      "boot_us": "33910000",
+      "action": "pyro.fire",
+      "channel": "4",
+      "duration_ms": "250",
+      "log_line": 87322
+    },
+    {
+      "run": "1",
+      "boot_us": "35910000",
+      "action": "pyro.fire",
+      "channel": "5",
+      "duration_ms": "250",
+      "log_line": 92968
+    },
+    {
+      "run": "1",
+      "boot_us": "121660000",
+      "action": "pyro.fire",
+      "channel": "2",
+      "duration_ms": "250",
+      "log_line": 334857
+    },
+    {
+      "run": "1",
+      "boot_us": "121660000",
+      "action": "fc.transition",
+      "from": "APOGEE",
+      "to": "MAIN",
+      "flight_begin_ms": "1010",
+      "apogee_ms": "30900",
+      "log_line": 334860
+    },
+    {
+      "run": "1",
+      "boot_us": "132950000",
+      "action": "simulation.end",
+      "loops": "13296",
+      "log_line": 366721
+    }
+  ],
+  "sources_sha256": {
+    "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/build/libs/fc-telemetry/zephyrus-2679935281387596436/telemetry.csv": "fda94391a9cd4cd6de44b227da6742dffcc8017c64c32540c9edb030f80d7775",
+    "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/benchmarking/telem/ZEPH_TEST_FLIGHT_GS1.csv": "2417e0b5664a5ed559ba31e4861ec527e7e2fba6ad752c289dcde9b9d02a7512",
+    "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/build/libs/fc-telemetry/zephyrus-2679935281387596436/OR.log": "f68c1a0d02866eaa373bd726754c6a22106fcd10a7936dd0094defbe69a334af"
+  },
+  "software": {
+    "numpy": "2.5.3",
+    "matplotlib": "3.11.1"
+  },
+  "method": {
+    "primary_height": "barofilteredalt minus median PRE_FLIGHT baseline in [-3,-0.2) s",
+    "alignment": "GS1 first FLIGHT telemetry row; OR exact FLIGHT transition in log; no curve fitting or time scaling",
+    "GPS_altitude": "low-confidence diagnostic only; excluded from primary altitude/3D height",
+    "position": "GPS lat/lon, fix=3, WGS84 local east/north relative to separate prelaunch origins",
+    "packet_exclusion": "whole rows with |gpsalt|>10000 m, |FC velocity|>2000 m/s, or lat/lon >0.1 degree from launch",
+    "maximum_interpolated_gap_s": 0.5,
+    "baro_velocity": "one-second local linear fit, at least eight points"
+  }
+}

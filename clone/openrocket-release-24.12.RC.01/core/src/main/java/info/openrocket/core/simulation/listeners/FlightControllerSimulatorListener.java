@@ -90,6 +90,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         if(status.getConfiguration().getActiveStageCount()!=1) throw new SimulationException("Zephyrus Java FC currently supports one active stage");
         if(status.getSimulationTime()!=0) throw new SimulationException("Zephyrus FC requires pad startup; mid-flight checkpoints are not implemented");
         run.communicator.bind(status);
+        status.getSimulationConditions().setTimeStep(maxPhysicsStep);
         run.fc.trace.log("simulation.start", "rocket="+status.getConfiguration().getRocket().getName()+" max_step_s="+maxPhysicsStep+" mounting=X:bodyZ,Y:bodyX,Z:bodyY noise=off recovery=OpenRocket pyro=recorded_only roll_physics=off hold_closed="+holdAirbrakesClosed);
         run.fc.init();
         run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")));
