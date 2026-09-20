@@ -1,5 +1,6 @@
 package info.openrocket.core.simulation.listeners;
 import edu.mit.rocket_team.zephyrus.FC.RTFC;
+import edu.mit.rocket_team.zephyrus.telemetry.TelemetryLinkSettings;
 import edu.mit.rocket_team.zephyrus.util.RTSimulationCommunicator;
 import edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.Trace;
 import edu.mit.rocket_team.zephyrus.util.data.*;
@@ -67,6 +68,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     private final Consumer<String> console;
     private final double maxPhysicsStep;
     private final boolean holdAirbrakesClosed;
+    private final TelemetryLinkSettings linkSettings;
     private Run run;
     /** Shared only across framework copies belonging to this flight, never across new starts. */
     private static final class Run {
@@ -76,17 +78,22 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         double stepStart;
         RTFC.Inputs candidate,latest;
         boolean intervalOpen,closed;
-        Run(Consumer<String> console) { fc=new RTFC(new Trace(console)); communicator=new RTSimulationCommunicator(fc.trace); }
+        Run(Consumer<String> console, TelemetryLinkSettings link) { fc=new RTFC(new Trace(console), link); communicator=new RTSimulationCommunicator(fc.trace); }
     }
     public FlightControllerSimulatorListener() { this(line -> System.out.println(line),0.0025,false); }
+    public FlightControllerSimulatorListener(TelemetryLinkSettings link) { this(System.out::println, 0.0025, false, link); }
     public FlightControllerSimulatorListener(Consumer<String> console,double maxPhysicsStep,boolean holdAirbrakesClosed) {
+        this(console, maxPhysicsStep, holdAirbrakesClosed, TelemetryLinkSettings.DEFAULT);
+    }
+    public FlightControllerSimulatorListener(Consumer<String> console,double maxPhysicsStep,boolean holdAirbrakesClosed, TelemetryLinkSettings link) {
         if(!(maxPhysicsStep>0 && maxPhysicsStep<=0.0025)) throw new IllegalArgumentException("FC physics step must be in (0, 0.0025] seconds");
+        this.linkSettings=java.util.Objects.requireNonNull(link);
         this.console=console; this.maxPhysicsStep=maxPhysicsStep; this.holdAirbrakesClosed=holdAirbrakesClosed;
     }
     public RTFC getFlightComputer() { return run==null?null:run.fc; }
     public double getMaximumPhysicsStep() { return maxPhysicsStep; }
     @Override public void startSimulation(SimulationStatus status) throws SimulationException {
-        run=new Run(console);
+        run=new Run(console, linkSettings);
         if(status.getConfiguration().getActiveStageCount()!=1) throw new SimulationException("Zephyrus Java FC currently supports one active stage");
         if(status.getSimulationTime()!=0) throw new SimulationException("Zephyrus FC requires pad startup; mid-flight checkpoints are not implemented");
         run.communicator.bind(status);
@@ -94,6 +101,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         run.fc.trace.log("simulation.start", "rocket="+status.getConfiguration().getRocket().getName()+" max_step_s="+maxPhysicsStep+" mounting=X:bodyZ,Y:bodyX,Z:bodyY noise=off recovery=OpenRocket pyro=recorded_only roll_physics=off hold_closed="+holdAirbrakesClosed);
         run.fc.init();
         run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")));
+        if (status.getSimulationConditions().getSimulation() != null)
+            status.getSimulationConditions().getSimulation().setFlightComputerTelemetryPath(run.fc.telemetry.getCsvPath());
         try {
             for(long us=0;us<WARMUP_US;us+=RTFC.LOOP_US) {
                 if(us==500_000) run.fc.enqueueCommand(RTFC.stateCommand(edu.mit.rocket_team.zephyrus.util.RTRocketState.PRE_FLIGHT));
@@ -171,9 +180,14 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         if(!(untilTick>0)) throw new IllegalStateException("FC tick must execute before another physics interval");
         return Math.min(Math.min(eventLimit,maxPhysicsStep),untilTick);
     }
-    @Override public void endSimulation(SimulationStatus status,SimulationException exception) { finish(); }
-    public void finish() {
-        if(run!=null && !run.closed) { run.closed=true; run.fc.trace.log("simulation.end", "loops="+run.fc.getLoopCount()); run.fc.telemetry.close(); }
+    @Override public void endSimulation(SimulationStatus status,SimulationException exception) {
+        boolean complete = exception == null && status.getFlightDataBranch().getEvents().stream()
+                .noneMatch(e -> e.getType() == FlightEvent.Type.SIM_ABORT || e.getType() == FlightEvent.Type.EXCEPTION);
+        finish(complete);
+    }
+    public void finish() { finish(false); }
+    private void finish(boolean complete) {
+        if(run!=null && !run.closed) { run.closed=true; run.fc.trace.log("simulation.end", "loops="+run.fc.getLoopCount()); run.fc.telemetry.finish(complete); }
     }
 
     // don't worry about it

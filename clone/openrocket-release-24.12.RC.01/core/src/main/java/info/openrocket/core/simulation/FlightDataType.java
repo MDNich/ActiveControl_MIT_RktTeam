@@ -127,6 +127,14 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			UnitGroup.UNITS_ROLL,
 			FlightDataTypeGroup.ORIENTATION, 3);
 	//// Vertical orientation (zenith)
+    // Full body-to-world attitude for trajectory animation; existing axis angles omit roll.
+    public static final FlightDataType TYPE_ORIENTATION_QW = newType(trans.get("FlightDataType.TYPE_ORIENTATION_QW"), "Qw", UnitGroup.UNITS_NONE, FlightDataTypeGroup.ORIENTATION, 200);
+    public static final FlightDataType TYPE_ORIENTATION_QX = newType(trans.get("FlightDataType.TYPE_ORIENTATION_QX"), "Qx", UnitGroup.UNITS_NONE, FlightDataTypeGroup.ORIENTATION, 201);
+    public static final FlightDataType TYPE_ORIENTATION_QY = newType(trans.get("FlightDataType.TYPE_ORIENTATION_QY"), "Qy", UnitGroup.UNITS_NONE, FlightDataTypeGroup.ORIENTATION, 202);
+    public static final FlightDataType TYPE_ORIENTATION_QZ = newType(trans.get("FlightDataType.TYPE_ORIENTATION_QZ"), "Qz", UnitGroup.UNITS_NONE, FlightDataTypeGroup.ORIENTATION, 203);
+    public static final FlightDataType TYPE_VELOCITY_X = newType(trans.get("FlightDataType.TYPE_VELOCITY_X"), "Vx", UnitGroup.UNITS_VELOCITY, FlightDataTypeGroup.POSITION_AND_MOTION, 204);
+    public static final FlightDataType TYPE_VELOCITY_Y = newType(trans.get("FlightDataType.TYPE_VELOCITY_Y"), "Vy", UnitGroup.UNITS_VELOCITY, FlightDataTypeGroup.POSITION_AND_MOTION, 205);
+
 	public static final FlightDataType TYPE_ORIENTATION_THETA = newType(
 			trans.get("FlightDataType.TYPE_ORIENTATION_THETA"), "\u0398", UnitGroup.UNITS_ANGLE,
 			FlightDataTypeGroup.ORIENTATION, 4);
@@ -354,6 +362,8 @@ public class FlightDataType implements Comparable<FlightDataType>, Groupable<Fli
 			TYPE_CORIOLIS_ACCELERATION,
 			TYPE_REFERENCE_LENGTH,
 			TYPE_REFERENCE_AREA,
+			TYPE_ORIENTATION_QW, TYPE_ORIENTATION_QX, TYPE_ORIENTATION_QY, TYPE_ORIENTATION_QZ,
+            TYPE_VELOCITY_X, TYPE_VELOCITY_Y,
 			TYPE_ORIENTATION_THETA,
 			TYPE_ORIENTATION_PHI,
 			TYPE_WIND_VELOCITY,

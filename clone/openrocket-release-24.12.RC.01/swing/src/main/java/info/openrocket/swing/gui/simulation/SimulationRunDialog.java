@@ -105,6 +105,7 @@ public class SimulationRunDialog extends JDialog {
 	private final double[] simulationMaxAltitude;
 	private final double[] simulationMaxVelocity;
 	private final boolean[] simulationDone;
+    private boolean telemetryShown;
 
 	public SimulationRunDialog(Window window, OpenRocketDocument document, Simulation... simulations) {
 		//// Running simulations...
@@ -226,6 +227,19 @@ public class SimulationRunDialog extends JDialog {
 		if (index >= simulations.length) {
 			// Everything is done, close the dialog
 			log.debug("Everything done.");
+            if (!telemetryShown) {
+                telemetryShown = true;
+                StringBuilder files = new StringBuilder();
+                for (Simulation sim : simulations) {
+                    var path = sim.getFlightComputerTelemetryPath();
+                    if (path != null) files.append(sim.getName()).append("\n").append(path).append("\n\n");
+                }
+                if (files.length() > 0) javax.swing.SwingUtilities.invokeLater(() -> {
+                    javax.swing.JTextArea area = new javax.swing.JTextArea(files.toString(), Math.min(8, simulations.length*3), 65);
+                    area.setEditable(false);
+                    JOptionPane.showMessageDialog(getOwner(), new javax.swing.JScrollPane(area), trans.get("FCSettings.files"), JOptionPane.INFORMATION_MESSAGE);
+                });
+            }
 			this.dispose();
 			return;
 		}

@@ -4,39 +4,67 @@ import edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.Trace;
 /** Deterministic byte queue in place of the FC's CC1200, no RF simulation. */
 public class RTTelemetryEngine implements AutoCloseable {
     public static final String CSV_HEADER="timestamp,pyros,servos,servos_deg,accelerometer,barofilteredalt,temp,gyro,gps_fix,lat,lon,gpsalt,gps_horiz_prec,gps_vert_prec,gps_num_sat,flight_time,yaw_gyro_int,pitch_gyro_int,roll_gyro_int,state,pktnum,rssi,armed_pyros,fired_pyros,badpackets,rxrssi,accel_integrated_velo,baro_max_alt,gps_max_alt,pyro_resistances,cell_voltages,total_current,converter_voltages,converter_currents,bms_protections_enabled,bms_protection_status,bms_temp,enabled_status,angleFromVertical,gnd_lat,gnd_lon,gnd_fix,gnd_alt";
-    private java.io.BufferedWriter csv;
-    private java.io.OutputStream binary;
-    private java.nio.file.Path csvPath,packetPath;
-    private final double epochSeconds=Double.parseDouble(System.getProperty("openrocket.fc.epochSeconds","0"));
+    private java.io.BufferedWriter csv, transmittedCsv;
+    private java.io.OutputStream binary, transmittedBinary;
+    private java.nio.file.Path csvPath, packetPath, metadataPath;
+    private final double epochSeconds = Double.parseDouble(System.getProperty("openrocket.fc.epochSeconds", "0"));
+    private final TelemetryLinkSettings settings;
+    private final java.util.Random random;
+    private record Delivery(long index, long txUs, long rxUs, byte[] packet) {}
+    private final ArrayDeque<Delivery> pending = new ArrayDeque<>();
+    private long generated, received, dropped;
+    private boolean finished;
+
     public java.nio.file.Path getCsvPath() { return csvPath; }
     public java.nio.file.Path getPacketPath() { return packetPath; }
+    public long getGeneratedCount() { return generated; }
+    public long getReceivedCount() { return received; }
+    public long getDroppedCount() { return dropped; }
+    public int getPendingCount() { return pending.size(); }
+
     public void open(java.nio.file.Path parent) {
-        if(csv!=null) throw new IllegalStateException("Telemetry already open");
+        if (csvPath != null || finished) throw new IllegalStateException("Telemetry already opened or closed");
         try {
             java.nio.file.Files.createDirectories(parent);
-            java.nio.file.Path dir=java.nio.file.Files.createTempDirectory(parent,"zephyrus-").toAbsolutePath();
-            csvPath=dir.resolve("telemetry.csv"); packetPath=dir.resolve("packets.bin");
-            csv=java.nio.file.Files.newBufferedWriter(csvPath,java.nio.file.StandardOpenOption.CREATE_NEW);
-            binary=java.nio.file.Files.newOutputStream(packetPath,java.nio.file.StandardOpenOption.CREATE_NEW);
-            csv.write(CSV_HEADER); csv.newLine(); csv.flush();
-            java.nio.file.Files.writeString(dir.resolve("metadata.txt"),
-                "Zephyrus Java FC simulated telemetry\n"+
-                "CSV schema: ZEPH_TEST_FLIGHT_GS1/2/3.csv (43 columns).\n"+
-                "Binary: consecutive 128-byte FC payloads, including checksum at byte 127; no RF framing.\n"+
-                "CSV values decoded from those payloads using RT_Python_Lib/ground_station/rocket.py conventions.\n"+
-                "timestamp = epochSeconds + boot microseconds / 1e6; epochSeconds="+epochSeconds+"\n"+
-                "flight_time is firmware boot milliseconds, as in the ground-station decoder; not seconds since liftoff.\n"+
-                "RF delay/loss=0; RSSI and ground-station position/fix fields are unavailable (blank CSV cells).\n"+
-                "GPS uncertainty/satellite count=unmodeled zero; decoded absolute height uses simulator datum.\n"+
-                "Power=nominal simulated voltages, zero currents, 20 C BMS; pyro resistance=unmodeled zero.\n"+
-                "Raw sensor counts synthesized from engineering readings with firmware calibration and sensor-range clamping.\n"+
-                "CSV accelerometer X omits firmware factor 1.060, matching ground decoder.\n"+
-                "CSV gyro omits firmware biases and negates Y, matching ground decoder.\n"+
-                "CSV temp uses historical GS C5=0x91E3/C6=0x6FEC, while FC uses 0x8405/0x6D91; inspect FC console for engineering temperature.\n"+
-                "FC sample mounting: sensor X=body Z,Y=body X,Z=body Y (assumed); ideal PWM linkage; physical roll off; pyros recorded only.\n"+
-                "Firmware airbrake time is integer seconds; prediction patch 5046 m preserved.\n");
-            trace.log("telemetry.files", "csv="+csvPath+" packets="+packetPath+" metadata="+dir.resolve("metadata.txt"));
-        } catch(java.io.IOException e) { close(); throw new java.io.UncheckedIOException(e); }
+            java.nio.file.Path dir = java.nio.file.Files.createTempDirectory(parent, "zephyrus-").toAbsolutePath();
+            csvPath = dir.resolve("telemetry.csv");
+            packetPath = dir.resolve("packets.bin");
+            metadataPath = dir.resolve("metadata.txt");
+            csv = java.nio.file.Files.newBufferedWriter(csvPath, java.nio.file.StandardOpenOption.CREATE_NEW);
+            binary = java.nio.file.Files.newOutputStream(packetPath, java.nio.file.StandardOpenOption.CREATE_NEW);
+            transmittedCsv = java.nio.file.Files.newBufferedWriter(dir.resolve("transmitted-telemetry.csv"), java.nio.file.StandardOpenOption.CREATE_NEW);
+            transmittedBinary = java.nio.file.Files.newOutputStream(dir.resolve("transmitted-packets.bin"), java.nio.file.StandardOpenOption.CREATE_NEW);
+            for (var writer : new java.io.BufferedWriter[]{csv, transmittedCsv}) {
+                writer.write(CSV_HEADER); writer.newLine(); writer.flush();
+            }
+            writeMetadata("running");
+            trace.log("telemetry.files", "csv=" + csvPath + " packets=" + packetPath + " transmitted=" + dir.resolve("transmitted-telemetry.csv") + " metadata=" + metadataPath);
+        } catch (java.io.IOException e) {
+            try { finish(false); } catch (RuntimeException closeError) { e.addSuppressed(closeError); }
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    private void writeMetadata(String completion) throws java.io.IOException {
+        if (metadataPath == null) return;
+        java.nio.file.Files.writeString(metadataPath,
+            "Zephyrus Java FC telemetry; link format version=1\n" +
+            "CSV schema: ZEPH_TEST_FLIGHT_GS1/2/3.csv (43 columns).\n" +
+            "telemetry.csv / packets.bin: received packets in arrival order.\n" +
+            "transmitted-telemetry.csv / transmitted-packets.bin: every generated packet.\n" +
+            "Binary: consecutive 128-byte FC payloads; checksum at byte 127, no RF framing.\n" +
+            "Received timestamp=epochSeconds+scheduled arrival boot microseconds/1e6; transmitted timestamp uses transmission time.\n" +
+            "epochSeconds=" + epochSeconds + "\nflight_time retains firmware transmission-time boot milliseconds.\n" +
+            "packetLossFraction=" + settings.packetLossFraction() + "\ndownlinkDelayMs=" + settings.delayMs() +
+            "\nrandomSeed=" + settings.randomSeed() + "\nrandomAlgorithm=java.util.Random.nextDouble; one draw per generated packet\n" +
+            "generated=" + generated + "\nreceived=" + received + "\ndropped=" + dropped + "\npending=" + pending.size() +
+            "\ncompletion=" + completion + "\n" +
+            "Delay/loss affect downlink only. No physical RF/CPU execution model.\n" +
+            "RSSI and ground station location unavailable; GPS uncertainty/satellites and pyro resistance unmodeled zero.\n" +
+            "Power nominal; currents zero. Physical roll off; pyros recorded only.\n" +
+            "CSV decoded using historical ground station conventions. Accel X omits FC gain 1.060; gyro omits FC biases and negates Y.\n" +
+            "Temperature decoder C5=0x91E3/C6=0x6FEC differs from FC C5=0x8405/C6=0x6D91.\n" +
+            "Mounting sensor X=body Z,Y=body X,Z=body Y; ideal linkage; airbrake input time uses integer seconds.\n");
     }
     private static String vector(double... values) { return java.util.Arrays.toString(values); }
     private static int u16(java.nio.ByteBuffer b,int i) { return b.getShort(i)&65535; }
@@ -70,32 +98,78 @@ public class RTTelemetryEngine implements AutoCloseable {
             Integer.toString(u16(b,76)),Integer.toString(u16(b,78)),vector(resistances),vector(cells),Double.toString(b.getShort(93)/-1000.0),vector(volts),vector(currents),
             Integer.toString(p[97]&255),Integer.toString(p[96]&255),Double.toString((p[95]&255)/2.0),enabled.toString(),Double.toString(angle),"","","",""};
     }
-    private void export(byte[] packet) {
-        if(csv==null) return;
+    private void export(byte[] packet, long timeUs, java.io.BufferedWriter writer, java.io.OutputStream raw) {
+        if (writer == null) return;
         try {
-            binary.write(packet); binary.flush();
-            String[] cells=decode(packet,epochSeconds+trace.bootUs()/1e6);
-            for(int i=0;i<cells.length;i++) { if(i>0) csv.write(','); csv.write('"'); csv.write(cells[i].replace("\"","\"\"")); csv.write('"'); }
-            csv.newLine(); csv.flush();
-            trace.log("telemetry.write", "csv="+csvPath+" bytes=128");
-        } catch(java.io.IOException e) { throw new java.io.UncheckedIOException(e); }
-    }
-    @Override public void close() {
-        java.io.IOException error=null;
-        try { if(csv!=null) csv.close(); } catch(java.io.IOException e) { error=e; } finally { csv=null; }
-        try { if(binary!=null) binary.close(); } catch(java.io.IOException e) { error=e; } finally { binary=null; }
-        if(csvPath!=null) trace.log("telemetry.close", "csv="+csvPath+" packets="+packetPath);
-        if(error!=null) throw new java.io.UncheckedIOException(error);
+            raw.write(packet); raw.flush();
+            String[] cells = decode(packet, epochSeconds + timeUs / 1e6);
+            for (int i = 0; i < cells.length; i++) {
+                if (i > 0) writer.write(',');
+                writer.write('"'); writer.write(cells[i].replace("\"", "\"\"")); writer.write('"');
+            }
+            writer.newLine(); writer.flush();
+        } catch (java.io.IOException e) { throw new java.io.UncheckedIOException(e); }
     }
 
+    /** Export scheduled arrivals without changing the firmware clock. */
+    public void deliverDue(long nowUs) {
+        while (!pending.isEmpty() && pending.peek().rxUs() <= nowUs) {
+            Delivery delivery = pending.peek();
+            export(delivery.packet(), delivery.rxUs(), csv, binary);
+            pending.remove(); received++;
+            trace.log("telemetry.received", "index=" + delivery.index() + " tx_boot_us=" + delivery.txUs() + " rx_boot_us=" + delivery.rxUs());
+        }
+    }
+
+    /** Only successful completion drains future arrivals; cancellation keeps them pending in metadata. */
+    public void finish(boolean complete) {
+        if (finished) return;
+        finished = true;
+        RuntimeException error = null;
+        try { if (complete) deliverDue(Long.MAX_VALUE); }
+        catch (RuntimeException e) { error = e; complete = false; }
+        for (java.io.Closeable stream : new java.io.Closeable[]{csv, binary, transmittedCsv, transmittedBinary}) {
+            if (stream == null) continue;
+            try { stream.close(); }
+            catch (java.io.IOException e) {
+                complete = false;
+                if (error == null) error = new java.io.UncheckedIOException(e); else error.addSuppressed(e);
+            }
+        }
+        csv = null; binary = null; transmittedCsv = null; transmittedBinary = null;
+        try { writeMetadata(complete ? "complete" : "incomplete"); }
+        catch (java.io.IOException e) { if (error == null) error = new java.io.UncheckedIOException(e); else error.addSuppressed(e); }
+        trace.log("telemetry.close", "csv=" + csvPath + " generated=" + generated + " received=" + received + " dropped=" + dropped + " pending=" + pending.size() + " complete=" + complete);
+        if (error != null) throw error;
+    }
+    @Override public void close() { finish(true); }
+
     private final Trace trace;
-    private final ArrayDeque<byte[]> commands=new ArrayDeque<>();
-    private byte[] lastPacket=new byte[128];
+    private final ArrayDeque<byte[]> commands = new ArrayDeque<>();
+    private byte[] lastPacket = new byte[128];
     public RTTelemetryEngine() { this(new Trace()); }
-    public RTTelemetryEngine(Trace trace) { this.trace=trace; }
-    public void setup() { trace.log("radio.setup", "mode=queued_bytes"); }
-    public void enqueue(byte[] packet) { commands.add(packet.clone()); trace.log("command.queue", "bytes="+packet.length); }
-    public byte[] receive() { byte[] packet=commands.poll(); trace.log("radio.receive", "bytes="+(packet==null?0:packet.length)); return packet; }
-    public void send(byte[] packet) { lastPacket=packet.clone(); export(packet); trace.log("telemetry.send", "bytes="+packet.length+" hex="+java.util.HexFormat.of().formatHex(packet)); }
+    public RTTelemetryEngine(Trace trace) { this(trace, TelemetryLinkSettings.DEFAULT); }
+    public RTTelemetryEngine(Trace trace, TelemetryLinkSettings settings) {
+        this.trace = trace; this.settings = java.util.Objects.requireNonNull(settings);
+        if (!Double.isFinite(epochSeconds)) throw new IllegalArgumentException("Telemetry epoch must be finite");
+        random = new java.util.Random(settings.randomSeed());
+    }
+    public void setup() { trace.log("radio.setup", "loss_fraction=" + settings.packetLossFraction() + " delay_ms=" + settings.delayMs() + " seed=" + settings.randomSeed()); }
+    public void enqueue(byte[] packet) { commands.add(packet.clone()); trace.log("command.queue", "bytes=" + packet.length); }
+    public byte[] receive() { byte[] packet = commands.poll(); trace.log("radio.receive", "bytes=" + (packet == null ? 0 : packet.length)); return packet; }
+    public void send(byte[] packet) {
+        if (finished) throw new IllegalStateException("Telemetry closed");
+        lastPacket = packet.clone();
+        export(lastPacket, trace.bootUs(), transmittedCsv, transmittedBinary);
+        generated++;
+        trace.log("telemetry.send", "index=" + generated + " bytes=" + packet.length + " hex=" + java.util.HexFormat.of().formatHex(packet));
+        if (random.nextDouble() < settings.packetLossFraction()) {
+            dropped++;
+            trace.log("telemetry.dropped", "index=" + generated + " tx_boot_us=" + trace.bootUs());
+        } else {
+            pending.add(new Delivery(generated, trace.bootUs(), trace.bootUs() + settings.delayMs() * 1000L, lastPacket));
+        }
+        deliverDue(trace.bootUs());
+    }
     public byte[] getLastPacket() { return lastPacket.clone(); }
 }

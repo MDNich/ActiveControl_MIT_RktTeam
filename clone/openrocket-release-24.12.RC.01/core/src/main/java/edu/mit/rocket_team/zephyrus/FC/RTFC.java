@@ -8,6 +8,7 @@ import edu.mit.rocket_team.zephyrus.control.airbrakes.RTAirbrakesController;
 import edu.mit.rocket_team.zephyrus.instrument.*;
 import edu.mit.rocket_team.zephyrus.internal.*;
 import edu.mit.rocket_team.zephyrus.telemetry.RTTelemetryEngine;
+import edu.mit.rocket_team.zephyrus.telemetry.TelemetryLinkSettings;
 import edu.mit.rocket_team.zephyrus.AV.*;
 import edu.mit.rocket_team.zephyrus.util.*;
 import edu.mit.rocket_team.zephyrus.util.data.*;
@@ -45,12 +46,13 @@ public class RTFC {
     public record Output(float requestedDeployment,float selectedAngle,int airbrakePulseUs,
                          float exposedFraction,float rollAngle,int servo2Us,int servo3Us) {}
     public RTFC() { this(new Trace()); }
-    public RTFC(Trace trace) {
+    public RTFC(Trace trace) { this(trace, TelemetryLinkSettings.DEFAULT); }
+    public RTFC(Trace trace, TelemetryLinkSettings link) {
         this.trace=Objects.requireNonNull(trace);
         accel=new RTAccel(trace); baro=new RTBaro(trace); gps=new RTGPS(trace); gyro=new RTGyro(trace);
         rollController=new RTRollController(trace); airbrakesController=new RTAirbrakesController(trace);
         pyroController=new RTPyroController(trace); powerBoard=new RTPowerBoard(trace); flashDriver=new RTFlashDriver(trace);
-        telemetry=new RTTelemetryEngine(trace); cam0=new RTCamera(trace); cam1=new RTCamera(trace); vtx=new RTVTX(trace);
+        telemetry=new RTTelemetryEngine(trace, link); cam0=new RTCamera(trace); cam1=new RTCamera(trace); vtx=new RTVTX(trace);
     }
     /** FC.ino setup; fresh objects reproduce the firmware globals' startup initialization. */
     public void init() {
@@ -88,6 +90,7 @@ public class RTFC {
         readTelem();
         // FC.ino never advances lastPowerPkt: after boot 100 ms it transmits on every loop.
         if(elapsed32(trace.millis(),lastPowerPkt)>100) powerBoard.sendCommand();
+        telemetry.deliverDue(trace.bootUs());
         trace.log("fc.loop_end", "state="+currentState+" flight_ms="+elapsed32(FCtime,flightBeginTime)+" airbrakes_enabled="+airbrakesEnabled+" roll_enabled="+rollControlEnabled);
     }
     /** FC.ino handleState; repeated preflight is deliberately not a complete reset. */

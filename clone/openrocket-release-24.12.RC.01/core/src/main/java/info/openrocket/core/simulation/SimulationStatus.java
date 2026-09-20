@@ -635,6 +635,13 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_XY,
 					  MathUtil.hypot(getRocketVelocity().x, getRocketVelocity().y));
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_Z, getRocketVelocity().z);
+        flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_X, getRocketVelocity().x);
+        flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_Y, getRocketVelocity().y);
+        Quaternion attitude = getRocketOrientationQuaternion();
+        flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_QW, attitude.getW());
+        flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_QX, attitude.getX());
+        flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_QY, attitude.getY());
+        flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_QZ, attitude.getZ());
 		setMaxZVelocity(Math.max(getRocketVelocity().z, getMaxZVelocity()));
 		
 		flightDataBranch.setValue(FlightDataType.TYPE_VELOCITY_TOTAL, getRocketVelocity().length());

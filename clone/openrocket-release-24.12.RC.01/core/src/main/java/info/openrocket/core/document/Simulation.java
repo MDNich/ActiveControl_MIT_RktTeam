@@ -139,6 +139,29 @@ public class Simulation implements ChangeSource, Cloneable {
 	private SimulationOptions options = new SimulationOptions();
 	
 	private ArrayList<SimulationExtension> simulationExtensions = new ArrayList<>();
+    private List<Object> simulatedExtensionSignature;
+    private java.nio.file.Path flightComputerTelemetryPath;
+
+    /** Runtime output belonging to the latest run; not persisted as a machine-specific path. */
+    public java.nio.file.Path getFlightComputerTelemetryPath() { return flightComputerTelemetryPath; }
+    public void setFlightComputerTelemetryPath(java.nio.file.Path path) { flightComputerTelemetryPath = path; }
+
+    private List<Object> extensionSignature() {
+        List<Object> signature = new java.util.ArrayList<>();
+        for (SimulationExtension extension : simulationExtensions) {
+            var config = extension.getConfig();
+            var entries = new java.util.TreeMap<String, Object>();
+            for (String key : config.keySet()) entries.put(key, config.get(key, null));
+            signature.add(java.util.List.of(extension.getId(), entries));
+        }
+        return signature;
+    }
+
+    public void extensionConfigurationChanged() {
+        if (status == Status.UPTODATE || status == Status.LOADED) status = Status.OUTDATED;
+        fireChangeEvent();
+    }
+
 	
 	
 	private final Class<? extends SimulationEngine> simulationEngineClass = BasicEventSimulationEngine.class;
@@ -216,6 +239,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		this.simulatedConfigurationModID = config.getModID();
 
 		this.simulationExtensions.addAll(extensions);
+        this.simulatedExtensionSignature = extensionSignature();
 	}
 
 	public FlightConfiguration getActiveConfiguration() {
@@ -330,13 +354,14 @@ public class Simulation implements ChangeSource, Cloneable {
 	 *
 	 * @param extensions the simulation extensions to apply.
 	 */
-	public void copyExtensionsFrom(List<SimulationExtension> extensions) {
-		if (extensions == null) {
-			return;
-		}
-		this.simulationExtensions.clear();
-		this.simulationExtensions.addAll(extensions);
-	}
+    public void copyExtensionsFrom(List<SimulationExtension> extensions) {
+        if (extensions == null) return;
+        var before = extensionSignature();
+        ArrayList<SimulationExtension> copies = new ArrayList<>();
+        for (SimulationExtension extension : extensions) copies.add(extension.clone());
+        this.simulationExtensions = copies;
+        if (!before.equals(extensionSignature())) extensionConfigurationChanged();
+    }
 	
 	
 	/**
@@ -385,7 +410,8 @@ public class Simulation implements ChangeSource, Cloneable {
 		final FlightConfiguration config = rocket.getFlightConfiguration(this.getId()).clone();
 
 		if (isStatusUpToDate(status)) {
-			if (config.getModID() != simulatedConfigurationModID || !options.equals(simulatedConditions)) {
+			if (config.getModID() != simulatedConfigurationModID || !options.equals(simulatedConditions) ||
+                    (simulatedExtensionSignature != null && !simulatedExtensionSignature.equals(extensionSignature()))) {
 				status = Status.OUTDATED;
 			}
 		}
@@ -484,6 +510,7 @@ public class Simulation implements ChangeSource, Cloneable {
 				throw new IllegalStateException("Cannot instantiate simulator.", e);
 			}
 
+			flightComputerTelemetryPath = null;
 			SimulationConditions simulationConditions = options.toSimulationConditions();
 			simulationConditions.setSimulation(this);
 			
@@ -496,6 +523,10 @@ public class Simulation implements ChangeSource, Cloneable {
 				simulationConditions.getSimulationListenerList().add(l);
 			}
 			
+            long fcCount = simulationConditions.getSimulationListenerList().stream()
+                    .filter(l -> l instanceof info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener).count();
+            if (fcCount > 1) throw new SimulationException("Only one Zephyrus flight computer may be enabled in a simulation");
+
 			long t1, t2;
 			log.info("Simulation: calling simulator");
 			t1 = System.currentTimeMillis();
@@ -509,6 +540,7 @@ public class Simulation implements ChangeSource, Cloneable {
 		} finally {
 			// Set simulated info after simulation
 			simulatedConditions = options.clone();
+            simulatedExtensionSignature = extensionSignature();
 			simulatedConfigurationDescription = descriptor.format(this.rocket, getId());
 			simulatedConfigurationModID = getActiveConfiguration().getModID();
 			if (simulator != null) {
@@ -621,6 +653,8 @@ public class Simulation implements ChangeSource, Cloneable {
 			}
 			copy.listeners = new ArrayList<>();
 			copy.simulatedConditions = null;
+            copy.simulatedExtensionSignature = null;
+            copy.flightComputerTelemetryPath = null;
 			copy.simulatedConfigurationDescription = null;
 			copy.simulatedData = null;
 			copy.simulatedConfigurationModID = ModID.INVALID;
@@ -683,10 +717,12 @@ public class Simulation implements ChangeSource, Cloneable {
 			if (simulation.simulatedConditions == null) {
 				this.simulatedConditions = null;
 			} else {
-				this.simulatedConditions.copyConditionsFrom(simulation.simulatedConditions);
+				this.simulatedConditions = simulation.simulatedConditions.clone();
 			}
 			copyExtensionsFrom(simulation.getSimulationExtensions());
-			this.status = simulation.status;
+			this.simulatedExtensionSignature = simulation.simulatedExtensionSignature;
+            this.flightComputerTelemetryPath = simulation.flightComputerTelemetryPath;
+            this.status = simulation.status;
 			this.simulatedData = simulation.simulatedData;
 			this.simulationStepperClass = simulation.simulationStepperClass;
 			this.aerodynamicCalculatorClass = simulation.aerodynamicCalculatorClass;

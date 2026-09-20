@@ -29,6 +29,7 @@ import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.RK4SimulationStepper;
 import info.openrocket.core.simulation.SimulationOptions;
 import info.openrocket.core.simulation.extension.SimulationExtension;
+import info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer;
 import info.openrocket.core.simulation.extension.SimulationExtensionProvider;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.preferences.ApplicationPreferences;
@@ -61,6 +62,7 @@ class SimulationOptionsPanel extends JPanel {
 	final Simulation simulation;
 	
 	private JPanel currentExtensions;
+    private FlightComputerPanel flightComputerPanel;
 	final JPopupMenu extensionMenu;
 	JMenu extensionMenuCopyExtension;
 
@@ -247,6 +249,8 @@ class SimulationOptionsPanel extends JPanel {
 				}
 			});
 		sub.add(addExtension, "growx, wrap 0");
+        flightComputerPanel = new FlightComputerPanel(simulation, this::updateCurrentExtensions);
+        sub.add(flightComputerPanel, "growx, wrap para");
 		
 		currentExtensions = new JPanel(new MigLayout("fillx, gap 0 0, ins 0"));
 		JScrollPane scroll = new JScrollPane(currentExtensions);
@@ -287,6 +291,7 @@ class SimulationOptionsPanel extends JPanel {
 						public void actionPerformed(ActionEvent arg0) {
 							SimulationExtension e = provider.getInstance(id);
 							simulation.getSimulationExtensions().add(e);
+                            simulation.extensionConfigurationChanged();
 							updateCurrentExtensions();
 							SwingSimulationExtensionConfigurator configurator = findConfigurator(e);
 							if (configurator != null) {
@@ -331,7 +336,13 @@ class SimulationOptionsPanel extends JPanel {
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
 						SimulationExtension e = ext.clone();
-						simulation.getSimulationExtensions().add(e);
+						if (ZephyrusFlightComputer.isFlightComputer(e)) {
+                            var fc = ZephyrusFlightComputer.read(sim);
+                            ZephyrusFlightComputer.apply(simulation, fc.isEnabled(), fc.getLinkSettings());
+                        } else {
+                            simulation.getSimulationExtensions().add(e);
+                            simulation.extensionConfigurationChanged();
+                        }
 						updateCurrentExtensions();
 						SwingSimulationExtensionConfigurator configurator = findConfigurator(e);
 						if (configurator != null) {
@@ -379,13 +390,15 @@ class SimulationOptionsPanel extends JPanel {
 	
 	private void updateCurrentExtensions() {
 		currentExtensions.removeAll();
+        if (flightComputerPanel != null) flightComputerPanel.refresh();
 		
-		if (simulation.getSimulationExtensions().isEmpty()) {
+		if (simulation.getSimulationExtensions().stream().allMatch(ZephyrusFlightComputer::isFlightComputer)) {
 			StyledLabel l = new StyledLabel(trans.get("simedtdlg.SimExt.noExtensions"), Style.ITALIC);
 			l.setForeground(dimTextColor);
 			currentExtensions.add(l, "growx, pad 5 5 5 5, wrap");
 		} else {
 			for (SimulationExtension e : simulation.getSimulationExtensions()) {
+                if (ZephyrusFlightComputer.isFlightComputer(e)) continue;
 				currentExtensions.add(new SimulationExtensionPanel(e), "growx, wrap");
 			}
 		}
@@ -467,6 +480,7 @@ class SimulationOptionsPanel extends JPanel {
 						// Compare with identity
 						if (iter.next() == extension) {
 							iter.remove();
+                            simulation.extensionConfigurationChanged();
 							break;
 						}
 					}

@@ -70,6 +70,8 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	
 	
 	private final Simulation simulation;
+    private final javax.swing.JComboBox<String> plotMode = new javax.swing.JComboBox<>(new String[]{trans.get("Trajectory3D.mode2d"), trans.get("Trajectory3D.mode3d")});
+    private javax.swing.JComboBox<String> trajectoryBranch;
 	private FlightEventTableModel eventTableModel;
 	private static java.awt.Color darkErrorColor;
 
@@ -116,6 +118,28 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 		addFlightEventsSelectorWidgets(selectorPanel);
 
 		updatePlots();
+        // Preserve all existing plot widgets and their layout as the 2D card.
+        javax.swing.JPanel graphs = new javax.swing.JPanel();
+        java.awt.LayoutManager oldLayout = getLayout();
+        java.awt.Component[] children = getComponents();
+        Object[] constraints = new Object[children.length];
+        for (int i=0;i<children.length;i++) constraints[i]=((net.miginfocom.swing.MigLayout)oldLayout).getComponentConstraints(children[i]);
+        removeAll(); graphs.setLayout(oldLayout);
+        for (int i=0;i<children.length;i++) graphs.add(children[i],constraints[i]);
+        setLayout(new java.awt.BorderLayout(0,10));
+        javax.swing.JPanel selector = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
+        selector.add(new JLabel(trans.get("Trajectory3D.plotType"))); selector.add(plotMode); add(selector, java.awt.BorderLayout.NORTH);
+        java.awt.CardLayout cards = new java.awt.CardLayout(); javax.swing.JPanel body = new javax.swing.JPanel(cards);
+        body.add(graphs,"2d");
+        javax.swing.JPanel trajectory = new javax.swing.JPanel(new MigLayout("fillx, insets 12"));
+        trajectory.add(new JLabel(trans.get("Trajectory3D.description")),"wrap para");
+        String[] names = new String[simulation.getSimulatedData().getBranchCount()];
+        for (int i=0;i<names.length;i++) names[i]=simulation.getSimulatedData().getBranch(i).getName();
+        trajectoryBranch = new javax.swing.JComboBox<>(names);
+        trajectory.add(new JLabel(trans.get("Trajectory3D.branch")),"split 2"); trajectory.add(trajectoryBranch,"wrap para");
+        trajectory.add(new JLabel(trans.get("Trajectory3D.gestures")),"wrap");
+        body.add(trajectory,"3d"); add(body,java.awt.BorderLayout.CENTER);
+        plotMode.addActionListener(e -> cards.show(body,plotMode.getSelectedIndex()==1?"3d":"2d"));
 	}
 
 	public static SimulationPlotPanel create(Simulation simulation) {
@@ -265,6 +289,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 
 	@Override
 	public JDialog doPlot(Window parent) {
+        if (plotMode.getSelectedIndex() == 1) return new info.openrocket.swing.gui.plot.Trajectory3DDialog(parent, simulation, trajectoryBranch.getSelectedIndex());
 		if (configuration.getDataCount() == 0) {
 			JOptionPane.showMessageDialog(SimulationPlotPanel.this,
 					trans.get("error.noPlotSelected"),
