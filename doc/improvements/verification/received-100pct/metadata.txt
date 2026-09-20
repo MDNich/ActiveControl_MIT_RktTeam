@@ -1,0 +1,28 @@
+Zephyrus Java FC telemetry; link format version=1
+csvFile=/tmp/or-6.2-all-loss/zephyrus-16304241310178195664/telemetry.csv
+packetFile=/tmp/or-6.2-all-loss/zephyrus-16304241310178195664/packets.bin
+transmittedCsvFile=/tmp/or-6.2-all-loss/zephyrus-16304241310178195664/transmitted-telemetry.csv
+transmittedPacketFile=/tmp/or-6.2-all-loss/zephyrus-16304241310178195664/transmitted-packets.bin
+logFile=/tmp/or-6.2-all-loss/zephyrus-16304241310178195664/OR.log
+CSV schema: ZEPH_TEST_FLIGHT_GS1/2/3.csv (43 columns).
+csvFile / packetFile: received packets in arrival order.
+transmittedCsvFile / transmittedPacketFile: every generated packet.
+Binary: consecutive 128-byte FC payloads; checksum at byte 127, no RF framing.
+Received timestamp=epochSeconds+scheduled arrival boot microseconds/1e6; transmitted timestamp uses transmission time.
+epochSeconds=0.0
+flight_time retains firmware transmission-time boot milliseconds.
+packetLossFraction=1.0
+downlinkDelayMs=10000
+randomSeed=1
+randomAlgorithm=java.util.Random.nextDouble; one draw per generated packet
+generated=600
+received=0
+dropped=600
+pending=0
+completion=complete
+Delay/loss affect downlink only. No physical RF/CPU execution model.
+RSSI and ground station location unavailable; GPS uncertainty/satellites and pyro resistance unmodeled zero.
+Power nominal; currents zero. Physical roll off; pyros recorded only.
+CSV decoded using historical ground station conventions. Accel X omits FC gain 1.060; gyro omits FC biases and negates Y.
+Temperature decoder C5=0x91E3/C6=0x6FEC differs from FC C5=0x8405/C6=0x6D91.
+Mounting sensor X=body Z,Y=body X,Z=body Y; ideal linkage; airbrake input time uses integer seconds.

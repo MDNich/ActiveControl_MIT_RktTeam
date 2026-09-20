@@ -14,10 +14,12 @@ public final class TrajectoryData {
                          double speed, double angularRate, boolean breakBefore) {}
     public record Marker(double time, FlightEvent.Type type, String source) {}
     public record Frame(double time, Coordinate position, Coordinate velocity, Quaternion attitude,
-                        double speed, boolean recovery, boolean held, boolean undersampled) {}
+                        double speed, boolean recovery, boolean held, boolean undersampled, boolean powered) {}
+    private record Burn(double ignition, double burnout) {}
 
     private final List<Sample> samples;
     private final List<Marker> markers;
+    private final List<Burn> burns;
     private final double[] times;
     private final Coordinate minimum, maximum;
     private final double start, end;
@@ -53,12 +55,15 @@ public final class TrajectoryData {
         if (points.isEmpty()) throw new IllegalArgumentException("No finite trajectory positions are available");
         samples = List.copyOf(points);
         times = samples.stream().mapToDouble(Sample::time).toArray();
+        List<FlightEvent> branchEvents = branch.getEvents().stream()
+                .filter(e -> Double.isFinite(e.getTime())).sorted(Comparator.comparingDouble(FlightEvent::getTime)).toList();
+        burns = motorBurns(branchEvents, times[0]);
         List<Marker> events = new ArrayList<>();
         Set<FlightEvent.Type> visible = EnumSet.of(FlightEvent.Type.LIFTOFF, FlightEvent.Type.BURNOUT,
                 FlightEvent.Type.APOGEE, FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
                 FlightEvent.Type.GROUND_HIT, FlightEvent.Type.STAGE_SEPARATION, FlightEvent.Type.TUMBLE,
                 FlightEvent.Type.SIM_ABORT);
-        for (FlightEvent event : branch.getEvents()) if (visible.contains(event.getType()) && Double.isFinite(event.getTime()))
+        for (FlightEvent event : branchEvents) if (visible.contains(event.getType()))
             events.add(new Marker(event.getTime(), event.getType(), event.getSource() == null ? "" : event.getSource().getName()));
         events.sort(Comparator.comparingDouble(Marker::time));
         markers = List.copyOf(events);
@@ -73,6 +78,26 @@ public final class TrajectoryData {
             x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); z1 = Math.max(z1, p.z);
         }
         minimum = new Coordinate(x0, y0, z0); maximum = new Coordinate(x1, y1, z1);
+    }
+
+    private static List<Burn> motorBurns(List<FlightEvent> events, double start) {
+        double launch = events.stream().filter(e -> e.getType() == FlightEvent.Type.LAUNCH)
+                .mapToDouble(FlightEvent::getTime).min().orElse(start);
+        Map<info.openrocket.core.rocketcomponent.RocketComponent, Double> ignitions = new HashMap<>();
+        List<Burn> burns = new ArrayList<>();
+        for (FlightEvent event : events) {
+            if (event.getType() == FlightEvent.Type.IGNITION) {
+                ignitions.putIfAbsent(event.getSource(), event.getTime());
+            } else if (event.getType() == FlightEvent.Type.BURNOUT) {
+                Double ignition = ignitions.remove(event.getSource());
+                // Older saved results can retain burnout without ignition; start those at launch.
+                double from = ignition == null ? launch : ignition;
+                if (event.getTime() > from) burns.add(new Burn(from, event.getTime()));
+            }
+        }
+        // A run cut short before burnout still records a burning motor through its final sample.
+        for (double ignition : ignitions.values()) burns.add(new Burn(ignition, Double.POSITIVE_INFINITY));
+        return List.copyOf(burns);
     }
 
     private static double value(Map<FlightDataType, List<Double>> columns, FlightDataType type, int i) {
@@ -120,7 +145,8 @@ public final class TrajectoryData {
             if (event.type() == FlightEvent.Type.TUMBLE || event.type() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) held = true;
         }
         return new Frame(time, missing ? null : blend(a.position(), b.position(), f), missing ? null : blend(a.velocity(), b.velocity(), f),
-                missing ? null : attitude, a.speed()*(1-f)+b.speed()*f, recovery, held, undersampled);
+                missing ? null : attitude, a.speed()*(1-f)+b.speed()*f, recovery, held, undersampled,
+                burns.stream().anyMatch(burn -> time >= burn.ignition() && time < burn.burnout()));
     }
 
     public String name() { return name; }

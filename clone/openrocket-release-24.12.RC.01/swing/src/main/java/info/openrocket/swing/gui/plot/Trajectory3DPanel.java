@@ -160,7 +160,7 @@ public final class Trajectory3DPanel extends JPanel implements GLEventListener {
         }
         if (frame.position() != null) {
             double length = track.span()*0.055*rocketSize/zoom;
-            if (frame.attitude() != null) rocket(gl, frame.position(), frame.attitude(), length);
+            if (frame.attitude() != null) rocket(gl, frame.position(), frame.attitude(), length, frame.powered());
             else { gl.glColor3d(0.92, 0.35, 0.12); gl.glPointSize(12); gl.glBegin(GL.GL_POINTS); vertex(gl, frame.position()); gl.glEnd(); }
             if (frame.recovery()) canopy(gl, frame.position(), frame.attitude(), length);
             if (showVelocity && frame.velocity() != null && frame.velocity().length() > 1e-8)
@@ -246,7 +246,7 @@ public final class Trajectory3DPanel extends JPanel implements GLEventListener {
     }
     private static void vertex(GL2 gl, Coordinate p) { gl.glVertex3d(p.x,p.y,p.z); }
     private static void line(GL2 gl, Coordinate a, Coordinate b) { vertex(gl,a); vertex(gl,b); }
-    private void rocket(GL2 gl, Coordinate p, Quaternion q, double length) {
+    private void rocket(GL2 gl, Coordinate p, Quaternion q, double length, boolean powered) {
         Coordinate x=q.rotate(new Coordinate(1,0,0)), y=q.rotate(new Coordinate(0,1,0)), z=q.rotateZ();
         gl.glPushMatrix(); gl.glTranslated(p.x,p.y,p.z);
         gl.glMultMatrixd(new double[]{x.x,x.y,x.z,0,y.x,y.y,y.z,0,z.x,z.y,z.z,0,0,0,0,1},0);
@@ -266,14 +266,38 @@ public final class Trajectory3DPanel extends JPanel implements GLEventListener {
             gl.glColor3d(.3,.36,.45);
             gl.glVertex3d(r*Math.cos(a),r*Math.sin(a),.25); gl.glVertex3d(r*Math.cos(b),r*Math.sin(b),.25); gl.glVertex3d(0,0,.55);
         }
-        for(int i=0;i<3;i++) {
-            double a=2*Math.PI*i/3;
-            if(i==0) gl.glColor3d(.94,.24,.13); else gl.glColor3d(.18,.35,.55);
+        for(int i=0;i<4;i++) {
+            double a=2*Math.PI*i/4;
+            if(i%2==0) gl.glColor3d(.94,.16,.20); else gl.glColor3d(.12,.44,.96);
             gl.glVertex3d(r*Math.cos(a),r*Math.sin(a),-.14);
             gl.glVertex3d(.23*Math.cos(a),.23*Math.sin(a),-.45);
             gl.glVertex3d(r*Math.cos(a),r*Math.sin(a),-.4);
         }
-        gl.glEnd(); gl.glPopMatrix();
+        gl.glEnd();
+        if (powered) exhaust(gl);
+        gl.glPopMatrix();
+    }
+    private void exhaust(GL2 gl) {
+        // The plume points along body -Z, using the same attitude and cartoon scale as the rocket.
+        gl.glBegin(GL.GL_TRIANGLES);
+        for (int i=0; i<16; i++) {
+            double a=2*Math.PI*i/16, b=2*Math.PI*(i+1)/16;
+            gl.glColor3d(1,1,.65);
+            gl.glVertex3d(.045*Math.cos(a),.045*Math.sin(a),-.4);
+            gl.glVertex3d(.045*Math.cos(b),.045*Math.sin(b),-.4);
+            gl.glColor3d(1,.97,.05);
+            gl.glVertex3d(.085*Math.cos(b),.085*Math.sin(b),-.58);
+            gl.glVertex3d(.085*Math.cos(b),.085*Math.sin(b),-.58);
+            gl.glVertex3d(.085*Math.cos(a),.085*Math.sin(a),-.58);
+            gl.glColor3d(1,1,.65);
+            gl.glVertex3d(.045*Math.cos(a),.045*Math.sin(a),-.4);
+            gl.glColor3d(1,.97,.05);
+            gl.glVertex3d(.085*Math.cos(a),.085*Math.sin(a),-.58);
+            gl.glVertex3d(.085*Math.cos(b),.085*Math.sin(b),-.58);
+            gl.glColor3d(1,.88,0);
+            gl.glVertex3d(0,0,-1.12);
+        }
+        gl.glEnd();
     }
     private void canopy(GL2 gl, Coordinate p, Quaternion q, double size) {
         Coordinate center=p.add(0,0,size*1.05);
@@ -283,11 +307,15 @@ public final class Trajectory3DPanel extends JPanel implements GLEventListener {
         gl.glEnd();
         for(int ring=0;ring<5;ring++) {
             double a0=ring*Math.PI/10,a1=(ring+1)*Math.PI/10;
-            gl.glBegin(GL2.GL_QUAD_STRIP);
-            for(int i=0;i<=24;i++) {
-                double a=i*Math.PI/12;
-                if ((i/3)%2==0) gl.glColor3d(.95,.4,.15); else gl.glColor3d(.95,.85,.65);
-                for(double latitude:new double[]{a0,a1}) vertex(gl,center.add(size*.4*Math.cos(latitude)*Math.cos(a),size*.4*Math.cos(latitude)*Math.sin(a),size*.25*Math.sin(latitude)));
+            gl.glBegin(GL2.GL_QUADS);
+            for(int i=0;i<24;i++) {
+                double a=i*Math.PI/12,b=(i+1)*Math.PI/12;
+                if ((i/3)%2==0) gl.glColor3d(1.0,.36,.66); else gl.glColor3d(.62,.28,.90);
+                // Keep each canopy panel a solid color, with crisp alternating seams.
+                vertex(gl,center.add(size*.4*Math.cos(a0)*Math.cos(a),size*.4*Math.cos(a0)*Math.sin(a),size*.25*Math.sin(a0)));
+                vertex(gl,center.add(size*.4*Math.cos(a0)*Math.cos(b),size*.4*Math.cos(a0)*Math.sin(b),size*.25*Math.sin(a0)));
+                vertex(gl,center.add(size*.4*Math.cos(a1)*Math.cos(b),size*.4*Math.cos(a1)*Math.sin(b),size*.25*Math.sin(a1)));
+                vertex(gl,center.add(size*.4*Math.cos(a1)*Math.cos(a),size*.4*Math.cos(a1)*Math.sin(a),size*.25*Math.sin(a1)));
             }
             gl.glEnd();
         }

@@ -1,0 +1,32 @@
+
+> Configure project :
+Project : => no module-info.java found
+The CopyProcessingSpec.setFileMode(Integer) method has been deprecated. This is scheduled to be removed in Gradle 9.0. Please use the filePermissions(Action) method instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#unix_file_permissions_deprecated
+Project :core => 'info.openrocket.core' Java module
+Project :swing => 'info.openrocket.swing' Java module
+
+> Configure project :swing
+The ProjectDependency.getDependencyProject() method has been deprecated. This is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecate_get_dependency_project
+Validating external components at /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/core/resources-src/datafiles/openrocket-database/orc...
+Found external components
+
+> Task :processResources NO-SOURCE
+> Task :swing:processResources UP-TO-DATE
+> Task :core:compileJava UP-TO-DATE
+> Task :core:copyReadmeMain NO-SOURCE
+> Task :core:externalComponentsValidate UP-TO-DATE
+> Task :core:externalComponentsCopy UP-TO-DATE
+> Task :core:processResources UP-TO-DATE
+> Task :core:classes UP-TO-DATE
+> Task :core:jar UP-TO-DATE
+> Task :swing:compileJava UP-TO-DATE
+> Task :swing:classes UP-TO-DATE
+> Task :swing:jar UP-TO-DATE
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar UP-TO-DATE
+
+[Incubating] Problems report is available at: file:///Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 616ms
+8 actionable tasks: 8 up-to-date

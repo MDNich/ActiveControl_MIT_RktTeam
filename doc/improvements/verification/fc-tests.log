@@ -1,0 +1,177 @@
+
+> Configure project :
+Project : => no module-info.java found
+The CopyProcessingSpec.setFileMode(Integer) method has been deprecated. This is scheduled to be removed in Gradle 9.0. Please use the filePermissions(Action) method instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#unix_file_permissions_deprecated
+Project :core => 'info.openrocket.core' Java module
+Project :swing => 'info.openrocket.swing' Java module
+
+> Configure project :swing
+The ProjectDependency.getDependencyProject() method has been deprecated. This is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecate_get_dependency_project
+Validating external components at /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/core/resources-src/datafiles/openrocket-database/orc...
+Found external components
+
+> Task :processResources NO-SOURCE
+> Task :swing:processResources UP-TO-DATE
+> Task :swing:processTestResources UP-TO-DATE
+
+> Task :core:compileJava
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :core:copyReadmeMain NO-SOURCE
+> Task :core:externalComponentsValidate UP-TO-DATE
+> Task :core:externalComponentsCopy UP-TO-DATE
+> Task :core:processResources UP-TO-DATE
+> Task :core:classes
+> Task :core:jar
+> Task :swing:compileJava UP-TO-DATE
+> Task :swing:classes UP-TO-DATE
+> Task :swing:jar UP-TO-DATE
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar UP-TO-DATE
+> Task :startScripts
+> Task :distTar
+
+> Task :core:shadowJar
+The FileTreeElement.getMode() method has been deprecated. This is scheduled to be removed in Gradle 9.0. Please use the getPermissions() method instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#unix_file_permissions_deprecated
+
+> Task :distZip
+> Task :core:mergeClasses SKIPPED
+
+> Task :core:compileTestJava
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'compileOnly', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'implementation', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'runtimeOnly', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'testCompileOnly', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'testImplementation', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'testRuntimeOnly', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+
+> Task :core:processTestResources UP-TO-DATE
+> Task :core:testClasses
+16:23:12.833 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Connected to address /127.0.0.1:51271.
+16:23:12.842 [main] DEBUG org.gradle.process.internal.worker.child.ActionExecutionWorker -- Starting Gradle Test Executor 16.
+16:23:12.843 [Test worker] INFO org.gradle.api.internal.tasks.testing.worker.TestWorker -- Gradle Test Executor 16 started executing tests.
+
+> Task :core:test
+The automatic loading of test framework implementation dependencies has been deprecated. This is scheduled to be removed in Gradle 9.0. Declare the desired test framework directly on the test suite or explicitly declare the test framework implementation dependencies on the test's runtime classpath. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
+The Provider.forUseAtConfigurationTime method has been deprecated. This is scheduled to be removed in Gradle 9.0. Simply remove the call. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_7.html#for_use_at_configuration_time_deprecation
+
+16:23:12.825 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Attempting to connect to [968b39d3-0ca0-48cc-b770-296eacd937d4 port:51271, addresses:[/127.0.0.1]].
+16:23:12.827 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Trying to connect to address /127.0.0.1.
+edu.mit.rocket_team.zephyrus.RTAirbrakesReplayTest
+
+  matchesUnmodifiedCpp(String)
+
+    Test [1] integer PASSED
+    Test [2] fractional PASSED
+    Test [3] partial PASSED
+    Test [4] late PASSED
+
+edu.mit.rocket_team.zephyrus.RTFCOutputTest
+
+  Test runsAreIndependentAndDuplicateTicksRejected() PASSED
+  Test nonfiniteManualCommandIsRejectedWithoutChangingOutput() PASSED
+  Test manualOutputIsHeldUntilPwmAndClosesAtPreflight() PASSED
+
+edu.mit.rocket_team.zephyrus.RTFCSensorAdapterTest
+
+  Test mountingUsesMatchingAttitudeForAccelerationAndWorldRotation() PASSED
+  Test specificForceAndAtmosphereAndGpsUnits() PASSED
+
+edu.mit.rocket_team.zephyrus.RTFCSimulationTest
+
+  Test componentMissingIsActionableAndAirbrakeDragIsMonotonic() PASSED
+
+> Task :swing:shadowJar
+> Task :swing:mergeClasses SKIPPED
+> Task :swing:compileTestJava UP-TO-DATE
+> Task :swing:testClasses UP-TO-DATE
+16:23:15.257 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Connected to address /127.0.0.1:51273.
+16:23:15.268 [main] DEBUG org.gradle.process.internal.worker.child.ActionExecutionWorker -- Starting Gradle Test Executor 17.
+16:23:15.270 [Test worker] INFO org.gradle.api.internal.tasks.testing.worker.TestWorker -- Gradle Test Executor 17 started executing tests.
+
+> Task :swing:test
+
+16:23:15.246 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Attempting to connect to [572fed90-f05c-49e8-915a-c1ea179ad6fe port:51273, addresses:[/127.0.0.1]].
+16:23:15.249 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Trying to connect to address /127.0.0.1.
+info.openrocket.swing.gui.plot.TrajectoryDataTest
+
+  Test undersampledRotationAndBackwardsTimeAreExplicit() PASSED
+  Test fullRollIsIndependentOfVelocityAndSlerpSign() PASSED
+  Test gapsDuplicatesLegacyAndRecoverySeeking() PASSED
+  Test playbackUsesElapsedTimeAndPreservesPauseAndSeek() PASSED
+
+16:23:17.072 [Test worker] INFO org.gradle.api.internal.tasks.testing.worker.TestWorker -- Gradle Test Executor 17 finished executing tests.
+16:23:17.072 [Test worker] DEBUG org.gradle.process.internal.worker.child.ActionExecutionWorker -- Completed Gradle Test Executor 17.
+
+> Task :swing:test
+
+SUCCESS: Executed 4 tests in 2.3s
+
+
+> Task :shadowJar
+
+> Task :core:test
+  Test closedLoopChangesTrajectoryAndSurvivesLandingStepperCopies() PASSED (4s)
+  Test zeroLaunchRodAndOffGridIgnitionMakePositiveProgress() PASSED
+  Test tickScheduleIndependentOfStepAndRepeatedRuns() PASSED (4.6s)
+  Test rk4AlsoRespectsFirmwareDeadlines() PASSED (2.8s)
+
+edu.mit.rocket_team.zephyrus.RTFCStateMachineTest
+
+  Test commandLatencyAndFlightEntryCalls() PASSED
+  Test secondPreflightPreservesSourceOneShotFlagsAndDisabledRollSignal() PASSED
+  Test malformedPacketsAndSourceEmergencyMask() PASSED
+  Test sourcePowerTimerRemainsUnadvanced() PASSED
+  Test strictApogeeAndDescentTimers() PASSED
+  Test overrideAndGpsFixGate() PASSED
+
+edu.mit.rocket_team.zephyrus.RTImprovementsTest
+
+  Test customPathsProduceLogAndNeverOverwriteExistingFiles() PASSED
+  Test receiverExtremesDelayAndCancellation() PASSED
+  Test seededReceiverDoesNotAlterTransmittedData() PASSED
+  Test savedExtensionAndAttitudeRoundTripAndSettingsInvalidate() PASSED
+  Test downlinkEffectsLeaveFullFlightAndTicksUnchanged() PASSED (2.9s)
+  Test duplicateListenersFailBeforeOpeningFiles() PASSED
+  Test legacySettingsCloneCancelAndValidation() PASSED
+
+edu.mit.rocket_team.zephyrus.RTInstrumentProcessingTest
+
+  Test gpsHeightAndFixAndGyroSigns() PASSED
+  Test accelerationThresholdFreshnessAndClockWrap() PASSED
+  Test barometerWindowAndSourceRepeatedZero() PASSED
+
+edu.mit.rocket_team.zephyrus.RTPyroControllerTest
+
+  Test durationContinuityAndArmGateMatchFirmware() PASSED
+
+edu.mit.rocket_team.zephyrus.RTTelemetryTest
+
+
+16:23:30.196 [Test worker] INFO org.gradle.api.internal.tasks.testing.worker.TestWorker -- Gradle Test Executor 16 finished executing tests.
+16:23:30.196 [Test worker] DEBUG org.gradle.process.internal.worker.child.ActionExecutionWorker -- Completed Gradle Test Executor 16.
+
+> Task :core:test
+  Test exportedRowsDecodeTheTransmittedPackets() PASSED
+
+SUCCESS: Executed 32 tests in 17.7s
+
+
+[Incubating] Problems report is available at: file:///Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 23s
+20 actionable tasks: 11 executed, 9 up-to-date

@@ -1,0 +1,11 @@
+{
+  "result": "PASS",
+  "csv": "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/improvements/verification/received-100pct/telemetry.csv",
+  "columns": 43,
+  "packets": 0,
+  "payload_bytes": 0,
+  "transmitted_packets": 600,
+  "first_boot_ms": null,
+  "last_boot_ms": null,
+  "states": []
+}

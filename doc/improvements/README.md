@@ -1,10 +1,10 @@
-# OpenRocket improvement plans
+# OpenRocket MIT 6.2 improvements
 
 Planned 20 September 2026 against the current source in `/Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01`.
 
-The requested changes are split into two implementation plans:
+Implemented in MIT edition 6.2. See the [implementation and verification report](03-implementation-report.md) for usage, output filenames, launcher compatibility, tests and limitations. The detailed plans remain below:
 
-1. [Flight computer controls and telemetry link settings](01-flight-computer-controls.md): a checkbox and three small settings directly below **Add extensions** in the simulation editor, backed by the existing FC listener and OpenRocket extension system.
+1. [Flight computer controls and telemetry link settings](01-flight-computer-controls.md): a checkbox, three settings, and CSV/log file selectors below **Simulator options** in the left column, backed by the existing FC listener and OpenRocket extension system.
 2. [Interactive 3D trajectory and rocket animation](02-trajectory-3d-and-animation.md): a 3D option in **Plot data**, equal spatial scaling, mouse rotation/panning/zooming, adjustable playback speed, a velocity arrow and a rocket cartoon whose attitude comes from the simulation.
 
 ## Chosen defaults
@@ -38,11 +38,11 @@ Each step has a concrete completion criterion in its detailed plan. This work ex
 
 ## Findings that shape the plans
 
-- `SimulationOptionsPanel` already owns the **Add extensions** button and can host the requested box immediately below it.
+- `SimulationOptionsPanel` hosts the FC box below **Simulator options** in the left column. The extension list stays on the right, per the final requested placement.
 - Extension configuration already has `.ork` serialization and cloning support. The new box should use that storage, rather than add a second FC-settings mechanism.
 - Simulation freshness currently checks rocket/options changes, not extension configuration. FC settings must explicitly invalidate prior results and participate in dialog cancellation and multi-simulation editing.
 - Existing plot data stores position, scalar speeds and two angles describing the body axis. It does not store full roll attitude. Faithful animation requires saving the actual orientation quaternion.
 - The application already includes JOGL and working 3D Swing components. The viewer can use those installed dependencies and rendering conventions.
 - The landing and tumble steppers update translation but do not integrate attitude. Their saved orientation must be displayed honestly; the animation must not invent a hanging orientation or tumble motion.
 
-Only these planning documents were created for this request. No application code, FC behavior or simulation data was changed.
+The existing Swing/core framework is extended. The installed macOS launcher keeps its upstream-named JAR path, which now contains the same full application as `OpenRocket-MIT-6.2.jar`.

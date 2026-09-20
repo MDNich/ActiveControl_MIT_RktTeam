@@ -65,4 +65,36 @@ class TrajectoryDataTest extends BaseTestCase {
         assertEquals(2,boosterTrack.at(1).position().x,1e-12);
         assertEquals(1,boosterTrack.at(1).attitude().rotate(new Coordinate(1,0,0)).y,1e-12);
     }
+    @Test void exhaustFollowsRecordedBurnoutAndRewindsWithoutIgnitionInOlderResults() {
+        FlightDataBranch branch=new FlightDataBranch("burn",TYPE_TIME);
+        point(branch,0,new Quaternion()); point(branch,10,new Quaternion());
+        assertFalse(new TrajectoryData(branch).at(0).powered());
+        branch.addEvent(new FlightEvent(FlightEvent.Type.BURNOUT,4.25,null));
+        branch.addEvent(new FlightEvent(FlightEvent.Type.LAUNCH,1,null));
+        var track=new TrajectoryData(branch);
+        assertFalse(track.at(.999).powered()); assertTrue(track.at(1).powered());
+        assertTrue(track.at(4.249).powered()); assertFalse(track.at(4.25).powered());
+        assertFalse(track.at(9).powered()); assertTrue(track.at(2).powered());
+    }
+    @Test void exhaustMatchesEachMotorAndRespectsIgnitionDelaysAndCoasting() {
+        FlightDataBranch branch=new FlightDataBranch("staged burn",TYPE_TIME);
+        point(branch,0,new Quaternion()); point(branch,10,new Quaternion());
+        var motorA=new info.openrocket.core.rocketcomponent.InnerTube();
+        var motorB=new info.openrocket.core.rocketcomponent.InnerTube();
+        // Deliberately unordered events and overlapping motors with separate burnout times.
+        branch.addEvent(new FlightEvent(FlightEvent.Type.BURNOUT,3,motorA));
+        branch.addEvent(new FlightEvent(FlightEvent.Type.IGNITION,0,motorA));
+        branch.addEvent(new FlightEvent(FlightEvent.Type.IGNITION,1,motorB));
+        branch.addEvent(new FlightEvent(FlightEvent.Type.BURNOUT,4,motorB));
+        branch.addEvent(new FlightEvent(FlightEvent.Type.IGNITION,6,motorA));
+        branch.addEvent(new FlightEvent(FlightEvent.Type.BURNOUT,8,motorA));
+        var track=new TrajectoryData(branch);
+        assertTrue(track.at(0).powered()); assertTrue(track.at(3).powered());
+        assertFalse(track.at(4).powered()); assertFalse(track.at(5.999).powered());
+        assertTrue(track.at(6).powered()); assertFalse(track.at(8).powered());
+        assertTrue(track.at(2).powered());
+        // Incomplete run: a recorded ignition remains powered until the available data ends.
+        branch.addEvent(new FlightEvent(FlightEvent.Type.IGNITION,9,motorB));
+        assertTrue(new TrajectoryData(branch).at(10).powered());
+    }
 }

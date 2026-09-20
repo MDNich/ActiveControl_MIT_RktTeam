@@ -23,10 +23,16 @@ else:
     metadata_path = chosen
     csv_path = chosen.parent/'telemetry.csv'
 metadata = dict(line.split('=', 1) for line in metadata_path.read_text().splitlines() if '=' in line) if metadata_path.exists() else {}
-csv_path = Path(metadata.get('csvFile', str(csv_path)))
-raw_path = Path(metadata.get('packetFile', str(csv_path.parent/'packets.bin')))
-tx_csv_path = Path(metadata.get('transmittedCsvFile', str(csv_path.parent/'transmitted-telemetry.csv')))
-tx_raw_path = Path(metadata.get('transmittedPacketFile', str(csv_path.parent/'transmitted-packets.bin')))
+def output_path(key, fallback):
+    recorded = Path(metadata.get(key, str(fallback)))
+    # A copied run should verify its local files, even if metadata names the original directory.
+    local = metadata_path.parent / recorded.name
+    return local if local.exists() else recorded
+
+csv_path = chosen if chosen.suffix.lower() == '.csv' else output_path('csvFile', csv_path)
+raw_path = output_path('packetFile', csv_path.parent/'packets.bin')
+tx_csv_path = output_path('transmittedCsvFile', csv_path.parent/'transmitted-telemetry.csv')
+tx_raw_path = output_path('transmittedPacketFile', csv_path.parent/'transmitted-packets.bin')
 args.run = csv_path.parent
 def verify_pair(csv_name, raw_name, receiver=False):
     with (args.run / csv_name).open(newline='') as stream:

@@ -1,0 +1,65 @@
+{
+  "jar": "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/build/libs/OpenRocket-MIT-6.2.jar",
+  "bytes": 82959427,
+  "sha256": "ef017521327d7771b24fb132631da4828bb899670dafbc87f02eeec653b2e6d9",
+  "installed_launcher_target": "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/build/libs/OpenRocket-24.12.RC.01.jar",
+  "compatibility_target_matches": true,
+  "root_plain_jar_cannot_replace_launcher": true,
+  "required_entries": [
+    "info/openrocket/swing/startup/OpenRocket.class",
+    "natives/macosx-universal/libgluegen_rt.dylib",
+    "natives/windows-amd64/gluegen_rt.dll",
+    "META-INF/licenses/GLUEGEN-LICENSE.txt"
+  ],
+  "fc_tests": 32,
+  "trajectory_tests": 7,
+  "telemetry": {
+    "received-20pct": {
+      "result": "PASS",
+      "csv": "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/improvements/verification/received-20pct/telemetry.csv",
+      "columns": 43,
+      "packets": 472,
+      "payload_bytes": 60416,
+      "transmitted_packets": 600,
+      "first_boot_ms": 60,
+      "last_boot_ms": 35940,
+      "states": [
+        "state.APOGEE",
+        "state.FLIGHT",
+        "state.GROUND_TESTING",
+        "state.PRE_FLIGHT"
+      ]
+    },
+    "received-100pct": {
+      "result": "PASS",
+      "csv": "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/improvements/verification/received-100pct/telemetry.csv",
+      "columns": 43,
+      "packets": 0,
+      "payload_bytes": 0,
+      "transmitted_packets": 600,
+      "first_boot_ms": null,
+      "last_boot_ms": null,
+      "states": []
+    }
+  },
+  "renderer": {
+    "samples": 100000,
+    "frame_requests": 200,
+    "frames_per_second": 68.8806446012729,
+    "mean_draw_ms": 1.974914454954955,
+    "adapter_ms": 82.505959,
+    "viewport_pixels": [
+      1800,
+      1220
+    ],
+    "machine": "Apple M3 Max, 128 GiB, macOS 26.5, JDK 17.0.11",
+    "camera": "fixed perspective",
+    "mode": "actual GLJPanel and PNG export",
+    "snapshot_rocket_size": 3,
+    "exhaust_snapshots": {
+      "powered_10s": "trajectory-exhaust.png",
+      "burnout_20s": "trajectory-burnout.png",
+      "recovery_65s": "trajectory-render-probe.png"
+    }
+  }
+}

@@ -46,7 +46,7 @@ sim/FCsim/run-java-fc.sh --inspect \
 
 The original benchmark files remain in `benchmarking/`. The prepared [Java FC example](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/examples/zephy_testlaunch-java-fc.ork) has the FC listener selected and its previous simulation results removed. Geometry, motor configuration, and saved launch conditions are unchanged. The N8406 motor resolves without loader warnings when the specified ENG is supplied.
 
-For the next, separately requested launch comparison, change `--inspect` to `--run` after reviewing the launch conditions. The runner uses the first saved simulation and replaces its saved extensions with exactly one Java FC listener. It does not modify the input ORK. It never feeds recorded benchmark telemetry into the FC.
+For the next, separately requested launch comparison, change `--inspect` to `--run` after reviewing the launch conditions. The runner uses the first saved simulation, honors its FC settings (including disabled), and preserves unrelated extensions. If no FC entry exists, it adds one managed FC extension. It does not modify the input ORK. It never feeds recorded benchmark telemetry into the FC.
 
 To launch the GUI from a terminal and capture its output:
 
@@ -58,7 +58,17 @@ java -Xmx2g \
   2>&1 | tee /Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/output/gui-console.log
 ```
 
-Add [TestLaunch_v14.eng](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/old/dat/ork/TestLaunch_v14.eng) to OpenRocket's user-defined thrust-curve files if the GUI does not already know the N8406 motor. Run the saved simulation with the Java-code extension class `info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener`. Use a single active stage with exactly one `AirbrakeSet`.
+Add [TestLaunch_v14.eng](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/old/dat/ork/TestLaunch_v14.eng) to OpenRocket's user-defined thrust-curve files if the GUI does not already know the N8406 motor. In **Edit simulation → Simulation options**, enable the **Flight computer simulation** box below Simulator options on the left. Existing Java-code FC extensions are recognized automatically. Use a single active stage with exactly one `AirbrakeSet`.
+
+## MIT 6.2 controls and output selection
+
+The FC box includes loss percentage, fixed receiver delay, and random seed. Use its **Browse…** buttons to choose the CSV and FC action-log folder and filename independently. Blank fields retain automatic per-run output. The action log also continues to print to the console. Simulation completion displays both output paths.
+
+Custom `flight.csv` creates `flight-packets.bin`, `flight-transmitted.csv`, `flight-transmitted-packets.bin`, and `flight-metadata.txt` beside it. Without a separate log selection, the log is `flight.log`. Existing files are preserved; change filenames for subsequent runs. For batches, leave paths automatic or give each simulation its own paths.
+
+The CLI accepts `--loss-percent=20 --delay-ms=137 --seed=12`. Received timestamps include the configured delay. Transmitted bytes and their cadence remain unchanged; loss affects only the receiver files. `verify-telemetry.py` accepts a run directory, CSV path, or metadata path, including custom filenames.
+
+For **Plot data → Plot type → 3D trajectory**, press **Plot** to open the interactive viewer. Rerun old results to record full attitude; older data can still show the trajectory and a moving position marker. See the [6.2 usage and verification report](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/improvements/03-implementation-report.md).
 
 ## Telemetry contract
 
@@ -66,7 +76,7 @@ Add [TestLaunch_v14.eng](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/old/
 
 `packets.bin` contains consecutive 128-byte FC payloads, including their checksum at byte 127. It does not contain modem framing, RSSI suffixes, or a radio propagation model. The FC's strict `>50 ms` telemetry condition produces one packet every 60 ms with the 10 ms loop.
 
-- `timestamp` is simulated boot seconds plus `-Dopenrocket.fc.epochSeconds` (default 0). Set that property when an explicit epoch alignment is needed. No wall clock determines FC behavior.
+- Received `timestamp` is scheduled arrival boot seconds (including link delay) plus `-Dopenrocket.fc.epochSeconds` (default 0). Set that property when an explicit epoch alignment is needed. No wall clock determines FC behavior.
 - `flight_time` retains the historical decoder's meaning: firmware boot **milliseconds**, not seconds after liftoff. The console records the actual `flight_begin_ms` separately. Physical simulation time zero occurs at boot 1000 ms after stationary warmup.
 - RSSI and ground-station position/fix fields are blank. GPS uncertainty/satellite count and pyro resistance are unmodeled zero. Power readings use nominal simulated voltages and zero current.
 - Accelerometer/gyro raw counts are synthesized from calibrated engineering readings and clamped to sensor range. Historical ground-station conversions omit the FC's accelerometer-X gain and gyro biases. Its temperature calibration constants also differ from the FC's. Those CSV values intentionally retain the decoder convention; the console contains FC engineering values.

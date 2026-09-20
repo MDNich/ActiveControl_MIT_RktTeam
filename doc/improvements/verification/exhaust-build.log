@@ -1,0 +1,94 @@
+
+> Configure project :
+Project : => no module-info.java found
+The CopyProcessingSpec.setFileMode(Integer) method has been deprecated. This is scheduled to be removed in Gradle 9.0. Please use the filePermissions(Action) method instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#unix_file_permissions_deprecated
+Project :core => 'info.openrocket.core' Java module
+Project :swing => 'info.openrocket.swing' Java module
+
+> Configure project :swing
+The ProjectDependency.getDependencyProject() method has been deprecated. This is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecate_get_dependency_project
+Validating external components at /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/core/resources-src/datafiles/openrocket-database/orc...
+Found external components
+
+> Task :processResources NO-SOURCE
+> Task :swing:processResources UP-TO-DATE
+> Task :swing:processTestResources UP-TO-DATE
+> Task :core:compileJava UP-TO-DATE
+> Task :core:copyReadmeMain NO-SOURCE
+> Task :core:externalComponentsValidate UP-TO-DATE
+> Task :core:externalComponentsCopy UP-TO-DATE
+> Task :core:processResources UP-TO-DATE
+> Task :core:classes UP-TO-DATE
+> Task :core:jar UP-TO-DATE
+> Task :core:shadowJar UP-TO-DATE
+> Task :swing:compileJava
+> Task :swing:classes
+> Task :swing:jar
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar UP-TO-DATE
+> Task :startScripts
+> Task :distTar
+
+> Task :swing:shadowJar
+The FileTreeElement.getMode() method has been deprecated. This is scheduled to be removed in Gradle 9.0. Please use the getPermissions() method instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#unix_file_permissions_deprecated
+
+> Task :distZip
+> Task :swing:mergeClasses SKIPPED
+
+> Task :swing:compileTestJava
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'compileOnly', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'implementation', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'runtimeOnly', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'testCompileOnly', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'testImplementation', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+Calling configuration method 'copyRecursive()' is deprecated for configuration 'testRuntimeOnly', which has permitted usage(s):
+	Declarable - this configuration can have dependencies added to it
+This method is only meant to be called on configurations which allow the (non-deprecated) usage(s): 'Resolvable'. This behavior has been deprecated. This behavior is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#deprecated_configuration_usage
+
+> Task :swing:testClasses
+16:56:14.482 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Connected to address /127.0.0.1:52268.
+16:56:14.497 [main] DEBUG org.gradle.process.internal.worker.child.ActionExecutionWorker -- Starting Gradle Test Executor 2.
+16:56:14.499 [Test worker] INFO org.gradle.api.internal.tasks.testing.worker.TestWorker -- Gradle Test Executor 2 started executing tests.
+
+> Task :swing:test
+The automatic loading of test framework implementation dependencies has been deprecated. This is scheduled to be removed in Gradle 9.0. Declare the desired test framework directly on the test suite or explicitly declare the test framework implementation dependencies on the test's runtime classpath. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_8.html#test_framework_implementation_dependencies
+The Provider.forUseAtConfigurationTime method has been deprecated. This is scheduled to be removed in Gradle 9.0. Simply remove the call. Consult the upgrading guide for further information: https://docs.gradle.org/8.12.1/userguide/upgrading_version_7.html#for_use_at_configuration_time_deprecation
+
+16:56:14.461 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Attempting to connect to [edac31de-7dcc-4fed-8151-922e1f874cbc port:52268, addresses:[/127.0.0.1]].
+16:56:14.465 [main] DEBUG org.gradle.internal.remote.internal.inet.TcpOutgoingConnector -- Trying to connect to address /127.0.0.1.
+info.openrocket.swing.gui.plot.TrajectoryDataTest
+
+  Test undersampledRotationAndBackwardsTimeAreExplicit() PASSED
+  Test exhaustMatchesEachMotorAndRespectsIgnitionDelaysAndCoasting() PASSED
+  Test separatedBranchKeepsAttitudeAndOnlyItsOwnRecoveryEvents() PASSED
+  Test exhaustFollowsRecordedBurnoutAndRewindsWithoutIgnitionInOlderResults() PASSED
+  Test fullRollIsIndependentOfVelocityAndSlerpSign() PASSED
+  Test gapsDuplicatesLegacyAndRecoverySeeking() PASSED
+  Test playbackUsesElapsedTimeAndPreservesPauseAndSeek() PASSED
+
+16:56:16.608 [Test worker] INFO org.gradle.api.internal.tasks.testing.worker.TestWorker -- Gradle Test Executor 2 finished executing tests.
+16:56:16.609 [Test worker] DEBUG org.gradle.process.internal.worker.child.ActionExecutionWorker -- Completed Gradle Test Executor 2.
+
+> Task :swing:test
+
+SUCCESS: Executed 7 tests in 2.6s
+
+
+> Task :shadowJar
+> Task :launcherJar
+
+[Incubating] Problems report is available at: file:///Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 15s
+18 actionable tasks: 10 executed, 8 up-to-date

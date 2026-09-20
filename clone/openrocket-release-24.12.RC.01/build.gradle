@@ -99,7 +99,8 @@ jar {
             'SplashScreen-Image': 'pix/splashscreen.png',
 
             // Versioning
-            'Implementation-Version': buildProperties['build.version'],
+            'Implementation-Version': buildProperties['build.mit.edition'] == 'true'
+                    ? buildProperties['build.mit.version'] : buildProperties['build.version'],
 
             // Vendor Details
             'Implementation-Vendor': 'OpenRocket',
@@ -122,6 +123,7 @@ jar {
 }
 
 shadowJar {
+    from('swing/lib/GLUEGEN-LICENSE.txt') { into 'META-INF/licenses' }
     def mitEdition = buildProperties['build.mit.edition'] == 'true'
     archiveBaseName.set(mitEdition ? 'OpenRocket-MIT' : 'OpenRocket')
     archiveVersion.set(mitEdition ? buildProperties['build.mit.version'] : buildProperties['build.version'])

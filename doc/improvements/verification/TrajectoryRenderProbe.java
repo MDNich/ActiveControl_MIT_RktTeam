@@ -36,11 +36,15 @@ public class TrajectoryRenderProbe {
             var q=Quaternion.rotation(new Coordinate(.25,.5,0)).multiplyRight(Quaternion.rotation(new Coordinate(0,0,t*.4)));
             branch.setValue(TYPE_ORIENTATION_QW,q.getW()); branch.setValue(TYPE_ORIENTATION_QX,q.getX()); branch.setValue(TYPE_ORIENTATION_QY,q.getY()); branch.setValue(TYPE_ORIENTATION_QZ,q.getZ());
         }
+        branch.addEvent(new FlightEvent(FlightEvent.Type.LAUNCH,0,null));
+        branch.addEvent(new FlightEvent(FlightEvent.Type.IGNITION,0,null));
+        branch.addEvent(new FlightEvent(FlightEvent.Type.BURNOUT,20,null));
         branch.addEvent(new FlightEvent(FlightEvent.Type.APOGEE,50,null));
         branch.addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,55,null));
         long adapterStart=System.nanoTime(); TrajectoryData data=new TrajectoryData(branch);
         System.out.println("adapter_ms="+(System.nanoTime()-adapterStart)/1e6);
         CountDownLatch finished=new CountDownLatch(1);
+        java.util.concurrent.atomic.AtomicBoolean captured=new java.util.concurrent.atomic.AtomicBoolean();
         SwingUtilities.invokeLater(()-> {
             GUIUtil.getUITheme().applyTheme();
             JFrame window=new JFrame("Trajectory renderer verification");
@@ -54,17 +58,25 @@ public class TrajectoryRenderProbe {
                 if(++draws[0]==220) {
                     ((Timer)event.getSource()).stop();
                     System.out.println("samples="+data.samples().size()+" measured_frames=200 fps="+200e9/(System.nanoTime()-begin[0])+" mean_draw_ms="+panel.getMeanDrawMillis());
-                    panel.setTime(65);
-                    panel.snapshot(image->{
-                        try { javax.imageio.ImageIO.write(image,"png",output.resolve("trajectory-render-probe.png").toFile()); }
-                        catch(Exception failure) { failure.printStackTrace(); }
-                        panel.close(); window.dispose(); finished.countDown();
+                    panel.setRocketSize(3);
+                    capture(panel,output,0,()-> {
+                        captured.set(true); panel.close(); window.dispose(); finished.countDown();
                     });
                 }
             }); timer.start();
         });
         if(!finished.await(45,TimeUnit.SECONDS)) throw new IllegalStateException("Renderer did not finish");
-        if(!Files.exists(output.resolve("trajectory-render-probe.png"))) System.exit(1);
+        if(!captured.get()) System.exit(1);
         System.exit(0);
+    }
+    private static void capture(Trajectory3DPanel panel,Path output,int index,Runnable finished) {
+        double[] times={10,20,65};
+        String[] names={"trajectory-exhaust.png","trajectory-burnout.png","trajectory-render-probe.png"};
+        panel.setTime(times[index]);
+        panel.snapshot(image->{
+            try { javax.imageio.ImageIO.write(image,"png",output.resolve(names[index]).toFile()); }
+            catch(Exception failure) { failure.printStackTrace(); System.exit(1); }
+            if(index+1<times.length) capture(panel,output,index+1,finished); else finished.run();
+        });
     }
 }

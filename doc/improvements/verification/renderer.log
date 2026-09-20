@@ -1,0 +1,5 @@
+adapter_ms=82.505959
+16:56:32.137 [AWT-EventQueue-0] INFO info.openrocket.swing.gui.theme.UITheme -- Setting UI scale factor to 1.0
+16:56:32.140 [AWT-EventQueue-0] INFO info.openrocket.swing.gui.theme.UITheme -- Loading custom fonts
+16:56:32.141 [AWT-EventQueue-0] INFO info.openrocket.swing.gui.theme.UITheme -- Setting global font to 12 inter-regular 0.0
+samples=100000 measured_frames=200 fps=68.8806446012729 mean_draw_ms=1.974914454954955
