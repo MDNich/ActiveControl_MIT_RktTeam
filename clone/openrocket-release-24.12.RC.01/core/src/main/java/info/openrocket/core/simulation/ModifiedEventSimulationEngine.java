@@ -12,6 +12,7 @@ import info.openrocket.core.rocketcomponent.*;
 import info.openrocket.core.simulation.exception.SimulationCalculationException;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.simulation.listeners.MidControlStepLauncher;
+import info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener;
 import info.openrocket.core.simulation.listeners.SimulationListenerHelper;
 import info.openrocket.core.simulation.listeners.system.OptimumCoastListener;
 import info.openrocket.core.startup.Application;
@@ -140,7 +141,11 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 			System.out.println("[JAVA] Caught simulation exception");
 			throw e;
 		} finally {
-			flightData.calculateInterestingValues();
+			if(currentStatus!=null) {
+                FlightControllerSimulatorListener fc=FlightControllerSimulatorListener.active(currentStatus);
+                if(fc!=null) fc.finish();
+            }
+            flightData.calculateInterestingValues();
 		}
 	}
 	
@@ -181,14 +186,17 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					FlightEvent nextEvent = currentStatus.getEventQueue().peek();
 
 					if (nextEvent != null) {
-						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(), 0.001);
+						maxStepTime = MathUtil.max(nextEvent.getTime() - currentStatus.getSimulationTime(),
+                                FlightControllerSimulatorListener.active(currentStatus)==null ? 0.001 : 1e-9);
                         //System.out.println("[JAVA] Next Event: max step time " +  maxStepTime);
 					} else if (currentStatus.isLanded()) {
 						maxStepTime = 0.0;
                         //System.out.println("[JAVA] detected landed");
 					}
 
-					if (maxStepTime > MathUtil.EPSILON) {
+					FlightControllerSimulatorListener fc = FlightControllerSimulatorListener.active(currentStatus);
+                    if(fc!=null && maxStepTime>0) maxStepTime=fc.limitStep(currentStatus,maxStepTime);
+                    if (maxStepTime > (fc==null?MathUtil.EPSILON:0)) {
 						log.trace(
 								  "Taking simulation step at t=" + currentStatus.getSimulationTime() + " altitude " + oldAlt);
 						//System.out.println("[JAVA] Current simulation time: " + currentStatus.getSimulationTime() + "s                 \r");
@@ -772,7 +780,8 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 	private FlightData computeCoastTime() throws SimulationException {
 		try {
 			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
-			conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
+			conds.getSimulationListenerList().removeIf(listener -> listener instanceof FlightControllerSimulatorListener);
+            conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
 			ModifiedEventSimulationEngine coastEngine = new ModifiedEventSimulationEngine();
 		
 			coastEngine.simulate(conds);

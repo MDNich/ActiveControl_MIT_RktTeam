@@ -1,123 +1,44 @@
 package edu.mit.rocket_team.zephyrus.control;
-
-import edu.mit.rocket_team.zephyrus.util.RTController;
-import edu.mit.rocket_team.zephyrus.util.data.RTFudgedData;
-import edu.mit.rocket_team.zephyrus.util.data.RTPyroStatus;
-import edu.mit.rocket_team.zephyrus.util.RTRocketState;
-import info.openrocket.core.simulation.SimulationStatus;
-
+import java.util.Arrays;
+import edu.mit.rocket_team.zephyrus.util.*;
+import edu.mit.rocket_team.zephyrus.util.data.*;
+import static edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.elapsed32;
+/** pyro.cpp: logical outputs only; no recovery-device actuation. */
 public class RTPyroController extends RTController {
-
-    public static final int NUM_PYROS = 12;
-
-    public static SimulationStatus SIMULATION_STATUS;
-
-    int pyroStatuses;
-    double[] fire_times;
-    boolean[] fired;
-    boolean[] armed;
-    //For Sim Use Only
-    boolean[] shouldMisfire;
-    boolean[] hasFired;
-
-    public RTPyroController() {
-        fire_times   = new double[NUM_PYROS];
-        fired        = new boolean[NUM_PYROS];
-        armed        = new boolean[NUM_PYROS];
-        shouldMisfire= new boolean[NUM_PYROS];
-        hasFired     = new boolean[NUM_PYROS];
-        pyroStatuses = 0;
+    public static final int NUM_PYROS=6, FIRE_DURATION_MS=250;
+    private final RTUtilLibrary.Trace trace;
+    private final boolean[] armed=new boolean[6],fired=new boolean[6],connected=new boolean[6];
+    private final long[] firedTimes=new long[6];
+    private final RTPyroStatus[] status=new RTPyroStatus[6];
+    public RTPyroController() { this(new RTUtilLibrary.Trace()); }
+    public RTPyroController(RTUtilLibrary.Trace trace) { this.trace=trace; Arrays.fill(connected,true); Arrays.fill(status,RTPyroStatus.PYRO_FAILURE); }
+    private void check(int c) { if(c<0 || c>=6) throw new IllegalArgumentException("Pyro channel must be 0..5: "+c); }
+    @Override public void setup() { trace.log("pyro.setup", "channels=6 recovery=recorded_only continuity=connected"); }
+    public void armPyro(int c) { check(c); armed[c]=true; trace.log("pyro.arm", "channel="+c); }
+    public void disarmPyro(int c) { check(c); armed[c]=false; trace.log("pyro.disarm", "channel="+c); }
+    public void firePyro(int c) {
+        check(c); if(!armed[c]) { trace.log("pyro.fire_ignored", "channel="+c+" reason=unarmed"); return; }
+        firedTimes[c]=trace.millis(); fired[c]=true; armed[c]=false;
+        trace.log("pyro.fire", "channel="+c+" duration_ms="+FIRE_DURATION_MS);
     }
-
-    @Override
-    public void setup() {
-        for (int i = 0; i < NUM_PYROS; i++) {
-            setPyroStatus(i,RTPyroStatus.PYRO_CONNECTED); // assume ready, fudgable later
-        }
-    }
-
-    @Override
-    public void backdoorFudge(RTFudgedData fudged) {
-        // no-op for now
-    }
-
-    @Override
-    public void performLoopAction() {
-        // no-op for now
-    }
-
-
-    public void armPyro(int pyro) {
-        armed[pyro] = true;
-    }
-
-    public void disarmPyro(int pyro) {
-        armed[pyro] = false;
-    }
-
-    public void pyroMonitor(RTRocketState currentState) {
-        for (int i = 0; i < NUM_PYROS; i++) {
-            if (currentState == RTRocketState.GROUND_TESTING) {
-                //In ground testing, we only care if pyro is connected or disconnected
-                if (isPyroConnected(i)) {
-                    setPyroStatus(i, RTPyroStatus.PYRO_CONNECTED);
-                } else {
-                    setPyroStatus(i, RTPyroStatus.PYRO_UNCONNECTED);
-                }
-            } else {
-                //Otherwise, an unconnected pyro is a failure, unless it has been successfuly fired
-                if(!isPyroConnected(i) && getPyroStatus(i) != RTPyroStatus.PYRO_SUCCESS && !fired[i]) {
-                    setPyroStatus(i, RTPyroStatus.PYRO_FAILURE);
-                }
+    public void off(int c) { check(c); fired[c]=false; trace.log("pyro.off", "channel="+c); }
+    public void setConnected(int c,boolean value) { check(c); connected[c]=value; trace.log("pyro.continuity", "channel="+c+" connected="+value); }
+    public boolean isArmed(int c) { check(c); return armed[c]; }
+    public boolean isFired(int c) { check(c); return fired[c]; }
+    public RTPyroStatus getPyroStatus(int c) { check(c); return status[c]; }
+    public int getPyrosStatus() { int bits=0; for(int i=0;i<6;i++) bits|=status[i].ID<<(2*i); return bits; }
+    public void pyroMonitor(RTRocketState state) {
+        for(int i=0;i<6;i++) {
+            RTPyroStatus old=status[i];
+            if(fired[i] && elapsed32(trace.millis(),firedTimes[i])>FIRE_DURATION_MS) {
+                off(i); status[i]=!connected[i] && status[i]!=RTPyroStatus.PYRO_FAILURE ? RTPyroStatus.PYRO_SUCCESS : RTPyroStatus.PYRO_FAILURE;
             }
-
-            if (fired[i] && (millis() - fire_times[i]) > 1000) {
-                //digitalWrite(firePins[i], 0);
-                if(!isPyroConnected(i) &&  getPyroStatus(i) != RTPyroStatus.PYRO_FAILURE) {
-                    setPyroStatus(i, RTPyroStatus.PYRO_SUCCESS);
-                } else {
-                    setPyroStatus(i, RTPyroStatus.PYRO_FAILURE);
-                }
-                fired[i] = false;
-            }
+            if(state==RTRocketState.GROUND_TESTING) status[i]=connected[i]?RTPyroStatus.PYRO_CONNECTED:RTPyroStatus.PYRO_UNCONNECTED;
+            else if(!connected[i] && status[i]!=RTPyroStatus.PYRO_SUCCESS && !fired[i]) status[i]=RTPyroStatus.PYRO_FAILURE;
+            if(old!=status[i]) trace.log("pyro.status", "channel="+i+" from="+old+" to="+status[i]);
         }
+        trace.log("pyro.update", "status_bits="+getPyrosStatus());
     }
-
-    public void firePyro(int pyro) {
-        if (armed[pyro]) {
-            //digitalWrite(firePins[pyro], 1);
-            fired[pyro] = true;
-            hasFired[pyro] = true;
-            armed[pyro] = false;
-            fire_times[pyro] = millis();
-        }
-    }
-
-    private boolean isPyroConnected(int pyro) {
-        // placeholder for onboard logic to check pyro connectivity
-        return  !(hasFired[pyro] & !shouldMisfire[pyro]);
-    }
-
-    private RTPyroStatus getPyroStatus(int pyro) {
-        return RTPyroStatus.values()[(pyroStatuses >> (pyro * 2)) & 0b11];
-    }
-
-    private void setPyroStatus(int pyro, RTPyroStatus status) {
-        int mask = 0b11 << (pyro * 2);
-        pyroStatuses &= ~mask;
-        pyroStatuses |= (status.ID & 0b11) << (pyro * 2);
-    }
-
-    // For sim use only
-    private int millis() {
-        if (SIMULATION_STATUS != null) {
-            return (int)(SIMULATION_STATUS.getSimulationTime()*1e3); // seconds to miliseconds
-        } else {
-            return (int)System.currentTimeMillis();
-        }
-    }
-
-    // TODO : write Pyro Controller Fudging Procedure
-    // TODO : include misfire fudging
-    // TODO : make sure to provide SIMULATION_STATUS in order to have millis() work properly
+    @Override public void performLoopAction() { throw new IllegalStateException("Use pyroMonitor with FC state"); }
+    @Override public void backdoorFudge(RTFudgedData data) { throw new UnsupportedOperationException("Use setConnected"); }
 }

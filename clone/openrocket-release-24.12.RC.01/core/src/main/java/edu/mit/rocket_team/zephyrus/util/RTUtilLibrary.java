@@ -4,6 +4,29 @@ import info.openrocket.core.util.Coordinate;
 
 public class RTUtilLibrary {
 
+    public static long unsigned32(long value) { return value & 0xffff_ffffL; }
+    public static long elapsed32(long now, long then) { return unsigned32(now - then); }
+
+    /** One run's clock and action log. Production output always uses System.out.println. */
+    public static final class Trace {
+        private static final java.util.concurrent.atomic.AtomicLong IDS = new java.util.concurrent.atomic.AtomicLong();
+        private final long run = IDS.incrementAndGet();
+        private final java.util.function.Consumer<String> sink;
+        private long nowUs;
+        public Trace() { this(line -> System.out.println(line)); }
+        public Trace(java.util.function.Consumer<String> sink) { this.sink = java.util.Objects.requireNonNull(sink); }
+        public void time(long timeUs) {
+            if (timeUs < nowUs) throw new IllegalArgumentException("FC clock cannot run backwards");
+            nowUs = timeUs;
+        }
+        public long micros() { return unsigned32(nowUs); }
+        public long millis() { return unsigned32(nowUs / 1000); }
+        public long bootUs() { return nowUs; }
+        public void log(String action, String detail) {
+            sink.accept("ZEPHYRUS run=" + run + " boot_us=" + nowUs + " action=" + action + " " + detail);
+        }
+    }
+
     /**
      * Converts rocket roll & pitch into IMU-measured X, Y, Z angles.
      *

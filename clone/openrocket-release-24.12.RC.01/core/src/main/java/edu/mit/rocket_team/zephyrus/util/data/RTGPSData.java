@@ -8,6 +8,9 @@ public class RTGPSData extends RTFudgedData {
     private float VDOP;
     private float HDOP;
     private boolean hasFix;
+    private int fixType;
+    public int getFixType() { return fixType; }
+    public void setFixType(int type) { if(type<0 || type>5) throw new IllegalArgumentException("Invalid GPS fix type"); fixType=type; hasFix=type==3; }
 
     public RTGPSData(float lat, float lon, float alt,
                      float p, float v, float h, boolean hF) {
@@ -18,6 +21,7 @@ public class RTGPSData extends RTFudgedData {
         this.VDOP      = v;
         this.HDOP      = h;
         this.hasFix    = hF;
+        this.fixType = hF ? 3 : 0;
     }
 
     public RTGPSData(Double lat, Double lon, Double alt,
@@ -29,6 +33,7 @@ public class RTGPSData extends RTFudgedData {
         this.VDOP      = v.floatValue();
         this.HDOP      = h.floatValue();
         this.hasFix    = hF;
+        this.fixType = hF ? 3 : 0;
     }
 
     public float getLatitude() {
@@ -79,5 +84,6 @@ public class RTGPSData extends RTFudgedData {
     }
     public void setHasFix(boolean hasFix) {
         this.hasFix = hasFix;
+        this.fixType = hasFix ? 3 : 0;
     }
 }

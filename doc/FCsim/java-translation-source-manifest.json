@@ -1,0 +1,24 @@
+{
+  "openrocket_revision": "ed30b9a80573c9364fe833acd47eb9b0570192e4",
+  "sketch_revision": "4cd2660eec92a47be42c09ed7b61f38295bcf970",
+  "library_revision": "1db1f223c0c7d2287611c9f66d5de6c691455359",
+  "files": {
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Arduino/Zephyrus/FC/FC.ino": "6e2afd0ea832a466d5b72608b94506f0cdc4ccc9164c8114a5d4fcda9a4d4c93",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/airbrakes.h": "7969658fa7907d25ce01b2082ae720eded80ce6e2e3d688b316a2612ddada7ef",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/airbrakes.cpp": "fe886593ee8697d16674f586335f451732d7eecb692b266ae2b60aefee7465ae",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/ADXL357.h": "363129739b81f8f1c2d61d7c539a13e2ef03edc84627bb22a2dddc500c0b8c25",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/ADXL357.cpp": "edfe0ef8a831586d4444a0243a5695302995420b89f10fd06686b19f92adf12a",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/baro.h": "6393b5d46d7d802d9bdeffa85070e4df6ff494c5770e728be9b9205ee207124c",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/baro.cpp": "0ce1b2dc758ecd18f71e1ea14866300cf807854ea883bf55be8144f5b068c47a",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/GPS.h": "eb4983d9ef35b039aa9ebcccd66938ad688f1ca4ce28a175f7a1b90063e23a84",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/GPS.cpp": "01fdd9e5d86dcf085532f0166596c669d63264036ece27f7bd4fcd865faa470d",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/gyro.h": "52556069453d62a497acfa2aa9aa52d293bdb914f4a54255e64c723417c6ea31",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/gyro.cpp": "b91f0d3b4d934f019e753e4840c513b3b60222798cebfd53c0d3921f5f923b98",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/rollcontrol.h": "257cbacb938e18544905c95cf859051a703acd7852fa7b971f497400c5a504d6",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/rollcontrol.cpp": "86695a91872e9ba435ae474b32d16e3406b3ce453618e05796862416358d0287",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/pyro.h": "6d5f0c6287581b7e01d2f8fb2c2fad03e59b9ea1ebbd994212f332c669f3e934",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/pyro.cpp": "bddac2bfc5f19a5eb19c1f0d06b809f0afebfe6f3a089073705ab268384839ae",
+    "/Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/myTypes.h": "1bb197f49ac7f919215a3255daed214efec1a684984377a52f81ed06760c2a37"
+  },
+  "baseline_jar_sha256": "8fc73350b98baf4bd05f0f7dbe66d597c86c4ce5433e09050aae75aa64e10bfe"
+}

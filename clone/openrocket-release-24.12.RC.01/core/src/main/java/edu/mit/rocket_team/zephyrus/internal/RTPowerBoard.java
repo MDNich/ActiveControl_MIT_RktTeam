@@ -1,111 +1,24 @@
 package edu.mit.rocket_team.zephyrus.internal;
-
-
-// individual cell voltage
-// total battery voltage
-
-// total battery current
-
-// ! there are 6 power rails
-// 28 V
-// 8.4 V
-// 7.4 V
-// 5 V
-// 3.3 V - !! THIS IS THE FC POWER SOURCE
-// 3 V
-
-// for each rail:
-// voltage
-// current
-
-// FC action:
-// turn on/off any of the rails (except for 3.3 V)
-
-// override screw switch option
-
-
+import java.util.Arrays;
+import edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.Trace;
+/** FC pwrCommands: source converter order, deterministic nominal readings. */
 public class RTPowerBoard {
-
-    public static double[] voltageByCell = new double[3];
-
-    public static double totalBatteryVoltage = 0;
-
-    // RAILS ARE LABELED BY VOLTAGE
-    public static double[] voltageByRail = new double[6];
-    public static final double[] defaultVoltageByRail = new double[]{
-            28,
-            8.4,
-            7.4,
-            5,
-            3.3,
-            3
-    };
-    public static final String[] railNames = new String[]{
-            "28 V",
-            "8.4 V",
-            "7.4 V",
-            "5 V",
-            "3.3 V <FC POWER SOURCE>",
-            "3 V"
-    };
-    public static double[] currentByRail = new double[6];
-
-    public static boolean SCREW_SWITCH_OVERRIDEN = false;
-
-    public RTPowerBoard() {
-        for (int i = 0; i < voltageByRail.length; i++) {
-            voltageByRail[i] = defaultVoltageByRail[i];
-            currentByRail[i] = 0;
-            if (i < 3) {
-                voltageByCell[i] = 3.7;
-            }
-        }
-    }
-
-    public double getCellVoltage(int cell) {
-        return voltageByCell[cell];
-    }
-    public double getTotalBatteryVoltage() {
-        double total = 0;
-        for (double voltage : voltageByCell) {
-            total += voltage;
-        }
-        return total;
-    }
-    public double getCurrentByRail(int rail) {
-        return currentByRail[rail];
-    }
-    public double getVoltageByRail(int rail) {
-        return voltageByRail[rail];
-    }
-
-    public boolean shutOffRail(int rail) {
-        if (rail == 4) {
-            // CANNOT SHUT OFF 3.3 V
-            return false;
-        }
-        voltageByRail[rail] = 0;
-        // hardware: shut off rail.
-        return true;
-    }
-
-    public boolean turnOnRail(int rail) {
-        if (rail == 4) {
-            // CANNOT SHUT OFF 3.3 V
-            return false;
-        }
-        voltageByRail[rail] = defaultVoltageByRail[rail];
-        return true;
-    }
-
-    public void setOverrideScrewSwitch(boolean shouldOverride) {
-        // hardware: set override screw switch
-        SCREW_SWITCH_OVERRIDEN = shouldOverride;
-    }
-    public boolean getOverrideScrewSwitch() {
-        return SCREW_SWITCH_OVERRIDEN;
-    }
-
-
-
+    private final Trace trace;
+    private final boolean[] enabled={true,true,true,true,true,true};
+    private final double[] volts={3,3.3,5,7.4,8.4,28};
+    private boolean protections=true,screwSwitch=true;
+    public RTPowerBoard() { this(new Trace()); }
+    public RTPowerBoard(Trace trace) { this.trace=trace; }
+    public void setup() { trace.log("power.setup", "mode=nominal_simulated converters=3,3.3,5,7.4,8.4,28V"); }
+    public void update() { trace.log("power.update", "status=nominal"); }
+    public void setConverter(int i,boolean value) { enabled[i]=value; trace.log("power.converter", "index="+i+" enabled="+value); }
+    public void enableAll() { for(int i=0;i<6;i++) setConverter(i,true); }
+    public boolean isEnabled(int i) { return enabled[i]; }
+    public void setProtections(boolean value) { protections=screwSwitch=value; trace.log("power.protection", "protections="+value+" screw_switch="+value); }
+    public boolean protectionsEnabled() { return protections; }
+    public void sendCommand() { trace.log("power.command", "converters="+Arrays.toString(enabled)+" protections="+protections+" screw_switch="+screwSwitch); }
+    public double getVoltageByRail(int i) { return enabled[i]?volts[i]:0; }
+    public double getCurrentByRail(int i) { return 0; }
+    public double getCellVoltage(int i) { return 3.7; }
+    public double getTotalBatteryVoltage() { return 11.1; }
 }

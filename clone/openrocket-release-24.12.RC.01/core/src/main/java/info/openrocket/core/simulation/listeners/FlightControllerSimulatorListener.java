@@ -1,30 +1,23 @@
 package info.openrocket.core.simulation.listeners;
-
 import edu.mit.rocket_team.zephyrus.FC.RTFC;
 import edu.mit.rocket_team.zephyrus.util.RTSimulationCommunicator;
+import edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.Trace;
+import edu.mit.rocket_team.zephyrus.util.data.*;
 import info.openrocket.core.models.atmosphere.AtmosphericConditions;
-import info.openrocket.core.rocketcomponent.AirbrakeSet;
-import info.openrocket.core.rocketcomponent.Rocket;
-import info.openrocket.core.rocketcomponent.RocketComponent;
-import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
-import info.openrocket.core.simulation.FlightDataType;
-import info.openrocket.core.simulation.MotorClusterState;
-import info.openrocket.core.simulation.SimulationStatus;
+import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.simulation.*;
 import info.openrocket.core.simulation.exception.SimulationException;
 import info.openrocket.core.util.*;
-
 import java.util.Iterator;
 import java.util.List;
-
+import java.nio.file.Path;
+import java.util.function.Consumer;
 import static edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.convertToImuAngles;
 import static java.lang.Math.*;
 
-/**
- * Simulation listener that emulates flight computer control.
- */
+/** Existing FC listener, now driving the translated FC at a deterministic 100 Hz. */
 public class FlightControllerSimulatorListener extends AbstractSimulationListener {
-
-
+    // Compatibility-only fields for historical callers. Not used by the FC path below.
     public static SimulationStatus initialStatus = null;
     public static SimulationStatus latestStatus = null;
     public static double latestTimeStep = -1;
@@ -69,87 +62,118 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
 
 
 
-    public FlightControllerSimulatorListener() {
-        super();
-        pastOmegaZ = new ArrayList<>();
-        pastThetaZ = new ArrayList<>();
-        finTabAngleLog = new ArrayList<>();
-        rktVelMagLog = new ArrayList<>();
-        rktAltLog = new ArrayList<>();
-        altitudeMeasuredList = new ArrayList<>();
-        CldLog = new ArrayList<>();
-        CldArefDLog = new ArrayList<>();
-        Qlog = new ArrayList<>();
+
+    private static final long WARMUP_US=1_000_000;
+    private final Consumer<String> console;
+    private final double maxPhysicsStep;
+    private final boolean holdAirbrakesClosed;
+    private Run run;
+    /** Shared only across framework copies belonging to this flight, never across new starts. */
+    private static final class Run {
+        final RTFC fc;
+        final RTSimulationCommunicator communicator;
+        long nextTickUs=10_000,lastPublishedUs=-1,lastGpsUs=-100_000;
+        double stepStart;
+        RTFC.Inputs candidate,latest;
+        boolean intervalOpen,closed;
+        Run(Consumer<String> console) { fc=new RTFC(new Trace(console)); communicator=new RTSimulationCommunicator(fc.trace); }
     }
-
-    @Override
-    public void startSimulation(SimulationStatus status) throws SimulationException {
-        status.copySimStatParameters(initialStatus);
-        if (TIME_DELAY_MOTOR > 0) {
-            ((MotorClusterState) status.getActiveMotors().toArray()[0]).ignite(status.getSimulationTime()-TIME_DELAY_MOTOR); // 3.5 seconds before
-        }
-        if (TIME_DELAY_MOTOR > 100) {
-            ((MotorClusterState) status.getActiveMotors().toArray()[0]).burnOut(status.getSimulationTime()-TIME_DELAY_MOTOR); // 3.5 seconds before
-        }
-
-        super.startSimulation(status);
-        lastStat = status.clone();
-
-        theFinsToModify = getTheFinsToModifyTabs(status);
-        if (overrideCNA > 0) {
-            theFinsToModify.setCNALPHA(overrideCNA);
-        }
-
-        RTSimulationCommunicator.setAirbrakes(getAirbrakes(status));
-        RTSimulationCommunicator.setTabCtrlFins(getTheFinsToModifyTabs(status));
-
-        RTFC.init();
+    public FlightControllerSimulatorListener() { this(line -> System.out.println(line),0.0025,false); }
+    public FlightControllerSimulatorListener(Consumer<String> console,double maxPhysicsStep,boolean holdAirbrakesClosed) {
+        if(!(maxPhysicsStep>0 && maxPhysicsStep<=0.0025)) throw new IllegalArgumentException("FC physics step must be in (0, 0.0025] seconds");
+        this.console=console; this.maxPhysicsStep=maxPhysicsStep; this.holdAirbrakesClosed=holdAirbrakesClosed;
     }
-
-    @Override
-    public boolean preStep(SimulationStatus status) throws SimulationException {
-        loopStart = status.getSimulationTime();
-        lastStat = status.clone();
-        return super.preStep(status); // true
-    }
-
-    @Override
-    public void postStep(SimulationStatus status) throws SimulationException {
-        latestStatus = status.clone();
-        double finTimeStep = status.getSimulationTime();
-        latestTimeStep = finTimeStep - loopStart;
-
-        double realVelocity = status.getRocketVelocity().length();
-
-        pastOmegaZ.add(status.getRocketRotationVelocity().z);
-        pastThetaZ.add(toDegrees(toEulerAngles_rocketCoord(status.getRocketOrientationQuaternion()).z));
-        finTabAngleLog.add(getFinTabAngleDeg());
-        rktVelMagLog.add(realVelocity);
-
-        List<Double> CldFlightBranch = status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF);
-        CldLog.add(CldFlightBranch.get(CldFlightBranch.toArray().length-1));
-        CldArefDLog.add(status.getFlightDataBranch().get(FlightDataType.TYPE_ROLL_DAMPING_COEFF).get(CldFlightBranch.toArray().length-1)*status.getFlightConfiguration().getReferenceLength()*status.getFlightConfiguration().getReferenceArea());
-        Qlog.add(status.getSimulationConditions().getAtmosphericModel().getConditions(status.getRocketWorldPosition().getAltitude()).getDensity()*realVelocity*realVelocity/2.0);
-
-
-        double currentTime = status.getSimulationTime();
-        System.out.println("[JAVA] current time " + currentTime + "                     \r");
-
-
-        // fudging
-        SimulationStatus fudgedStatus = status.clone();
-        fudgeSimulationStatus(fudgedStatus);
-
-        RTFC.pre_loop(fudgedStatus.clone());
-        RTFC.loop();
-
-        if (ABORT_AT_APOGEE) {
-            if (status.apogeeReached) {
-                throw new SimulationException("Apogee => done");
+    public RTFC getFlightComputer() { return run==null?null:run.fc; }
+    public double getMaximumPhysicsStep() { return maxPhysicsStep; }
+    @Override public void startSimulation(SimulationStatus status) throws SimulationException {
+        run=new Run(console);
+        if(status.getConfiguration().getActiveStageCount()!=1) throw new SimulationException("Zephyrus Java FC currently supports one active stage");
+        if(status.getSimulationTime()!=0) throw new SimulationException("Zephyrus FC requires pad startup; mid-flight checkpoints are not implemented");
+        run.communicator.bind(status);
+        run.fc.trace.log("simulation.start", "rocket="+status.getConfiguration().getRocket().getName()+" max_step_s="+maxPhysicsStep+" mounting=X:bodyZ,Y:bodyX,Z:bodyY noise=off recovery=OpenRocket pyro=recorded_only roll_physics=off hold_closed="+holdAirbrakesClosed);
+        run.fc.init();
+        run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")));
+        try {
+            for(long us=0;us<WARMUP_US;us+=RTFC.LOOP_US) {
+                if(us==500_000) run.fc.enqueueCommand(RTFC.stateCommand(edu.mit.rocket_team.zephyrus.util.RTRocketState.PRE_FLIGHT));
+                RTFC.Inputs pad=sample(status,Coordinate.ZERO,us);
+                tick(us,pad);
             }
+            run.latest=sample(status,Coordinate.ZERO,WARMUP_US);
+            tick(WARMUP_US,run.latest);
+            run.communicator.apply(run.fc.getOutput(),holdAirbrakesClosed);
+            run.fc.trace.log("simulation.release", "simulation_s=0 boot_us="+WARMUP_US);
+        } catch(RuntimeException e) { finish(); throw e; }
+    }
+    private void tick(long bootUs,RTFC.Inputs input) {
+        boolean gpsDue=bootUs-run.lastGpsUs>=100_000;
+        if(gpsDue) run.lastGpsUs=bootUs;
+        run.fc.pre_loop(bootUs,new RTFC.Inputs(input.acquisitionUs(),input.accel(),input.baro(),gpsDue?input.gps():null,input.gyro()));
+        run.fc.loop();
+        if(bootUs%RTFC.PWM_US==0) run.fc.latchPwm();
+    }
+    @Override public boolean preStep(SimulationStatus status) throws SimulationException {
+        run.stepStart=status.getSimulationTime(); run.candidate=null; run.intervalOpen=true;
+        run.communicator.bind(status);
+        run.fc.trace.log("physics.begin", "simulation_s="+run.stepStart);
+        return true;
+    }
+    @Override public AccelerationData postAccelerationCalculation(SimulationStatus status,AccelerationData acceleration) {
+        if(run!=null && run.intervalOpen && run.candidate==null && abs(status.getSimulationTime()-run.stepStart)<1e-10) {
+            run.candidate=sample(status,acceleration.getLinearAccelerationWC(),WARMUP_US+Math.round(status.getSimulationTime()*1_000_000));
+        }
+        return null; // Observe; never override the derivative.
+    }
+    @Override public void postStep(SimulationStatus status) throws SimulationException {
+        run.intervalOpen=false;
+        double time=status.getSimulationTime();
+        if(time<=run.stepStart) { run.fc.trace.log("physics.no_advance", "simulation_s="+time); return; }
+        long us=Math.round(time*1_000_000);
+        if(us==run.lastPublishedUs) return;
+        run.lastPublishedUs=us;
+        if(run.candidate==null) {
+            if(!status.isLanded()) throw new SimulationException("Missing coherent FC acceleration sample at "+run.stepStart);
+            run.candidate=sample(status,Coordinate.ZERO,WARMUP_US+us);
+        }
+        run.latest=run.candidate;
+        run.fc.trace.log("physics.accept", "simulation_s="+time+" sample_us="+run.latest.acquisitionUs()+" truth_altitude_m="+status.getRocketWorldPosition().getAltitude()+" truth_velocity_mps="+status.getRocketVelocity().z);
+        if(us>run.nextTickUs) throw new SimulationException("FC deadline skipped: expected "+run.nextTickUs+" us, got "+us);
+        if(us==run.nextTickUs) {
+            tick(WARMUP_US+us,run.latest);
+            run.nextTickUs+=RTFC.LOOP_US;
+            run.communicator.apply(run.fc.getOutput(),holdAirbrakesClosed);
         }
     }
-
+    /** Coherent engineering-unit observation; simulation body Z is the longitudinal axis. */
+    public static RTFC.Inputs sample(SimulationStatus status,Coordinate accelerationWC,long acquisitionUs) {
+        double gravity=status.getSimulationConditions().getGravityModel().getGravity(status.getRocketWorldPosition());
+        Coordinate coriolis=status.getSimulationConditions().getGeodeticComputation().getCoriolisAcceleration(status.getRocketWorldPosition(),status.getRocketVelocity());
+        Coordinate body=status.getRocketOrientationQuaternion().invRotate(accelerationWC.sub(coriolis).add(0,0,gravity));
+        Coordinate omega=status.getRocketOrientationQuaternion().invRotate(status.getRocketRotationVelocity());
+        AtmosphericConditions atmosphere=status.getSimulationConditions().getAtmosphericModel().getConditions(status.getRocketWorldPosition().getAltitude());
+        WorldCoordinate location=status.getRocketWorldPosition();
+        return new RTFC.Inputs(acquisitionUs,new RTAccelData(body.z,body.x,body.y),
+            new RTBaroData(Float.NaN,Float.NaN,(float)(atmosphere.getTemperature()-273.15),Float.NaN,(float)(atmosphere.getPressure()/100.0)),
+            new RTGPSData(location.getLatitudeDeg(),location.getLongitudeDeg(),location.getAltitude(),0.0,0.0,0.0,true),
+            new RTGyroData(toDegrees(omega.z),toDegrees(omega.x),toDegrees(omega.y)));
+    }
+    public static FlightControllerSimulatorListener active(SimulationStatus status) {
+        FlightControllerSimulatorListener found=null;
+        for(SimulationListener l:status.getSimulationConditions().getSimulationListenerList()) if(l instanceof FlightControllerSimulatorListener fc) {
+            if(found!=null) throw new IllegalArgumentException("Register only one FC listener per simulation"); found=fc;
+        }
+        return found;
+    }
+    /** Used by the existing engine/steppers only when this listener is active. */
+    public double limitStep(SimulationStatus status,double eventLimit) {
+        double untilTick=run.nextTickUs/1_000_000.0-status.getSimulationTime();
+        if(!(untilTick>0)) throw new IllegalStateException("FC tick must execute before another physics interval");
+        return Math.min(Math.min(eventLimit,maxPhysicsStep),untilTick);
+    }
+    @Override public void endSimulation(SimulationStatus status,SimulationException exception) { finish(); }
+    public void finish() {
+        if(run!=null && !run.closed) { run.closed=true; run.fc.trace.log("simulation.end", "loops="+run.fc.getLoopCount()); run.fc.telemetry.close(); }
+    }
 
     // don't worry about it
     public static TabControlledTrapezoidFinSet getTheFinsToModifyTabs(SimulationStatus status) {

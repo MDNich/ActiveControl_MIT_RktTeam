@@ -1,4 +1,5 @@
 package info.openrocket.core.simulation;
+import info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -147,7 +148,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 
 		// If the user selected a really small timestep, use MIN_TIME_STEP instead.
 		dt[0] = MathUtil.max(status.getSimulationConditions().getTimeStep(), MIN_TIME_STEP);
-		dt[0] = MathUtil.max(wantedTimeStep,MIN_TIME_STEP);
+		if(FlightControllerSimulatorListener.active(status)==null) dt[0] = MathUtil.max(wantedTimeStep,MIN_TIME_STEP);
 		dt[1] = maxTimeStep;
 		dt[2] = status.getSimulationConditions().getMaximumAngleStep() / store.lateralPitchRate;
 		dt[3] = Math.abs(MAX_ROLL_STEP_ANGLE / store.flightConditions.getRollRate());
@@ -173,6 +174,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		//System.out.println("Min time step " + MIN_TIME_STEP);
 		//System.out.println("Selected time step " + store.timeStep + " (limiting factor " + limitingValue + ")");
 
+        FlightControllerSimulatorListener fc = FlightControllerSimulatorListener.active(status);
+        if(fc!=null) {
+            store.timeStep = Math.min(store.timeStep, fc.limitStep(status,maxTimeStep));
+        } else {
 		// try to hardcode
 		store.timeStep = theTimeStep;
 		//theTimeStep = store.timeStep;
@@ -196,6 +201,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 					minTimeStep + " instead.");
 			store.timeStep = minTimeStep;
 		}
+        }
 
 		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
 		store.storeData(status);

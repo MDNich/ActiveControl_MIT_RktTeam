@@ -5,10 +5,10 @@ public enum RTRocketState {
     PRE_FLIGHT(1),
     FLIGHT(2),
     APOGEE(3),
-    DISREEF(4),
+    MAIN(4),
     END(5);
 
-    public int ID = 0;
+    public final int ID;
 
     RTRocketState(int ID) {
         this.ID = ID;

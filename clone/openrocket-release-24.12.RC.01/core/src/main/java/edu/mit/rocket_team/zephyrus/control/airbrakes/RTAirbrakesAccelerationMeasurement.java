@@ -1,23 +1,23 @@
 package edu.mit.rocket_team.zephyrus.control.airbrakes;
 
 public class RTAirbrakesAccelerationMeasurement {
-    public double accelMeasurement;
-    public double timeStamp;
+    public float accelMeasurement;
+    public float timeStamp;
 
-    RTAirbrakesAccelerationMeasurement(double ts, double am){
+    RTAirbrakesAccelerationMeasurement(float ts, float am){
         accelMeasurement = am;
         timeStamp = ts;
     }
 
-    public double getAccelMeasurement(){
+    public float getAccelMeasurement(){
         return accelMeasurement;
     }
 
-    public double getTimeStamp(){
+    public float getTimeStamp(){
         return timeStamp;
     }
 
-    public void setData(double ts, double am){
+    public void setData(float ts, float am){
         timeStamp = ts;
         accelMeasurement = am;
     }

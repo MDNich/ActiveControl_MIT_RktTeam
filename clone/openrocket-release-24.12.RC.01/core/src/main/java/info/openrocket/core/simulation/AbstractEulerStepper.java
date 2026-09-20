@@ -1,4 +1,5 @@
 package info.openrocket.core.simulation;
+import info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener;
 
 import info.openrocket.core.logging.SimulationAbort;
 import org.slf4j.Logger;
@@ -83,7 +84,10 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		store.timeStep = Math.max(store.timeStep, MIN_TIME_STEP);
 		log.trace("timeStep is " + store.timeStep);
 		
-		// Perform Euler integration
+		FlightControllerSimulatorListener fc=FlightControllerSimulatorListener.active(status);
+        if(fc!=null) store.timeStep=Math.min(store.timeStep,fc.limitStep(status,maxTimeStep));
+
+        // Perform Euler integration
 		EulerValues newVals = eulerIntegrate(status.getRocketPosition(), status.getRocketVelocity(), linearAcceleration, store.timeStep);
 
 		// Check to see if z or either of its first two derivatives have changed sign and recalculate
@@ -136,7 +140,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		}
 
 		// once again, make sure new timestep isn't *too* small
-		t = Math.max(t, MIN_TIME_STEP);
+		t = fc==null ? Math.max(t, MIN_TIME_STEP) : Math.min(Math.max(t,1e-9),fc.limitStep(status,maxTimeStep));
 
 		// recalculate Euler integration for position and velocity if necessary.
 		if (Math.abs(t - store.timeStep) > MathUtil.EPSILON) {
@@ -225,6 +229,8 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		linearAcceleration = linearAcceleration.add(store.coriolisAcceleration);
 
 		store.accelerationData = new AccelerationData(null, null, linearAcceleration, Coordinate.NUL, status.getRocketOrientationQuaternion());
+        FlightControllerSimulatorListener fc=FlightControllerSimulatorListener.active(status);
+        if(fc!=null) fc.postAccelerationCalculation(status,store.accelerationData);
 	}
 
 	private static class EulerValues {
