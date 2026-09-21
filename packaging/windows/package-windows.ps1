@@ -5,9 +5,17 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$buildRoot = Join-Path $SourceRoot 'build\windows-installer'
-$downloads = Join-Path $buildRoot 'downloads'
+$properties = ConvertFrom-StringData (Get-Content (Join-Path $SourceRoot 'core\src\main\resources\build.properties') -Raw)
+$edition = $properties['build.mit.version']
+if ($edition -notmatch '^\d+\.\d+(\.\d+)?$') { throw 'Invalid MIT edition version' }
+$base = Join-Path $SourceRoot 'build\windows-installer'
+$buildRoot = Join-Path $base $edition
+$manifest = Get-Content (Join-Path $buildRoot 'source-manifest.json') -Raw | ConvertFrom-Json
+$packageVersion = $manifest.package_version
+if ($manifest.mit_version -ne $edition) { throw 'Source and staged versions do not match' }
+$downloads = Join-Path $base 'downloads'
 $inputDirectory = Join-Path $buildRoot 'input'
+if ((Get-FileHash (Join-Path $inputDirectory 'OpenRocket.jar') -Algorithm SHA256).Hash.ToLowerInvariant() -ne $manifest.jar_sha256) { throw 'Staged JAR checksum mismatch' }
 $jdkZip = Join-Path $downloads 'OpenJDK17U-jdk_x64_windows_hotspot_17.0.20.1_1.zip'
 $wixZip = Join-Path $downloads 'wix314-binaries.zip'
 $jdkExpected = 'E53A79C3C3D86865BD7E787903884331068E71321714FFD44F145785AFFC7CB0'
@@ -52,7 +60,7 @@ try {
         '--add-exports=java.desktop/sun.java2d=ALL-UNNAMED',
         '-Djava.library.path=$APPDIR\native'
     )
-    $imageArgs = @('--type','app-image','--name',$appName,'--app-version','6.1.0',
+    $imageArgs = @('--type','app-image','--name',$appName,'--app-version',$packageVersion,
         '--input',$localInput,'--main-jar','OpenRocket.jar',
         '--main-class','info.openrocket.swing.startup.OpenRocket',
         '--runtime-image',$runtime,'--icon',$icon,'--dest',$imageDirectory)
@@ -66,8 +74,8 @@ try {
     Copy-Item (Join-Path $appImage "$appName.exe") (Join-Path $appImage 'OpenRocket.exe')
     Copy-Item (Join-Path $appImage "app\$appName.cfg") (Join-Path $appImage 'app\OpenRocket.cfg')
 
-    $packageArgs = @('--name',$appName,'--app-version','6.1.0','--app-image',$appImage,
-        '--vendor','MIT Rocket Team contributors','--description','OpenRocket MIT Edition 6.1 (OpenRocket 24.12.RC.01)',
+    $packageArgs = @('--name',$appName,'--app-version',$packageVersion,'--app-image',$appImage,
+        '--vendor','MIT Rocket Team contributors','--description',"OpenRocket MIT Edition $edition (OpenRocket $($manifest.upstream_version))",
         '--copyright','OpenRocket contributors and MIT Rocket Team contributors',
         '--license-file',(Join-Path $localInput 'LICENSE.TXT'),'--icon',$icon,
         '--win-per-user-install','--win-menu','--win-menu-group','OpenRocket MIT',
@@ -77,10 +85,11 @@ try {
     Write-Output 'Creating the Windows installer.'
     & "$jdk\bin\jpackage.exe" --type exe @packageArgs
     if ($LASTEXITCODE -ne 0) { throw 'EXE installer creation failed' }
-    $installer = Join-Path $OutputDirectory 'OpenRocket-MIT-6.1-Windows-x64-Setup.exe'
-    Move-Item (Join-Path $OutputDirectory "$appName-6.1.0.exe") $installer -Force
+    $installer = Join-Path $OutputDirectory "OpenRocket-MIT-$edition-Windows-x64-Setup.exe"
+    Move-Item (Join-Path $OutputDirectory "$appName-$packageVersion.exe") $installer -Force
     $digest = (Get-FileHash $installer -Algorithm SHA256).Hash.ToLowerInvariant()
-    "$digest  OpenRocket-MIT-6.1-Windows-x64-Setup.exe" | Set-Content "$installer.sha256" -Encoding ASCII
+    "$digest  OpenRocket-MIT-$edition-Windows-x64-Setup.exe" | Set-Content "$installer.sha256" -Encoding ASCII
+    @{ edition=$edition; package_version=$packageVersion; jar_sha256=$manifest.jar_sha256; installer=$installer; installer_sha256=$digest; app_image=$appImage; jdk=$jdk; signed=$false } | ConvertTo-Json | Set-Content (Join-Path $OutputDirectory 'build-manifest.json') -Encoding UTF8
     Write-Output "Application image: $appImage"
     Get-ChildItem $OutputDirectory -Filter '*.exe' | ForEach-Object { Get-FileHash $_.FullName -Algorithm SHA256 }
 } finally {

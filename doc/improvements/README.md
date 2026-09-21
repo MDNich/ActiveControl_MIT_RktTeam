@@ -4,6 +4,8 @@ Planned 20 September 2026 against the current source in `/Users/mdn/Developer/Ac
 
 Implemented in MIT edition 6.2. See the [implementation and verification report](03-implementation-report.md) for usage, output filenames, launcher compatibility, tests and limitations. The detailed plans remain below:
 
+The latest [desktop build report](04-desktop-builds-6.2.md) covers the universal macOS DMG/ZIP and Windows x64 installer produced on 21 September 2026, with bundled Java, checksums and packaged launch/rendering checks.
+
 1. [Flight computer controls and telemetry link settings](01-flight-computer-controls.md): a checkbox, three settings, and CSV/log file selectors below **Simulator options** in the left column, backed by the existing FC listener and OpenRocket extension system.
 2. [Interactive 3D trajectory and rocket animation](02-trajectory-3d-and-animation.md): a 3D option in **Plot data**, equal spatial scaling, mouse rotation/panning/zooming, adjustable playback speed, a velocity arrow and a rocket cartoon whose attitude comes from the simulation.
 

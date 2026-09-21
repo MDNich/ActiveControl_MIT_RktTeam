@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -43,12 +44,16 @@ def main():
         if '=' in line and not line.lstrip().startswith('#'):
             key, value = line.split('=', 1)
             properties[key.strip()] = value.strip()
-    if properties.get('build.mit.version') != '6.1':
-        raise SystemExit('This recipe is pinned to MIT edition 6.1; update the Windows version before packaging another edition.')
-    output = source / 'build/windows-installer'
-    downloads = output / 'downloads'
+    edition = properties.get('build.mit.version', '')
+    if properties.get('build.mit.edition') != 'true' or not re.fullmatch(r'\d+\.\d+(?:\.\d+)?', edition):
+        raise SystemExit('Expected a numeric MIT edition version in build.properties')
+    package_version = edition if edition.count('.') == 2 else edition + '.0'
+    base = source / 'build/windows-installer'
+    output = base / edition
+    output.mkdir(parents=True, exist_ok=True)
+    downloads = base / 'downloads'
     downloads.mkdir(parents=True, exist_ok=True)
-    command = [str(source / 'gradlew'), '--rerun-tasks', 'shadowJar']
+    command = [str(source / 'gradlew'), '--console=plain', '--rerun-tasks', 'shadowJar']
     if args.offline:
         command.insert(1, '--offline')
     print('Compiling the current source with all Gradle tasks rerun.', flush=True)
@@ -69,7 +74,7 @@ def main():
     if payload.exists():
         shutil.rmtree(payload)  # Only this recipe's generated staging folder.
     (payload / 'native').mkdir(parents=True)
-    jar = source / 'build/libs' / f'OpenRocket-{properties["build.version"]}.jar'
+    jar = source / 'build/libs' / f'OpenRocket-MIT-{edition}.jar'
     shutil.copy2(jar, payload / 'OpenRocket.jar')
     shutil.copy2(source / 'LICENSE.TXT', payload / 'LICENSE.TXT')
     with ZipFile(downloads / ARTIFACTS[2][0]) as archive:
@@ -79,7 +84,8 @@ def main():
         'source_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source, text=True).strip(),
         'source_status': subprocess.check_output(['git', 'status', '--porcelain', '--', '.'], cwd=source, text=True).strip(),
         'upstream_version': properties['build.version'],
-        'mit_version': properties['build.mit.version'],
+        'mit_version': edition,
+        'package_version': package_version,
         'jar_sha256': sha256(payload / 'OpenRocket.jar'),
         'downloads': [{'name': name, 'url': url, 'sha256': digest} for name, url, digest in ARTIFACTS],
     }
