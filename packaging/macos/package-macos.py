@@ -29,7 +29,7 @@ def main():
     properties = dict(line.split('=', 1) for line in (source / 'core/src/main/resources/build.properties').read_text().splitlines()
                       if '=' in line and not line.lstrip().startswith('#'))
     edition = properties['build.mit.version']
-    jar = source / f'build/libs/OpenRocket-MIT-{edition}.jar'
+    jar = source / f'build/libs/OpenRocket-MIT-v{edition}.jar'
     work = source / f'build/macos-installer/{edition}'
     app = work / 'image/OpenRocket_MIT.app'
     if app.exists():

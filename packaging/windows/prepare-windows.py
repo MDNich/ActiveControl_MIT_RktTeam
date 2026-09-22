@@ -74,7 +74,7 @@ def main():
     if payload.exists():
         shutil.rmtree(payload)  # Only this recipe's generated staging folder.
     (payload / 'native').mkdir(parents=True)
-    jar = source / 'build/libs' / f'OpenRocket-MIT-{edition}.jar'
+    jar = source / 'build/libs' / f'OpenRocket-MIT-v{edition}.jar'
     shutil.copy2(jar, payload / 'OpenRocket.jar')
     shutil.copy2(source / 'LICENSE.TXT', payload / 'LICENSE.TXT')
     with ZipFile(downloads / ARTIFACTS[2][0]) as archive:

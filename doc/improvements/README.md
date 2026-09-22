@@ -47,4 +47,4 @@ Each step has a concrete completion criterion in its detailed plan. This work ex
 - The application already includes JOGL and working 3D Swing components. The viewer can use those installed dependencies and rendering conventions.
 - The landing and tumble steppers update translation but do not integrate attitude. Their saved orientation must be displayed honestly; the animation must not invent a hanging orientation or tumble motion.
 
-The existing Swing/core framework is extended. The installed macOS launcher keeps its upstream-named JAR path, which now contains the same full application as `OpenRocket-MIT-6.2.jar`.
+The existing Swing/core framework is extended. The installed macOS launcher keeps its upstream-named JAR path, which now contains the same full application as `OpenRocket-MIT-v6.2.jar`.

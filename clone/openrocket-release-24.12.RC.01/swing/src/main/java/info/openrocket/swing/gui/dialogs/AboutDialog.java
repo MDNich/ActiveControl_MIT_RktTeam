@@ -97,7 +97,12 @@ public class AboutDialog extends JDialog {
 	public AboutDialog(JFrame parent) {
 		super(parent, true);
 		
-		final String version = BuildProperties.getVersion();
+		final boolean mitEdition = BuildProperties.isMitEdition();
+		final String upstreamVersion = BuildProperties.getVersion();
+		final String version = mitEdition ? BuildProperties.getMitVersion() : upstreamVersion;
+		final String versionDescription = mitEdition
+				? "MIT Edition (v" + version + "), using " + upstreamVersion
+				: version;
 		final String copyrightYear = BuildProperties.getCopyrightYear();
 		
 		JPanel panel = new JPanel(new MigLayout("fill"));
@@ -112,7 +117,7 @@ public class AboutDialog extends JDialog {
 		sub = new JPanel(new MigLayout("fill"));
 		
 		sub.add(new StyledLabel("OpenRocket", 20), "ax 50%, growy, wrap para");
-		sub.add(new StyledLabel("MIT Edition (v5), using ".trim() + " " + version, 3), "ax 50%, growy, wrap rel");
+		sub.add(new StyledLabel(versionDescription, 3), "ax 50%, growy, wrap rel");
 		String copyright = String.format("Copyright %c 2007-%s Sampo Niskanen and others", Chars.COPY, copyrightYear);
 		sub.add(new StyledLabel(copyright), "ax 50%, growy, wrap para");
 		
@@ -170,7 +175,7 @@ public class AboutDialog extends JDialog {
 		panel.add(close, "spanx, right");
 		
 		this.add(panel);
-		this.setTitle("OpenRocket " + version);
+		this.setTitle("OpenRocket " + (mitEdition ? "MIT " : "") + version);
 		this.pack();
 		this.setLocationRelativeTo(parent);
 		

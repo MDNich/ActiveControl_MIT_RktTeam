@@ -52,7 +52,7 @@ Packet loss is an independent Bernoulli decision for each generated packet. Fixe
 
 Build the root `shadowJar` using JDK 17. The MIT artifact is:
 
-`clone/openrocket/build/libs/OpenRocket-MIT-6.2.jar`
+`clone/openrocket/build/libs/OpenRocket-MIT-v6.2.jar`
 
 Both the MIT build property and JAR implementation version are 6.2. The upstream base remains 24.12.RC.01; the ORK format version is unchanged.
 

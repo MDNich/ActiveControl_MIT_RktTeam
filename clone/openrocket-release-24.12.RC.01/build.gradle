@@ -126,7 +126,7 @@ shadowJar {
     from('swing/lib/GLUEGEN-LICENSE.txt') { into 'META-INF/licenses' }
     def mitEdition = buildProperties['build.mit.edition'] == 'true'
     archiveBaseName.set(mitEdition ? 'OpenRocket-MIT' : 'OpenRocket')
-    archiveVersion.set(mitEdition ? buildProperties['build.mit.version'] : buildProperties['build.version'])
+    archiveVersion.set(mitEdition ? 'v' + buildProperties['build.mit.version'] : buildProperties['build.version'])
     archiveClassifier.set('')
     dependsOn(distTar, distZip)
 
