@@ -51,6 +51,12 @@ public class BuildProperties {
 		return MIT_UPDATE_URL;
 	}
 
+	public static String getBugReportEmail() {
+		// Missing MIT configuration must never fall back to the upstream mailing list.
+		return MIT_EDITION ? PROPERTIES.getProperty("build.mit.bugreport.email", "").trim()
+				: "openrocket-bugs@lists.sourceforge.net";
+	}
+
 	public static String getCopyrightYear() {
 		return BUILD_COPYRIGHT;
 	}

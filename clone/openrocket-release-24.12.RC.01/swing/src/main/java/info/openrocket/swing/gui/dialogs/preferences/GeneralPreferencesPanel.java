@@ -270,7 +270,8 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 
 		//// Check for software updates at startup
 		final JCheckBox softwareUpdateBox =
-				new JCheckBox(trans.get("pref.dlg.checkbox.Checkupdates"));
+				new JCheckBox(info.openrocket.core.util.BuildProperties.isMitEdition()
+						? "Check for MIT edition updates at startup" : trans.get("pref.dlg.checkbox.Checkupdates"));
 		softwareUpdateBox.setSelected(preferences.getCheckUpdates());
 		softwareUpdateBox.addActionListener(new ActionListener() {
 			@Override
@@ -302,7 +303,9 @@ public class GeneralPreferencesPanel extends PreferencesPanel {
 				preferences.setCheckBetaUpdates(betaUpdateBox.isSelected());
 			}
 		});
-		this.add(betaUpdateBox, "gapleft para, wrap");
+		if (!info.openrocket.core.util.BuildProperties.isMitEdition()) {
+			this.add(betaUpdateBox, "gapleft para, wrap");
+		}
 		
 		//// Open most recent file on startup
 		final JCheckBox openRecentOnStartupBox = new JCheckBox(trans.get("pref.dlg.but.openlast"));

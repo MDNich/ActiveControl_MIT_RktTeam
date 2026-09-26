@@ -15,7 +15,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.HexFormat;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -103,7 +102,7 @@ public final class MitUpdateInstaller {
 		logInstallerMessage(logPath, "Current jar path: " + currentJar);
 		progress.onProgress("Preparing installer", 99);
 		if (SystemInfo.getPlatform() == SystemInfo.Platform.WINDOWS) {
-			launchWindowsReplacementScript(downloadedJar, currentJar, logPath);
+			WindowsUpdateHelper.launch(downloadedJar, currentJar, logPath, actualSha256);
 		} else {
 			if (currentJar.getParent() == null || !Files.isWritable(currentJar.getParent())) {
 				logInstallerMessage(logPath, "Current jar directory is not writable: " + currentJar.getParent());
@@ -215,148 +214,6 @@ public final class MitUpdateInstaller {
 		}
 	}
 
-	private static void launchWindowsReplacementScript(Path downloadedJar, Path currentJar, Path logPath)
-			throws UpdateInstallException {
-		Path launcher = findWindowsLauncher(currentJar);
-		logInstallerMessage(logPath, "Windows launcher path: " + (launcher != null ? launcher : "<not found>"));
-		String script = """
-				param(
-					[Parameter(Mandatory=$true)][int]$ProcessIdToWait,
-					[Parameter(Mandatory=$true)][string]$Source,
-					[Parameter(Mandatory=$true)][string]$Target,
-					[string]$Launcher = '',
-					[Parameter(Mandatory=$true)][string]$LogFile
-				)
-
-				$ErrorActionPreference = 'Stop'
-
-				function Write-UpdateLog {
-					param([string]$Message)
-					try {
-						$timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss.fff'
-						Add-Content -LiteralPath $LogFile -Value "[$timestamp] [powershell] $Message" -Encoding UTF8
-					} catch {
-					}
-				}
-
-				try {
-					Write-UpdateLog "Elevated helper started"
-					Write-UpdateLog "Identity: $([Security.Principal.WindowsIdentity]::GetCurrent().Name)"
-					Write-UpdateLog "ProcessIdToWait=$ProcessIdToWait"
-					Write-UpdateLog "Source=$Source"
-					Write-UpdateLog "Target=$Target"
-					Write-UpdateLog "Launcher=$Launcher"
-					Write-UpdateLog "PowerShell version=$($PSVersionTable.PSVersion)"
-
-					Write-UpdateLog "Waiting for OpenRocket process to exit"
-					while (Get-Process -Id $ProcessIdToWait -ErrorAction SilentlyContinue) {
-						Start-Sleep -Seconds 1
-					}
-					Write-UpdateLog "OpenRocket process has exited"
-
-					if (-not (Test-Path -LiteralPath $Source)) {
-						throw "Downloaded jar does not exist: $Source"
-					}
-					Write-UpdateLog "Source exists. Size=$((Get-Item -LiteralPath $Source).Length)"
-
-					$targetParent = Split-Path -Parent $Target
-					if (-not (Test-Path -LiteralPath $targetParent)) {
-						throw "Target parent directory does not exist: $targetParent"
-					}
-					Write-UpdateLog "Target parent exists: $targetParent"
-
-					$backup = "$Target.bak"
-					$newTarget = "$Target.new"
-
-					if (Test-Path -LiteralPath $newTarget) {
-						Write-UpdateLog "Removing stale temporary target: $newTarget"
-						Remove-Item -LiteralPath $newTarget -Force
-					}
-
-					Write-UpdateLog "Copying source to temporary target: $newTarget"
-					Copy-Item -LiteralPath $Source -Destination $newTarget -Force
-
-					if (Test-Path -LiteralPath $Target) {
-						if (Test-Path -LiteralPath $backup) {
-							Write-UpdateLog "Removing old backup: $backup"
-							Remove-Item -LiteralPath $backup -Force
-						}
-						Write-UpdateLog "Backing up current jar to: $backup"
-						Copy-Item -LiteralPath $Target -Destination $backup -Force
-					} else {
-						Write-UpdateLog "Target jar does not exist before replacement"
-					}
-
-					Write-UpdateLog "Moving temporary target into place"
-					Move-Item -LiteralPath $newTarget -Destination $Target -Force
-					Write-UpdateLog "Replacement complete. New target size=$((Get-Item -LiteralPath $Target).Length)"
-
-					Write-UpdateLog "Removing downloaded source jar"
-					Remove-Item -LiteralPath $Source -Force
-
-					if ($Launcher -and (Test-Path -LiteralPath $Launcher)) {
-						Write-UpdateLog "Restarting launcher: $Launcher"
-						Start-Process -FilePath $Launcher -WorkingDirectory (Split-Path -Parent $Launcher)
-					} else {
-						Write-UpdateLog "Launcher unavailable; restarting with javaw.exe"
-						Start-Process -FilePath 'javaw.exe' -ArgumentList @('-jar', $Target) -WorkingDirectory $targetParent
-					}
-
-					Write-UpdateLog "Elevated helper completed successfully"
-					try {
-						Remove-Item -LiteralPath $PSCommandPath -Force
-					} catch {
-						Write-UpdateLog "Could not remove helper script: $($_.Exception.Message)"
-					}
-				} catch {
-					Write-UpdateLog "FAILED: $($_.Exception.GetType().FullName): $($_.Exception.Message)"
-					Write-UpdateLog "Script stack: $($_.ScriptStackTrace)"
-					throw
-				}
-				""";
-
-		try {
-			Path scriptPath = Files.createTempFile("openrocket-mit-update-", ".ps1");
-			Files.writeString(scriptPath, script, StandardCharsets.UTF_8);
-
-			String launcherArg = launcher != null ? launcher.toString() : "";
-			String elevatedCommand = "& " + powerShellQuote(scriptPath.toString()) +
-					" -ProcessIdToWait " + powerShellQuote(Long.toString(ProcessHandle.current().pid())) +
-					" -Source " + powerShellQuote(downloadedJar.toString()) +
-					" -Target " + powerShellQuote(currentJar.toString()) +
-					" -Launcher " + powerShellQuote(launcherArg) +
-					" -LogFile " + powerShellQuote(logPath.toString());
-			String encodedCommand = Base64.getEncoder()
-					.encodeToString(elevatedCommand.getBytes(StandardCharsets.UTF_16LE));
-			String argumentList = "-NoProfile -ExecutionPolicy Bypass -EncodedCommand " + encodedCommand;
-			String command = "$ErrorActionPreference = 'Stop'; Start-Process -FilePath 'powershell.exe' " +
-					"-ArgumentList " + powerShellQuote(argumentList) + " -Verb RunAs";
-			logInstallerMessage(logPath, "Created Windows helper script: " + scriptPath);
-			logInstallerMessage(logPath, "Launching elevated PowerShell helper");
-
-			Process process = new ProcessBuilder(
-					"powershell.exe",
-					"-NoProfile",
-					"-ExecutionPolicy", "Bypass",
-					"-Command", command)
-					.redirectErrorStream(true)
-					.redirectOutput(ProcessBuilder.Redirect.DISCARD)
-					.start();
-			int exitCode = process.waitFor();
-			logInstallerMessage(logPath, "Initial PowerShell launcher exited with code " + exitCode);
-			if (exitCode != 0) {
-				throw new UpdateInstallException("Windows elevation prompt was cancelled or could not be started");
-			}
-		} catch (IOException e) {
-			logInstallerMessage(logPath, "Could not launch Windows updater helper: " + e.getMessage());
-			throw new UpdateInstallException("Could not launch MIT edition Windows updater helper script", e);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-			logInstallerMessage(logPath, "Interrupted while launching Windows updater helper");
-			throw new UpdateInstallException("Interrupted while launching MIT edition Windows updater helper script", e);
-		}
-	}
-
 	private static void launchReplacementScript(Path downloadedJar, Path currentJar) throws UpdateInstallException {
 		Path appBundle = findAppBundle(currentJar);
 		String script = """
@@ -403,17 +260,6 @@ public final class MitUpdateInstaller {
 		}
 	}
 
-	private static Path findWindowsLauncher(Path path) {
-		Path current = path.toAbsolutePath().normalize().getParent();
-		while (current != null) {
-			Path launcher = current.resolve("OpenRocket.exe");
-			if (Files.isRegularFile(launcher)) {
-				return launcher;
-			}
-			current = current.getParent();
-		}
-		return null;
-	}
 
 	private static Path findAppBundle(Path path) {
 		Path current = path.toAbsolutePath().normalize();
@@ -431,9 +277,6 @@ public final class MitUpdateInstaller {
 		return name.replaceAll("[^A-Za-z0-9._-]", "_");
 	}
 
-	private static String powerShellQuote(String value) {
-		return "'" + value.replace("'", "''") + "'";
-	}
 
 	private static Path getUpdateLogPath() {
 		Path home = Path.of(System.getProperty("user.home", "."));

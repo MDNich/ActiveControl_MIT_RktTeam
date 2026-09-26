@@ -63,6 +63,7 @@ final class OSXSetup {
 			// Also check for software updates
 			final UpdateInfoRetriever updateRetriever = SwingStartup.startUpdateChecker();
 			SwingStartup.checkUpdateStatus(updateRetriever);
+			SwingStartup.checkMitUpdateStatus(SwingStartup.startMitUpdateChecker());
 		}
 	};
 

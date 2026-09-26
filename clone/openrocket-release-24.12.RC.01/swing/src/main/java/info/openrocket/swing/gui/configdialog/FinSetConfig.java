@@ -558,7 +558,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		tabSpan = new DoubleModel(component, "TabSpan", UnitGroup.UNITS_LENGTH, 0);
 		tabOffsetFromRoot = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH, 0);
 		tabChord = new DoubleModel(component, "TabChord", UnitGroup.UNITS_LENGTH, 0);
-		tabAngle = new DoubleModel(component, "TabAngle",UnitGroup.UNITS_ANGLE, -Math.PI/4, Math.PI/4);
+		tabAngle = new DoubleModel(component, "TabAngle", UnitGroup.UNITS_ANGLE,
+				-TabControlledTrapezoidFinSet.MAX_TAB_ANGLE, TabControlledTrapezoidFinSet.MAX_TAB_ANGLE);
         CNAlpha = new DoubleModel(component, "CNALPHA",UnitGroup.UNITS_COEFFICIENT, 0, 10);
 
 		register(tabSpan);
@@ -627,8 +628,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
         ////  Tab angle:
         label = new JLabel("Tab Angle:");
-        //// The position of the fin tab.
-        label.setToolTipText("");
+        label.setToolTipText("Rotate the tab about its upstream hinge, from -90° to +90°.");
         panel.add(label);
 
         component.addChangeListener(tabAngle);
@@ -639,7 +639,8 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 
 
         panel.add(new UnitSelector(tabAngle), "growx");
-        panel.add(new BasicSlider(tabAngle.getSliderModel(DoubleModel.ZERO, Math.PI/4)), "w 100lp, growx 5, wrap");
+        panel.add(new BasicSlider(tabAngle.getSliderModel(-TabControlledTrapezoidFinSet.MAX_TAB_ANGLE,
+                TabControlledTrapezoidFinSet.MAX_TAB_ANGLE)), "w 100lp, growx 5, wrap");
 
         ///  CNALPHA
         label = new JLabel("Coefficient CNAlpha:");

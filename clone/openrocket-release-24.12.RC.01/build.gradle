@@ -170,7 +170,25 @@ def launcherJar = tasks.register('launcherJar') {
         }
     }
 }
-tasks.named('shadowJar') { finalizedBy launcherJar }
+def updateChecksum = tasks.register('updateChecksum') {
+    dependsOn tasks.named('shadowJar')
+    def sourceJar = tasks.named('shadowJar').flatMap { it.archiveFile }
+    inputs.file(sourceJar)
+    outputs.file(sourceJar.map { new File(it.asFile.path + '.sha256') })
+    doLast {
+        def file = sourceJar.get().asFile
+        def digest = java.security.MessageDigest.getInstance('SHA-256')
+        file.withInputStream { stream ->
+            byte[] buffer = new byte[8192]
+            int count
+            while ((count = stream.read(buffer)) != -1) {
+                digest.update(buffer, 0, count)
+            }
+        }
+        new File(file.path + '.sha256').text = digest.digest().encodeHex().toString() + '  ' + file.name + '\n'
+    }
+}
+tasks.named('shadowJar') { finalizedBy launcherJar, updateChecksum }
 
 // Package the application for distribution.
 tasks.register('dist') {

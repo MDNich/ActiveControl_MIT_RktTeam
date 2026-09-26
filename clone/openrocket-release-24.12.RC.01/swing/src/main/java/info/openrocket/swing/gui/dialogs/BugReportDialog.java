@@ -2,14 +2,20 @@ package info.openrocket.swing.gui.dialogs;
 
 import java.awt.Color;
 import java.awt.Dialog;
+import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.PrintWriter;
+import java.io.File;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
@@ -18,13 +24,18 @@ import java.util.TreeSet;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.BadLocationException;
 
 import com.jogamp.opengl.JoglVersion;
+import info.openrocket.core.communication.BugReporter;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BuildProperties;
@@ -32,10 +43,13 @@ import info.openrocket.core.util.JarUtil;
 
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.components.StyledLabel;
+import info.openrocket.swing.gui.components.SelectableLabel;
 import info.openrocket.swing.gui.components.URLLabel;
 import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.util.FileHelper;
 import info.openrocket.swing.gui.util.SwingPreferences;
 import info.openrocket.swing.gui.theme.UITheme;
+import info.openrocket.swing.gui.widgets.SaveFileChooser;
 import info.openrocket.swing.logging.LogLevelBufferLogger;
 import info.openrocket.swing.logging.LogLine;
 import info.openrocket.swing.logging.LoggingSystemSetup;
@@ -44,8 +58,6 @@ import info.openrocket.swing.logging.LoggingSystemSetup;
 public class BugReportDialog extends JDialog {
 	
 	private static final String NEW_ISSUES_URL = "https://github.com/openrocket/openrocket/issues/new";
-	private static final String REPORT_EMAIL = "openrocket-bugs@lists.sourceforge.net";
-	private static final String REPORT_EMAIL_URL = "mailto:" + REPORT_EMAIL;
 	
 	private static final Translator trans = Application.getTranslator();
 	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
@@ -70,23 +82,24 @@ public class BugReportDialog extends JDialog {
 		JPanel panel = new JPanel(new MigLayout("fill"));
 		
 		// Some fscking Swing bug that makes html labels initially way too high
-		StyledLabel titleLabel = new StyledLabel(labelText, 0);
+		boolean mitEdition = BuildProperties.isMitEdition();
+		StyledLabel titleLabel = new StyledLabel(mitEdition ? trans.get("bugreport.mit.title") : labelText, 0);
 		Dimension d = titleLabel.getPreferredSize();
 		d.width = 100000;
 		titleLabel.setMaximumSize(d);
 		panel.add(titleLabel, "gapleft para, wrap para");
 		
-		//// <html>If connected to the Internet, you can simply click 
-		//// <em>Send bug report</em>.
-		JLabel label = new JLabel(trans.get("bugreport.dlg.connectedInternet"));
-		panel.add(label, "gapleft para, split 2, gapright rel");
-		
-		panel.add(new URLLabel(NEW_ISSUES_URL), "growx, wrap para");
-		
-		//// Otherwise, send the text below to the address:
-		panel.add(new JLabel(trans.get("bugreport.dlg.otherwise") + " "),
-				  "gapleft para, split 2, gapright rel");
-		panel.add(new URLLabel(REPORT_EMAIL_URL, REPORT_EMAIL), "growx, wrap para");
+		String reportEmail = BuildProperties.getBugReportEmail();
+		if (mitEdition) {
+			panel.add(new JLabel(trans.get("bugreport.mit.destination")), "gapleft para, split 2, gapright rel");
+			panel.add(new SelectableLabel(reportEmail), "growx, wrap para");
+			panel.add(new StyledLabel(trans.get("bugreport.mit.instructions")), "gapleft para, wrap para");
+		} else {
+			panel.add(new JLabel(trans.get("bugreport.dlg.connectedInternet")), "gapleft para, split 2, gapright rel");
+			panel.add(new URLLabel(NEW_ISSUES_URL), "growx, wrap para");
+			panel.add(new JLabel(trans.get("bugreport.dlg.otherwise") + " "), "gapleft para, split 2, gapright rel");
+			panel.add(new URLLabel("mailto:" + reportEmail, reportEmail), "growx, wrap para");
+		}
 
 		final JEditorPane editorPane = new JEditorPane("text/html", formatNewlineHTML(message));
 		editorPane.putClientProperty(JTextPane.HONOR_DISPLAY_PROPERTIES, true);
@@ -96,7 +109,38 @@ public class BugReportDialog extends JDialog {
 		editorPane.setCaretPosition(0);		// Scroll to the top by default
 		panel.add(new JScrollPane(editorPane), "grow, wrap");
 		
-		panel.add(new StyledLabel(trans.get("bugreport.lbl.Theinformation"), -1), "wrap para");
+		panel.add(new StyledLabel(trans.get(mitEdition ? "bugreport.mit.review" : "bugreport.lbl.Theinformation"), -1), "wrap para");
+		if (mitEdition) {
+			JPanel actions = new JPanel(new MigLayout("insets 0"));
+			JButton copy = new JButton(trans.get("bugreport.mit.copy"));
+			copy.addActionListener(event -> {
+				if (copyReport(editorPane)) {
+					copy.setText(trans.get("bugreport.mit.copied"));
+				}
+			});
+			actions.add(copy);
+			JButton save = new JButton(trans.get("bugreport.mit.save"));
+			save.addActionListener(event -> saveReport(editorPane));
+			actions.add(save);
+			JButton email = new JButton(trans.get("bugreport.mit.email"));
+			email.setEnabled(!reportEmail.isBlank());
+			email.addActionListener(event -> {
+				if (!copyReport(editorPane)) {
+					return;
+				}
+				try {
+					if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.MAIL)) {
+						throw new UnsupportedOperationException();
+					}
+					Desktop.getDesktop().mail(BugReporter.getEmailReportURI());
+				} catch (Exception failure) {
+					JOptionPane.showMessageDialog(this, trans.get("bugreport.mit.mailUnavailable") + " " + reportEmail,
+							trans.get("bugreport.dlg.title"), JOptionPane.INFORMATION_MESSAGE);
+				}
+			});
+			actions.add(email);
+			panel.add(actions, "growx, wrap para");
+		}
 		
 		////Close button
 		JButton close = new JButton(trans.get("dlg.but.close"));
@@ -116,6 +160,40 @@ public class BugReportDialog extends JDialog {
 		this.setLocationRelativeTo(parent);
 		
 		GUIUtil.setDisposableDialogOptions(this, close);
+	}
+
+	static String reportText(JEditorPane editor) throws BadLocationException {
+		return editor.getDocument().getText(0, editor.getDocument().getLength());
+	}
+
+	private boolean copyReport(JEditorPane editor) {
+		try {
+			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(reportText(editor)), null);
+			return true;
+		} catch (Exception failure) {
+			JOptionPane.showMessageDialog(this, trans.get("bugreport.mit.copyFailed"),
+					trans.get("bugreport.dlg.title"), JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+	}
+
+	private void saveReport(JEditorPane editor) {
+		JFileChooser chooser = new SaveFileChooser();
+		chooser.setFileFilter(new FileNameExtensionFilter("Text files (*.txt)", "txt"));
+		chooser.setSelectedFile(new File("OpenRocket-MIT-v" + BuildProperties.getMitVersion() + "-bug-report.txt"));
+		if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+			return;
+		}
+		File file = FileHelper.ensureExtension(chooser.getSelectedFile(), "txt");
+		if (!FileHelper.confirmWrite(file, this)) {
+			return;
+		}
+		try {
+			Files.writeString(file.toPath(), reportText(editor), StandardCharsets.UTF_8);
+		} catch (Exception failure) {
+			JOptionPane.showMessageDialog(this, trans.get("bugreport.mit.saveFailed") + "\n" + failure.getMessage(),
+					trans.get("bugreport.dlg.title"), JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private static void initColors() {
@@ -225,6 +303,10 @@ public class BugReportDialog extends JDialog {
 	
 	private static void addSystemInformation(StringBuilder sb) {
 		StringBuilder sbTemp = new StringBuilder();
+		if (BuildProperties.isMitEdition()) {
+			sbTemp.append("OpenRocket MIT version: " + BuildProperties.getMitVersion() + "\n");
+			sbTemp.append("Bug report recipient: " + BuildProperties.getBugReportEmail() + "\n");
+		}
 		sbTemp.append("OpenRocket version: " + BuildProperties.getVersion() + "\n");
 		sbTemp.append("OpenRocket source: " + BuildProperties.getBuildSource() + "\n");
 		sbTemp.append("OpenRocket location: " + JarUtil.getCurrentJarFile() + "\n");

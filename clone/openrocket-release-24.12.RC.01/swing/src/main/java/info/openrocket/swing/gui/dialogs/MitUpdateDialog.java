@@ -28,6 +28,7 @@ import info.openrocket.core.util.MarkdownUtil;
 import info.openrocket.swing.gui.components.StyledLabel;
 import info.openrocket.swing.gui.theme.UITheme;
 import info.openrocket.swing.gui.util.GUIUtil;
+import info.openrocket.swing.gui.main.BasicFrame;
 import info.openrocket.swing.gui.util.Icons;
 import info.openrocket.swing.gui.util.MitUpdateInstaller;
 import info.openrocket.swing.gui.util.URLUtil;
@@ -41,6 +42,10 @@ import org.slf4j.LoggerFactory;
  */
 public class MitUpdateDialog extends JDialog {
 	private static final Logger log = LoggerFactory.getLogger(MitUpdateDialog.class);
+
+	private boolean installing;
+	private final JButton btnLater = new JButton("Later");
+	private final JButton btnSkip = new JButton("Skip this version");
 
 	private final JLabel progressLabel = new JLabel(" ");
 	private final JProgressBar progressBar = new JProgressBar(0, 100);
@@ -92,11 +97,9 @@ public class MitUpdateDialog extends JDialog {
 		panel.add(progressLabel, "skip 1, spanx, growx, wrap");
 		panel.add(progressBar, "skip 1, spanx, growx, wrap para");
 
-		JButton btnLater = new JButton("Later");
 		btnLater.addActionListener(e -> MitUpdateDialog.this.dispose());
 		panel.add(btnLater, "skip 1, split 4");
 
-		JButton btnSkip = new JButton("Skip this version");
 		btnSkip.addActionListener(e -> {
 			List<String> ignoredVersions = new ArrayList<>(Application.getPreferences().getIgnoreMitUpdateVersions());
 			String version = release.getReleaseVersion();
@@ -125,7 +128,25 @@ public class MitUpdateDialog extends JDialog {
 		GUIUtil.setDisposableDialogOptions(this, btnLater);
 	}
 
+	@Override
+	public void dispose() {
+		// Do not leave a hidden installation running when Escape or Close is pressed.
+		if (!installing) {
+			super.dispose();
+		}
+	}
+
 	private void runInstallWorker(MitUpdateInfo info, JButton btnInstall) {
+		// Saving dialogs must be usable while this application-modal dialog is hidden.
+		setVisible(false);
+		boolean saved = BasicFrame.confirmSaveBeforeUpdate();
+		if (!saved) {
+			SwingUtilities.invokeLater(() -> setVisible(true));
+			return;
+		}
+		installing = true;
+		btnLater.setEnabled(false);
+		btnSkip.setEnabled(false);
 		btnInstall.setEnabled(false);
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		updateProgress("Starting download", -1);
@@ -154,6 +175,9 @@ public class MitUpdateDialog extends JDialog {
 					System.exit(0);
 				} catch (Exception ex) {
 					log.warn("MIT edition update installation failed", ex);
+					installing = false;
+					btnLater.setEnabled(true);
+					btnSkip.setEnabled(true);
 					btnInstall.setEnabled(true);
 					updateProgress("Update failed", 0);
 					JOptionPane.showMessageDialog(MitUpdateDialog.this,
@@ -164,6 +188,7 @@ public class MitUpdateDialog extends JDialog {
 			}
 		};
 		worker.execute();
+		setVisible(true);
 	}
 
 	private void updateProgress(String message, int percent) {

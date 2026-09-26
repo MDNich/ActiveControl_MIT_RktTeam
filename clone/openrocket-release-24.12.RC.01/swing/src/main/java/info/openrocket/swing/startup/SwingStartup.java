@@ -283,6 +283,10 @@ public class SwingStartup {
 	}
 
 	public static UpdateInfoRetriever startUpdateChecker() {
+		if (BuildProperties.isMitEdition()) {
+			log.info("Upstream update checks disabled for the MIT edition");
+			return null;
+		}
 		final UpdateInfoRetriever updateRetriever;
 		if (Application.getPreferences().getCheckUpdates()) {
 			log.info("Starting update check");
@@ -296,8 +300,8 @@ public class SwingStartup {
 	}
 
 	public static MitUpdateInfoRetriever startMitUpdateChecker() {
-		if (!BuildProperties.isMitEdition()) {
-			log.debug("MIT edition update check skipped for non-MIT build");
+		if (!BuildProperties.isMitEdition() || !Application.getPreferences().getCheckUpdates()) {
+			log.debug("MIT edition update check disabled by build or preferences");
 			return null;
 		}
 		log.info("Starting MIT edition update check");
@@ -355,7 +359,7 @@ public class SwingStartup {
 		final Timer timer = new Timer(delay, null);
 
 		ActionListener listener = new ActionListener() {
-			private int count = 15;
+			private int count = 60;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -383,8 +387,10 @@ public class SwingStartup {
 					}
 				}
 				count--;
-				if (count <= 0)
+				if (count <= 0) {
+					updateRetriever.cancel();
 					timer.stop();
+				}
 			}
 		};
 		timer.addActionListener(listener);

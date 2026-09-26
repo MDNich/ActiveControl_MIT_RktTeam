@@ -139,6 +139,9 @@ public class UpdateInfoRetriever {
 		 * @throws UpdateCheckerException if something went wrong in the process
 		 */
 		public void runUpdateFetcher() throws UpdateCheckerException {
+			if (BuildProperties.isMitEdition()) {
+				throw new UpdateCheckerException("Upstream release checks are disabled for the MIT edition.");
+			}
 			String buildVersion = BuildProperties.getVersion();
 
 			// Get the latest release name from the GitHub release page

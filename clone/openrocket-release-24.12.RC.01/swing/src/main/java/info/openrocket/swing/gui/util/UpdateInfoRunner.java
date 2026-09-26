@@ -1,12 +1,15 @@
 package info.openrocket.swing.gui.util;
 
 import info.openrocket.core.communication.ReleaseInfo;
+import info.openrocket.core.communication.MitUpdateInfo;
+import info.openrocket.core.communication.MitUpdateInfoRetriever;
 import info.openrocket.core.communication.UpdateInfo;
 import info.openrocket.core.communication.UpdateInfoRetriever;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.BuildProperties;
 import info.openrocket.swing.gui.dialogs.UpdateInfoDialog;
+import info.openrocket.swing.gui.dialogs.MitUpdateDialog;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JButton;
@@ -29,6 +32,10 @@ public abstract class UpdateInfoRunner {
 	private static final SwingPreferences preferences = (SwingPreferences) Application.getPreferences();
 
 	public static void checkForUpdates(Window parent) {
+		if (BuildProperties.isMitEdition()) {
+			checkForMitUpdates(parent);
+			return;
+		}
 		final UpdateInfoRetriever retriever = new UpdateInfoRetriever();
 		retriever.startFetchUpdateInfo();
 
@@ -78,6 +85,81 @@ public abstract class UpdateInfoRunner {
 
 		worker.execute();
 		dialog1.setVisible(true);
+	}
+
+	private static void checkForMitUpdates(Window parent) {
+		MitUpdateInfoRetriever retriever = new MitUpdateInfoRetriever();
+		retriever.startFetchUpdateInfo();
+		JDialog progress = new JDialog(parent, "Checking for MIT edition updates", Dialog.ModalityType.MODELESS);
+		JPanel panel = new JPanel(new MigLayout("fill"));
+		panel.add(new JLabel("Checking the MIT edition's GitHub releases..."), "wrap para");
+		JProgressBar bar = new JProgressBar();
+		bar.setIndeterminate(true);
+		panel.add(bar, "growx, wrap para");
+		JButton cancel = new JButton(trans.get("dlg.but.cancel"));
+		panel.add(cancel, "right");
+		progress.add(panel);
+		GUIUtil.setDisposableDialogOptions(progress, cancel);
+		SwingWorker<MitUpdateInfo, Void> worker = new SwingWorker<>() {
+			@Override
+			protected MitUpdateInfo doInBackground() throws InterruptedException {
+				long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(60);
+				while (retriever.isRunning() && System.nanoTime() < deadline && !isCancelled()) {
+					Thread.sleep(100);
+				}
+				if (retriever.isRunning()) {
+					retriever.cancel();
+					return new MitUpdateInfo(new java.io.IOException("The MIT update check timed out."));
+				}
+				return retriever.getUpdateInfo();
+			}
+
+			@Override
+			protected void done() {
+				boolean dismissed = !progress.isDisplayable();
+				progress.dispose();
+				if (isCancelled() || dismissed) {
+					return;
+				}
+				try {
+					MitUpdateInfo info = get();
+					if (info == null) {
+						throw new java.io.IOException("No MIT update information was received.");
+					}
+					if (info.getException() != null) {
+						throw info.getException();
+					}
+					if (info.isUpdateAvailable()) {
+						// A manual check includes versions previously skipped at startup.
+						new MitUpdateDialog(info).setVisible(true);
+					} else {
+						JOptionPane.showMessageDialog(parent, "OpenRocket MIT " + BuildProperties.getMitVersion()
+								+ " is up to date.", "MIT edition updates", JOptionPane.INFORMATION_MESSAGE);
+					}
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(parent, "Could not check the MIT GitHub releases.\n\n" + e.getMessage(),
+							"MIT edition updates", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+		};
+		cancel.addActionListener(e -> {
+			retriever.cancel();
+			worker.cancel(true);
+			progress.dispose();
+		});
+		progress.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosed(java.awt.event.WindowEvent e) {
+				if (!worker.isDone()) {
+					retriever.cancel();
+					worker.cancel(true);
+				}
+			}
+		});
+		progress.pack();
+		progress.setLocationRelativeTo(parent);
+		worker.execute();
+		progress.setVisible(true);
 	}
 
 	private static void handleUpdateResult(Window parent, UpdateInfo info, UpdateInfoRetriever retriever) {

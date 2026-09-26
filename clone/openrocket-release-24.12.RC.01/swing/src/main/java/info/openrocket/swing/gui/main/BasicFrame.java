@@ -1851,7 +1851,7 @@ public class BasicFrame extends JFrame {
 	}
 
 
-	private boolean closeAction() {
+	private boolean confirmSaveChanges() {
 		if (!document.isSaved()) {
 			log.info("Confirming whether to save the design");
 			ComponentConfigDialog.disposeDialog();
@@ -1876,6 +1876,24 @@ public class BasicFrame extends JFrame {
 				log.info(Markers.USER_MARKER, "User cancelled closing, result=" + result);
 				return false;
 			}
+		}
+
+		return true;
+	}
+
+	/** Ask about unsaved designs before staging an update, without closing any windows. */
+	public static boolean confirmSaveBeforeUpdate() {
+		for (BasicFrame frame : List.copyOf(frames)) {
+			if (!frame.confirmSaveChanges()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean closeAction() {
+		if (!confirmSaveChanges()) {
+			return false;
 		}
 
 		// Rocket has been saved or discarded

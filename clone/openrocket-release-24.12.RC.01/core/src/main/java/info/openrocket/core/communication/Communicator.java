@@ -4,6 +4,8 @@ import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import info.openrocket.core.util.BuildProperties;
+
 public abstract class Communicator {
 
 	protected static final String BUG_REPORT_URL;
@@ -15,7 +17,7 @@ public abstract class Communicator {
 		String url;
 		url = System.getProperty("openrocket.debug.bugurl");
 		if (url == null)
-			url = "http://openrocket.sourceforge.net/actions/reportbug";
+			url = BuildProperties.isMitEdition() ? "" : "http://openrocket.sourceforge.net/actions/reportbug";
 		BUG_REPORT_URL = url;
 
 		url = System.getProperty("openrocket.debug.updateurl");

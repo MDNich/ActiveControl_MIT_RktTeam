@@ -8,6 +8,7 @@ import info.openrocket.swing.gui.dialogs.BugReportDialog;
 import info.openrocket.core.logging.Markers;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.startup.ExceptionHandler;
+import info.openrocket.core.util.BuildProperties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -205,8 +206,10 @@ public class SwingExceptionHandler implements Thread.UncaughtExceptionHandler, E
 						"a bug in the software.",
 						"<html><em>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + msg + "</em>",
 						" ",
-						"Please take a moment to report this bug to the developers.",
-						"This can be done automatically if you have an Internet connection."
+						BuildProperties.isMitEdition()
+								? "Please report this bug to " + BuildProperties.getBugReportEmail() + "."
+								: "Please take a moment to report this bug to the developers.",
+						"You can review and share the diagnostic report in the next window."
 		}, "Uncaught exception", JOptionPane.DEFAULT_OPTION,
 		JOptionPane.ERROR_MESSAGE, null,
 		new Object[] { "View bug report", "Close" }, "View bug report");

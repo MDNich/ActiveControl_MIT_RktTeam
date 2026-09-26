@@ -1,7 +1,11 @@
-param([Parameter(Mandatory=$true)][string]$SourceRoot, [switch]$ResumeOwnedTest)
+param([Parameter(Mandatory=$true)][string]$SourceRoot, [switch]$ResumeOwnedTest, [switch]$InstallOnly, [switch]$UninstallOnly)
 $ErrorActionPreference='Stop'
 $ProgressPreference='SilentlyContinue'
-$base=Join-Path $SourceRoot 'build\windows-installer\6.2'
+$properties=ConvertFrom-StringData (Get-Content (Join-Path $SourceRoot 'core\src\main\resources\build.properties') -Raw)
+$edition=$properties['build.mit.version']
+$base=Join-Path $SourceRoot ("build\windows-installer\"+$edition)
+if ($InstallOnly -and $UninstallOnly) { throw 'Choose only one phase' }
+if ($UninstallOnly -and -not $ResumeOwnedTest) { throw 'Uninstall requires the existing ownership receipt' }
 $evidence=Join-Path $base 'verification'
 New-Item -ItemType Directory -Force $evidence | Out-Null
 $manifest=Get-Content (Join-Path $base 'output\build-manifest.json') -Raw | ConvertFrom-Json
@@ -22,10 +26,15 @@ try {
     }
     $jar=Join-Path $install 'app\OpenRocket.jar'
     if ((Get-FileHash $jar -Algorithm SHA256).Hash.ToLowerInvariant() -ne $manifest.jar_sha256) { throw 'Installed JAR differs from source build' }
+    if ($InstallOnly) {
+        @{install=$install;jar_sha256=$manifest.jar_sha256;edition=$edition;installer_exit=0} | ConvertTo-Json | Set-Content (Join-Path $evidence 'installed-image.json') -Encoding UTF8
+        return
+    }
+    if (-not $UninstallOnly) {
     $java=Join-Path $install 'runtime\bin\java.exe'
     $classes=Join-Path $SourceRoot 'build\package-verification'
     $ErrorActionPreference='Continue'
-    & $java "-Djava.library.path=$install\app\native" -cp "$classes;$jar" PackagedSmokeCheck 6.2 2>&1 | Tee-Object -FilePath (Join-Path $evidence 'runtime-smoke.log')
+    & $java "-Djava.library.path=$install\app\native" -cp "$classes;$jar" PackagedSmokeCheck $edition 2>&1 | Tee-Object -FilePath (Join-Path $evidence 'runtime-smoke.log')
     if ($LASTEXITCODE -ne 0) { throw 'Installed runtime smoke test failed' }
     & $java '-Xmx2g' '--add-exports=java.desktop/sun.awt=ALL-UNNAMED' '--add-exports=java.desktop/sun.java2d=ALL-UNNAMED' "-Djava.library.path=$install\app\native" -cp "$classes;$jar" TrajectoryRenderProbe $evidence 2>&1 | Tee-Object -FilePath (Join-Path $evidence 'renderer.log')
     $ErrorActionPreference='Stop'
@@ -51,10 +60,15 @@ try {
         $env:JAVA_TOOL_OPTIONS=$oldOptions
         if($app -and -not $app.HasExited) { Stop-Process -Id $app.Id }
     }
-    $product=@(Get-ItemProperty $registry -ErrorAction SilentlyContinue | Where-Object {$_.DisplayName -eq 'OpenRocket MIT' -and $_.DisplayVersion -eq '6.2.0'})
+    }
+    $product=@(Get-ItemProperty $registry -ErrorAction SilentlyContinue | Where-Object {$_.DisplayName -eq 'OpenRocket MIT' -and $_.DisplayVersion -eq $manifest.package_version})
     if($product.Count -ne 1) { throw 'Expected exactly one disposable MIT test installation' }
     $uninstallLog=Join-Path $evidence 'uninstall.log'
     $uninstall=Start-Process msiexec.exe -ArgumentList @('/x',$product[0].PSChildName,'/qn','/norestart','/l*v',('"'+$uninstallLog+'"')) -Wait -PassThru
     if($uninstall.ExitCode -ne 0 -or (Test-Path $install)) { throw 'Disposable test uninstall failed' }
+    if ($UninstallOnly) {
+        @{uninstall_exit=0;test_installation_removed=$true} | ConvertTo-Json | Set-Content (Join-Path $evidence 'uninstall-verification.json') -Encoding UTF8
+        return
+    }
     @{installer_exit=0;installed_jar_matches=$true;runtime_smoke='PASS';renderer='PASS';gui_launch='PASS';uninstall_exit=$uninstall.ExitCode;test_installation_removed=$true;stock_installation_present=(Test-Path 'C:\Program Files\OpenRocket')} | ConvertTo-Json | Set-Content (Join-Path $evidence 'verification.json') -Encoding UTF8
 } finally { Stop-Transcript }

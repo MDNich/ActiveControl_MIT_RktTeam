@@ -1,11 +1,12 @@
 package info.openrocket.core.rocketcomponent;
 
 import info.openrocket.core.util.Coordinate;
+import info.openrocket.core.util.BoundingBox;
+import info.openrocket.core.util.MathUtil;
+import info.openrocket.core.util.Transformation;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Math.*;
 
 /**
  * A set of trapezoidal fins with tabs used for roll control.
@@ -16,6 +17,7 @@ import static java.lang.Math.*;
 public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
 
     // Units are in meters.
+    public static final double MAX_TAB_ANGLE = Math.PI / 2;
 
     private double tabSpan;
     private double tabChord;
@@ -97,7 +99,7 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
         super(fins, rootChord, tipChord, sweep, height);
         this.tabSpan = tabSpan;
         this.tabChord = tabChord;
-        this.tabAngle = tabAngle;
+        this.tabAngle = clampTabAngle(tabAngle);
         this.tabOffset = tabOffset;
     }
 
@@ -181,7 +183,7 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
         }
         this.tabSpan = tabLength;
         this.tabChord = tabDepth;
-        this.tabAngle = tabAngle;
+        this.tabAngle = clampTabAngle(tabAngle);
         this.tabOffset = tabOffset;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
     }
@@ -201,8 +203,21 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
         return tabOffset;
     }
     public void setTabAngle(double tabAngle) {
-        this.tabAngle = tabAngle;
+        double clamped = clampTabAngle(tabAngle);
+        for (RocketComponent listener : configListeners) {
+            if (listener instanceof TabControlledTrapezoidFinSet controlled) {
+                controlled.setTabAngle(clamped);
+            }
+        }
+        if (MathUtil.equals(this.tabAngle, clamped)) {
+            return;
+        }
+        this.tabAngle = clamped;
         fireComponentChangeEvent(ComponentChangeEvent.BOTH_CHANGE);
+    }
+
+    private static double clampTabAngle(double angle) {
+        return Double.isNaN(angle) ? 0 : MathUtil.clamp(angle, -MAX_TAB_ANGLE, MAX_TAB_ANGLE);
     }
     public void setTabSpan(double tabSpan) {
         this.tabSpan = tabSpan;
@@ -233,44 +248,53 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
         return "Tab Controlled Trapezoidal Fin Set";
     }
 
-    public Coordinate[] getRollCtrlTabPoints() {
-        List<Coordinate> points = new ArrayList<>(4);
-
-        // Root of the tab is offset from the root of the fin by tabOffset
-
-        // horiz travel of trailing edge is rootChord - tipChord - sweep
-        // angle of trailing edge is thus atan((rootChord - tipChord - sweep)/height)
-
-        //double trailingEdgeAng = Math.PI/4;///atan((this.getRootChord() - this.getTipChord() - this.getSweep())/this.getSpan());
-
-        double horizTravel = Math.abs(this.getRootChord() - this.getTipChord() - this.getSweep());
-        double trailingEdgeAng =  atan(this.getHeight()/horizTravel);
-        System.out.println(trailingEdgeAng);
-
-        if (this.getTipChord() + this.getSweep() > this.getRootChord()) {
-            // then the trailing edge is slanting the other way.
-            trailingEdgeAng = Math.PI-trailingEdgeAng;
-        }
-
-
-
-        double cosA = cos(trailingEdgeAng);
-
-        points.add(new Coordinate(this.getRootChord()-cos(trailingEdgeAng)*tabOffset, sin(trailingEdgeAng)*tabOffset));
-        points.add(new Coordinate(this.getRootChord()-cos(trailingEdgeAng)*tabOffset - sin(trailingEdgeAng)*tabChord, sin(trailingEdgeAng)*tabOffset-cos(trailingEdgeAng)*tabChord));
-        points.add(new Coordinate(this.getRootChord()-cos(trailingEdgeAng)*(tabOffset+tabSpan) - sin(trailingEdgeAng)*tabChord, sin(trailingEdgeAng)*(tabOffset + tabSpan)-cos(trailingEdgeAng)*tabChord));
-        points.add(new Coordinate(this.getRootChord()-cos(trailingEdgeAng)*(tabOffset+tabSpan), sin(trailingEdgeAng)*(tabOffset + tabSpan)));
-
-        return points.toArray(new Coordinate[0]);
+    /** Tab corners at zero deflection, ordered trailing root, hinge root, hinge tip, trailing tip. */
+    public Coordinate[] getRollCtrlTabNeutralPoints() {
+        Coordinate[] fin = getFinPoints();
+        Coordinate direction = getTrailingEdgeDirection();
+        Coordinate inward = new Coordinate(-direction.y, direction.x, 0).multiply(tabChord);
+        Coordinate trailingRoot = fin[fin.length - 1].add(direction.multiply(tabOffset));
+        Coordinate trailingTip = trailingRoot.add(direction.multiply(tabSpan));
+        return new Coordinate[]{trailingRoot, trailingRoot.add(inward), trailingTip.add(inward), trailingTip};
     }
 
+    private Coordinate getTrailingEdgeDirection() {
+        Coordinate[] fin = getFinPoints();
+        Coordinate edge = fin[fin.length - 2].sub(fin[fin.length - 1]);
+        double length = Math.hypot(edge.x, edge.y);
+        return length > MathUtil.EPSILON ? edge.multiply(1 / length) : new Coordinate(0, 1, 0);
+    }
 
+    /**
+     * Rotate about the upstream hinge, parallel to the trailing edge. Positive angles
+     * move the trailing edge toward -Z, consistent with the fin cant convention.
+     */
+    public Transformation getRollCtrlTabRotation() {
+        if (tabAngle == 0) {
+            return Transformation.IDENTITY;
+        }
+        Coordinate hinge = getRollCtrlTabNeutralPoints()[1];
+        Coordinate direction = getTrailingEdgeDirection();
+        double frameAngle = Math.atan2(-direction.x, direction.y);
+        return new Transformation(hinge)
+                .applyTransformation(Transformation.rotate_z(frameAngle))
+                .applyTransformation(Transformation.rotate_y(tabAngle))
+                .applyTransformation(Transformation.rotate_z(-frameAngle))
+                .applyTransformation(new Transformation(hinge.multiply(-1)));
+    }
 
+    public Coordinate[] getRollCtrlTabPoints() {
+        return getRollCtrlTabRotation().transform(getRollCtrlTabNeutralPoints());
+    }
 
-
-
-
-
-
-
+    @Override
+    public BoundingBox getInstanceBoundingBox() {
+        BoundingBox bounds = super.getInstanceBoundingBox();
+        Coordinate halfThickness = getRollCtrlTabRotation().linearTransform(new Coordinate(0, 0, getThickness() / 2));
+        for (Coordinate point : getRollCtrlTabPoints()) {
+            bounds.update(point.add(halfThickness));
+            bounds.update(point.sub(halfThickness));
+        }
+        return bounds;
+    }
 }
