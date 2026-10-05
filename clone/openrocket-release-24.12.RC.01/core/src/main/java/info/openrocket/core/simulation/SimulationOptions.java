@@ -78,6 +78,13 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double maximumAngle = RK4SimulationStepper.RECOMMENDED_ANGLE_STEP;
 	
 	private int randomSeed = new Random().nextInt();
+    private info.openrocket.core.simulation.ensemble.EnsembleSettings ensembleSettings =
+            info.openrocket.core.simulation.ensemble.EnsembleSettings.DEFAULT;
+    public info.openrocket.core.simulation.ensemble.EnsembleSettings getEnsembleSettings() { return ensembleSettings; }
+    public void setEnsembleSettings(info.openrocket.core.simulation.ensemble.EnsembleSettings settings) {
+        java.util.Objects.requireNonNull(settings);
+        if (!ensembleSettings.equals(settings)) { ensembleSettings = settings; fireChangeEvent(); }
+    }
 
 	private List<EventListener> listeners = new ArrayList<>();
 
@@ -420,6 +427,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		// only do it if one of the "important" (user specified) parameters has really
 		// changed.
 		boolean isChanged = false;
+        if (!ensembleSettings.equals(src.ensembleSettings)) { ensembleSettings = src.ensembleSettings; isChanged = true; }
 
 		if (this.windModelType != src.windModelType) {
 			isChanged = true;
@@ -510,7 +518,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (!(other instanceof SimulationOptions))
 			return false;
 		SimulationOptions o = (SimulationOptions) other;
-		return (MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
+		return ensembleSettings.equals(o.ensembleSettings) && (MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchLongitude, o.launchLongitude) &&
 				MathUtil.equals(this.launchPressure, o.launchPressure) &&

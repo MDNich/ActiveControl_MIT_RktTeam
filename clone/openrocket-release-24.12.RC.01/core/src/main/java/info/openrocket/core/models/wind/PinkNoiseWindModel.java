@@ -221,7 +221,13 @@ public class PinkNoiseWindModel implements WindModel {
 		randomSource = null;
 	}
 
-	public void loadFrom(PinkNoiseWindModel source) {
+	public PinkNoiseWindModel withSeed(int newSeed) {
+        PinkNoiseWindModel copy = new PinkNoiseWindModel(newSeed);
+        copy.loadFrom(this);
+        return copy;
+    }
+
+    public void loadFrom(PinkNoiseWindModel source) {
 		this.average = source.average;
 		this.direction = source.direction;
 		this.standardDeviation = source.standardDeviation;

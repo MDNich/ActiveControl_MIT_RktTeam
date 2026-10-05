@@ -36,6 +36,7 @@ public final class Trajectory3DDialog extends JDialog {
     public Trajectory3DDialog(Window parent, Simulation simulation, int initialBranch) {
         super(parent, text("title") + " — " + simulation.getName(), ModalityType.DOCUMENT_MODAL);
         this.simulation = simulation;
+        if (simulation.getSimulatedData().getEnsembleResult() != null) setTitle(getTitle() + " — ensemble mean");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         scene = new Trajectory3DPanel(message -> { playback.setPlaying(false); status.setText(message); play.setEnabled(false); });
         JPanel content = new JPanel(new BorderLayout(6, 6));

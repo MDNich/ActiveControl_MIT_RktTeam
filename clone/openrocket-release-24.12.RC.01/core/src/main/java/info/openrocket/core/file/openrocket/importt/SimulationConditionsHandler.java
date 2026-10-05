@@ -55,7 +55,11 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 		}
 
 		switch (element) {
-			case "configid" -> this.idToSet = new FlightConfigurationId(content);
+			case "ensemble" -> {
+                try { options.setEnsembleSettings(info.openrocket.core.simulation.ensemble.EnsembleSettings.fromAttributes(attributes)); }
+                catch (RuntimeException e) { warnings.add("Invalid ensemble settings ignored: " + e.getMessage()); }
+            }
+            case "configid" -> this.idToSet = new FlightConfigurationId(content);
 			case "launchrodlength" -> {
 				if (Double.isNaN(d)) {
 					warnings.add("Illegal launch rod length defined, ignoring.");

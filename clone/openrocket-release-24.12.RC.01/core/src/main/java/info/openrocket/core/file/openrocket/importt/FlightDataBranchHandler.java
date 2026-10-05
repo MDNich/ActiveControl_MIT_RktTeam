@@ -34,12 +34,18 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 	
 	private static final Logger log = LoggerFactory.getLogger(FlightDataBranchHandler.class);
 	private final SingleSimulationHandler simHandler;
+    private final WarningSet flightWarnings;
 	private static final Translator trans = Application.getTranslator();
 
 	public FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler,
 			DocumentLoadingContext context) {
-		this.simHandler = simHandler;
-		this.context = context;
+        this(name, typeList, simHandler, context, null);
+    }
+    FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler,
+            DocumentLoadingContext context, WarningSet flightWarnings) {
+        this.simHandler = simHandler;
+        this.context = context;
+        this.flightWarnings = flightWarnings;
 		String[] split = typeList.split(",");
 		types = new FlightDataType[split.length];
 		for (int i = 0; i < split.length; i++) {
@@ -162,7 +168,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			if (type == FlightEvent.Type.SIM_WARN) {
 				String warnid = attributes.get("warnid");
 				if (null != warnid) {
-					data = simHandler.getWarningSet().findById(UUID.fromString(warnid));
+					data = (flightWarnings == null ? simHandler.getWarningSet() : flightWarnings).findById(UUID.fromString(warnid));
 				}
 			}
 			

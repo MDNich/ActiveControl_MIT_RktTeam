@@ -110,7 +110,9 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         if(status.getSimulationTime()!=0) throw new SimulationException("Zephyrus FC requires pad startup; mid-flight checkpoints are not implemented");
         run.communicator.bind(status);
         status.getSimulationConditions().setTimeStep(maxPhysicsStep);
-        run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")), outputSettings);
+        var simulation = status.getSimulationConditions().getSimulation();
+        run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")),
+                outputSettings.forRun(simulation == null ? null : simulation.getEnsembleRunTag()));
         if (status.getSimulationConditions().getSimulation() != null) {
             status.getSimulationConditions().getSimulation().setFlightComputerTelemetryPath(run.fc.telemetry.getCsvPath());
             status.getSimulationConditions().getSimulation().setFlightComputerLogPath(run.fc.telemetry.getLogPath());

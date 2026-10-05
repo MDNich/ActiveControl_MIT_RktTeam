@@ -186,7 +186,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		
 		// Size per flight data point
-		int pointCount = 0;
+		long pointCount = 0;
 		if (options.getSaveSimulationData()) {
 			for (Simulation s : doc.getSimulations()) {
 				FlightData data = s.getSimulatedData();
@@ -194,6 +194,11 @@ public class OpenRocketSaver extends RocketSaver {
 					for (int i = 0; i < data.getBranchCount(); i++) {
 						pointCount += countFlightDataBranchPoints(data.getBranch(i));
 					}
+                    var ensemble = data.getEnsembleResult();
+                    if (ensemble != null) {
+                        for (int b = 0; b < ensemble.branchCount(); b++) pointCount += countFlightDataBranchPoints(ensemble.deviation(b));
+                        if (ensemble.individualRuns() != null) size += ensemble.individualRuns().compressedSize();
+                    }
 				}
 			}
 		}
@@ -387,6 +392,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("timestep", cond.getTimeStep());
 		writeElement("maxtime", cond.getMaxSimulationTime());
+        writeln(ensembleTag("ensemble", cond.getEnsembleSettings(), true));
 		
 		indent--;
 		writeln("</conditions>");
@@ -407,29 +413,38 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write basic simulation data
 		
-		FlightData data = simulation.getSimulatedData();
+        FlightData data = simulation.getSimulatedData();
+        saveFlightData(data, saveSimulationData || simulation.getStatus() == Simulation.Status.EXTERNAL,
+                data != null && data.getEnsembleResult() != null);
+
+		indent--;
+		writeln("</simulation>");
+
+	}
+
+    private void saveFlightData(FlightData data, boolean saveSimulationData, boolean fullPrecision) throws IOException {
 		if (data != null) {
 			String str = "<flightdata";
 			if (!Double.isNaN(data.getMaxAltitude()))
-				str += " maxaltitude=\"" + TextUtil.doubleToString(data.getMaxAltitude()) + "\"";
+				str += " maxaltitude=\"" + number(data.getMaxAltitude(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getMaxVelocity()))
-				str += " maxvelocity=\"" + TextUtil.doubleToString(data.getMaxVelocity()) + "\"";
+				str += " maxvelocity=\"" + number(data.getMaxVelocity(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getMaxAcceleration()))
-				str += " maxacceleration=\"" + TextUtil.doubleToString(data.getMaxAcceleration()) + "\"";
+				str += " maxacceleration=\"" + number(data.getMaxAcceleration(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getMaxMachNumber()))
-				str += " maxmach=\"" + TextUtil.doubleToString(data.getMaxMachNumber()) + "\"";
+				str += " maxmach=\"" + number(data.getMaxMachNumber(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getTimeToApogee()))
-				str += " timetoapogee=\"" + TextUtil.doubleToString(data.getTimeToApogee()) + "\"";
+				str += " timetoapogee=\"" + number(data.getTimeToApogee(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getFlightTime()))
-				str += " flighttime=\"" + TextUtil.doubleToString(data.getFlightTime()) + "\"";
+				str += " flighttime=\"" + number(data.getFlightTime(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getGroundHitVelocity()))
-				str += " groundhitvelocity=\"" + TextUtil.doubleToString(data.getGroundHitVelocity()) + "\"";
+				str += " groundhitvelocity=\"" + number(data.getGroundHitVelocity(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getLaunchRodVelocity()))
-				str += " launchrodvelocity=\"" + TextUtil.doubleToString(data.getLaunchRodVelocity()) + "\"";
+				str += " launchrodvelocity=\"" + number(data.getLaunchRodVelocity(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getDeploymentVelocity()))
-				str += " deploymentvelocity=\"" + TextUtil.doubleToString(data.getDeploymentVelocity()) + "\"";
+				str += " deploymentvelocity=\"" + number(data.getDeploymentVelocity(), fullPrecision) + "\"";
 			if (!Double.isNaN(data.getOptimumDelay()))
-				str += " optimumdelay=\"" + TextUtil.doubleToString(data.getOptimumDelay()) + "\"";
+				str += " optimumdelay=\"" + number(data.getOptimumDelay(), fullPrecision) + "\"";
 			str += ">";
 			writeln(str);
 			indent++;
@@ -465,24 +480,61 @@ public class OpenRocketSaver extends RocketSaver {
 			}
 			
 			// Check whether to store data
-			if ((simulation.getStatus() == Simulation.Status.EXTERNAL) || // Always store external data
-				saveSimulationData) {
+			if (saveSimulationData) {
 				for (int i = 0; i < data.getBranchCount(); i++) {
 					FlightDataBranch branch = data.getBranch(i);
-					saveFlightDataBranch(branch);
-				}
-			}
+                    saveFlightDataBranch(branch, fullPrecision);
+                }
+                var ensemble = data.getEnsembleResult();
+                if (ensemble != null) {
+                    writeln(ensembleTag("ensembledata", ensemble.settings(), false)); indent++;
+                    for (int b = 0; b < ensemble.branchCount(); b++) {
+                        saveFlightDataBranch(ensemble.deviation(b), true);
+                        for (var metric : info.openrocket.core.simulation.ensemble.EnsembleMetric.values()) {
+                            String values = java.util.Arrays.stream(ensemble.samples(b, metric)).mapToObj(Double::toString).collect(java.util.stream.Collectors.joining(","));
+                            writeln("<samples branch=\""+b+"\" metric=\""+metric.name()+"\">"+values+"</samples>");
+                        }
+                    }
+                    if (ensemble.individualRuns() != null) {
+                        ensemble.individualRuns().writeTo(dest);
+                        System.out.println("ENSEMBLE save full_results=" + ensemble.individualRuns().size());
+                    }
+                    indent--; writeln("</ensembledata>");
+                }
+            }
 			
 			indent--;
 			writeln("</flightdata>");
 		}
-		
-		indent--;
-		writeln("</simulation>");
-		
-	}
+    }
 
-	private void savePhotoSettings(Map<String, String> p) throws IOException {
+    /** Stream one full run using the same flight-data format as the main simulation. */
+    public static void writeEnsembleRun(OutputStream output,
+            info.openrocket.core.simulation.ensemble.EnsembleRunParameters inputs, FlightData data) throws IOException {
+        OpenRocketSaver saver = new OpenRocketSaver();
+        saver.dest = new BufferedWriter(new OutputStreamWriter(output, OPENROCKET_CHARSET));
+        StringBuilder tag = new StringBuilder("<ensemblerun");
+        new java.util.TreeMap<>(inputs.attributes()).forEach((key, value) ->
+                tag.append(" ").append(key).append("=\"").append(TextUtil.escapeXML(value)).append("\""));
+        saver.writeln(tag.append(">").toString());
+        saver.indent++;
+        saver.saveFlightData(data, true, true);
+        saver.indent--;
+        saver.writeln("</ensemblerun>");
+        saver.dest.flush();
+    }
+
+    private static String number(double value, boolean fullPrecision) {
+        return fullPrecision ? Double.toString(value) : TextUtil.doubleToString(value);
+    }
+
+    private String ensembleTag(String name, info.openrocket.core.simulation.ensemble.EnsembleSettings settings, boolean empty) {
+        StringBuilder tag = new StringBuilder("<" + name);
+        new java.util.TreeMap<>(settings.attributes()).forEach((key, value) -> tag.append(" ").append(key).append("=\"").append(TextUtil.escapeXML(value)).append("\""));
+        return tag.append(empty ? "/>" : ">").toString();
+    }
+
+    private void savePhotoSettings(Map<String, String> p) throws IOException {
 		log.debug("Saving Photo Settings");
 
 		writeln("<photostudio>");
@@ -578,7 +630,7 @@ public class OpenRocketSaver extends RocketSaver {
 		}
 	}
 	
-	private void saveFlightDataBranch(FlightDataBranch branch)
+	private void saveFlightDataBranch(FlightDataBranch branch, boolean fullPrecision)
 			throws IOException {
 		
 		if (branch == null)
@@ -636,7 +688,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write events
 		for (FlightEvent event : branch.getEvents()) {
-			String eventStr = "<event time=\"" + TextUtil.doubleToString(event.getTime())
+			String eventStr = "<event time=\"" + number(event.getTime(), fullPrecision)
 					+ "\" type=\"" + enumToXMLName(event.getType()) + "\"";
 			
 			if (event.getSource() != null) {
@@ -657,8 +709,10 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write the data
 		int length = branch.getLength();
-		for (int i = 0; i < length; i++) {
-			writeDataPointString(data, i, sb);
+        for (int i = 0; i < length; i++) {
+            if (fullPrecision && (i & 1023) == 0 && Thread.currentThread().isInterrupted())
+                throw new java.io.InterruptedIOException("Saving flight data cancelled");
+			writeDataPointString(data, i, sb, fullPrecision);
 		}
 		
 		indent--;
@@ -692,14 +746,14 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	
 	
-	private void writeDataPointString(List<List<Double>> data, int index, StringBuilder sb)
+	private void writeDataPointString(List<List<Double>> data, int index, StringBuilder sb, boolean fullPrecision)
 			throws IOException {
 		sb.setLength(0);
 		sb.append("<datapoint>");
 		for (int j = 0; j < data.size(); j++) {
 			if (j > 0)
 				sb.append(",");
-			sb.append(TextUtil.doubleToString(data.get(j).get(index)));
+			sb.append(fullPrecision ? Double.toString(data.get(j).get(index)) : TextUtil.doubleToString(data.get(j).get(index)));
 		}
 		sb.append("</datapoint>");
 		writeln(sb.toString());

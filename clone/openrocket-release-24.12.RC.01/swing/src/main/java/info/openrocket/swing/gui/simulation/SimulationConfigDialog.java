@@ -386,7 +386,7 @@ public class SimulationConfigDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				copyChangesToAllSims();
 
-                if (tabbedPane.getSelectedIndex() == PLOT_IDX && plotTab != null && plotTab.isTrajectoryPlot()) {
+                if (tabbedPane.getSelectedIndex() == PLOT_IDX && plotTab != null && (plotTab.isTrajectoryPlot() || plotTab.isOutcomeDistributionPlot())) {
                     JDialog plot = plotTab.doPlot(SimulationConfigDialog.this.parentWindow);
                     if (plot != null) plot.setVisible(true);
                     return;

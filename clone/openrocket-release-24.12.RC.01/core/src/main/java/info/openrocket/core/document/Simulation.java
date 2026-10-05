@@ -133,6 +133,13 @@ public class Simulation implements ChangeSource, Cloneable {
 	private String name = "";
 	
 	private Status status;
+    private volatile int ensembleRunNumber;
+    private String ensembleRunTag;
+    public int getEnsembleRunNumber() { return ensembleRunNumber; }
+    public void setEnsembleRunNumber(int n) { ensembleRunNumber=n; }
+    public String getEnsembleRunTag() { return ensembleRunTag; }
+    public void setEnsembleRunTag(String tag) { ensembleRunTag=tag; }
+
 	
 	/** The conditions to use */
 	// TODO: HIGH: Change to use actual conditions class??
@@ -488,8 +495,27 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public void simulate(SimulationListener... additionalListeners)
 			throws SimulationException {
-		mutex.lock("simulate");
-		SimulationEngine simulator = null;
+        if (options.getEnsembleSettings().enabled()) {
+            mutex.lock("simulate");
+            try {
+                if (status == Status.EXTERNAL) throw new SimulationException("Cannot simulate imported simulation.");
+                // Publish only a complete batch. Cancellation or a failed member preserves the prior result.
+                FlightData result = info.openrocket.core.simulation.ensemble.EnsembleRunner.run(this, additionalListeners);
+                simulatedData = result;
+                if (document != null && !document.getDefaultStorageOptions().isExplicitlySet())
+                    document.getDefaultStorageOptions().setSaveSimulationData(true);
+                simulatedConditions = options.clone();
+                simulatedExtensionSignature = extensionSignature();
+                simulatedConfigurationDescription = descriptor.format(rocket, getId());
+                simulatedConfigurationModID = getActiveConfiguration().getModID();
+                flightComputerTelemetryPath = null; flightComputerLogPath = null;
+                status = Status.UPTODATE;
+                fireChangeEvent();
+            } finally { mutex.unlock("simulate"); }
+            return;
+        }
+        mutex.lock("simulate");
+        SimulationEngine simulator = null;
 		simulatedData = null;
 		try {
 			
@@ -649,6 +675,7 @@ public class Simulation implements ChangeSource, Cloneable {
 			
 			copy.mutex = SafetyMutex.newInstance();
 			copy.status = Status.NOT_SIMULATED;
+            copy.ensembleRunNumber = 0; copy.ensembleRunTag = null;
 			copy.options = this.options.clone();
 			copy.simulationExtensions = new ArrayList<>();
 			for (SimulationExtension c : this.simulationExtensions) {

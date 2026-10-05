@@ -44,7 +44,25 @@ public class FlightData {
 	
 	private final WarningSet warnings = new WarningSet();
 	
-	private double maxAltitude = Double.NaN;
+	private info.openrocket.core.simulation.ensemble.EnsembleResult ensembleResult;
+    public info.openrocket.core.simulation.ensemble.EnsembleResult getEnsembleResult() { return ensembleResult; }
+    public void setEnsembleResult(info.openrocket.core.simulation.ensemble.EnsembleResult result) {
+        mutable.check();
+        ensembleResult = result;
+        if (result == null || result.branchCount() == 0) return;
+        // A mean of the individual maxima is not the maximum of the mean trajectory.
+        maxAltitude = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.MAX_ALTITUDE);
+        maxVelocity = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.MAX_VELOCITY);
+        maxAcceleration = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.MAX_ACCELERATION);
+        maxMachNumber = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.MAX_MACH);
+        timeToApogee = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.TIME_TO_APOGEE);
+        flightTime = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.FLIGHT_TIME);
+        groundHitVelocity = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.GROUND_HIT_VELOCITY);
+        launchRodVelocity = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.LAUNCH_ROD_VELOCITY);
+        deploymentVelocity = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.DEPLOYMENT_VELOCITY);
+        optimumDelay = result.mean(0, info.openrocket.core.simulation.ensemble.EnsembleMetric.OPTIMUM_DELAY);
+    }
+    private double maxAltitude = Double.NaN;
 	private double maxVelocity = Double.NaN;
 	private double maxAcceleration = Double.NaN;
 	private double maxMachNumber = Double.NaN;
@@ -287,7 +305,9 @@ public class FlightData {
 		for (FlightDataBranch b : branches) {
 			clone.branches.add(b.clone());
 		}
-		clone.maxAltitude = maxAltitude;
+		clone.ensembleResult = ensembleResult;
+        clone.optimumDelay = optimumDelay;
+        clone.maxAltitude = maxAltitude;
 		clone.maxVelocity = maxVelocity;
 		clone.maxAcceleration = maxAcceleration;
 		clone.maxMachNumber = maxMachNumber;

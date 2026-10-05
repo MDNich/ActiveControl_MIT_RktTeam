@@ -128,7 +128,10 @@ public class MotorClusterState {
 	 * @param simulationTime
 	 * @return
 	 */
-	public double getThrust(final double simulationTime) {
+	public boolean isThrusting() { return currentState.isThrusting(); }
+    public int getMotorCount() { return motorCount; }
+
+    public double getThrust(final double simulationTime) {
 		if (this.currentState.isThrusting()) {
 			double motorTime = this.getMotorTime(simulationTime);
 			return this.motorCount * motor.getThrust(motorTime);

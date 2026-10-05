@@ -232,6 +232,7 @@ public class RK6SimulationStepper extends AbstractSimulationStepper {
         }
 
 		// TODO: MEDIUM: Store acceleration etc of entire RK6 step, store should be cloned or something...
+		store.timeStep = info.openrocket.core.simulation.ensemble.EnsembleRunListener.limitStep(status, store.timeStep);
 		store.storeData(status);
 		checkNaN(store.timeStep, "store.timeStep");
 

@@ -139,7 +139,17 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
         trajectory.add(new JLabel(trans.get("Trajectory3D.branch")),"split 2"); trajectory.add(trajectoryBranch,"wrap para");
         trajectory.add(new JLabel(trans.get("Trajectory3D.gestures")),"wrap");
         body.add(trajectory,"3d"); add(body,java.awt.BorderLayout.CENTER);
-        plotMode.addActionListener(e -> cards.show(body,plotMode.getSelectedIndex()==1?"3d":"2d"));
+        var ensemble = simulation.getSimulatedData().getEnsembleResult();
+        if (ensemble != null) {
+            plotMode.addItem("Outcome probability density");
+            javax.swing.JPanel density = new javax.swing.JPanel(new MigLayout("fillx, insets 12"));
+            density.add(new JLabel("<html>Plot distributions of apogee, velocity, acceleration, minimum stability,<br>flight duration, recovery and landing outcomes from the individual runs.<br>Use the Quantity selector in the plot window to choose a value.</html>"), "wrap para");
+            density.add(new JLabel(ensemble.description()), "wrap");
+            body.add(density,"pdf");
+            selector.add(new JLabel("Ensemble: mean flight"));
+            trajectory.add(new JLabel("<html>Mean position and orientation only; trajectory stops at the earliest run end.<br>Summary distributions use each full run.</html>"), "wrap para");
+        }
+        plotMode.addActionListener(e -> cards.show(body,plotMode.getSelectedIndex()==2?"pdf":plotMode.getSelectedIndex()==1?"3d":"2d"));
 	}
 
 	public static SimulationPlotPanel create(Simulation simulation) {
@@ -288,9 +298,11 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	}
 
 	public boolean isTrajectoryPlot() { return plotMode.getSelectedIndex() == 1; }
+    public boolean isOutcomeDistributionPlot() { return plotMode.getSelectedIndex() == 2; }
 
     @Override
     public JDialog doPlot(Window parent) {
+        if (plotMode.getSelectedIndex() == 2) return new info.openrocket.swing.gui.plot.EnsembleDistributionDialog(parent, simulation);
         if (plotMode.getSelectedIndex() == 1) return new info.openrocket.swing.gui.plot.Trajectory3DDialog(parent, simulation, trajectoryBranch.getSelectedIndex());
 		if (configuration.getDataCount() == 0) {
 			JOptionPane.showMessageDialog(SimulationPlotPanel.this,

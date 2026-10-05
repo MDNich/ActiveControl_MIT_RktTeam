@@ -23,11 +23,17 @@ class FlightDataHandler extends AbstractElementHandler {
 	
 	private final SingleSimulationHandler simHandler;
 	private FlightData data;
+    private EnsembleDataHandler ensembleHandler;
+    private final boolean allowEnsemble;
 	
 	
 	public FlightDataHandler(SingleSimulationHandler simHandler, DocumentLoadingContext context) {
-		this.context = context;
-		this.simHandler = simHandler;
+        this(simHandler, context, true);
+    }
+    FlightDataHandler(SingleSimulationHandler simHandler, DocumentLoadingContext context, boolean allowEnsemble) {
+        this.context = context;
+        this.simHandler = simHandler;
+        this.allowEnsemble = allowEnsemble;
 	}
 	
 	public FlightData getFlightData() {
@@ -38,7 +44,11 @@ class FlightDataHandler extends AbstractElementHandler {
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
-		if (element.equals("warning")) {
+		if (element.equals("ensembledata") && allowEnsemble) {
+            ensembleHandler = new EnsembleDataHandler(simHandler, context, attributes);
+            return ensembleHandler;
+        }
+        if (element.equals("warning")) {
 			return new WarningHandler(context.getOpenRocketDocument().getRocket(), warningSet);
 		}
 		if (element.equals("databranch")) {
@@ -48,7 +58,7 @@ class FlightDataHandler extends AbstractElementHandler {
 			}
 			dataHandler = new FlightDataBranchHandler(attributes.get("name"),
 					attributes.get("types"),
-					simHandler, context);
+					simHandler, context, warningSet);
 			
 			if (attributes.get("optimumAltitude") != null) {
 				double optimumAltitude = Double.NaN;
@@ -83,10 +93,7 @@ class FlightDataHandler extends AbstractElementHandler {
 			if (branch.getLength() > 0) {
 				branches.add(branch);
 			}
-			//		} else if (element.equals("warning")) {
-			//			String priorityStr = attributes.get("priority");
-			//			MessagePriority priority = MessagePriority.fromExportLabel(priorityStr);
-			//			warningSet.add(Warning.fromString(content, priority));
+
 		}
 	}
 	
@@ -154,7 +161,8 @@ class FlightDataHandler extends AbstractElementHandler {
 					timeToApogee, flightTime, groundHitVelocity, launchRodVelocity, deploymentVelocity, optimumDelay);
 		}
 		
-		data.getWarningSet().addAll(warningSet);
+		if (ensembleHandler != null) ensembleHandler.apply(data, warnings);
+        data.getWarningSet().addAll(warningSet);
 		data.immute();
 	}
 

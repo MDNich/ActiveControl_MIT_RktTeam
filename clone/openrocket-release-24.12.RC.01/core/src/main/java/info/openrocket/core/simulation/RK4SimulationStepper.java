@@ -205,7 +205,10 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		}
         }
 
-		// TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
+		// Resolve the fixed thrust-noise trace independently of adaptive solver evaluations.
+        store.timeStep = info.openrocket.core.simulation.ensemble.EnsembleRunListener.limitStep(status, store.timeStep);
+
+        // TODO: MEDIUM: Store acceleration etc of entire RK4 step, store should be cloned or something...
 		store.storeData(status);
 		checkNaN(store.timeStep, "store.timeStep");
 

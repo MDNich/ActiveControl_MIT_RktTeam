@@ -100,6 +100,7 @@ public class SimulationRunDialog extends JDialog {
 	@SuppressWarnings("unused")
 	private final OpenRocketDocument document;
 	private final String[] simulationNames;
+    private final int[] ensembleRunCounts;
 	private final SimulationWorker[] simulationWorkers;
 	private final SimulationStatus[] simulationStatuses;
 	private final double[] simulationMaxAltitude;
@@ -126,6 +127,7 @@ public class SimulationRunDialog extends JDialog {
 		// Initialize the simulations
 		int n = simulations.length;
 		simulationNames = new String[n];
+        ensembleRunCounts = new int[n];
 		simulationWorkers = new SimulationWorker[n];
 		simulationStatuses = new SimulationStatus[n];
 		simulationMaxAltitude = new double[n];
@@ -134,6 +136,8 @@ public class SimulationRunDialog extends JDialog {
 
 		for (int i = 0; i < n; i++) {
 			simulationNames[i] = simulations[i].getName();
+            var ensemble = simulations[i].getOptions().getEnsembleSettings();
+            ensembleRunCounts[i] = ensemble.enabled() ? ensemble.runs() : 0;
 			simulationWorkers[i] = new InteractiveSimulationWorker(document, simulations[i], i);
 			executor.execute(simulationWorkers[i]);
 		}
@@ -254,7 +258,8 @@ public class SimulationRunDialog extends JDialog {
 		log.debug("Progressbar value " + progress);
 
 		// Update the simulation fields
-		simLabel.setText("Running " + simulationNames[index]);
+		int ensembleRun = simulations[index].getEnsembleRunNumber();
+        simLabel.setText("Running " + simulationNames[index] + (ensembleRun > 0 ? " — run " + ensembleRun + "/" + ensembleRunCounts[index] : ""));
 		if (simulationStatuses[index] == null) {
 			log.debug("No simulation status data available, setting empty labels");
 			timeLabel.setText("");
@@ -372,6 +377,12 @@ public class SimulationRunDialog extends JDialog {
 			// Calculate the progress
 			SimulationStatus status = chunks.get(chunks.size() - 1);
 			simulationStatuses[index] = status;
+            if (ensembleRunCounts[index] > 0) {
+                int run = simulation.getEnsembleRunNumber();
+                if (run > 0) super.setProgress((run - 1) * 100 / ensembleRunCounts[index]);
+                updateProgress();
+                return;
+            }
 
 			// -2: Boost.  time = 0 ... burnoutTimeEstimate
 			if (simulationStage == -2 && status.getSimulationTime() < burnoutTimeEstimate) {

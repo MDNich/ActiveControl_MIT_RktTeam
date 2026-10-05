@@ -86,6 +86,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.rocketvisitors;
 	exports info.openrocket.core.scripting;
 	exports info.openrocket.core.simulation;
+    exports info.openrocket.core.simulation.ensemble;
 	exports info.openrocket.core.simulation.customexpression;
 	exports info.openrocket.core.simulation.exception;
 	exports info.openrocket.core.simulation.extension;

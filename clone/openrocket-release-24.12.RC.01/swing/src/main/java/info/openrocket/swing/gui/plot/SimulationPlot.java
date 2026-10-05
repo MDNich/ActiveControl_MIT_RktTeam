@@ -61,7 +61,49 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		drawDomainMarkers(-1);
 
 		errorAnnotations = new ErrorAnnotationSet(branchCount);
+        addEnsembleBands();
 	}
+
+    private void addEnsembleBands() {
+        var ensemble = simulation.getSimulatedData().getEnsembleResult();
+        if (ensemble == null) return;
+        chart.addSubtitle(new TextTitle(ensemble.description()));
+        chart.addSubtitle(new TextTitle("Common flight time only; gaps require all runs. Events use mean times. Bands show Y spread at each time."));
+        XYPlot plot = chart.getXYPlot();
+        for (int axis = 0; axis < 2; axis++) {
+            if (data[axis].getSeriesCount() == 0) continue;
+            var bands = new org.jfree.data.xy.YIntervalSeriesCollection();
+            var renderer = new EnsembleBandRenderer();
+            double min = plot.getRangeAxis(axis).getLowerBound(), max = plot.getRangeAxis(axis).getUpperBound();
+            for (int s = 0; s < data[axis].getSeriesCount(); s++) {
+                var metadata = (MetadataXYSeries)data[axis].getSeries(s);
+                int branch = metadata.getBranchIdx(), variable = metadata.getDataIdx();
+                var type = postProcessType(filledConfig.getType(variable));
+                var unit = filledConfig.getUnit(variable);
+                var mean = allBranches.get(branch);
+                var deviation = ensemble.deviation(branch);
+                var series = new org.jfree.data.xy.YIntervalSeries(metadata.getKey(), false, true);
+                var x = mean.get(filledConfig.getDomainAxisType());
+                var y = mean.get(type); var sd = deviation.get(type);
+                for (int i=0;i<mean.getLength();i++) {
+                    double spread = sd == null ? Double.NaN : sd.get(i);
+                    double lo=unit.toUnit(y.get(i)-spread), hi=unit.toUnit(y.get(i)+spread);
+                    double px=filledConfig.getDomainAxisUnit().toUnit(x.get(i));
+                    series.add(px,unit.toUnit(y.get(i)),lo,hi);
+                    if (Double.isFinite(px) && Double.isFinite(lo) && Double.isFinite(hi)) { min=Math.min(min,lo);max=Math.max(max,hi); }
+                }
+                bands.addSeries(series);
+                renderer.setSeriesPaint(s, plot.getRenderer(axis).getSeriesPaint(s));
+                renderer.setSeriesVisibleInLegend(s,false);
+            }
+            plot.setDataset(axis+2,bands);plot.setRenderer(axis+2,renderer);plot.mapDatasetToRangeAxis(axis+2,axis);
+            // Preset axes deliberately bound panning, so recreate the bound to include the shading.
+            var old=plot.getRangeAxis(axis);
+            double padding = (max-min)*.03;
+            var expanded=new PresetNumberAxis(min-padding,max+padding);expanded.setLabel(old.getLabel());expanded.setLabelFont(old.getLabelFont());
+            plot.setRangeAxis(axis,expanded);
+        }
+    }
 
 	public static SimulationPlot create(Simulation simulation, SimulationPlotConfiguration config, boolean initialShowPoints) {
 		FlightDataBranch mainBranch = simulation.getSimulatedData().getBranch(0);
@@ -86,10 +128,12 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		XYPlot plot = (XYPlot) chart.getPlot();
 		int datasetcount = plot.getDatasetCount();
 		for (int i = 0; i < datasetcount; i++) {
-			int seriescount = plot.getDataset(i).getSeriesCount();
+			if (plot.getDataset(i) == null) continue;
+            int seriescount = plot.getDataset(i).getSeriesCount();
 			XYItemRenderer r = ((XYPlot) chart.getPlot()).getRenderer(i);
 			for (int j = 0; j < seriescount; j++) {
-				boolean show = (branch < 0) || (j % branchCount == branch);
+				int branchIndex = ((MetadataXYSeries)data[i % 2].getSeries(j)).getBranchIdx();
+                boolean show = (branch < 0) || (branchIndex == branch);
 				r.setSeriesVisible(j, show);
 			}
 		}

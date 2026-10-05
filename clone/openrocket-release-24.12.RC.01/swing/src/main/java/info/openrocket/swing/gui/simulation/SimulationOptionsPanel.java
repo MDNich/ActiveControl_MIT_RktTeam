@@ -96,7 +96,10 @@ class SimulationOptionsPanel extends JPanel {
 		sub.setBorder(BorderFactory.createTitledBorder(trans
 				.get("simedtdlg.border.Simopt")));
 		leftColumn.add(sub, "growx, wrap");
-        this.add(leftColumn, "growx, growy, aligny 0");
+        JScrollPane leftScroll = new JScrollPane(leftColumn, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        leftScroll.setBorder(BorderFactory.createEmptyBorder());
+        leftScroll.getVerticalScrollBar().setUnitIncrement(16);
+        this.add(leftScroll, "grow, aligny 0, width 490lp, height 450lp");
 		
 		// Separate panel for computation methods, as they use a different
 		// layout
@@ -232,6 +235,7 @@ class SimulationOptionsPanel extends JPanel {
 		
 		
 		
+        leftColumn.add(new EnsembleOptionsPanel(conditions), "growx, aligny 0, wrap");
         flightComputerPanel = new FlightComputerPanel(simulation, this::updateCurrentExtensions);
         leftColumn.add(flightComputerPanel, "growx, aligny 0");
 
