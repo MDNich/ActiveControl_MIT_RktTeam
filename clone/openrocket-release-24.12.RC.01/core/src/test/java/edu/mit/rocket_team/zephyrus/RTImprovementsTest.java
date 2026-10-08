@@ -116,11 +116,17 @@ class RTImprovementsTest extends BaseTestCase {
         assertEquals(Simulation.Status.OUTDATED,sim.getStatus());
         sim.loadFrom(before); assertEquals(before.getStatus(),sim.getStatus());
         ZephyrusFlightComputer.apply(sim,false,new TelemetryLinkSettings(.2,95,7));
+        var timing=new edu.mit.rocket_team.zephyrus.FC.FlightComputerTimingSettings(3100,2200,999,8000,27);
+        ZephyrusFlightComputer.apply(sim,false,new TelemetryLinkSettings(.2,95,7),FlightComputerOutputSettings.DEFAULT,timing);
+        assertEquals(timing,ZephyrusFlightComputer.read(sim.clone()).getTimingSettings());
         doc.getDefaultStorageOptions().setSaveSimulationData(true);
         Path path=directory.resolve("attitude.ork"); new GeneralRocketSaver().save(path.toFile(),doc);
         Simulation loaded=new GeneralRocketLoader(path.toFile()).load().getSimulation(0);
         assertFalse(ZephyrusFlightComputer.read(loaded).isEnabled());
         assertEquals(new TelemetryLinkSettings(.2,95,7),ZephyrusFlightComputer.read(loaded).getLinkSettings());
+        assertEquals(timing,ZephyrusFlightComputer.read(loaded).getTimingSettings());
+        ZephyrusFlightComputer.apply(loaded,false,TelemetryLinkSettings.DEFAULT);
+        assertEquals(timing,ZephyrusFlightComputer.read(loaded).getTimingSettings(),"Changing receiver settings must preserve timing");
         var restored=loaded.getSimulatedData().getBranch(0);
         for(var type:List.of(FlightDataType.TYPE_ORIENTATION_QW,FlightDataType.TYPE_ORIENTATION_QX,FlightDataType.TYPE_ORIENTATION_QY,FlightDataType.TYPE_ORIENTATION_QZ,FlightDataType.TYPE_VELOCITY_X,FlightDataType.TYPE_VELOCITY_Y)) {
             assertEquals(branch.get(type).size(),restored.get(type).size());

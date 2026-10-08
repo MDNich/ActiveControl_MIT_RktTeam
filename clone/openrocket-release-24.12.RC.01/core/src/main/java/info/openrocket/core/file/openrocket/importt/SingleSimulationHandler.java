@@ -145,7 +145,7 @@ class SingleSimulationHandler extends AbstractElementHandler {
 
 		if (data == null) {
 			status = Status.NOT_SIMULATED;
-		} else if (status != Status.OUTDATED) {
+		} else if (status != Status.OUTDATED && status != Status.EXTERNAL) {
 			status = Status.LOADED;
 		}
 

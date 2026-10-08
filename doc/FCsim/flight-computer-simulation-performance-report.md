@@ -1,5 +1,8 @@
 # Flight computer simulation: hardware-contract assessment
 
+
+**Update, 7 October 2026:** The power timer has now been corrected, and configurable execution delays, overruns and independent PWM timing are implemented. See the [Zephyrus flight verification](../../sim/FCsim/benchmarking/timing-fix-20261007/report.md). The audit below describes the earlier build; hardware calibration remains outstanding.
+
 20 September 2026. Assessed the supplied run `zephyrus-2679935281387596436` against the selected FC sketch and libraries, emphasizing time contracts.
 
 **Verdict: partial compliance.** The simulation reproduces the nominal FC, PWM, telemetry and GPS schedules in virtual time. A power-command timer translation error violates the source contract. Hardware execution time, interrupt phase and peripheral latency are not represented, so the current implementation cannot establish that the physical FC meets its deadlines.

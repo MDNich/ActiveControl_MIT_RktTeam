@@ -1,0 +1,461 @@
+{
+  "format": "openrocket.flight-computer",
+  "version": 1,
+  "id": "8b626631-6179-4211-8e77-0966b7ec8f6c",
+  "name": "Zephyrus baseline",
+  "computer": "Zephyrus",
+  "model": "zephyrus-java-1",
+  "description": "Java translation of FC/FC.ino and its included libraries. Hardware grouping is based on source wiring, not a verified schematic. Fixed state actions, 10 ms nominal loop and 20 ms PWM. Recovery and roll outputs are recorded only.",
+  "parameters": {
+    "sensorReadUs": 3000,
+    "extraWorkUs": 0,
+    "workJitterUs": 0,
+    "pwmPhaseUs": 0,
+    "timingSeed": 1,
+    "sensorSeed": 1,
+    "telemetryIntervalMs": 50,
+    "powerIntervalMs": 100,
+    "apogeeLockoutMs": 26000,
+    "recovery1Ms": 3000,
+    "recovery2Ms": 5000,
+    "airbrakeLimit": 1,
+    "airbrakeKp": 1,
+    "airbrakeKi": 2,
+    "airbrakeKd": 0,
+    "rollKp": 0.08444,
+    "rollKi": 0,
+    "rollKd": 0.02111
+  },
+  "nodes": [
+    {
+      "id": "main",
+      "type": "board",
+      "name": "Zephyrus main board",
+      "board": "",
+      "properties": {},
+      "layout": {
+        "x": 40,
+        "y": 50,
+        "collapsed": false
+      },
+      "notes": "Functional grouping from FC.ino; package geometry is not a PCB layout."
+    },
+    {
+      "id": "cpu",
+      "type": "processor",
+      "name": "STM32 / FC.ino",
+      "board": "main",
+      "properties": {},
+      "layout": {
+        "x": 70,
+        "y": 95,
+        "collapsed": false
+      },
+      "notes": "Exact MCU part is not established by FC.ino. Loop target 10 ms; TIM4 PWM 20 ms."
+    },
+    {
+      "id": "baro",
+      "type": "barometer",
+      "name": "Barometer",
+      "board": "main",
+      "properties": {
+        "periodUs": 0,
+        "noise": 0,
+        "bias": 0,
+        "filterSamples": 20
+      },
+      "layout": {
+        "x": 330,
+        "y": 95,
+        "collapsed": false
+      },
+      "notes": "SPI BARO_CS PD3; pressure hPa, temperature \u00b0C; chip variant not asserted."
+    },
+    {
+      "id": "accel",
+      "type": "accelerometer",
+      "name": "ADXL357",
+      "board": "main",
+      "properties": {
+        "periodUs": 0,
+        "noise": 0,
+        "bias": 0,
+        "rotationX": 0,
+        "rotationY": 0,
+        "rotationZ": 0
+      },
+      "layout": {
+        "x": 330,
+        "y": 185,
+        "collapsed": false
+      },
+      "notes": "SPI ACCEL_CS PD2; firmware X longitudinal."
+    },
+    {
+      "id": "gyro",
+      "type": "gyroscope",
+      "name": "Gyroscope",
+      "board": "main",
+      "properties": {
+        "periodUs": 0,
+        "noise": 0,
+        "bias": 0,
+        "rotationX": 0,
+        "rotationY": 0,
+        "rotationZ": 0
+      },
+      "layout": {
+        "x": 330,
+        "y": 275,
+        "collapsed": false
+      },
+      "notes": "SPI GYRO_CS PD1; chip variant not asserted."
+    },
+    {
+      "id": "radio",
+      "type": "radio",
+      "name": "CC1200 radio",
+      "board": "main",
+      "properties": {},
+      "layout": {
+        "x": 70,
+        "y": 275,
+        "collapsed": false
+      },
+      "notes": "SPI CC_CS PC12."
+    },
+    {
+      "id": "flash",
+      "type": "storage",
+      "name": "Flash memory",
+      "board": "main",
+      "properties": {},
+      "layout": {
+        "x": 70,
+        "y": 185,
+        "collapsed": false
+      },
+      "notes": "SPI FLASH_CS PD4; logging recorded, not flash electrical model."
+    },
+    {
+      "id": "gps-board",
+      "type": "board",
+      "name": "GPS module",
+      "board": "",
+      "properties": {},
+      "layout": {
+        "x": 630,
+        "y": 50,
+        "collapsed": false
+      },
+      "notes": ""
+    },
+    {
+      "id": "gps",
+      "type": "gps",
+      "name": "GPS receiver",
+      "board": "gps-board",
+      "properties": {
+        "periodUs": 100000,
+        "noise": 0,
+        "bias": 0
+      },
+      "layout": {
+        "x": 650,
+        "y": 100,
+        "collapsed": false
+      },
+      "notes": "UART PB12/PB13; model/board identity not asserted."
+    },
+    {
+      "id": "power-board",
+      "type": "board",
+      "name": "Power board",
+      "board": "",
+      "properties": {},
+      "layout": {
+        "x": 630,
+        "y": 260,
+        "collapsed": false
+      },
+      "notes": ""
+    },
+    {
+      "id": "power",
+      "type": "power",
+      "name": "Power interface",
+      "board": "power-board",
+      "properties": {},
+      "layout": {
+        "x": 650,
+        "y": 310,
+        "collapsed": false
+      },
+      "notes": "UART PB11/PB10; power commands recorded only."
+    },
+    {
+      "id": "outputs",
+      "type": "board",
+      "name": "Outputs (logical grouping)",
+      "board": "",
+      "properties": {},
+      "layout": {
+        "x": 40,
+        "y": 480,
+        "collapsed": false
+      },
+      "notes": ""
+    },
+    {
+      "id": "airbrakes",
+      "type": "airbrakes",
+      "name": "Airbrake servo",
+      "board": "outputs",
+      "properties": {},
+      "layout": {
+        "x": 65,
+        "y": 535,
+        "collapsed": false
+      },
+      "notes": "PWM TIM4 channel 1 PD12; ideal motion through existing communicator."
+    },
+    {
+      "id": "roll",
+      "type": "roll",
+      "name": "Roll servos",
+      "board": "outputs",
+      "properties": {},
+      "layout": {
+        "x": 315,
+        "y": 535,
+        "collapsed": false
+      },
+      "notes": "PWM TIM4 channels 3/4 PD14/PD15; physical roll coupling disabled."
+    },
+    {
+      "id": "recovery",
+      "type": "recovery",
+      "name": "Recovery channels",
+      "board": "outputs",
+      "properties": {},
+      "layout": {
+        "x": 565,
+        "y": 535,
+        "collapsed": false
+      },
+      "notes": "Recorded only; OpenRocket owns physical recovery."
+    }
+  ],
+  "connections": [
+    {
+      "id": "link-baro",
+      "from": "baro",
+      "to": "cpu",
+      "port": "barometer",
+      "bus": "SPI",
+      "resource": "SPI_3",
+      "address": "PD3"
+    },
+    {
+      "id": "link-accel",
+      "from": "accel",
+      "to": "cpu",
+      "port": "accelerometer",
+      "bus": "SPI",
+      "resource": "SPI_3",
+      "address": "PD2"
+    },
+    {
+      "id": "link-gyro",
+      "from": "gyro",
+      "to": "cpu",
+      "port": "gyroscope",
+      "bus": "SPI",
+      "resource": "SPI_3",
+      "address": "PD1"
+    },
+    {
+      "id": "link-radio",
+      "from": "radio",
+      "to": "cpu",
+      "port": "radio",
+      "bus": "SPI",
+      "resource": "SPI_3",
+      "address": "PC12"
+    },
+    {
+      "id": "link-flash",
+      "from": "flash",
+      "to": "cpu",
+      "port": "storage",
+      "bus": "SPI",
+      "resource": "SPI_3",
+      "address": "PD4"
+    },
+    {
+      "id": "link-gps",
+      "from": "gps",
+      "to": "cpu",
+      "port": "gps",
+      "bus": "UART",
+      "resource": "PB12/PB13",
+      "address": ""
+    },
+    {
+      "id": "link-power",
+      "from": "power",
+      "to": "cpu",
+      "port": "power",
+      "bus": "UART",
+      "resource": "PB11/PB10",
+      "address": ""
+    },
+    {
+      "id": "link-airbrakes",
+      "from": "airbrakes",
+      "to": "cpu",
+      "port": "airbrakes",
+      "bus": "PWM",
+      "resource": "TIM4",
+      "address": "PD12"
+    },
+    {
+      "id": "link-roll",
+      "from": "roll",
+      "to": "cpu",
+      "port": "roll",
+      "bus": "PWM",
+      "resource": "TIM4",
+      "address": "PD14/PD15"
+    },
+    {
+      "id": "link-recovery",
+      "from": "recovery",
+      "to": "cpu",
+      "port": "recovery",
+      "bus": "GPIO",
+      "resource": "pyro",
+      "address": ""
+    }
+  ],
+  "rules": [
+    {
+      "id": "preflight",
+      "condition": {
+        "signal": "command",
+        "op": "==",
+        "value": 1
+      }
+    },
+    {
+      "id": "launch",
+      "condition": {
+        "op": "any",
+        "terms": [
+          {
+            "signal": "command",
+            "op": "==",
+            "value": 2
+          },
+          {
+            "signal": "accel_vertical",
+            "op": ">",
+            "value": 30
+          }
+        ]
+      }
+    },
+    {
+      "id": "apogee",
+      "condition": {
+        "op": "any",
+        "terms": [
+          {
+            "signal": "command",
+            "op": "==",
+            "value": 3
+          },
+          {
+            "op": "all",
+            "terms": [
+              {
+                "signal": "gps_fix",
+                "op": "==",
+                "value": 3
+              },
+              {
+                "signal": "gps_drop",
+                "op": ">",
+                "value": 20
+              }
+            ]
+          },
+          {
+            "signal": "baro_drop",
+            "op": ">",
+            "value": 20
+          }
+        ]
+      }
+    },
+    {
+      "id": "apogeeOverride",
+      "condition": {
+        "signal": "flight_ms",
+        "op": ">",
+        "value": 35000
+      }
+    },
+    {
+      "id": "main",
+      "condition": {
+        "op": "all",
+        "terms": [
+          {
+            "signal": "apogee_ms",
+            "op": ">",
+            "value": 55000
+          },
+          {
+            "op": "any",
+            "terms": [
+              {
+                "signal": "command",
+                "op": "==",
+                "value": 4
+              },
+              {
+                "op": "all",
+                "terms": [
+                  {
+                    "signal": "gps_fix",
+                    "op": "==",
+                    "value": 3
+                  },
+                  {
+                    "signal": "gps_altitude",
+                    "op": "<",
+                    "value": 457
+                  }
+                ]
+              },
+              {
+                "signal": "baro_altitude",
+                "op": "<",
+                "value": 457
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "end",
+      "condition": {
+        "signal": "command",
+        "op": "==",
+        "value": 5
+      }
+    }
+  ]
+}

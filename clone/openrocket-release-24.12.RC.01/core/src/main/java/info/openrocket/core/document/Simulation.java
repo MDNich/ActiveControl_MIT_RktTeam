@@ -416,6 +416,12 @@ public class Simulation implements ChangeSource, Cloneable {
 	 */
 	public Status getStatus() {
 		mutex.verify();
+        // Imported observations are independent of the current rocket, motors and FC definition.
+        if (status == Status.EXTERNAL) return status;
+        if(isStatusUpToDate(status) && simulatedData!=null && !simulatedData.getFlightComputerProvenance().isEmpty()) {
+            var fc=info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer.read(this);
+            if(!fc.isEnabled() || !java.util.Objects.equals(simulatedData.getFlightComputerProvenance().get("semanticHash"),fc.currentFingerprint()))status=Status.OUTDATED;
+        }
 		final FlightConfiguration config = rocket.getFlightConfiguration(this.getId()).clone();
 
 		if (isStatusUpToDate(status)) {
@@ -493,8 +499,17 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @param additionalListeners	additional simulation listeners (those defined by the simulation are used in any case)
 	 * @throws SimulationException	if a problem occurs during simulation
 	 */
-	public void simulate(SimulationListener... additionalListeners)
-			throws SimulationException {
+    public void simulate(SimulationListener... additionalListeners) throws SimulationException {
+        var prepared=new java.util.ArrayList<info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer>();
+        try {
+            for(var extension:simulationExtensions) if(extension instanceof info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer fc && fc.prepareDesign())prepared.add(fc);
+            simulateInternal(additionalListeners);
+            if(simulatedData!=null)for(var extension:simulationExtensions)
+                if(extension instanceof info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer fc && fc.isEnabled() && fc.getPreparedDesign()!=null)
+                    simulatedData.setFlightComputerProvenance(fc.getPreparedDesign().provenance());
+        } finally {prepared.forEach(info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer::releaseDesign);}
+    }
+    private void simulateInternal(SimulationListener... additionalListeners) throws SimulationException {
         if (options.getEnsembleSettings().enabled()) {
             mutex.lock("simulate");
             try {

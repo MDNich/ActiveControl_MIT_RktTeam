@@ -655,6 +655,8 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		flightDataBranch.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
 		flightDataBranch.setValue(FlightDataType.TYPE_COMPUTATION_TIME,
 				(System.nanoTime() - getSimulationStartWallTime()) / 1000000000.0);
+        var fc = info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener.active(this);
+        if (fc != null) fc.recordData(this);
 	}		
 
 	/**

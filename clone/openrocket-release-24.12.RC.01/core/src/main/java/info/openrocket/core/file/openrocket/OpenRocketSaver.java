@@ -326,7 +326,8 @@ public class OpenRocketSaver extends RocketSaver {
 		SimulationOptions cond = simulation.getOptions();
 
 		Simulation.Status simStatus;
-		simStatus = saveSimulationData ? simulation.getStatus() : Simulation.Status.NOT_SIMULATED;
+		simStatus = saveSimulationData || simulation.getStatus() == Simulation.Status.EXTERNAL
+                ? simulation.getStatus() : Simulation.Status.NOT_SIMULATED;
 
 		writeln("<simulation status=\"" + enumToXMLName(simStatus) + "\">");
 		indent++;
@@ -449,6 +450,11 @@ public class OpenRocketSaver extends RocketSaver {
 			writeln(str);
 			indent++;
 			
+            if(!data.getFlightComputerProvenance().isEmpty()) {
+                StringBuilder provenance=new StringBuilder("<fcprovenance");
+                new java.util.TreeMap<>(data.getFlightComputerProvenance()).forEach((k,v)->provenance.append(" ").append(k).append("=\"").append(TextUtil.escapeXML(v)).append("\""));
+                writeln(provenance.append("/>").toString());
+            }
 			for (Warning w : data.getWarningSet()) {
 				writeln("<warning type=\"" + w.getClass().getSimpleName() + "\">");
 				indent++; 
@@ -638,6 +644,8 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Retrieve the types from the branch
 		FlightDataType[] types = branch.getTypes();
+        // Preserve sensor noise and sub-millisecond FC deadlines across save/reopen.
+        fullPrecision |= java.util.Arrays.asList(types).contains(info.openrocket.core.simulation.flightcomputer.FlightComputerData.STATE);
 		
 		if (types.length == 0)
 			return;

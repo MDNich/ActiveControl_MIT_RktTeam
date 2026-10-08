@@ -48,3 +48,9 @@ Each step has a concrete completion criterion in its detailed plan. This work ex
 - The landing and tumble steppers update translation but do not integrate attitude. Their saved orientation must be displayed honestly; the animation must not invent a hanging orientation or tumble motion.
 
 The existing Swing/core framework is extended. The installed macOS launcher keeps its upstream-named JAR path, which now contains the same full application as `OpenRocket-MIT-v6.2.jar`.
+
+## Subsequent planning
+
+[External flight-computer files and graphical designer](05-flight-computer-designer.md), planned 7 October 2026: standalone `.fc` definitions, Zephyrus/Iris/Balius selection, graphical boards and sensors, linked behavior editing, and staged integration with the existing Java simulator. This document records the original plan; the implementation guide below describes delivered features and remaining limits. It supersedes embedding new flight-computer design definitions in `.ork`; project-specific references and simulation results remain in `.ork`.
+
+[Flight-computer designer implementation and use](06-flight-computer-designer-implementation.md): managed `.fc` library, supplied Zephyrus file, graphical hardware/behavior editor, runtime integration, testing, and supported capabilities.

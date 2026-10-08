@@ -61,6 +61,20 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		drawDomainMarkers(-1);
 
 		errorAnnotations = new ErrorAnnotationSet(branchCount);
+        // The legend identifies each sensor; repeating every full channel name on the
+        // axis clips comparison plots. Keep the preset's quantity and selected units.
+        if (config.getName() != null && config.getName().startsWith("Flight computer:")) {
+            for (int axis = 0; axis < 2; axis++) {
+                var units = new java.util.LinkedHashSet<String>();
+                for (int i = 0; i < filledConfig.getDataCount(); i++) {
+                    if (filledConfig.getAxis(i) == axis && !filledConfig.getUnit(i).getUnit().isBlank())
+                        units.add(filledConfig.getUnit(i).getUnit());
+                }
+                var range = chart.getXYPlot().getRangeAxis(axis);
+                if (range != null) range.setLabel(config.getName().substring("Flight computer:".length()).trim()
+                        + (units.isEmpty() ? "" : " (" + String.join(", ", units) + ")"));
+            }
+        }
         addEnsembleBands();
 	}
 
@@ -530,4 +544,3 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 		}
 	}
 }
-

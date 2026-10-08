@@ -114,7 +114,7 @@ public final class Trajectory3DDialog extends JDialog {
         if (loader != null) loader.cancel(true);
         long version = ++loadVersion;
         loader = new SwingWorker<>() {
-            @Override protected TrajectoryData doInBackground() { return new TrajectoryData(simulation.getSimulatedData().getBranch(branch)); }
+            @Override protected TrajectoryData doInBackground() { return new TrajectoryData(simulation.getSimulatedData().getBranch(branch),simulation.getSimulatedData().getFlightComputerProvenance()); }
             @Override protected void done() {
                 if (closed || version != loadVersion) return;
                 try {
@@ -139,7 +139,7 @@ public final class Trajectory3DDialog extends JDialog {
         play.setText(text(playback.isPlaying() ? "pause" : "play"));
         var frame = data.at(time);
         String speed = Double.isFinite(frame.speed()) ? UnitGroup.UNITS_VELOCITY.getDefaultUnit().toStringUnit(frame.speed()) : "—";
-        readout.setText(String.format(java.util.Locale.ROOT, "%.2f s   ·   %s: %s", time, text("trueSpeed"), speed));
+        readout.setText(String.format(java.util.Locale.ROOT, "%.2f s   ·   %s: %s", time, text("trueSpeed"), speed)+(data.flightComputerState(time).isEmpty()?"":"   ·   "+data.flightComputerState(time)));
         if (scene.isAvailable()) {
             if (frame.position() == null) status.setText(text("missing"));
             else if (frame.undersampled()) status.setText(text("undersampled"));

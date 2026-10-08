@@ -4,11 +4,12 @@ import edu.mit.rocket_team.zephyrus.util.data.*;
 /** baro.cpp: engineering-unit acquisition precedes the unchanged altitude/filter math. */
 public class RTBaro extends RTInstrument {
     private float pressure=1013.25f,temperature=20,rawPressure=Float.NaN,rawTemperature=Float.NaN;
-    private final float[] samples=new float[20];
+    private float[] samples=new float[20];
+    public void setFilterSamples(int count) {if(count<1||count>1000)throw new IllegalArgumentException("Filter length"); samples=new float[count];}
     private float filtered,offset,maxAlt;
     public RTBaro() { super(); }
     public RTBaro(RTUtilLibrary.Trace trace) { super(trace); }
-    @Override public void setup() { trace.log("baro.setup", "samples=20 pressure=hPa temperature=C raw=unavailable"); }
+    @Override public void setup() { trace.log("baro.setup", "samples="+samples.length+" pressure=hPa temperature=C raw=unavailable"); }
     @Override public void backdoorFudge(RTFudgedData data) {
         RTBaroData d=(RTBaroData)data;
         pressure=d.getPressure(); temperature=d.getTemperature();
@@ -16,9 +17,9 @@ public class RTBaro extends RTInstrument {
         if (!(pressure>0) || !Float.isFinite(temperature)) throw new IllegalArgumentException("Invalid barometer observation");
     }
     public void updateAll() {
-        System.arraycopy(samples,0,samples,1,19); samples[0]=getAltitude(); filtered=0;
+        System.arraycopy(samples,0,samples,1,samples.length-1); samples[0]=getAltitude(); filtered=0;
         for(float s:samples) filtered+=s;
-        filtered/=20;
+        filtered/=samples.length;
         if(getFilteredAltitude()>maxAlt) maxAlt=getFilteredAltitude();
         trace.log("baro.update", "pressure_hPa="+pressure+" temperature_C="+temperature+" altitude_m="+samples[0]+" filtered_m="+getFilteredAltitude()+" maximum_m="+maxAlt);
     }

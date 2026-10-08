@@ -160,6 +160,8 @@ public final class Trajectory3DPanel extends JPanel implements GLEventListener {
         }
         if (frame.position() != null) {
             double length = track.span()*0.055*rocketSize/zoom;
+            String fcState=track.flightComputerState(time);
+            if(!fcState.isEmpty())labels.add(0,new Label(fcState,frame.position().add(0,0,length*1.3)));
             if (frame.attitude() != null) rocket(gl, frame.position(), frame.attitude(), length, frame.powered());
             else { gl.glColor3d(0.92, 0.35, 0.12); gl.glPointSize(12); gl.glBegin(GL.GL_POINTS); vertex(gl, frame.position()); gl.glEnd(); }
             if (frame.recovery()) canopy(gl, frame.position(), frame.attitude(), length);

@@ -1,0 +1,235 @@
+{
+  "result": "PASS",
+  "source_ork": "/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/examples/zephy_testlaunch-java-fc.ork",
+  "source_sha256": "e2ac03343ef8df8d930e6e225099de3170bc6e046c0a88eba19ae148e742f399",
+  "simulation_and_wind_seed": 20261007,
+  "timing_jitter_seed": 42,
+  "profiles": {
+    "ideal": {
+      "loop_starts": 13298,
+      "completed_loops": 13298,
+      "overruns": 0,
+      "loop_period_us": {
+        "min": 10000,
+        "max": 10000
+      },
+      "execution_us": {
+        "min": 0,
+        "max": 0
+      },
+      "sensor_age_us": {
+        "min": 0,
+        "max": 2500
+      },
+      "pwm_sample_age_us": {
+        "min": 10000,
+        "max": 12500
+      },
+      "power_commands": 1208,
+      "first_power_us": 110000,
+      "power_period_us": {
+        "min": 110000,
+        "max": 110000
+      },
+      "pwm_period_us": 20000,
+      "gps_fix_period_us": 100000,
+      "pyro_pulse_us_by_channel": {
+        "0": 260000,
+        "1": 260000,
+        "3": 260000,
+        "4": 260000,
+        "5": 260000,
+        "2": 260000
+      },
+      "transmitted_packets": 2216,
+      "flight": {
+        "maxaltitude": 4472.035,
+        "maxvelocity": 410.258,
+        "maxacceleration": 240.076,
+        "maxmach": 1.212,
+        "timetoapogee": 27.818,
+        "flighttime": 131.974,
+        "groundhitvelocity": 39.87,
+        "launchrodvelocity": 20.035,
+        "optimumdelay": 25.785
+      },
+      "run_directory": "ideal/zephyrus-13542225820303553314",
+      "ork": "zephyrus-ideal.ork",
+      "ork_sha256": "d358c1a37a230a78c17d8df42ebef9b1a2786c4c4c419710cfc9f27c0e74fe4e"
+    },
+    "default": {
+      "loop_starts": 13299,
+      "completed_loops": 13299,
+      "overruns": 0,
+      "loop_period_us": {
+        "min": 10000,
+        "max": 10000
+      },
+      "execution_us": {
+        "min": 3000,
+        "max": 3000
+      },
+      "sensor_age_us": {
+        "min": 3000,
+        "max": 5393
+      },
+      "pwm_sample_age_us": {
+        "min": 10000,
+        "max": 12393
+      },
+      "power_commands": 1209,
+      "first_power_us": 103000,
+      "power_period_us": {
+        "min": 110000,
+        "max": 110000
+      },
+      "pwm_period_us": 20000,
+      "gps_fix_period_us": 100000,
+      "pyro_pulse_us_by_channel": {
+        "0": 260000,
+        "1": 260000,
+        "3": 260000,
+        "4": 260000,
+        "5": 260000,
+        "2": 260000
+      },
+      "transmitted_packets": 2216,
+      "flight": {
+        "maxaltitude": 4472.352,
+        "maxvelocity": 410.25,
+        "maxacceleration": 240.077,
+        "maxmach": 1.212,
+        "timetoapogee": 27.822,
+        "flighttime": 131.984,
+        "groundhitvelocity": 39.87,
+        "launchrodvelocity": 20.035,
+        "optimumdelay": 25.788
+      },
+      "run_directory": "default/zephyrus-740323995052422287",
+      "ork": "zephyrus-default.ork",
+      "ork_sha256": "c70a177c4074f1c19723d68a879dde73d8bcc001cbc433e4a0eece9ff2838ec8"
+    },
+    "overrun": {
+      "loop_starts": 10238,
+      "completed_loops": 10237,
+      "overruns": 10237,
+      "loop_period_us": {
+        "min": 13000,
+        "max": 13000
+      },
+      "execution_us": {
+        "min": 13000,
+        "max": 13000
+      },
+      "sensor_age_us": {
+        "min": 3000,
+        "max": 5500
+      },
+      "pwm_sample_age_us": {
+        "min": 14000,
+        "max": 27500
+      },
+      "power_commands": 1279,
+      "first_power_us": 104000,
+      "power_period_us": {
+        "min": 104000,
+        "max": 104000
+      },
+      "pwm_period_us": 20000,
+      "gps_fix_period_us": 100000,
+      "pyro_pulse_us_by_channel": {
+        "0": 263000,
+        "1": 263000,
+        "3": 263000,
+        "4": 263000,
+        "5": 263000,
+        "2": 263000
+      },
+      "transmitted_packets": 2559,
+      "flight": {
+        "maxaltitude": 4475.886,
+        "maxvelocity": 410.246,
+        "maxacceleration": 240.077,
+        "maxmach": 1.212,
+        "timetoapogee": 27.853,
+        "flighttime": 132.088,
+        "groundhitvelocity": 39.869,
+        "launchrodvelocity": 20.035,
+        "optimumdelay": 25.82
+      },
+      "run_directory": "overrun/zephyrus-8274138343572123394",
+      "ork": "zephyrus-overrun.ork",
+      "ork_sha256": "025dee19a008202fae1c624a4bdae3dfb450ab04722fd09d5ad28cc38231f5aa"
+    },
+    "jitter": {
+      "loop_starts": 11804,
+      "completed_loops": 11803,
+      "overruns": 6906,
+      "loop_period_us": {
+        "min": 9001,
+        "max": 14999
+      },
+      "execution_us": {
+        "min": 6000,
+        "max": 14999
+      },
+      "sensor_age_us": {
+        "min": 3000,
+        "max": 5500
+      },
+      "pwm_sample_age_us": {
+        "min": 6305,
+        "max": 30837
+      },
+      "power_commands": 1248,
+      "first_power_us": 102107,
+      "power_period_us": {
+        "min": 100123,
+        "max": 117847
+      },
+      "pwm_period_us": 20000,
+      "gps_fix_period_us": 100000,
+      "pyro_pulse_us_by_channel": {
+        "0": 259879,
+        "1": 259879,
+        "3": 252227,
+        "4": 252227,
+        "5": 258166,
+        "2": 256516
+      },
+      "transmitted_packets": 2356,
+      "flight": {
+        "maxaltitude": 4473.542,
+        "maxvelocity": 410.253,
+        "maxacceleration": 240.077,
+        "maxmach": 1.212,
+        "timetoapogee": 27.831,
+        "flighttime": 132.019,
+        "groundhitvelocity": 39.87,
+        "launchrodvelocity": 20.009,
+        "optimumdelay": 25.798
+      },
+      "run_directory": "jitter/zephyrus-11055835047528929583",
+      "ork": "zephyrus-jitter.ork",
+      "ork_sha256": "b2b952ddabf42c6bb6962ff63bf35556df1ee4b2849665e1a27c69aa34fa3ff7"
+    },
+    "baseline_unpaired": {
+      "power_commands": 13286,
+      "first_power_us": 110000,
+      "power_period_us": {
+        "min": 10000,
+        "max": 10000
+      },
+      "run_directory": "baseline/zephyrus-9798495859128455448"
+    },
+    "repeat": {
+      "result": "PASS",
+      "identical_telemetry_bytes": true,
+      "identical_simulated_state_samples": true,
+      "excluded_wall_clock_column": "Computation time",
+      "explicit_settings_persisted": true,
+      "run_directory": "default-repeat/zephyrus-4156808152202223257",
+      "ork": "zephyrus-default-repeat.ork"
+    }
+  }
+}

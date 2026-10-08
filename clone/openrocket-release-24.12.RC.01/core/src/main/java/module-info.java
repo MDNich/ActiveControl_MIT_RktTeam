@@ -10,6 +10,8 @@ open module info.openrocket.core {
 	requires com.google.guice;
 	requires java.desktop;
 	requires java.scripting;
+    requires org.codehaus.janino;
+    requires org.codehaus.commons.compiler;
 	requires org.graalvm.js.scriptengine;
 	requires org.graalvm.sdk;
 	requires org.graalvm.js;
@@ -87,6 +89,7 @@ open module info.openrocket.core {
 	exports info.openrocket.core.scripting;
 	exports info.openrocket.core.simulation;
     exports info.openrocket.core.simulation.ensemble;
+    exports info.openrocket.core.simulation.flightcomputer;
 	exports info.openrocket.core.simulation.customexpression;
 	exports info.openrocket.core.simulation.exception;
 	exports info.openrocket.core.simulation.extension;
@@ -107,6 +110,7 @@ open module info.openrocket.core {
 	exports edu.mit.rocket_team.zephyrus.control;
 	exports edu.mit.rocket_team.zephyrus.instrument;
 	exports edu.mit.rocket_team.zephyrus.internal;
+	exports edu.mit.rocket_team.zephyrus.FC;
 	exports edu.mit.rocket_team.zephyrus.telemetry;
 	exports edu.mit.rocket_team.zephyrus.util;
     exports edu.mit.rocket_team.zephyrus.util.data;

@@ -40,7 +40,7 @@ public final class EnsembleAccumulator {
                 mean.addPoint(); sd.addPoint();
                 for (var entry : b.moments.entrySet()) {
                     var type = entry.getKey(); var m = entry.getValue();
-                    mean.setValue(type, type == FlightDataType.TYPE_TIME ? t : m.mean(i, runs));
+                    mean.setValue(type, type == FlightDataType.TYPE_TIME ? t : type.equals(info.openrocket.core.simulation.flightcomputer.FlightComputerData.STATE)&&m.sd(i,runs)>0 ? -1 : m.mean(i, runs));
                     sd.setValue(type, type == FlightDataType.TYPE_TIME ? t : m.sd(i, runs));
                 }
                 // Keep component means for valid component bands. The 3D reader normalizes
@@ -98,7 +98,7 @@ public final class EnsembleAccumulator {
                     if (Arrays.asList(Q).contains(e.getKey())) continue;
                     var values = columns.get(e.getKey());
                     if (values == null) continue;
-                    e.getValue().add(i, interpolate(values.get(lo), values.get(hi), fraction, circular(e.getKey())));
+                    e.getValue().add(i, e.getKey().equals(info.openrocket.core.simulation.flightcomputer.FlightComputerData.STATE)?values.get(lo):interpolate(values.get(lo), values.get(hi), fraction, circular(e.getKey())));
                 }
                 double[] q = new double[4]; double dot = 0, norm = 0;
                 boolean available = true;

@@ -6,6 +6,7 @@ import java.util.Set;
 import info.openrocket.core.l10n.Translator;
 import info.openrocket.core.simulation.FlightDataBranch;
 import info.openrocket.core.simulation.FlightDataType;
+import info.openrocket.core.simulation.flightcomputer.FlightComputerData;
 import info.openrocket.core.simulation.FlightEvent;
 import info.openrocket.core.startup.Application;
 import info.openrocket.core.util.ArrayList;
@@ -164,7 +165,14 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
 		config.setEvent(FlightEvent.Type.SIM_ABORT, true);
 		configs.add(config);
 
-		DEFAULT_CONFIGURATIONS = configs.toArray(new SimulationPlotConfiguration[0]);
+        config=new SimulationPlotConfiguration("Flight computer: servo PWM outputs");for(var type:FlightComputerData.PWM)config.addPlotDataType(type,0);configs.add(config);
+        config=new SimulationPlotConfiguration("Flight computer: servo angles");config.addPlotDataType(FlightComputerData.AIRBRAKE_ANGLE,0);config.addPlotDataType(FlightComputerData.ROLL_ANGLE,0);configs.add(config);
+        config=new SimulationPlotConfiguration("Flight computer: airbrake deployment");config.addPlotDataType(FlightComputerData.AIRBRAKE,0);configs.add(config);
+        config=new SimulationPlotConfiguration("Flight computer: measured vs physical height");config.addPlotDataType(FlightComputerData.BARO_ALTITUDE,0);config.addPlotDataType(FlightComputerData.GPS_ALTITUDE,0);config.addPlotDataType(FlightDataType.TYPE_ALTITUDE,0);configs.add(config);
+        config=new SimulationPlotConfiguration("Flight computer: estimated vs physical velocity");config.addPlotDataType(FlightComputerData.VELOCITY,0);config.addPlotDataType(FlightDataType.TYPE_VELOCITY_Z,0);configs.add(config);
+        config=new SimulationPlotConfiguration("Flight computer: state");config.addPlotDataType(FlightComputerData.STATE,0);configs.add(config);
+        for(var pair:FlightComputerData.PAIRS){config=new SimulationPlotConfiguration("Flight computer: measured vs physical "+pair.label());config.addPlotDataType(pair.measured(),0);config.addPlotDataType(pair.truth(),0);configs.add(config);}
+        DEFAULT_CONFIGURATIONS = configs.toArray(new SimulationPlotConfiguration[0]);
 	}
 
 	

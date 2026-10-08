@@ -6,8 +6,9 @@ import edu.mit.rocket_team.zephyrus.util.data.RTFudgedData;
 public class RTRollController extends RTController {
     private static final float LAUNCH_ALT = 271.0f;
     private static final float LAUNCH_TEMP = 290.0f;
-    private static final float KP = 0.08444f;
-    private static final float KD = 0.02111f;
+    private float kp = 0.08444f, ki = 0.0f, kd = 0.02111f;
+    private float integral;
+    private long lastPidTimeUs = -1;
     private static final float Jxx0 = 0.267f;
     private static final float Jxxf = 0.241f;
     private static final float t_b = 2.51f;
@@ -31,7 +32,15 @@ public class RTRollController extends RTController {
     private final Trace trace;
     public RTRollController() { this(new Trace()); }
     public RTRollController(Trace trace) { this.trace=trace; }
-    @Override public void setup() { begin(); trace.log("roll.setup", "physical_coupling=false"); }
+    public void setPidGains(float p, float i, float d) {
+        if (!Float.isFinite(p) || !Float.isFinite(i) || !Float.isFinite(d))
+            throw new IllegalArgumentException("Roll PID gains must be finite");
+        kp=p; ki=i; kd=d; resetPidHistory();
+        trace.log("roll.pid", "kp="+kp+" ki="+ki+" kd="+kd+" integral_time=virtual_seconds");
+    }
+    public void resetPidHistory() { integral=0; lastPidTimeUs=-1; }
+    public float getIntegral() { return integral; }
+    @Override public void setup() { begin(); trace.log("roll.setup", "physical_coupling=false kp="+kp+" ki="+ki+" kd="+kd); }
     @Override public void performLoopAction() { throw new IllegalStateException("Use FC update with explicit inputs"); }
     @Override public void backdoorFudge(RTFudgedData data) { throw new UnsupportedOperationException("Use typed update"); }
     public void atmosphere(float h_m) {
@@ -127,6 +136,7 @@ public class RTRollController extends RTController {
 }
 
     public void begin() {
+    resetPidHistory();
     Gd_star();
 }
 
@@ -141,14 +151,26 @@ public class RTRollController extends RTController {
 
     float e = -roll;
     float dedt = -roll_rate;
-    float K_0 = KP * e + KD * dedt;
+    float K_0 = kp * e + kd * dedt;
+    long nowUs=trace.bootUs();
+    if (ki != 0) {
+        float dt=lastPidTimeUs>=0 && nowUs>lastPidTimeUs ? (nowUs-lastPidTimeUs)/1_000_000.0f : 0;
+        float candidate=integral+e*dt;
+        float gain=Gd_star_val/Gd_val;
+        float trial=(K_0+ki*candidate)*gain;
+        float change=ki*(candidate-integral)*gain;
+        // Hold the integral when it would drive further into the existing ±10° limit.
+        if (!((trial>10 && change>0)||(trial< -10 && change<0))) integral=candidate;
+        K_0 += ki*integral;
+    }
+    lastPidTimeUs=nowUs;
 
     float unscaledAngle = K_0 * Gd_star_val/Gd_val;
     if (unscaledAngle > 10.0f) unscaledAngle = 10.0f;
     if (unscaledAngle < -10.0f) unscaledAngle = -10.0f;
 
     angle = unscaledAngle * 1.0f / K_servo(v_eff, mach);
-    trace.log("roll.update", "flight_s="+t+" altitude_m="+h+" velocity_mps="+v+" roll_deg="+roll+" rate_dps="+roll_rate+" angle_deg="+angle);
+    trace.log("roll.update", "flight_s="+t+" altitude_m="+h+" velocity_mps="+v+" roll_deg="+roll+" rate_dps="+roll_rate+" integral_deg_s="+integral+" angle_deg="+angle);
 }
 
     public float getAngle() {

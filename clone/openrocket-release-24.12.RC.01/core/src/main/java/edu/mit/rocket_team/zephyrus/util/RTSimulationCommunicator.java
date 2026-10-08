@@ -8,7 +8,12 @@ public class RTSimulationCommunicator {
     private AirbrakeSet airbrakes;
     private final RTUtilLibrary.Trace trace;
     public RTSimulationCommunicator(RTUtilLibrary.Trace trace) { this.trace=trace; }
-    public void bind(SimulationStatus status) throws SimulationException {
+    public void bind(SimulationStatus status) throws SimulationException {bind(status,true);}
+    public void bind(SimulationStatus status,boolean connected) throws SimulationException {
+        if(!connected){
+            for(RocketComponent component:status.getConfiguration().getActiveComponents())if(component instanceof AirbrakeSet set)set.setFracExposed(0);
+            airbrakes=null;return;
+        }
         AirbrakeSet selected=null;
         for(RocketComponent component:status.getConfiguration().getActiveComponents()) if(component instanceof AirbrakeSet set) {
             if(selected!=null) throw new SimulationException("FC requires exactly one active AirbrakeSet"); selected=set;
@@ -18,6 +23,7 @@ public class RTSimulationCommunicator {
     }
     public void apply(RTFC.Output output,boolean holdClosed) {
         double fraction=holdClosed?0:output.exposedFraction();
+        if(airbrakes==null){trace.log("airbrakes.discard","reason=no_fc_output");return;}
         airbrakes.setFracExposed(fraction);
         trace.log("airbrakes.actuate", "exposed="+fraction+" pulse_us="+output.airbrakePulseUs()+" ideal_linkage=true hold_closed="+holdClosed);
     }

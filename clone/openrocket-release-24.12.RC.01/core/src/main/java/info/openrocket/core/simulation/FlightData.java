@@ -44,6 +44,9 @@ public class FlightData {
 	
 	private final WarningSet warnings = new WarningSet();
 	
+    private java.util.Map<String,String> flightComputerProvenance=java.util.Map.of();
+    public java.util.Map<String,String> getFlightComputerProvenance(){return flightComputerProvenance;}
+    public void setFlightComputerProvenance(java.util.Map<String,String> values){flightComputerProvenance=java.util.Map.copyOf(values);}
 	private info.openrocket.core.simulation.ensemble.EnsembleResult ensembleResult;
     public info.openrocket.core.simulation.ensemble.EnsembleResult getEnsembleResult() { return ensembleResult; }
     public void setEnsembleResult(info.openrocket.core.simulation.ensemble.EnsembleResult result) {

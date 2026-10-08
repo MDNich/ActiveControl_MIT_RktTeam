@@ -11,6 +11,7 @@ import info.openrocket.core.file.motor.GeneralMotorLoader;
 import info.openrocket.core.database.motor.ThrustCurveMotorSetDatabase;
 import info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer;
 import edu.mit.rocket_team.zephyrus.telemetry.TelemetryLinkSettings;
+import edu.mit.rocket_team.zephyrus.FC.FlightComputerTimingSettings;
 import info.openrocket.core.simulation.listeners.FlightControllerSimulatorListener;
 import edu.mit.rocket_team.zephyrus.RTFCVerificationRocket;
 import java.nio.file.*;
@@ -19,11 +20,20 @@ import java.nio.file.*;
 public class FcSimulationRunner {
     public static void main(String[] args) throws Exception {
         Double loss = null; Integer delay = null, seed = null;
+        Integer sensorUs=null, workUs=null, jitterUs=null, phaseUs=null, timingSeed=null, simulationSeed=null;
+        String saveOrk=null;
         var positional = new java.util.ArrayList<String>();
         for (String arg : args) {
             if (arg.startsWith("--loss-percent=")) loss = Double.parseDouble(arg.substring(15))/100;
             else if (arg.startsWith("--delay-ms=")) delay = Integer.parseInt(arg.substring(11));
             else if (arg.startsWith("--seed=")) seed = Integer.parseInt(arg.substring(7));
+            else if (arg.startsWith("--sensor-us=")) sensorUs=Integer.parseInt(arg.substring(12));
+            else if (arg.startsWith("--work-us=")) workUs=Integer.parseInt(arg.substring(10));
+            else if (arg.startsWith("--jitter-us=")) jitterUs=Integer.parseInt(arg.substring(12));
+            else if (arg.startsWith("--pwm-phase-us=")) phaseUs=Integer.parseInt(arg.substring(15));
+            else if (arg.startsWith("--timing-seed=")) timingSeed=Integer.parseInt(arg.substring(14));
+            else if (arg.startsWith("--simulation-seed=")) simulationSeed=Integer.parseInt(arg.substring(18));
+            else if (arg.startsWith("--save-ork=")) saveOrk=arg.substring(11);
             else positional.add(arg);
         }
         args = positional.toArray(String[]::new);
@@ -64,14 +74,31 @@ public class FcSimulationRunner {
         boolean hasFc = simulation.getSimulationExtensions().stream().anyMatch(ZephyrusFlightComputer::isFlightComputer);
         var saved = ZephyrusFlightComputer.read(simulation);
         var link = saved.getLinkSettings();
-        if (!hasFc || loss != null || delay != null || seed != null) {
+        if (!hasFc || loss != null || delay != null || seed != null || simulation.getSimulationExtensions().stream().noneMatch(e -> e instanceof ZephyrusFlightComputer)) {
             ZephyrusFlightComputer.apply(simulation, !hasFc || saved.isEnabled(), new TelemetryLinkSettings(
                 loss == null ? link.packetLossFraction() : loss,
                 delay == null ? link.delayMs() : delay, seed == null ? link.randomSeed() : seed));
         }
+        if (sensorUs!=null || workUs!=null || jitterUs!=null || phaseUs!=null || timingSeed!=null) {
+            saved=ZephyrusFlightComputer.read(simulation);
+            var t=saved.getTimingSettings();
+            ZephyrusFlightComputer.apply(simulation,saved.isEnabled(),saved.getLinkSettings(),saved.getOutputSettings(),
+                new FlightComputerTimingSettings(sensorUs==null?t.sensorReadUs():sensorUs, workUs==null?t.extraWorkUs():workUs,
+                    jitterUs==null?t.workJitterUs():jitterUs, phaseUs==null?t.pwmPhaseUs():phaseUs, timingSeed==null?t.randomSeed():timingSeed));
+        }
+        if(simulationSeed!=null) simulation.getOptions().setRandomSeed(simulationSeed);
+        System.out.println("FC_RUNNER simulation_seed="+simulation.getOptions().getRandomSeed());
+        final Integer fixedSeed=simulationSeed;
         final FlightControllerSimulatorListener[] captured = {null};
         simulation.simulate(new info.openrocket.core.simulation.listeners.AbstractSimulationListener() {
             @Override public void startSimulation(info.openrocket.core.simulation.SimulationStatus status) {
+                if(fixedSeed!=null) {
+                    var conditions=status.getSimulationConditions();
+                    if(conditions.getWindModel() instanceof info.openrocket.core.models.wind.PinkNoiseWindModel wind)
+                        conditions.setWindModel(wind.withSeed(fixedSeed));
+                    else if(conditions.getWindModel() instanceof info.openrocket.core.models.wind.MultiLevelPinkNoiseWindModel wind)
+                        conditions.setWindModel(wind.withSeed(fixedSeed));
+                }
                 captured[0] = FlightControllerSimulatorListener.active(status);
             }
         });
@@ -82,7 +109,15 @@ public class FcSimulationRunner {
         }
         var fc=listener.getFlightComputer();
         System.out.println("FC_RUNNER result=PASS loops="+fc.getLoopCount()+" state="+fc.getState()+" max_altitude_m="+simulation.getSimulatedData().getMaxAltitude());
+        System.out.println("FC_RUNNER timing="+listener.getTimingSummary());
         System.out.println("FC_RUNNER telemetry="+fc.telemetry.getCsvPath()+" packets="+fc.telemetry.getPacketPath());
+        if(saveOrk!=null) {
+            Path destination=Path.of(saveOrk);
+            if(Files.exists(destination)) throw new IllegalArgumentException("Output ORK already exists: "+destination);
+            doc.getDefaultStorageOptions().setSaveSimulationData(true);
+            new GeneralRocketSaver().save(destination.toFile(),doc);
+            System.out.println("FC_RUNNER saved_ork="+destination.toAbsolutePath());
+        }
         if(args[0].equals("--synthetic")) {
             Path example=fc.telemetry.getCsvPath().getParent().resolve("synthetic-fc-verification.ork");
             doc.getDefaultStorageOptions().setSaveSimulationData(true); new GeneralRocketSaver().save(example.toFile(),doc);

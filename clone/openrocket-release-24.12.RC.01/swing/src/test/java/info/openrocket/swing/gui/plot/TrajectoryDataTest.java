@@ -14,6 +14,16 @@ class TrajectoryDataTest extends BaseTestCase {
         b.setValue(TYPE_VELOCITY_X,2); b.setValue(TYPE_VELOCITY_Y,1); b.setValue(TYPE_VELOCITY_Z,10);
         if(q!=null) { b.setValue(TYPE_ORIENTATION_QW,q.getW()); b.setValue(TYPE_ORIENTATION_QX,q.getX()); b.setValue(TYPE_ORIENTATION_QY,q.getY()); b.setValue(TYPE_ORIENTATION_QZ,q.getZ()); }
     }
+    @Test void flightComputerStateLabelsAreHeldAtTransitionsAndSurviveSeeking(){
+        var branch=new FlightDataBranch("FC",TYPE_TIME);
+        var state=info.openrocket.core.simulation.flightcomputer.FlightComputerData.STATE;
+        point(branch,0,new Quaternion());branch.setValue(state,1);
+        point(branch,1,new Quaternion());branch.setValue(state,2);
+        point(branch,2,new Quaternion());branch.setValue(state,100);
+        var track=new TrajectoryData(branch,java.util.Map.of("state100","Drogue descent"));
+        assertEquals("PREFLIGHT",track.flightComputerState(.999));assertEquals("FLIGHT",track.flightComputerState(1));assertEquals("DROGUE DESCENT",track.flightComputerState(2));assertEquals("PREFLIGHT",track.flightComputerState(.1));
+        var plain=new FlightDataBranch("no FC",TYPE_TIME);point(plain,0,new Quaternion());point(plain,1,new Quaternion());assertEquals("",new TrajectoryData(plain).flightComputerState(.5));
+    }
     @Test void fullRollIsIndependentOfVelocityAndSlerpSign() {
         FlightDataBranch branch=new FlightDataBranch("roll",TYPE_TIME);
         point(branch,0,new Quaternion()); point(branch,2,Quaternion.rotation(new Coordinate(0,0,Math.PI/2)));

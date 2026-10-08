@@ -57,6 +57,9 @@ public class RTAirbrakesController extends RTController {
     private float lastDeltaH = 0;
     private float lastHf = 0;
     private float lastI = 0;
+    private float kp = 1.0f, ki = 2.0f, kd = 0.0f;
+    private float lastDerivative;
+    private long lastPidTimeUs = -1;
   
     private long lastMeasurementTimeMs = 0;
     private float desiredAlt=4550.0f;
@@ -83,19 +86,29 @@ public class RTAirbrakesController extends RTController {
         }
         begin();
     }
-    @Override public void setup() { begin(); trace.log("airbrakes.setup", "source=FC-included-library"); }
+    @Override public void setup() { begin(); trace.log("airbrakes.setup", "source=FC-included-library kp="+kp+" ki="+ki+" kd="+kd+" scaling=divide_by_K integral=legacy_per_update"); }
     @Override public void performLoopAction() { update(flightTime, input); }
     @Override public void backdoorFudge(RTFudgedData data) { input = (RTFudgedAirbrakesData)data; }
     public int getSampleCount() { return datIndex; }
     public float getPredictedAltitude() { return predictedAlt; }
     public float getDesiredAltitude() { return desiredAlt; }
     public float getIntegral() { return lastI; }
+    public float getErrorDerivative() { return lastDerivative; }
+    /** Gains are divided by the controller's existing altitude/area sensitivity K. */
+    public void setPidGains(float p, float i, float d) {
+        if (!Float.isFinite(p) || !Float.isFinite(i) || !Float.isFinite(d))
+            throw new IllegalArgumentException("Airbrake PID gains must be finite");
+        kp=p; ki=i; kd=d; resetPidHistory();
+        trace.log("airbrakes.pid", "kp="+kp+" ki="+ki+" kd="+kd+" scaling=divide_by_K integral=legacy_per_update");
+    }
+    public void resetPidHistory() { lastI=0; lastDeltaH=0; lastDerivative=0; lastPidTimeUs=-1; }
     public void begin() {
   state = DISABLED;
   deployment = 0.0f;
   datIndex = 0;
   counter = 0;
   patchingAltitude = 0;
+  resetPidHistory();
 }
 
 /* ------------------ Public ------------------ */
@@ -103,7 +116,7 @@ public class RTAirbrakesController extends RTController {
   this.input = status; this.flightTime = t;
   RTAirbrakesControllerState previous = state;
   handleState(t, status);
-  trace.log("airbrakes.update", "flight_s="+t+" state="+state+" samples="+datIndex+" deployment="+deployment+" predicted_m="+predictedAlt+" target_m="+desiredAlt+" integral="+lastI);
+  trace.log("airbrakes.update", "flight_s="+t+" state="+state+" samples="+datIndex+" deployment="+deployment+" predicted_m="+predictedAlt+" target_m="+desiredAlt+" integral="+lastI+" derivative_mps="+lastDerivative);
   if (state != previous) trace.log("airbrakes.transition", "from="+previous+" to="+state);
 }
 
@@ -360,12 +373,17 @@ public class RTAirbrakesController extends RTController {
 
   else if (state == CONTROLLING_PLATEAU) {
 
-    float Ki=2.0f/K, Kp=1.0f/K;
+    float Ki=ki/K, Kp=kp/K;
 
     lastA=deployment*a_max;
     float hf=computeFinalAltitude_Conrad(lastA,status.altitude,status.vel_z);
 
-    lastDeltaH=hf-desiredAlt;
+    float error=hf-desiredAlt;
+    long nowUs=trace.bootUs();
+    lastDerivative=lastPidTimeUs>=0 && nowUs>lastPidTimeUs
+        ? (float)((error-lastDeltaH)/((nowUs-lastPidTimeUs)/1_000_000.0)) : 0;
+    lastPidTimeUs=nowUs;
+    lastDeltaH=error;
 
     float I;
     if(((lastA/a_max>=1.0f)&&(lastDeltaH>=0))||((lastA/a_max<=1e-5)&&(lastDeltaH<0)))
@@ -376,6 +394,8 @@ public class RTAirbrakesController extends RTController {
     lastI=I;
 
     float nextA=Astar+(Kp*lastDeltaH+Ki*lastI);
+    // Keep the source PI recurrence (including its per-update integral) at the defaults.
+    if (kd != 0) nextA += kd/K*lastDerivative;
     setAirbrakesServo(nextA/a_max);
 
     if(status.vel_z<=0||status.apogeeReached){

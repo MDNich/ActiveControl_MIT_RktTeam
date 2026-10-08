@@ -62,7 +62,6 @@ class SimulationOptionsPanel extends JPanel {
 	final Simulation simulation;
 	
 	private JPanel currentExtensions;
-    private FlightComputerPanel flightComputerPanel;
 	final JPopupMenu extensionMenu;
 	JMenu extensionMenuCopyExtension;
 
@@ -236,8 +235,6 @@ class SimulationOptionsPanel extends JPanel {
 		
 		
         leftColumn.add(new EnsembleOptionsPanel(conditions), "growx, aligny 0, wrap");
-        flightComputerPanel = new FlightComputerPanel(simulation, this::updateCurrentExtensions);
-        leftColumn.add(flightComputerPanel, "growx, aligny 0");
 
 		//// Simulation extensions
 		sub = new JPanel(new MigLayout("fill, gap 0 0"));
@@ -396,9 +393,8 @@ class SimulationOptionsPanel extends JPanel {
 	}
 	
 	
-	private void updateCurrentExtensions() {
+	void updateCurrentExtensions() {
 		currentExtensions.removeAll();
-        if (flightComputerPanel != null) flightComputerPanel.refresh();
 		
 		if (simulation.getSimulationExtensions().stream().allMatch(ZephyrusFlightComputer::isFlightComputer)) {
 			StyledLabel l = new StyledLabel(trans.get("simedtdlg.SimExt.noExtensions"), Style.ITALIC);

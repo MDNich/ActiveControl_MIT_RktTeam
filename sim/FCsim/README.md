@@ -93,3 +93,9 @@ The check compares benchmark headers, checks every checksum, independently decod
 ## Before the actual launch comparison
 
 The saved benchmark launch site is 28.61°, −80.6°, altitude 0 m; its telemetry reports a location near 42.7042°, −77.1919°. Resolve the actual site, elevation, atmosphere, wind, sensor mounting, recovery setup, and time alignment before treating a run as a launch match. These have not been fitted or silently changed during implementation.
+
+## FC execution timing (7 October 2026)
+
+The existing FC listener now defaults to a 3 ms sensor readout delay (the two firmware barometer waits), with independent 20 ms PWM and 100 ms GPS deadlines. Simulation options expose additional work, uniform extra jitter, PWM phase and timing seed. These are assumed virtual execution costs; hardware calibration is still needed. See the [Zephyrus model verification](benchmarking/timing-fix-20261007/report.md) for results, limits and reproducible commands.
+
+The runner accepts `--sensor-us`, `--work-us`, `--jitter-us`, `--pwm-phase-us`, `--timing-seed`, `--simulation-seed` and `--save-ork` as `--name=value` arguments. `--simulation-seed` also pins the wind seed. Use a new destination for saved runs. `FC_JAR` can override the current launcher JAR. The telemetry checker accepts `--expected-period-ms=60` for exact nominal cadence, or checks the strict `>50 ms` firmware rule when that flag is omitted.

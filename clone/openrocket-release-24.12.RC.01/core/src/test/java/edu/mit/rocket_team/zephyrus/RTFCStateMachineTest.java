@@ -48,11 +48,15 @@ class RTFCStateMachineTest {
         tick(c,131130,9.8065f,0,3);
         assertFalse(c.pyroController.isFired(3)); assertFalse(c.pyroController.isFired(4)); assertFalse(c.pyroController.isFired(5));
     }
-    @Test void sourcePowerTimerRemainsUnadvanced() {
+    @Test void powerTimerAdvancesExactlyAsFirmware() {
         var lines=new java.util.ArrayList<String>();
         RTFC c=new RTFC(new edu.mit.rocket_team.zephyrus.util.RTUtilLibrary.Trace(lines::add)); c.init();
         tick(c,100,9.8065f,0,3); assertEquals(0,lines.stream().filter(s->s.contains("action=power.command")).count());
         tick(c,110,9.8065f,0,3); tick(c,120,9.8065f,0,3);
-        assertEquals(2,lines.stream().filter(s->s.contains("action=power.command")).count());
+        tick(c,210,9.8065f,0,3); tick(c,220,9.8065f,0,3);
+        var sends=lines.stream().filter(s->s.contains("action=power.command")).toList();
+        assertEquals(2,sends.size());
+        assertTrue(sends.get(0).contains("boot_us=110000 "));
+        assertTrue(sends.get(1).contains("boot_us=220000 "));
     }
 }

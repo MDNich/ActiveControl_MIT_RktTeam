@@ -88,7 +88,7 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 	private SimulationPlotPanel(final Simulation simulation, FlightDataType[] types,
 							   final DescriptionArea simPlotPanelDesc,
 							   Component[] extraWidgetsX, JPanel selectorPanel, Component[] extraWidgetsY) {
-		super(types, types, CUSTOM_CONFIGURATION, PRESET_ARRAY, DEFAULT_CONFIGURATION, extraWidgetsX, extraWidgetsY);
+		super(types, types, CUSTOM_CONFIGURATION, availablePresets(types), DEFAULT_CONFIGURATION, extraWidgetsX, extraWidgetsY);
 
 		this.simulation = simulation;
 
@@ -152,6 +152,14 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
         plotMode.addActionListener(e -> cards.show(body,plotMode.getSelectedIndex()==2?"pdf":plotMode.getSelectedIndex()==1?"3d":"2d"));
 	}
 
+    private static SimulationPlotConfiguration[] availablePresets(FlightDataType[] types){
+        var available=java.util.Set.of(types);
+        return java.util.Arrays.stream(PRESET_ARRAY).filter(c->{
+            if(!c.getName().startsWith("Flight computer:"))return true;
+            for(int i=0;i<c.getDataCount();i++)if(!available.contains(c.getType(i)))return false;
+            return true;
+        }).toArray(SimulationPlotConfiguration[]::new);
+    }
 	public static SimulationPlotPanel create(Simulation simulation) {
 		// Check the simulation data
 		if (simulation.getSimulatedData() == null ||

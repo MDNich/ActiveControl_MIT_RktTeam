@@ -10,6 +10,7 @@ import struct
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('run', type=Path, help='Run directory, received CSV, or metadata file')
+parser.add_argument('--expected-period-ms', type=int, help='Optional exact transmitted cadence for a nominal timing run')
 args = parser.parse_args()
 chosen = args.run.resolve()
 if chosen.is_dir():
@@ -75,11 +76,16 @@ def verify_pair(csv_name, raw_name, receiver=False):
             assert row[key] == '', f'Unmodeled field should be blank: {key}'
         if i:
             elapsed = (int(row['flight_time'])-int(rows[i-1]['flight_time'])) & 0xffffffff
-            steps = elapsed // 60
-            assert elapsed >= 60 and elapsed % 60 == 0
-            if not receiver: assert steps == 1
-            assert (int(row['pktnum'])-int(rows[i-1]['pktnum'])) & 0xffff == steps % 65536
-            near(float(row['timestamp'])-float(rows[i-1]['timestamp']), steps * 0.06)
+            # Firmware polls strict >50 ms. Execution delays/overruns can change the cadence.
+            assert elapsed > 50, f'Telemetry timer fired too early at packet {i}'
+            sequence_step = (int(row['pktnum'])-int(rows[i-1]['pktnum'])) & 0xffff
+            if not receiver:
+                assert sequence_step == 1, f'Transmitted sequence gap at packet {i}'
+                if args.expected_period_ms is not None: assert elapsed == args.expected_period_ms
+            # FCtime is integer milliseconds; the receiver timestamp retains microseconds.
+            timestamp_step = float(row['timestamp'])-float(rows[i-1]['timestamp'])
+            assert timestamp_step > 0
+            assert abs(timestamp_step-elapsed/1000) <= .001000001
 
     return rows, payloads
 

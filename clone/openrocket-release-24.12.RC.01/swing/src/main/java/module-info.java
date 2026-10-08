@@ -1,4 +1,5 @@
 open module info.openrocket.swing {
+    requires org.glassfish.jakarta.json;
 	requires transitive info.openrocket.core;
 
 	uses javax.script.ScriptEngineFactory;

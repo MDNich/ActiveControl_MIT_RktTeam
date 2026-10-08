@@ -98,6 +98,8 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 			}
 		}
 
+		for (FlightDataType t : info.openrocket.core.simulation.flightcomputer.FlightComputerData.ALL_TYPES) if(t.getName().equals(name)) return t;
+
 		// Replace deprecated 'Position upwind' with new 'Position North of launch' option
 		if (name.equals(trans.get("FlightDataType.TYPE_UPWIND"))) {
 			return FlightDataType.TYPE_POSITION_Y;

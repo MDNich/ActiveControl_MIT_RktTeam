@@ -25,6 +25,7 @@ class FlightDataHandler extends AbstractElementHandler {
 	private FlightData data;
     private EnsembleDataHandler ensembleHandler;
     private final boolean allowEnsemble;
+    private java.util.Map<String,String> fcProvenance=java.util.Map.of();
 	
 	
 	public FlightDataHandler(SingleSimulationHandler simHandler, DocumentLoadingContext context) {
@@ -44,6 +45,7 @@ class FlightDataHandler extends AbstractElementHandler {
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
 		
+        if(element.equals("fcprovenance")) {fcProvenance=java.util.Map.copyOf(attributes);return PlainTextHandler.INSTANCE;}
 		if (element.equals("ensembledata") && allowEnsemble) {
             ensembleHandler = new EnsembleDataHandler(simHandler, context, attributes);
             return ensembleHandler;
@@ -161,7 +163,8 @@ class FlightDataHandler extends AbstractElementHandler {
 					timeToApogee, flightTime, groundHitVelocity, launchRodVelocity, deploymentVelocity, optimumDelay);
 		}
 		
-		if (ensembleHandler != null) ensembleHandler.apply(data, warnings);
+		data.setFlightComputerProvenance(fcProvenance);
+        if (ensembleHandler != null) ensembleHandler.apply(data, warnings);
         data.getWarningSet().addAll(warningSet);
 		data.immute();
 	}

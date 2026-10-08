@@ -17,6 +17,7 @@ public final class TrajectoryData {
                         double speed, boolean recovery, boolean held, boolean undersampled, boolean powered) {}
     private record Burn(double ignition, double burnout) {}
 
+    private final NavigableMap<Double,String> fcStates=new TreeMap<>();
     private final List<Sample> samples;
     private final List<Marker> markers;
     private final List<Burn> burns;
@@ -25,15 +26,19 @@ public final class TrajectoryData {
     private final double start, end;
     private final String name;
 
-    public TrajectoryData(FlightDataBranch branch) {
+    public TrajectoryData(FlightDataBranch branch) {this(branch,Map.of());}
+    public TrajectoryData(FlightDataBranch branch,Map<String,String> provenance) {
         name = branch.getName();
         Map<FlightDataType, List<Double>> columns = new HashMap<>();
         for (FlightDataType type : branch.getTypes()) columns.put(type, branch.get(type));
+        var stateNames=new HashMap<>(info.openrocket.core.simulation.flightcomputer.FlightComputerData.stateNames(null));stateNames.putAll(provenance);
         List<Sample> points = new ArrayList<>();
         boolean gap = false;
         for (int i = 0; i < branch.getLength(); i++) {
             double t = value(columns, TYPE_TIME, i);
             if (!Double.isFinite(t)) { gap = true; continue; }
+            double state=value(columns,info.openrocket.core.simulation.flightcomputer.FlightComputerData.STATE,i);
+            if(Double.isFinite(state))fcStates.put(t,state<0?"MIXED STATES":stateNames.getOrDefault("state"+(int)state,"STATE "+(int)state).toUpperCase(Locale.ROOT));
             if (!points.isEmpty() && t < points.get(points.size() - 1).time())
                 throw new IllegalArgumentException("Trajectory timestamps run backwards");
             Coordinate p = vector(columns, i, TYPE_POSITION_X, TYPE_POSITION_Y, TYPE_ALTITUDE);
@@ -149,6 +154,7 @@ public final class TrajectoryData {
                 burns.stream().anyMatch(burn -> time >= burn.ignition() && time < burn.burnout()));
     }
 
+    public String flightComputerState(double time){var entry=fcStates.floorEntry(time);return entry==null?"":entry.getValue();}
     public String name() { return name; }
     public List<Sample> samples() { return samples; }
     public List<Marker> markers() { return markers; }
