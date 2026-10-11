@@ -1,0 +1,22 @@
+startup,used_bytes=0,committed_bytes=2147483648
+loaded,used_bytes=4062131552,committed_bytes=7415529472
+PID=97807 warnings=Messages[]
+SIM=Simulation 1 points=3594 channels=64
+SIM=Simulation 2 points=5378 channels=64
+SIM=FC Sim points=46705 channels=98
+run_0,used_bytes=532964256,committed_bytes=1795162112
+old_results_retained=0 points=46715
+run_1,used_bytes=1577550472,committed_bytes=2600468480
+old_results_retained=1 points=46715
+run_2,used_bytes=1546727760,committed_bytes=3120562176
+old_results_retained=1 points=46715
+IDLE_FOR_INSPECTION
+idle_5s,used_bytes=1546727760,committed_bytes=3120562176
+idle_10s,used_bytes=1546727760,committed_bytes=3120562176
+idle_15s,used_bytes=1546727760,committed_bytes=3120562176
+idle_20s,used_bytes=1546727760,committed_bytes=3120562176
+idle_25s,used_bytes=1546727760,committed_bytes=3120562176
+idle_30s,used_bytes=1546727760,committed_bytes=3120562176
+idle_35s,used_bytes=1546727760,committed_bytes=3120562176
+idle_40s,used_bytes=1563504976,committed_bytes=3120562176
+idle_45s,used_bytes=1563504976,committed_bytes=3120562176

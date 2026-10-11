@@ -4,3 +4,6 @@ README.aux
 README.hd
 README.log
 README.out
+
+# Temporary files created while OpenRocket saves a document.
+ORSave*.tmp

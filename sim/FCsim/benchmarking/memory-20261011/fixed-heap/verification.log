@@ -1,0 +1,32 @@
+MEMORY G1 periodic concurrent collection enabled; interval_ms=30000; heap limits unchanged
+startup,used_bytes=0,committed_bytes=2147483648
+loaded,used_bytes=3208590784,committed_bytes=8942256128
+PID=97994 warnings=Messages[]
+SIM=Simulation 1 points=3594 channels=64
+SIM=Simulation 2 points=5378 channels=64
+SIM=FC Sim points=46705 channels=98
+run_0,used_bytes=661310352,committed_bytes=1879048192
+old_results_retained=0 points=46716
+run_1,used_bytes=1327474688,committed_bytes=2717908992
+old_results_retained=1 points=46716
+run_2,used_bytes=612310072,committed_bytes=3271557120
+old_results_retained=1 points=46716
+IDLE_FOR_INSPECTION
+idle_5s,used_bytes=612310072,committed_bytes=3271557120
+old_results_retained=1
+idle_10s,used_bytes=612310072,committed_bytes=3271557120
+old_results_retained=1
+idle_15s,used_bytes=612310072,committed_bytes=3271557120
+old_results_retained=1
+idle_20s,used_bytes=612310072,committed_bytes=3271557120
+old_results_retained=1
+idle_25s,used_bytes=612310072,committed_bytes=3271557120
+old_results_retained=1
+idle_30s,used_bytes=612310072,committed_bytes=3271557120
+old_results_retained=1
+idle_35s,used_bytes=612310072,committed_bytes=3271557120
+old_results_retained=1
+idle_40s,used_bytes=352408768,committed_bytes=1291845632
+old_results_retained=0
+idle_45s,used_bytes=352408768,committed_bytes=1291845632
+old_results_retained=0

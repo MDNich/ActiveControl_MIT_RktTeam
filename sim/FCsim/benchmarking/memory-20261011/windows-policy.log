@@ -1,0 +1,2 @@
+MEMORY G1 periodic concurrent collection enabled; interval_ms=30000; heap limits unchanged
+Windows 11 periodic_gc_ms=30000

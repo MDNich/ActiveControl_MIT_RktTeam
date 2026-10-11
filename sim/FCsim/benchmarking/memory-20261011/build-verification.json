@@ -1,0 +1,21 @@
+{
+  "sha256": "2fc644fbf835b4d8f2e5eed93432e388e6d16edb0be7e6abc8963962ee60fe31",
+  "suites": [
+    {
+      "name": "info.openrocket.swing.gui.simulation.SimulationConfigDialogLifecycleTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.335"
+    },
+    {
+      "name": "info.openrocket.swing.startup.StartupMemoryPolicyTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.009"
+    }
+  ]
+}

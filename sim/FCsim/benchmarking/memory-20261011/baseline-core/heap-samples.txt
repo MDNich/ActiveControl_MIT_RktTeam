@@ -1,0 +1,9 @@
+startup,used_bytes=9404416,committed_bytes=2147483648
+loaded,used_bytes=1241690000,committed_bytes=2147483648
+loaded_after_gc,used_bytes=166495264,committed_bytes=580911104
+run_0,used_bytes=483731832,committed_bytes=580911104
+run_0_after_gc,used_bytes=168510904,committed_bytes=580911104
+run_1,used_bytes=243900600,committed_bytes=580911104
+run_1_after_gc,used_bytes=168502248,committed_bytes=580911104
+run_2,used_bytes=396334032,committed_bytes=643825664
+run_2_after_gc,used_bytes=168331968,committed_bytes=594542592

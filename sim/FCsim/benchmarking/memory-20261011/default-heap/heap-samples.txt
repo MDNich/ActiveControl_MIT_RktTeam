@@ -1,0 +1,14 @@
+startup,used_bytes=0,committed_bytes=2147483648
+loaded,used_bytes=4062131552,committed_bytes=7415529472
+run_0,used_bytes=532964256,committed_bytes=1795162112
+run_1,used_bytes=1577550472,committed_bytes=2600468480
+run_2,used_bytes=1546727760,committed_bytes=3120562176
+idle_5s,used_bytes=1546727760,committed_bytes=3120562176
+idle_10s,used_bytes=1546727760,committed_bytes=3120562176
+idle_15s,used_bytes=1546727760,committed_bytes=3120562176
+idle_20s,used_bytes=1546727760,committed_bytes=3120562176
+idle_25s,used_bytes=1546727760,committed_bytes=3120562176
+idle_30s,used_bytes=1546727760,committed_bytes=3120562176
+idle_35s,used_bytes=1546727760,committed_bytes=3120562176
+idle_40s,used_bytes=1563504976,committed_bytes=3120562176
+idle_45s,used_bytes=1563504976,committed_bytes=3120562176
