@@ -45,6 +45,34 @@ public class SimulationTest extends BaseTestCase {
 	}
 
 	@Test
+	public void editSnapshotSharesResultsButKeepsIndependentSettingsAndRestoresAfterRerun() throws Exception {
+		simulation.simulate();
+		FlightData original = simulation.getSimulatedData();
+		original.setFlightComputerProvenance(java.util.Map.of("state4", "RECOVERY"));
+		Simulation snapshot = simulation.copyForEdit();
+		assertSame(original, snapshot.getSimulatedData());
+		assertNotSame(simulation.getOptions(), snapshot.getOptions());
+		double originalLength = simulation.getOptions().getLaunchRodLength();
+		simulation.getOptions().setLaunchRodLength(originalLength + 1);
+		assertEquals(originalLength, snapshot.getOptions().getLaunchRodLength());
+		simulation.simulate();
+		assertNotSame(original, simulation.getSimulatedData());
+		simulation.loadFrom(snapshot);
+		assertSame(original, simulation.getSimulatedData());
+		assertEquals("RECOVERY", simulation.getSimulatedData().getFlightComputerProvenance().get("state4"));
+		assertEquals(originalLength, simulation.getOptions().getLaunchRodLength());
+		assertNotSame(original.getBranch(0), simulation.clone().getSimulatedData().getBranch(0),
+				"Normal clone must still provide independent data");
+	}
+
+	@Test
+	public void ordinarySimulationDoesNotRetainResultsInLegacyStaticBridge() throws Exception {
+		info.openrocket.core.simulation.listeners.MidControlStepLauncher.datStorage = null;
+		simulation.simulate();
+		assertNull(info.openrocket.core.simulation.listeners.MidControlStepLauncher.datStorage);
+	}
+
+	@Test
 	public void testSimulationName() {
 		String testName = "Test Flight #1";
 		simulation.setName(testName);

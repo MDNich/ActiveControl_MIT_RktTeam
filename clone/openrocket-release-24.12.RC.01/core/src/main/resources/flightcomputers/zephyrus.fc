@@ -5,7 +5,7 @@
   "name": "Zephyrus baseline",
   "computer": "Zephyrus",
   "model": "zephyrus-java-1",
-  "description": "Java translation of FC/FC.ino and its included libraries. Hardware grouping is based on source wiring, not a verified schematic. Fixed state actions, 10 ms nominal loop and 20 ms PWM. Recovery and roll outputs are recorded only.",
+  "description": "Java translation of FC/FC.ino and its included libraries. Hardware grouping is based on source wiring, not a verified schematic. Fixed state actions, 10 ms nominal loop and 20 ms PWM. Roll drives active tab-controlled fins with an ideal 1:1 linkage. Recovery outputs are recorded only.",
   "parameters": {
     "sensorReadUs": 3000,
     "extraWorkUs": 0,
@@ -230,7 +230,7 @@
         "y": 535,
         "collapsed": false
       },
-      "notes": "PWM TIM4 channels 3/4 PD14/PD15; physical roll coupling disabled."
+      "notes": "PWM TIM4 channels 3/4 PD14/PD15; ideal 1:1 linkage to active tab-controlled fins; nonzero tab area and CNAlpha required."
     },
     {
       "id": "recovery",

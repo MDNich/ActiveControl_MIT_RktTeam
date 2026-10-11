@@ -154,11 +154,20 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
 
     private static SimulationPlotConfiguration[] availablePresets(FlightDataType[] types){
         var available=java.util.Set.of(types);
-        return java.util.Arrays.stream(PRESET_ARRAY).filter(c->{
+        var presets=new java.util.ArrayList<>(java.util.Arrays.stream(PRESET_ARRAY).filter(c->{
             if(!c.getName().startsWith("Flight computer:"))return true;
             for(int i=0;i<c.getDataCount();i++)if(!available.contains(c.getType(i)))return false;
             return true;
-        }).toArray(SimulationPlotConfiguration[]::new);
+        }).toList());
+        for(var command:types)if(command.getSymbol().startsWith("FC_cmd_")) {
+            String physicalSymbol=command.getSymbol().replace("FC_cmd_","FC_phys_");
+            for(var physical:types)if(physical.getSymbol().equals(physicalSymbol)) {
+                var config=new SimulationPlotConfiguration("Flight computer: "+physical.getName().substring(4));
+                config.addPlotDataType(command,0);config.addPlotDataType(physical,0);
+                presets.add(presets.size()-1,config);break;
+            }
+        }
+        return presets.toArray(SimulationPlotConfiguration[]::new);
     }
 	public static SimulationPlotPanel create(Simulation simulation) {
 		// Check the simulation data

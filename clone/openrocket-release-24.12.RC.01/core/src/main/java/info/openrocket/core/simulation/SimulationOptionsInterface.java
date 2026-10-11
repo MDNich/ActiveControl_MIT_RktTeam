@@ -21,6 +21,11 @@ public interface SimulationOptionsInterface extends ChangeSource {
 
 	void setLaunchRodDirection(double launchRodDirection);
 
+	/** Initial spin about the rocket's longitudinal axis, in radians per second. */
+	double getInitialRollRate();
+
+	void setInitialRollRate(double initialRollRate);
+
 	PinkNoiseWindModel getAverageWindModel();
 
 	double getLaunchAltitude();

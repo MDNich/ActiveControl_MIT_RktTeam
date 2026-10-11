@@ -54,6 +54,9 @@ public class MidControlStepLauncher extends AbstractSimulationListener {
 
 	@Override
 	public void startSimulation(SimulationStatus status) throws SimulationException {
+		// Retain legacy bridge state only when this listener is explicitly used.
+		// Ordinary simulations must not populate a global result cache.
+		datStorage = status.getFlightDataBranch();
 		//System.out.println("STARTING SIMULATION");
 		//status.copySimStatParameters(iniStat);
 		//status.setFlightDataBranch(datStorage);

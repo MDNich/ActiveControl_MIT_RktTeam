@@ -58,6 +58,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private boolean launchIntoWind = preferences.getBoolean(ApplicationPreferences.LAUNCH_INTO_WIND, true);
 	private double launchRodAngle = preferences.getDouble(ApplicationPreferences.LAUNCH_ROD_ANGLE, 0);
 	private double launchRodDirection = preferences.getDouble(ApplicationPreferences.LAUNCH_ROD_DIRECTION, Math.PI / 2);
+	// Files without this setting retain the historical zero-spin launch.
+	private double initialRollRate = 0;
 
 	/*
 	 * SimulationOptions maintains the launch site parameters as separate double values,
@@ -101,6 +103,17 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 
 	public double getLaunchRodLength() {
 		return launchRodLength;
+	}
+
+	@Override
+	public double getInitialRollRate() { return initialRollRate; }
+
+	@Override
+	public void setInitialRollRate(double rate) {
+		if (!Double.isFinite(rate)) throw new IllegalArgumentException("Initial roll rate must be finite");
+		if (this.initialRollRate == rate) return;
+		this.initialRollRate = rate;
+		fireChangeEvent();
 	}
 
 	public void setLaunchRodLength(double launchRodLength) {
@@ -466,6 +479,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.launchRodLength = src.launchRodLength;
 		}
+		if (this.initialRollRate != src.initialRollRate) {
+			isChanged = true;
+			this.initialRollRate = src.initialRollRate;
+		}
 		if (this.launchIntoWind != src.launchIntoWind) {
 			isChanged = true;
 			this.launchIntoWind = src.launchIntoWind;
@@ -525,6 +542,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				MathUtil.equals(this.launchRodAngle, o.launchRodAngle) &&
 				MathUtil.equals(this.launchRodDirection, o.launchRodDirection) &&
 				MathUtil.equals(this.launchRodLength, o.launchRodLength) &&
+				MathUtil.equals(this.initialRollRate, o.initialRollRate) &&
 				MathUtil.equals(this.launchTemperature, o.launchTemperature) &&
 				MathUtil.equals(this.maximumAngle, o.maximumAngle) &&
 				MathUtil.equals(this.timeStep, o.timeStep) &&
@@ -576,6 +594,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		conditions.setLaunchRodLength(getLaunchRodLength());
 		conditions.setLaunchRodAngle(getLaunchRodAngle());
 		conditions.setLaunchRodDirection(getLaunchRodDirection());
+		conditions.setInitialRollRate(getInitialRollRate());
 		conditions.setLaunchSite(new WorldCoordinate(getLaunchLatitude(), getLaunchLongitude(), getLaunchAltitude()));
 		conditions.setGeodeticComputation(getGeodeticComputation());
 		conditions.setRandomSeed(randomSeed);
@@ -603,6 +622,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 				.concat(String.format("    launchIntoWind: %b\n", launchIntoWind))
 				.concat(String.format("    launchRodAngle:  %f\n", launchRodAngle))
 				.concat(String.format("    launchRodDirection:  %f\n", launchRodDirection))
+				.concat(String.format("    initialRollRate:  %f rad/s\n", initialRollRate))
 				.concat(String.format("    windModelType: %s\n", windModelType))
 				.concat(String.format("    pinkNoiseWindModel: %s\n", averageWindModel))
 				.concat(String.format("    multiLevelPinkNoiseWindModel: %s\n", multiLevelPinkNoiseWindModel))

@@ -16,6 +16,9 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rtextarea.RTextScrollPane;
 
 /** Graphical editor of a single external .fc document. No design graph is stored in the rocket. */
 public final class FlightComputerDesigner extends JPanel {
@@ -221,24 +224,46 @@ public final class FlightComputerDesigner extends JPanel {
     private void editJavaBoard(String id){
         var node=design.node(id);if(node==null)return;
         var dialog=new JDialog(SwingUtilities.getWindowAncestor(this),"Java board — "+node.getString("name"),Dialog.ModalityType.APPLICATION_MODAL);
-        var source=new JTextArea(node.getString("program"));source.setName("fc.javaSource");source.setFont(new Font(Font.MONOSPACED,Font.PLAIN,13));source.setTabSize(4);
-        var result=new JTextArea(4,60);result.setEditable(false);result.setLineWrap(true);result.setWrapStyleWord(true);
-        var lines=new JTextArea("1");lines.setEditable(false);lines.setFont(source.getFont());lines.setBackground(UIManager.getColor("Panel.background"));
-        var initialLines=new StringBuilder();for(int i=1;i<=source.getLineCount();i++)initialLines.append(i).append('\n');lines.setText(initialLines.toString());
-        source.getDocument().addDocumentListener(new DocumentListener(){public void insertUpdate(DocumentEvent e){update();}public void removeUpdate(DocumentEvent e){update();}public void changedUpdate(DocumentEvent e){update();}private void update(){var text=new StringBuilder();for(int i=1;i<=source.getLineCount();i++)text.append(i).append('\n');lines.setText(text.toString());result.setText("Source changed. Compile to check it; edited source needs to be enabled again.");}});
-        var scroll=new JScrollPane(source);scroll.setRowHeaderView(lines);
+        var source=new RSyntaxTextArea(node.getString("program"));source.setName("fc.javaSource");source.setTabSize(4);
+        source.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        source.setCodeFoldingEnabled(true);source.setBracketMatchingEnabled(true);source.setMarkOccurrences(true);
+        source.setLineWrap(false);
+        var scroll=new RTextScrollPane(source);scroll.setLineNumbersEnabled(true);
+        info.openrocket.swing.gui.util.GUIUtil.getUITheme().formatScriptTextArea(source);
+        source.setFont(new Font(Font.MONOSPACED,Font.PLAIN,13));source.discardAllEdits();
+        var result=new JTextArea(4,60);result.setName("fc.javaResult");result.setEditable(false);result.setLineWrap(true);result.setWrapStyleWord(true);
+        var sourceStatus=new JLabel();sourceStatus.setName("fc.javaStatus");
+        sourceStatus.setBorder(BorderFactory.createEmptyBorder(6,4,6,4));sourceStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sourceStatus.setToolTipText("Compiled checks this editor's current source; enabled approval is specific to its exact contents. Applied means it matches the design in memory. Saved means it matches the last .fc saved or loaded here. Ctrl/⌘ S can save a draft without enabling it.");
+        var lastCompiled=new String[1];var lastAttempt=new String[1];var savedSource=new String[]{savedJavaSource(id)};
+        Runnable updateSourceStatus=()->{
+            String text=source.getText();var appliedNode=design.node(id);
+            String compiled=text.equals(lastCompiled[0])?"Current":text.equals(lastAttempt[0])?"Failed":lastAttempt[0]==null?"Not checked":"Needed";
+            sourceStatus.setText("<html><b>Compiled:</b> "+compiled+" &nbsp; | &nbsp; <b>Enabled:</b> "+(JavaBoardProgram.approved(text)?"Yes":"No")
+                    +" &nbsp; | &nbsp; <b>Applied:</b> "+(appliedNode!=null&&text.equals(appliedNode.getString("program",""))?"Yes":"No")
+                    +" &nbsp; | &nbsp; <b>Saved in .fc:</b> "+(text.equals(savedSource[0])?"Yes":"No")+"</html>");
+        };
+        source.getDocument().addDocumentListener(new DocumentListener(){public void insertUpdate(DocumentEvent e){update();}public void removeUpdate(DocumentEvent e){update();}public void changedUpdate(DocumentEvent e){}private void update(){updateSourceStatus.run();result.setText("Source changed. Use Compile, enable & apply to prepare this revision. Ctrl/⌘ S saves a draft without enabling it.");}});
         var content=new JPanel(new BorderLayout(6,6));content.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
         content.add(new WrappingText("Java runs inside OpenRocket with access to this application's files and network. Enable only code you trust; step() must return promptly. Use io.timeUs(), not wall-clock time. Code is stored in the .fc file; execution approval stays on this computer.\n\n"+JavaBoardProgram.MODEL_NOTICE),BorderLayout.NORTH);
         var split=new JSplitPane(JSplitPane.VERTICAL_SPLIT,scroll,new JScrollPane(result));split.setResizeWeight(.8);split.setDividerLocation(420);content.add(split);
-        Runnable apply=()->{var current=design.node(id);if(current==null)throw new IllegalArgumentException("Board was removed");replaceNode(Json.createObjectBuilder(current).add("program",source.getText()).build());};
+        Runnable apply=()->{var current=design.node(id);if(current==null)throw new IllegalArgumentException("Board was removed");replaceNode(Json.createObjectBuilder(current).add("program",source.getText()).build());updateSourceStatus.run();};
+        Runnable compileEnableApply=()->{
+            String text=source.getText();lastAttempt[0]=text;
+            try{
+                JavaBoardProgram.compile(text);lastCompiled[0]=text;
+                JavaBoardProgram.approve(text);apply.run();
+                result.setText("Compiled, enabled and applied. "+(text.equals(savedSource[0])?"This source is already saved in the .fc file.":"Save the .fc file to keep it (Ctrl/⌘ S)."));
+            }catch(Exception ex){result.setText(ex.getMessage());}
+            finally{updateSourceStatus.run();}
+        };
         var buttons=new JPanel(new FlowLayout(FlowLayout.LEFT));
-        button(buttons,"Compile",()->{try{JavaBoardProgram.compile(source.getText());result.setText("Compilation successful. "+(JavaBoardProgram.approved(source.getText())?"This source is enabled.":"Use Compile & enable before running this code."));}catch(Exception ex){result.setText(ex.getMessage());}});
-        button(buttons,"Compile & enable",()->{try{JavaBoardProgram.compile(source.getText());JavaBoardProgram.approve(source.getText());apply.run();result.setText("Compilation successful. Source applied and enabled on this computer. Save the .fc file to keep the changes.");}catch(Exception ex){result.setText(ex.getMessage());}});
-        button(buttons,"Apply source",()->{apply.run();result.setText("Source applied to the design. Save the .fc file to keep the changes.");});
-        button(buttons,"API help",()->result.setText("Implement public void step(Context io) in public class BoardProgram extends JavaBoardProgram. Fields persist for this run; each run starts fresh.\nInputs: io.timeUs(), io.dtUs(), io.stateId(), io.connected(port), io.altitudeM(), io.velocityMps(), io.accelerationMps2(), io.signal(name). Signals: "+String.join(", ",FlightComputerDesign.SIGNALS.stream().sorted().toList())+".\nOutputs: io.setAirbrakes(0..1), io.setRollDegrees(-90..90), io.fireRecovery(0..5), io.log(text). Missing outputs discard commands. Recovery/roll are logical only.\nThe embedded compiler supports ordinary Java classes/methods; use explicit types, not var, records or lambdas. Each board runs on its own virtual schedule. timeUs() is the invocation start, dtUs() is the time between starts; measured inputs are frozen at start and outputs appear after execution cost. No inter-board communication delays are modeled. Simultaneous completions use board-ID order; the last write to a shared output wins."));
-        button(buttons,"Disable source",()->{JavaBoardProgram.revoke(source.getText());result.setText("Execution disabled for this source on this computer.");});
+        var prepare=button(buttons,"Compile, enable & apply",compileEnableApply);prepare.setName("fc.javaPrepare");
+        prepare.setToolTipText("Compile this revision, enable its exact source on this computer, and apply it to the design. Ctrl/⌘ Enter.");
+        button(buttons,"API help",()->result.setText("Implement public void step(Context io) in public class BoardProgram extends JavaBoardProgram. Fields persist for this run; each run starts fresh.\nInputs: io.timeUs(), io.dtUs(), io.stateId(), io.connected(port), io.altitudeM(), io.velocityMps(), io.accelerationMps2(), io.signal(name). Signals: "+String.join(", ",FlightComputerDesign.SIGNALS.stream().sorted().toList())+".\nOutputs: io.setAirbrakes(0..1), io.setRollDegrees(-90..90), io.fireRecovery(0..5), io.log(text). Named control: io.setRollDegrees(\"Forward fins\", 10), io.setAirbrakes(\"Aft airbrakes\", 0.25). Names refer to unique active ROCKET components, case-sensitive. Unnamed calls broadcast and clear named overrides; named calls override only their target until another broadcast or controller-close action. Multiple boards use last completed write per target. Missing outputs discard commands. In flight, roll drives tab-controlled fins (ideal 1:1 linkage; nonzero tab area and CNAlpha required) and airbrakes drive active AirbrakeSets. Recovery remains logical only.\nThe embedded compiler supports ordinary Java classes/methods; use explicit types, not var, records or lambdas. Each board runs on its own virtual schedule. timeUs() is the invocation start, dtUs() is the time between starts; measured inputs are frozen at start and outputs appear after execution cost. No inter-board communication delays are modeled. Simultaneous completions use board-ID order; the last write to a shared output wins."));
+        button(buttons,"Disable source",()->{JavaBoardProgram.revoke(source.getText());updateSourceStatus.run();result.setText("Execution disabled for this source on this computer.");});
         var externalButtons=new JPanel(new FlowLayout(FlowLayout.LEFT));var external=new JavaBoardExternalSource[1];
-        var externalStatus=new JLabel("External editing uses a working copy; reload it here, then compile, enable and save .fc.");
+        var externalStatus=new JLabel("External editing uses a working copy; reload it here, then Compile, enable & apply and save .fc.");
         buttons.setAlignmentX(Component.LEFT_ALIGNMENT);externalButtons.setAlignmentX(Component.LEFT_ALIGNMENT);externalStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
         var preferences=info.openrocket.core.startup.Application.getPreferences();String editorKey="fc.java.externalEditor";
         button(externalButtons,"Choose external editor…",()->{
@@ -261,23 +286,30 @@ public final class FlightComputerDesigner extends JPanel {
                 Desktop.getDesktop().edit(path.toFile());
             }else if(System.getProperty("os.name","").toLowerCase(java.util.Locale.ROOT).contains("mac")&&editor.toLowerCase(java.util.Locale.ROOT).endsWith(".app"))new ProcessBuilder("/usr/bin/open","-a",editor,path.toString()).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.INHERIT).start();
             else new ProcessBuilder(editor,path.toString()).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(ProcessBuilder.Redirect.INHERIT).start();
-            result.setText("Opened working copy:\n"+path+"\nSave in your editor, then use Reload external changes here. Compile & enable and save the .fc file to use the edited code.");
+            result.setText("Opened working copy:\n"+path+"\nSave in your editor, then use Reload external changes here. Compile, enable & apply and save the .fc file to use the edited code.");
         }catch(Exception ex){result.setText("External editor: "+ex.getMessage());}});
         button(externalButtons,"Reload external changes",()->{try{
             if(external[0]==null)throw new IOException("Use Edit externally first to create a working copy.");
             String text=external[0].read();
             if(external[0].editorChanged(source.getText())&&!source.getText().equals(text)&&JOptionPane.showConfirmDialog(dialog,"Replace unsaved edits in this code window with the external working copy?","Reload external source",JOptionPane.OK_CANCEL_OPTION)!=JOptionPane.OK_OPTION)return;
-            source.setText(text);external[0].acknowledge(text);result.setText("External source loaded. Compile & enable to check and use this revision, then Save the .fc file.\n"+external[0].file());
+            source.setText(text);external[0].acknowledge(text);result.setText("External source loaded. Compile, enable & apply to check and use this revision, then Save the .fc file.\n"+external[0].file());
         }catch(Exception ex){result.setText("External source: "+ex.getMessage());}});
-        Runnable close=()->{if(!source.getText().equals(design.node(id).getString("program"))){int choice=JOptionPane.showConfirmDialog(dialog,"Apply Java source changes to the design?","Java source",JOptionPane.YES_NO_CANCEL_OPTION);if(choice==JOptionPane.CANCEL_OPTION||choice==JOptionPane.CLOSED_OPTION)return;if(choice==JOptionPane.YES_OPTION)apply.run();}dialog.dispose();};
-        button(buttons,"Close",close);var footer=new JPanel();footer.setLayout(new BoxLayout(footer,BoxLayout.Y_AXIS));footer.add(buttons);footer.add(externalButtons);footer.add(externalStatus);content.add(footer,BorderLayout.SOUTH);dialog.setContentPane(content);dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);dialog.addWindowListener(new WindowAdapter(){public void windowClosing(WindowEvent e){close.run();}});
+        Runnable close=()->{if(!source.getText().equals(design.node(id).getString("program"))){int choice=JOptionPane.showConfirmDialog(dialog,"Keep these Java source edits as a draft in the design? This does not compile or enable them.","Java source",JOptionPane.YES_NO_CANCEL_OPTION);if(choice==JOptionPane.CANCEL_OPTION||choice==JOptionPane.CLOSED_OPTION)return;if(choice==JOptionPane.YES_OPTION)apply.run();}dialog.dispose();};
+        button(buttons,"Close",close);var footer=new JPanel();footer.setLayout(new BoxLayout(footer,BoxLayout.Y_AXIS));footer.add(sourceStatus);footer.add(buttons);footer.add(externalButtons);footer.add(externalStatus);content.add(footer,BorderLayout.SOUTH);dialog.setContentPane(content);dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);dialog.addWindowListener(new WindowAdapter(){public void windowClosing(WindowEvent e){close.run();}});
         for(String modifier:List.of("control","meta")){source.getInputMap().put(KeyStroke.getKeyStroke(modifier+" S"),"saveSource");source.getInputMap().put(KeyStroke.getKeyStroke(modifier+" ENTER"),"applySource");}
-        source.getActionMap().put("saveSource",new AbstractAction(){public void actionPerformed(ActionEvent e){apply.run();save(false);}});source.getActionMap().put("applySource",new AbstractAction(){public void actionPerformed(ActionEvent e){apply.run();}});
-        var history=new javax.swing.undo.UndoManager();source.getDocument().addUndoableEditListener(history);
+        source.getActionMap().put("saveSource",new AbstractAction(){public void actionPerformed(ActionEvent e){apply.run();if(save(false)){savedSource[0]=savedJavaSource(id);result.setText("Source saved to .fc. Compilation and enablement are shown below.");}updateSourceStatus.run();}});source.getActionMap().put("applySource",new AbstractAction(){public void actionPerformed(ActionEvent e){compileEnableApply.run();}});
         for(String modifier:List.of("control","meta")){source.getInputMap().put(KeyStroke.getKeyStroke(modifier+" Z"),"undoSource");source.getInputMap().put(KeyStroke.getKeyStroke(modifier+" shift Z"),"redoSource");}
-        source.getActionMap().put("undoSource",new AbstractAction(){public void actionPerformed(ActionEvent e){if(history.canUndo())history.undo();}});source.getActionMap().put("redoSource",new AbstractAction(){public void actionPerformed(ActionEvent e){if(history.canRedo())history.redo();}});
-        result.setText(JavaBoardProgram.approved(source.getText())?"This source is enabled on this computer.":"Compile & enable to allow this source to run. Loading or editing a file does not execute Java.");
-        dialog.setSize(1000,720);dialog.setMinimumSize(new Dimension(800,550));dialog.setLocationRelativeTo(this);dialog.setVisible(true);
+        source.getActionMap().put("undoSource",new AbstractAction(){public void actionPerformed(ActionEvent e){source.undoLastAction();}});source.getActionMap().put("redoSource",new AbstractAction(){public void actionPerformed(ActionEvent e){source.redoLastAction();}});
+        result.setText(JavaBoardProgram.approved(source.getText())?"This source is enabled on this computer.":"Compile, enable & apply to allow this source to run. Loading or editing a file does not execute Java.");
+        updateSourceStatus.run();
+        dialog.setSize(1000,750);dialog.setMinimumSize(new Dimension(800,550));dialog.setLocationRelativeTo(this);dialog.setVisible(true);
+    }
+    private String savedJavaSource(String id){
+        try(var reader=Json.createReader(new StringReader(savedText))){
+            for(var node:reader.readObject().getJsonArray("nodes").getValuesAs(JsonObject.class))
+                if(node.getString("id").equals(id))return node.getString("program",null);
+        }
+        return null;
     }
     private void connect(){var sources=new JComboBox<Item>();var targets=new JComboBox<Item>();for(var n:design.nodes().getValuesAs(JsonObject.class)){var item=new Item(n.getString("id"),n.getString("name"));if(FlightComputerModels.isControllerHost(n.getString("type")))targets.addItem(item);else if(FlightComputerModels.REQUIRED_PORTS.contains(n.getString("type")))sources.addItem(item);}
         for(int i=0;i<sources.getItemCount();i++)if(sources.getItemAt(i).id.equals(selected))sources.setSelectedIndex(i);

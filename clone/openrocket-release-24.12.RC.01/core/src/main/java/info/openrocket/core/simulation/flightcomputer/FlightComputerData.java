@@ -16,6 +16,8 @@ public final class FlightComputerData {
     public static final FlightDataType AIRBRAKE=type("airbrake exposed fraction","airbrake",UNITS_COEFFICIENT);
     public static final FlightDataType AIRBRAKE_ANGLE=type("airbrake servo angle","air_angle",UNITS_ANGLE);
     public static final FlightDataType ROLL_ANGLE=type("roll servo angle","roll_angle",UNITS_ANGLE);
+    public static final FlightDataType ROLL_TAB_ANGLE=type("physical roll tab angle","roll_tab_angle",UNITS_ANGLE);
+    public static final FlightDataType AIRBRAKE_PHYSICAL=type("physical airbrake exposed fraction","airbrake_physical",UNITS_COEFFICIENT);
     public static final FlightDataType[] PWM={type("airbrake PWM pulse","pwm0",UNITS_TIME_STEP),type("roll servo 2 PWM pulse","pwm2",UNITS_TIME_STEP),type("roll servo 3 PWM pulse","pwm3",UNITS_TIME_STEP)};
     public static final FlightDataType BARO_ALTITUDE=type("measured barometric height (filtered and zeroed)","baro_h",UNITS_DISTANCE);
     public static final FlightDataType GPS_ALTITUDE=type("measured GPS height (zeroed)","gps_h",UNITS_DISTANCE);
@@ -29,6 +31,21 @@ public final class FlightComputerData {
     public static final List<Pair> PAIRS;
     public static final FlightDataType[] ALL_TYPES;
     static{var pairs=new ArrayList<Pair>();pairs.add(PRESSURE);pairs.add(TEMPERATURE);pairs.add(LATITUDE);pairs.add(LONGITUDE);pairs.addAll(List.of(ACCEL));pairs.addAll(List.of(GYRO));PAIRS=List.copyOf(pairs);ALL_TYPES=TYPES.toArray(FlightDataType[]::new);}
+    public record ActuatorChannels(FlightDataType command,FlightDataType physical) {}
+    public static ActuatorChannels actuatorChannels(String port,String id,String name) {
+        if(!Set.of("roll","airbrakes").contains(port))throw new IllegalArgumentException("Unknown actuator port "+port);
+        String key=port+"_"+java.util.UUID.fromString(id).toString().replace("-","");
+        UnitGroup units=port.equals("roll")?UNITS_ANGLE:UNITS_COEFFICIENT;
+        String label=port.equals("roll")?"roll tab angle":"airbrake fraction";
+        String suffix=" ["+name.replace(",",";")+" · "+id.substring(0,8)+"]";
+        return new ActuatorChannels(FlightDataType.getType("FC: latched "+label+suffix,"FC_cmd_"+key,units),
+                FlightDataType.getType("FC: physical "+label+suffix,"FC_phys_"+key,units));
+    }
+    public static boolean isActuatorSymbol(String symbol) { return symbol.matches("FC_(cmd|phys)_(roll|airbrakes)_[0-9a-f]{32}"); }
+    public static FlightDataType actuatorType(String name,String symbol) {
+        if(!isActuatorSymbol(symbol))throw new IllegalArgumentException("Invalid FC actuator symbol");
+        return FlightDataType.getType(name,symbol,symbol.contains("_roll_")?UNITS_ANGLE:UNITS_COEFFICIENT);
+    }
     public static int stateCode(FlightComputerDesign design,String id,int phase){
         if(design==null||!design.hasStateMachine())return phase;
         int builtin=FlightComputerStateMachine.PHASES.indexOf(id);if(builtin>=0)return builtin;

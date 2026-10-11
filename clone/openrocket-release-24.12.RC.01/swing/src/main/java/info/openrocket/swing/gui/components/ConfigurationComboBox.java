@@ -106,6 +106,7 @@ public class ConfigurationComboBox extends JComboBox<FlightConfiguration> implem
 	}
 	
     private final Rocket rkt;
+    private boolean listening;
 
 	/**
 	 * @param _rkt the rocket to get the configurations from and to (optionally) change the rocket's selected configuration
@@ -116,7 +117,6 @@ public class ConfigurationComboBox extends JComboBox<FlightConfiguration> implem
 		rkt = _rkt;
 		final ConfigurationModel model = new ConfigurationModel(rkt, _updateRocketConfig);
 		setModel(model);
-		rkt.addChangeListener(this);
 	
 		addPopupMenuListener(new PopupMenuListener() {
 			public void popupMenuCanceled(PopupMenuEvent e) {}
@@ -135,6 +135,28 @@ public class ConfigurationComboBox extends JComboBox<FlightConfiguration> implem
 	public ConfigurationComboBox(Rocket _rkt) {
 		this(_rkt, true);
 	}
+
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        if (!listening) {
+            rkt.addChangeListener(this);
+            listening = true;
+        }
+        revalidate();
+        repaint();
+    }
+
+    @Override
+    public void removeNotify() {
+        // The rocket outlives configuration dialogs. Do not let its listener list
+        // retain a closed window and all of that window's simulation results.
+        if (listening) {
+            rkt.removeChangeListener(this);
+            listening = false;
+        }
+        super.removeNotify();
+    }
     
     @Override
     public void stateChanged(EventObject e) {

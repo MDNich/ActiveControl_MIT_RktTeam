@@ -7,7 +7,7 @@ import java.util.function.*;
 /** Independent virtual board schedules with shared measured inputs; no inter-board transport model. */
 public final class JavaBoardRuntime {
     @FunctionalInterface public interface Output {
-        void write(String boardId,String port,double value,long sampleUs);
+        void write(String boardId,String port,String target,double value,long sampleUs);
     }
     private static final class Board {
         final String id,name;final long period,cost;final JavaBoardProgram program;
@@ -42,7 +42,7 @@ public final class JavaBoardRuntime {
             long dt=b.lastStartUs<0?0:nowUs-b.lastStartUs;b.lastStartUs=nowUs;b.finishUs=nowUs+b.cost;
             b.nextStartUs=Math.max(nowUs+b.period,b.finishUs);
             b.context=new JavaBoardProgram.Context(nowUs,dt,state,key->{var v=readings.get(key);if(v==null)throw new IllegalArgumentException("Unknown board signal "+key);return v;},available::contains,
-                (port,value)->{log.accept("board="+b.id+" event=output port="+port+" value="+value+" input_sample_us="+sampleUs);output.write(b.id,port,value,sampleUs);},
+                (port,target,value)->{log.accept("board="+b.id+" event=output port="+port+" target="+target+" value="+value+" input_sample_us="+sampleUs);output.write(b.id,port,target,value,sampleUs);},
                 text->log.accept("board="+b.id+" "+text));
             log.accept("board="+b.id+" name="+b.name+" event=start start_us="+nowUs+" complete_us="+b.finishUs+" period_us="+b.period+" cost_us="+b.cost+" input_sample_us="+sampleUs);
         }

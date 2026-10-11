@@ -84,7 +84,7 @@ class FlightComputerDesignerFeaturesTest extends BaseTestCase {
             var d=FlightComputerDesign.zephyrus();var nodes=Json.createArrayBuilder(d.nodes());
             for(String id:List.of("a","b"))nodes.add(Json.createObjectBuilder(FlightComputerModels.newNode("java_board","",0,0)).add("id",id).add("program",code).add("properties",Json.createObjectBuilder().add("periodUs",10000).add("executionUs",id.equals("a")?20000:5000)));
             var runtime=new JavaBoardRuntime(d.with("nodes",nodes.build()));var outputs=new ArrayList<String>();var clock=new java.util.concurrent.atomic.AtomicLong();
-            while(runtime.nextDeadlineUs()<=20000){long now=runtime.nextDeadlineUs();clock.set(now);runtime.dispatch(now,now,"flight",key->now==0?42:84,port->true,(id,port,value,sample)->outputs.add(clock.get()+":"+id+":"+value+":"+sample),line->{});}
+            while(runtime.nextDeadlineUs()<=20000){long now=runtime.nextDeadlineUs();clock.set(now);runtime.dispatch(now,now,"flight",key->now==0?42:84,port->true,(id,port,target,value,sample)->outputs.add(clock.get()+":"+id+":"+value+":"+sample),line->{});}
             assertEquals(List.of("5000:b:0.42:0","15000:b:0.84:10000","20000:a:0.42:0"),outputs);
         }finally{JavaBoardProgram.revoke(code);}
     }

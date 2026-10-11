@@ -349,6 +349,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchrodlength", cond.getLaunchRodLength());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));
+		writeElement("initialrollrate", Math.toDegrees(cond.getInitialRollRate())); // degrees/second
 
 		// TODO: remove once support for OR 23.09 and prior is dropped
 		writeElement("windaverage", cond.getAverageWindModel().getAverage());
@@ -688,6 +689,10 @@ public class OpenRocketSaver extends RocketSaver {
 			sb.append("\" ");
 		}
 		
+        var fcTypes=jakarta.json.Json.createObjectBuilder();
+        for(var type:types)if(info.openrocket.core.simulation.flightcomputer.FlightComputerData.isActuatorSymbol(type.getSymbol()))fcTypes.add(type.getName(),type.getSymbol());
+        var fcTypeMetadata=fcTypes.build();
+        if(!fcTypeMetadata.isEmpty())sb.append("fctypes=\"").append(TextUtil.escapeXML(fcTypeMetadata.toString())).append("\" ");
 		sb.append("types=\"");
 		for (int i = 0; i < types.length; i++) {
 			if (i > 0)

@@ -1138,6 +1138,10 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 
 		if (this instanceof AxialStage) {
 			fireComponentChangeEvent(ComponentChangeEvent.TREE_CHANGE);
+		} else if (this instanceof TabControlledTrapezoidFinSet || this instanceof AirbrakeSet) {
+            // Custom flight-computer programs address these actuators by name.
+            // Renaming can change command routing and must invalidate saved results.
+            fireComponentChangeEvent(ComponentChangeEvent.EVENT_CHANGE);
 		} else {
 			fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
 		}

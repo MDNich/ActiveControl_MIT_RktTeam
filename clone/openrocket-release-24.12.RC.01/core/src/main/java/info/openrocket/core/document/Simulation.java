@@ -717,6 +717,20 @@ public class Simulation implements ChangeSource, Cloneable {
 	}
 
 	public Simulation clone() {
+		return clone(true);
+	}
+
+	/**
+	 * Snapshot for cancelling a settings edit. Settings and extensions are copied,
+	 * but completed results are shared: editing settings and rerunning replace the
+	 * result rather than modifying it. Do not mutate result data through this copy.
+	 * This avoids duplicating every time-series array whenever an editor opens.
+	 */
+	public Simulation copyForEdit() {
+		return clone(false);
+	}
+
+	private Simulation clone(boolean copyData) {
 		mutex.lock("clone");
 		try {
 			Simulation clone = (Simulation) super.clone();
@@ -738,7 +752,7 @@ public class Simulation implements ChangeSource, Cloneable {
 				clone.simulationExtensions.add(c.clone());
 			}
 			clone.status = this.status;
-			clone.simulatedData = this.simulatedData != null ? this.simulatedData.clone() : this.simulatedData;
+			clone.simulatedData = copyData && this.simulatedData != null ? this.simulatedData.clone() : this.simulatedData;
 			clone.simulationStepperClass = this.simulationStepperClass;
 			clone.aerodynamicCalculatorClass = this.aerodynamicCalculatorClass;
 

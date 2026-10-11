@@ -492,7 +492,11 @@ public class AirbrakeSet extends LeafSet implements AxialPositionable, BoxBounde
      * @return A new AirbrakeSet instance with the same properties
      */
     public AirbrakeSet clone() {
-        return new AirbrakeSet(length, width, thickness, CG_offset, indivAirbrakeMass, numAirbrakes);
+        try {
+            return (AirbrakeSet) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(e);
+        }
     }
 
     public double getLocalOverrideCD() {

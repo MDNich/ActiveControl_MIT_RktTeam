@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
 class FlightDataBranchHandler extends AbstractElementHandler {
 	@SuppressWarnings("unused")
 	private final DocumentLoadingContext context;
-	private final FlightDataType[] types;
+	private final java.util.Map<String,FlightDataType> fcTypes=new java.util.HashMap<>();
+    private final FlightDataType[] types;
 	private final FlightDataBranch branch;
 	
 	private static final Logger log = LoggerFactory.getLogger(FlightDataBranchHandler.class);
@@ -43,6 +44,13 @@ class FlightDataBranchHandler extends AbstractElementHandler {
     }
     FlightDataBranchHandler(String name, String typeList, SingleSimulationHandler simHandler,
             DocumentLoadingContext context, WarningSet flightWarnings) {
+        this(name,typeList,simHandler,context,flightWarnings,null);
+    }
+    FlightDataBranchHandler(String name,String typeList,SingleSimulationHandler simHandler,
+            DocumentLoadingContext context,WarningSet flightWarnings,String metadata) {
+        if(metadata!=null)try(var reader=jakarta.json.Json.createReader(new java.io.StringReader(metadata))) {
+            reader.readObject().forEach((label,value)->fcTypes.put(label,info.openrocket.core.simulation.flightcomputer.FlightComputerData.actuatorType(label,((jakarta.json.JsonString)value).getString())));
+        }catch(RuntimeException e){fcTypes.clear();if(flightWarnings!=null)flightWarnings.add("Invalid FC actuator plot metadata; ignored.");}
         this.simHandler = simHandler;
         this.context = context;
         this.flightWarnings = flightWarnings;
@@ -79,6 +87,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 	// Note: this way of doing it requires that custom expressions always come before flight data in the file,
 	// not the nicest but this is always the case anyway.
 	private FlightDataType findFlightDataType(String name) {
+        if(fcTypes.containsKey(name))return fcTypes.get(name);
 		
 		// Kevins version with lookup by key. Not using right now
 		/*

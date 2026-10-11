@@ -60,6 +60,7 @@ public class SimulationConfigDialog extends JDialog {
 
 
 	private final WindowListener applyChangesToSimsListener;
+	private final StateChangeListener modificationListener;
 	private final Simulation initialSim;		// A copy of the first selected simulation before it was modified
 	private final boolean initialIsSaved;		// Whether the document was saved before the dialog was opened
 	private boolean isModified = false;			// Whether the simulation has been modified
@@ -87,18 +88,19 @@ public class SimulationConfigDialog extends JDialog {
 		this.document = document;
 		this.parentWindow = parent;
 		this.simulationList = sims;
-		this.initialSim = simulationList[0].clone();
+		this.initialSim = simulationList[0].copyForEdit();
 		this.initialIsSaved = document.isSaved();
 		this.isNewSimulation = isNewSimulation;
 
-		simulationList[0].addChangeListener(new StateChangeListener() {
+		modificationListener = new StateChangeListener() {
 			@Override
 			public void stateChanged(EventObject e) {
 				isModified = true;
 				setTitle("* " + getTitle());			// Add component changed indicator to the title
 				simulationList[0].removeChangeListener(this);
 			}
-		});
+		};
+		simulationList[0].addChangeListener(modificationListener);
 
 		final JPanel contentPanel = new JPanel(new MigLayout("fill"));
 
@@ -232,6 +234,14 @@ public class SimulationConfigDialog extends JDialog {
 	private static void initColors() {
 		updateColors();
 		UITheme.Theme.addUIThemeChangeListener(SimulationConfigDialog::updateColors);
+	}
+
+	@Override
+	public void dispose() {
+		// The one-shot listener also needs removal when the dialog closes without
+		// an edit. Otherwise the simulation retains the dialog indefinitely.
+		simulationList[0].removeChangeListener(modificationListener);
+		super.dispose();
 	}
 
 	public static void updateColors() {

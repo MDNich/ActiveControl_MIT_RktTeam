@@ -16,10 +16,11 @@ public abstract class JavaBoardProgram {
         private final String state;
         private final ToDoubleFunction<String> signals;
         private final Predicate<String> connected;
-        private final BiConsumer<String,Double> output;
+        @FunctionalInterface public interface Output { void accept(String port,String target,double value); }
+        private final Output output;
         private final Consumer<String> log;
         public Context(long timeUs,long dtUs,String state,ToDoubleFunction<String> signals,
-                       Predicate<String> connected,BiConsumer<String,Double> output,Consumer<String> log) {
+                       Predicate<String> connected,Output output,Consumer<String> log) {
             this.timeUs=timeUs;this.dtUs=dtUs;this.state=state;this.signals=signals;
             this.connected=connected;this.output=output;this.log=log;
         }
@@ -32,10 +33,14 @@ public abstract class JavaBoardProgram {
         public double altitudeM(){return signal("baro_altitude");}
         public double velocityMps(){return signal("velocity");}
         public double accelerationMps2(){return signal("accel_vertical");}
-        public void setAirbrakes(double fraction){range(fraction,0,1);output.accept("airbrakes",fraction);}
-        public void setRollDegrees(double angle){range(angle,-90,90);output.accept("roll",angle);}
-        public void fireRecovery(int channel){range(channel,0,5);output.accept("recovery",(double)channel);}
+        public void setAirbrakes(double fraction){range(fraction,0,1);output.accept("airbrakes",null,fraction);}
+        public void setRollDegrees(double angle){range(angle,-90,90);output.accept("roll",null,angle);}
+        public void fireRecovery(int channel){range(channel,0,5);output.accept("recovery",null,(double)channel);}
         public void log(String text){log.accept(text);}
+        /** Exact, case-sensitive rocket component name, not the FC designer node name. */
+        public void setRollDegrees(String finSetName,double angle){range(angle,-90,90);output.accept("roll",target(finSetName),angle);}
+        public void setAirbrakes(String airbrakeSetName,double fraction){range(fraction,0,1);output.accept("airbrakes",target(airbrakeSetName),fraction);}
+        private static String target(String name){if(name==null||name.isBlank()||name.contains("\n")||name.contains("\r"))throw new IllegalArgumentException("A nonblank rocket component name is required");return name;}
         private static void range(double value,double min,double max){if(!Double.isFinite(value)||value<min||value>max)throw new IllegalArgumentException("Board output must be in ["+min+", "+max+"]");}
     }
 
@@ -54,7 +59,9 @@ public abstract class JavaBoardProgram {
                     // Sensor values are measured FC inputs, not simulator truth.
                     // double altitude = io.altitudeM();
                     // io.setAirbrakes(0.25);  // fraction 0..1
-                    // io.setRollDegrees(10); // degrees -90..90
+                    // io.setRollDegrees(10); // all roll tabs, degrees -90..90
+                    // io.setRollDegrees("Forward fins", 10); // exact rocket fin-set name
+                    // io.setAirbrakes("Aft airbrakes", 0.25); // exact rocket airbrake-set name
                     // io.fireRecovery(2);   // channels 0..5; logical output only
                 }
             }

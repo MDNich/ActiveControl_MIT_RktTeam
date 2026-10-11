@@ -68,6 +68,8 @@ public class SwingStartup {
 	 */
 	public static void main(final String[] args) throws Exception {
 
+        StartupMemoryPolicy.configure();
+
 		// Check for "openrocket.debug" property before anything else
 		checkDebugStatus();
 

@@ -60,7 +60,7 @@ class FlightDataHandler extends AbstractElementHandler {
 			}
 			dataHandler = new FlightDataBranchHandler(attributes.get("name"),
 					attributes.get("types"),
-					simHandler, context, warningSet);
+					simHandler, context, warningSet, attributes.get("fctypes"));
 			
 			if (attributes.get("optimumAltitude") != null) {
 				double optimumAltitude = Double.NaN;

@@ -159,7 +159,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         if(design!=null)run.fc.configure(design.design());
         if(status.getConfiguration().getActiveStageCount()!=1) throw new SimulationException("The flight computer currently supports one active stage");
         if(status.getSimulationTime()!=0) throw new SimulationException("The flight computer requires pad startup; mid-flight checkpoints are not implemented");
-        run.communicator.bind(status,run.fc.connected("airbrakes"));
+        run.communicator.bind(status,run.fc.connected("airbrakes"),run.fc.connected("roll"));
         status.getSimulationConditions().setTimeStep(maxPhysicsStep);
         var simulation = status.getSimulationConditions().getSimulation();
         run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")),
@@ -169,10 +169,10 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
             status.getSimulationConditions().getSimulation().setFlightComputerLogPath(run.fc.telemetry.getLogPath());
         }
         try {
-            run.fc.trace.log("simulation.start", "rocket="+status.getConfiguration().getRocket().getName()+" max_step_s="+maxPhysicsStep+" mounting=X:bodyZ,Y:bodyX,Z:bodyY noise=off recovery=OpenRocket pyro=recorded_only roll_physics=off hold_closed="+holdAirbrakesClosed);
+            run.fc.trace.log("simulation.start", "rocket="+status.getConfiguration().getRocket().getName()+" max_step_s="+maxPhysicsStep+" mounting=X:bodyZ,Y:bodyX,Z:bodyY noise=off recovery=OpenRocket pyro=recorded_only roll_physics=tab_fin_sets ideal_roll_linkage=1_to_1 hold_closed="+holdAirbrakesClosed);
             if(design!=null)run.fc.trace.log("design.loaded", "path="+design.path()+" id="+design.design().id()+" model="+design.design().model()+" semantic_hash="+design.design().fingerprint()+" file_hash="+design.exactHash());
             var stateNames=jakarta.json.Json.createObjectBuilder();FlightComputerData.stateNames(design==null?null:design.design()).forEach(stateNames::add);
-            run.fc.trace.log("fc.plot_metadata",jakarta.json.Json.createObjectBuilder().add("version",1).add("states",stateNames).build().toString());
+            run.fc.trace.log("fc.plot_metadata",jakarta.json.Json.createObjectBuilder().add("version",1).add("states",stateNames).add("actuators",run.communicator.plotMetadata()).build().toString());
             run.fc.init();
             run.fc.trace.log("timing.settings", "sensor_read_us="+timing.sensorReadUs()+" extra_work_us="+timing.extraWorkUs()+
                     " work_jitter_us="+timing.workJitterUs()+" pwm_phase_us="+timing.pwmPhaseUs()+" seed="+timing.randomSeed()+
@@ -254,7 +254,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     }
     @Override public boolean preStep(SimulationStatus status) throws SimulationException {
         run.stepStart=status.getSimulationTime(); run.candidate=null; run.intervalOpen=true;
-        run.communicator.bind(status,run.fc.connected("airbrakes"));
+        run.communicator.bind(status,run.fc.connected("airbrakes"),run.fc.connected("roll"));
+        run.communicator.apply(run.fc.getOutput(),holdAirbrakesClosed);
         run.fc.trace.log("physics.begin", "simulation_s="+run.stepStart);
         return true;
     }
@@ -295,6 +296,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     }
     private void recordData(SimulationStatus status,RTFC.Inputs truth){
         FlightComputerData.record(status.getFlightDataBranch(),run.fc,truth,design==null?null:design.design());
+        run.communicator.recordData(status.getFlightDataBranch(),run.fc.getOutput());
     }
     /** Coherent engineering-unit observation; simulation body Z is the longitudinal axis. */
     public static RTFC.Inputs sample(SimulationStatus status,Coordinate accelerationWC,long acquisitionUs) {

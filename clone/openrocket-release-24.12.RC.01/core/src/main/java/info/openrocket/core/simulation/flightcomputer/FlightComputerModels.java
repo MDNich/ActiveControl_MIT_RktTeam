@@ -63,5 +63,5 @@ public final class FlightComputerModels {
         if(type.equals("java_board"))node.add("program",JavaBoardProgram.template());
         return node.build();
     }
-    public static String capability(String type){return switch(type){case "board","connector"->"Architecture";case "processor"->"Flight controller task host";case "java_board"->"Programmable Java board";case "power","roll","recovery","storage"->"Recorded only";default->"Simulated";};}
+    public static String capability(String type){return switch(type){case "board","connector"->"Architecture";case "processor"->"Flight controller task host";case "java_board"->"Programmable Java board";case "roll"->"Simulated: tab-controlled fins, ideal 1:1 linkage";case "power","recovery","storage"->"Recorded only";default->"Simulated";};}
 }

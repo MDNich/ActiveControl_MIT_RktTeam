@@ -29,7 +29,7 @@ public class FinSetCalc extends RocketComponentCalc {
 
     protected boolean hasTabs = false;
     private double CNALPHA = 1; // TODO: CFD
-    private double tabAngle = 0;
+    private TabControlledTrapezoidFinSet tabFinSet;
     private double tabArea;
     private double momentArm;
 
@@ -73,8 +73,7 @@ public class FinSetCalc extends RocketComponentCalc {
 
         if (component instanceof TabControlledTrapezoidFinSet) {
             this.hasTabs = true;
-            TabControlledTrapezoidFinSet tabFinSet = (TabControlledTrapezoidFinSet) component;
-            this.tabAngle = tabFinSet.getTabAngle();
+            this.tabFinSet = (TabControlledTrapezoidFinSet) component;
             this.tabArea = tabFinSet.getTabChord()*tabFinSet.getTabSpan();
             this.momentArm = tabFinSet.getBodyRadius() +  tabFinSet.getTabOffset() + tabFinSet.getTabSpan()/2;
             this.CNALPHA = tabFinSet.getCNALPHA();
@@ -228,7 +227,12 @@ public class FinSetCalc extends RocketComponentCalc {
 
         // if tabs
         if (this.hasTabs) {
-            forces.setCroll(forces.getCroll() + CNALPHA*tabAngle*tabArea*this.momentArm/conditions.getRefArea() / conditions.getRefLength());
+            // Deflection is an actuator state: read it on every calculation, including
+            // when geometry caches survive a PWM update. One contribution per fin instance.
+            double tabAngle = tabFinSet.getTabAngle();
+            double tabRoll = CNALPHA*tabAngle*tabArea*this.momentArm/conditions.getRefArea() / conditions.getRefLength();
+            forces.setCrollForce(forces.getCrollForce() + tabRoll);
+            forces.setCroll(forces.getCrollForce() - forces.getCrollDamp());
             forces.setCDaxial(forces.getCDaxial() + CNALPHA*tabAngle*Math.sin(tabAngle)*tabArea*this.momentArm/conditions.getRefArea() / conditions.getRefLength());
         }
 		

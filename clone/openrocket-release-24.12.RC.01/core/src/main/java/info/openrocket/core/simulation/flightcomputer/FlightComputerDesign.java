@@ -153,9 +153,10 @@ public final class FlightComputerDesign {
                 if(node(from)==null||node(to)==null) {issues.add(new Diagnostic(id,"Connection has missing endpoint",true));continue;}
                 if(!FlightComputerModels.isControllerHost(node(to).getString("type")) || !FlightComputerModels.portType(port).equals(node(from).getString("type")))
                     issues.add(new Diagnostic(id,"Incompatible component / controller port "+port,true));
-                if(!sinks.add(to+":"+port)) issues.add(new Diagnostic(id,"Multiple components drive "+port,true));
+                boolean actuator=Set.of("roll","airbrakes","recovery").contains(port);
+                if(!sinks.add(to+":"+port+(actuator?":"+from:""))) issues.add(new Diagnostic(id,"Multiple components drive "+port,true));
                 String other=roleSources.putIfAbsent(port,from);
-                if(other!=null&&!other.equals(from))issues.add(new Diagnostic(id,"The shared controller input '"+port+"' has more than one source. Connect the same component to each host or use one source for this role.",true));
+                if(!actuator&&other!=null&&!other.equals(from))issues.add(new Diagnostic(id,"The shared controller input '"+port+"' has more than one source. Connect the same component to each host or use one source for this role.",true));
                 String bus=c.getString("bus",""),address=c.getString("address","");
                 if(!Set.of("SPI","UART","I2C","GPIO","PWM","Power").contains(bus)) issues.add(new Diagnostic(id,"Unknown bus "+bus,true));
                 if((bus.equals("SPI")||bus.equals("I2C"))&&address.isBlank()) issues.add(new Diagnostic(id,"Chip select / address is required",true));
@@ -175,7 +176,7 @@ public final class FlightComputerDesign {
             }
             for(String id:FlightComputerModels.RULES.keySet()) if(!ruleIds.contains(id)) issues.add(new Diagnostic(id,"Missing rule "+id,true));
         } catch(RuntimeException e) {issues.add(new Diagnostic("","Invalid design structure: "+e.getMessage(),true));}
-        issues.add(new Diagnostic("","Recovery and roll outputs are recorded only; power wiring and board geometry are descriptive.",false));
+        issues.add(new Diagnostic("","Roll drives active tab-controlled fins through an ideal 1:1 linkage; tab area and CNAlpha must be nonzero. Airbrakes drive active AirbrakeSets. Recovery is recorded only; power wiring and board geometry are descriptive.",false));
         return List.copyOf(issues);
     }
     public void requireRunnable() {

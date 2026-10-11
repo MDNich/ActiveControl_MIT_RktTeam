@@ -347,6 +347,20 @@ public class SimulationConditionsPanel extends JPanel {
 		intoWind.addEnableComponent(directionSpin, false);
 		intoWind.addEnableComponent(unit, false);
 		intoWind.addEnableComponent(directionSlider, false);
+
+		label = new JLabel(trans.get("simedtdlg.lbl.InitialRollRate"));
+		tip = trans.get("simedtdlg.lbl.ttip.InitialRollRate");
+		label.setToolTipText(tip);
+		sub.add(label);
+		m = new DoubleModel(target, "InitialRollRate", UnitGroup.UNITS_ROLL);
+		spin = new JSpinner(m.getSpinnerModel());
+		spin.setName("simulation.initialRollRate");
+		spin.setEditor(new SpinnerEditor(spin));
+		spin.setToolTipText(tip);
+		sub.add(spin, "growx");
+		unit = new UnitSelector(m);
+		unit.setToolTipText(tip);
+		sub.add(unit, "span 2, width 60lp, alignx left, wrap");
 	}
 
 	public static void addSimulationConditionsPanel(JPanel parent, SimulationOptionsInterface target) {

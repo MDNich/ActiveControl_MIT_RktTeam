@@ -95,7 +95,7 @@ public class RTTelemetryEngine implements AutoCloseable {
             "\ncompletion=" + completion + "\n" +
             "Delay/loss affect downlink only. No physical RF/CPU execution model.\n" +
             "RSSI and ground station location unavailable; GPS uncertainty/satellites and pyro resistance unmodeled zero.\n" +
-            "Power nominal; currents zero. Physical roll off; pyros recorded only.\n" +
+            "Power nominal; currents zero. In flight, roll drives active tab-controlled fins (ideal 1:1 linkage, existing linear CNAlpha model); airbrakes drive active AirbrakeSets. Bench/replay has no physical actuation. Pyros recorded only.\n" +
             "CSV decoded using historical ground station conventions. Accel X omits FC gain 1.060; gyro omits FC biases and negates Y.\n" +
             "Temperature decoder C5=0x91E3/C6=0x6FEC differs from FC C5=0x8405/C6=0x6D91.\n" +
             "Mounting sensor X=body Z,Y=body X,Z=body Y; ideal linkage; airbrake input time uses integer seconds.\n");

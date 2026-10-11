@@ -30,7 +30,7 @@ final class EnsembleDataHandler extends AbstractElementHandler {
         }
         if (element.equals("samples")) return PlainTextHandler.INSTANCE;
         if (element.equals("databranch") && a.get("name")!=null && a.get("types")!=null) {
-            branch=new FlightDataBranchHandler(a.get("name"),a.get("types"),simulation,context);return branch;
+            branch=new FlightDataBranchHandler(a.get("name"),a.get("types"),simulation,context,warnings,a.get("fctypes"));return branch;
         }
         warnings.add("Unknown ensemble element: "+element);return null;
     }

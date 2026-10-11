@@ -131,6 +131,7 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	public static final String CONFIRM_DELETE_SIMULATION = "ConfirmDeleteSimulation";
 	public static final String AUTO_RUN_SIMULATIONS = "AutoRunSimulations";
 	public static final String LAUNCH_ROD_LENGTH = "LaunchRodLength";
+	public static final String INITIAL_ROLL_RATE = "InitialRollRate";
 	public static final String LAUNCH_INTO_WIND = "LaunchIntoWind";
 	public static final String LAUNCH_ROD_ANGLE = "LaunchRodAngle";
 	public static final String LAUNCH_ROD_DIRECTION = "LaunchRodDirection";
@@ -383,6 +384,17 @@ public abstract class ApplicationPreferences implements ChangeSource, ORPreferen
 	
 	public double getLaunchRodLength() {
 		return this.getDouble(LAUNCH_ROD_LENGTH, 1);
+	}
+
+	@Override
+	public double getInitialRollRate() { return getDouble(INITIAL_ROLL_RATE, 0); }
+
+	@Override
+	public void setInitialRollRate(double rate) {
+		if (!Double.isFinite(rate)) throw new IllegalArgumentException("Initial roll rate must be finite");
+		if (getInitialRollRate() == rate) return;
+		putDouble(INITIAL_ROLL_RATE, rate);
+		fireChangeEvent();
 	}
 	
 	public void setLaunchRodLength(double launchRodLength) {

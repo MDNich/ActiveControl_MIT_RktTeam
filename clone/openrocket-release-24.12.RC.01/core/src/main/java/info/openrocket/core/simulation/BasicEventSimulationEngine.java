@@ -6,7 +6,6 @@ import java.util.Deque;
 import info.openrocket.core.logging.SimulationAbort;
 import info.openrocket.core.motor.ThrustCurveMotor;
 import info.openrocket.core.simulation.exception.SimulationCalculationException;
-import info.openrocket.core.simulation.listeners.MidControlStepLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +81,6 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 			}
 			FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
 			currentStatus.setFlightDataBranch(initialBranch);
-			MidControlStepLauncher.datStorage = initialBranch;
 			
 			// Sanity checks on design and configuration
 			

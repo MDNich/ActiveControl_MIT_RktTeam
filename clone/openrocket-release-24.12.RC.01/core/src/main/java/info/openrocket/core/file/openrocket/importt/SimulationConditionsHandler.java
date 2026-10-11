@@ -67,6 +67,13 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					options.setLaunchRodLength(d);
 				}
 			}
+			case "initialrollrate" -> {
+				if (!Double.isFinite(d)) {
+					warnings.add("Illegal initial roll rate defined, ignoring.");
+				} else {
+					options.setInitialRollRate(Math.toRadians(d));
+				}
+			}
 			case "launchrodangle" -> {
 				if (Double.isNaN(d)) {
 					warnings.add("Illegal launch rod angle defined, ignoring.");

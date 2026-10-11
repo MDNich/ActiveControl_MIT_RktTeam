@@ -56,3 +56,5 @@ The existing Swing/core framework is extended. The installed macOS launcher keep
 [Flight-computer designer implementation and use](06-flight-computer-designer-implementation.md): managed `.fc` library, supplied Zephyrus file, graphical hardware/behavior editor, runtime integration, testing, and supported capabilities.
 
 [Motor batch simulation and CSV export](07-motor-batch-simulation.md), planned and implemented 11 October 2026: manufacturer/motor filters, parallel flights (default four workers), installed-motor clearance checks, NAR/Tripoli levels, recovery-delay selection, flight criteria, cancellation, CSV export, and saved summaries. See [implementation and verification](08-motor-batch-implementation.md) for usage, tests, and the Zephyrus clearance findings.
+
+[Idle memory investigation and fix](09-idle-memory-reclamation.md): live-object measurements, repeated FC runs, dialog lifetime checks, and automatic idle heap reclamation in the 6.4 startup path.

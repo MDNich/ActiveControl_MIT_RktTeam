@@ -106,7 +106,7 @@ Actions include preparation, launch, apogee, main recovery, finishing, individua
 
 Graphs are saved inside the external `.fc`. Validation rejects missing endpoints, duplicate priorities/IDs, invalid actions/conditions, unreachable states and an invalid initial state. Legacy files without a state graph preserve the original behavior until edited. Wire telemetry retains its original phase codes; plot data, 3D labels and logs additionally identify the custom state by name and code.
 
-Timing costs are modeled assumptions unless measured. The 3 ms default represents source barometer waits; a passing simulation does not qualify hardware execution timing. FC recovery and roll actions are recorded: OpenRocket still controls physical recovery, and physical roll coupling remains disabled.
+Timing costs are modeled assumptions unless measured. The 3 ms default represents source barometer waits; a passing simulation does not qualify hardware execution timing. OpenRocket still controls physical recovery. FC roll now drives all active tab-controlled fin sets through an ideal 1:1 linkage, using each fin set’s tab geometry and CNAlpha. Airbrakes drive active AirbrakeSets. Both physical outputs update only after PWM latching (20 ms); disabling roll PWM holds the last tab position. Missing FC outputs discard commands. A rocket without tab-controlled fins receives no roll torque; zero tab area or CNAlpha also produces no control torque and is reported in OR.log. The existing linear tab aerodynamic model is an approximation, especially at large deflections such as 45°. Servo travel, backlash and linkage dynamics are not modeled. Physical tab angle and airbrake fraction are available alongside the latched commands in the FC plot presets.
 
 ## Test and traces
 
@@ -142,7 +142,7 @@ Add **Custom Java board** from the component library. It is a board container th
 
 Implement `public class BoardProgram extends JavaBoardProgram` with `public void step(Context io)`. The supplied example and **API help** document the methods. Inputs are the measured FC signals, not hidden simulation truth. Use `io.timeUs()`, `io.dtUs()`, `io.stateId()`, `io.altitudeM()`, `io.velocityMps()`, `io.accelerationMps2()` or `io.signal(name)`. Outputs are `io.setAirbrakes(fraction)`, `io.setRollDegrees(angle)`, `io.fireRecovery(channel)` and `io.log(text)`. `io.connected(port)` reports whether an output is present.
 
-**Compile** reports Java diagnostics without initializing/executing the class. **Compile & enable** applies the source and records local approval of its exact hash. Loading a file does not execute code; changed/imported code needs local enablement before a run. Source runs inside OpenRocket with the application's privileges, not in a sandbox, and callbacks must return promptly. The embedded [Janino compiler](https://janino-compiler.github.io/janino/) works without a separate JDK; use ordinary Java classes and explicit types rather than unsupported `var`, records or lambdas.
+**Compile, enable & apply** checks Java without initializing/executing the class, records local approval of its exact hash and applies that source to the design. A persistent status row separately tracks compilation, enablement, application to the design and saving to `.fc` for the current source. Compilation is shown as not checked when a fresh editor opens; edits invalidate the displayed proof unless undone back to the checked text. Compilation errors leave the previously applied design and enabled source unchanged. Ctrl/⌘ Enter performs the combined action; Ctrl/⌘ S saves a draft without compiling or enabling it. Loading a file does not execute code; changed/imported code needs local enablement before a run. Source runs inside OpenRocket with the application's privileges, not in a sandbox, and callbacks must return promptly. The embedded [Janino compiler](https://janino-compiler.github.io/janino/) works without a separate JDK; use ordinary Java classes and explicit types rather than unsupported `var`, records or lambdas.
 
 Every simulation creates new program instances and class loaders. **All programmable boards run in tandem on independent virtual schedules**, alongside the main FC. Each board starts at boot time zero and follows its own period. Its execution cost delays its own output; it does not block other boards or add to the main FC's work. An overrun starts that board's next iteration immediately after completion, without overlapping invocations. Logs record each start, completion, execution cost and overrun. The main timing summary remains the main FC's timing.
 
@@ -150,11 +150,38 @@ Boards read immutable snapshots of the same shared measured signals and flight s
 
 **Custom Java boards are for algorithm experiments. Communication between boards is not accurately simulated: boards share measured inputs directly, without bus delays, packet loss or contention. These results are not authoritative predictions of hardware behavior.** This notice is shown in both the Java editor and Test & traces view. The telemetry link's loss/delay settings still apply to the radio output; they do not introduce communication between custom boards.
 
+### Named physical actuator control (2026-10-11)
+
+The names below are **rocket component names**, not FC canvas node names. Use unique, case-sensitive names in the rocket tree:
+
+```java
+io.setRollDegrees("Forward fin can", 15.0);
+io.setRollDegrees("Aft fin can", -10.0);
+io.setAirbrakes("Upper airbrakes", 0.25);
+io.setAirbrakes("Lower airbrakes", 0.75);
+```
+
+The unnamed calls broadcast to every active matching component. A broadcast clears earlier named overrides for that output; subsequent named calls override individual targets. For example, call `io.setRollDegrees(0)` first and then set the fin cans you want to move. Named settings are held until changed, a broadcast replaces them, or a close-controllers state action clears them. Independent Java boards can each control their own named fin can. Completed writes to the same target use the existing deterministic last-write rule. Multiple roll/airbrake output nodes are allowed in `.fc` (use distinct pins/resources); one connected output node also enables named control of several physical sets.
+
+Commands latch every 20 ms even if the Java program runs every 1 ms. On a PWM/program tie the previous completed command is latched first. Both roll and airbrakes use ideal linkages, with no servo travel delay; roll angles are in degrees (−90 to +90), airbrake values are exposed fractions (0 to 1, subject to `airbrakeLimit` and PWM quantization). The two legacy roll pulse trims describe the original hardware and are not added to the commanded aerodynamic tab angle. Disabled roll PWM holds the last physical position.
+
+A missing or duplicate named target stops the simulation with an actionable message listing available active components. A missing FC output still discards its commands. Untargeted roll output with no physical tab-controlled fins is recorded only and emits a log warning; zero tab area or zero CNAlpha is also flagged. Bench/replay has no rocket geometry and cannot validate physical target names or produce physical actuation.
+
+Each active fin can/airbrake set gets **latched** and **physical** plot channels and its own plot preset. These channels survive OR.log import and `.ork` save/reopen, including units. The common physical-angle/fraction channel is NaN when sets differ; the old servo/telemetry channels retain the common output only. Per-target actuation is logged with component ID and name in `roll.actuate` / `airbrakes.actuate`; the historical GS packet format cannot carry an arbitrary number of named outputs.
+
+Regression checks: 79 core and 15 Swing tests passed, including independent named outputs, PWM boundaries, opposite roll directions, drag/trajectory response, missing/duplicate names, disabled-PWM hold, and log/ORK persistence. In the synthetic fixture, ±45° produces ±9.47 rad/s at 1.5 s (zero command: zero roll); full airbrakes reduce maximum height reached in the first 8 s from 1061 m to 821 m. These are software checks, not Balius launch predictions.
+
+The tab model uses the existing linear CNAlpha roll moment approximation. A successful ±45° control test verifies the connection and sign, not aerodynamic accuracy at that large deflection. Physical recovery remains owned by OpenRocket.
+
+### Java syntax highlighting
+
+The built-in Java board editor uses OpenRocket's existing RSyntaxTextArea component in Java mode. Keywords, types, numbers, strings and comments are highlighted using the active OpenRocket theme. The editor also includes line numbers, bracket matching, occurrence highlighting and code folding; long lines scroll horizontally. Ctrl/⌘ Z and Shift-Ctrl/⌘ Z use the editor's native undo/redo history. The combined compile/enable/apply action, saving and external reload still operate on the unchanged plain Java source stored in `.fc`. Highlighting does not execute or enable code, and does not add Java autocomplete.
+
 ### Editing Java externally
 
-In **Edit Java code…**, choose **Choose external editor…** to select an application/executable, or **Use system editor** for the OS Java-file association. **Edit externally…** exports the current source to a unique `BoardProgram.java` under the FC library's `JavaEditing/` directory and opens it. Use an editor or IDE's own highlighting and completion features. No new dependency or external editor is required for the existing in-app editor.
+In **Edit Java code…**, choose **Choose external editor…** to select an application/executable, or **Use system editor** for the OS Java-file association. **Edit externally…** exports the current source to a unique `BoardProgram.java` under the FC library's `JavaEditing/` directory and opens it. Use an editor or IDE's own highlighting and completion features. No new dependency or external editor is required for the built-in Java highlighting.
 
-Save changes in the external editor, click **Reload external changes** in OpenRocket, then **Compile & enable** and save the `.fc`. Reloading does not execute or automatically enable imported code. Conflicting unsaved edits are preserved unless explicitly replaced. The `.fc` remains the saved flight-computer artifact; the Java file is an editing copy and is retained after closing so external work is not discarded. Editor choice is a local preference and is not stored in `.fc`.
+Save changes in the external editor, click **Reload external changes** in OpenRocket, then **Compile, enable & apply** and save the `.fc`. Reloading does not execute or automatically enable imported code. Conflicting unsaved edits are preserved unless explicitly replaced. The `.fc` remains the saved flight-computer artifact; the Java file is an editing copy and is retained after closing so external work is not discarded. Editor choice is a local preference and is not stored in `.fc`.
 
 ## Keyboard shortcuts
 
@@ -169,7 +196,7 @@ Save changes in the external editor, click **Reload external changes** in OpenRo
 | Ctrl/⌘ Shift F | Fit the canvas |
 | Enter / Ctrl/⌘ Enter | Apply property form |
 
-The **Shortcuts** button lists these. Java source has its own text undo/redo, Ctrl/⌘ S saves it with the design and Ctrl/⌘ Enter applies it to the editor buffer.
+The **Shortcuts** button lists these. Java source has its own text undo/redo, Ctrl/⌘ S saves it with the design and Ctrl/⌘ Enter compiles, enables and applies the current source.
 
 ## FC plots and log import
 
@@ -181,6 +208,14 @@ In **3D trajectory**, a label follows the rocket and shows the FC state, includi
 
 **Flight computer → Import FC log as result…** reads an OR action log in the background, adds separate imported simulations to the document and opens their plotting view. It preserves existing simulations and never executes content from the log. New logs include `fc.plot_metadata`, `fc.plot` records (nominal 10 ms spacing) and recorded flight events for trajectory playback. Old logs recover the recorded sensors, servo outputs, state and vertical motion only; no horizontal position or attitude is invented. Their approximate launch-relative altitude uses the first physical sample as the reference. The importer explains these limits. Imported results can be saved in `.ork` and plotted without the original `.fc` file.
 
+## Initial spin and editor memory (11 October 2026)
+
+**Launch conditions → Launch rod → Initial roll rate** sets signed spin about the rocket's longitudinal axis at time zero. The unit selector supports degrees/s, rad/s, revolutions/s and rpm; negative values reverse the direction, and zero preserves the previous launch behavior. Spin is held constant while on the rod, then evolves under the existing aerodynamic and control model after clearance. This is a prescribed initial condition, not a model of rail friction or a spin-up mechanism. It uses body-axis spin even on a tilted rod, so existing roll plots, FC gyro inputs and 3D orientation receive the same physical state. The value follows simulation copies, defaults and `.ork` save/load; older files load with zero spin. In the test rocket, ±2π rad/s persists to rod clearance and damps to approximately ±5.85 rad/s by 1.3 s.
+
+A live heap inspection confirmed closed simulation editors retained by the flight-configuration selector, a one-shot modification listener, and checkbox action models. Their subscriptions now detach on disposal; the configuration selector reattaches when displayed again. Editing settings shares existing flight results for cancellation instead of copying all sample arrays. Ordinary simulations also stop populating an unused legacy static result reference; explicit use of the legacy bridge retains its behavior.
+
+In an isolated 512 MiB-heap test with ten result replacements and editor open/close cycles, the old build retained all ten closed dialogs and nine obsolete results, growing from 39 to 287 MiB of live heap. The fixed build releases all of them and remains at 33–34 MiB. These figures measure the repeatable test workload, not a prediction of total app memory for large FC/ensemble data sets. Regression tests cover edited/unedited dialog cleanup, action-model removal, selector reattachment, cancellation after rerunning, and the legacy static reference. The running app needs a restart to load the fix.
+
 ## Remaining model limits
 
-Iris/Balius firmware execution, arbitrary sensor models, general signal-flow wiring, independent firmware/sensor contexts for each processor, independent conversion queues, bus contention/electrical models and the separate JNI listener remain future work. Physical roll and FC-driven physical recovery coupling are still absent. Editable state graphs and programmable Java boards are implemented on the existing controller's scheduler and sensor/control boundary.
+Iris/Balius firmware execution, arbitrary sensor models, general signal-flow wiring, independent firmware/sensor contexts for each processor, independent conversion queues, bus contention/electrical models and the separate JNI listener remain future work. FC-driven physical recovery coupling remains absent; physical roll tabs and airbrakes are actuated. Editable state graphs and programmable Java boards are implemented on the existing controller's scheduler and sensor/control boundary.

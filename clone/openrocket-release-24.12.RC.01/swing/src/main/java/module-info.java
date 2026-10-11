@@ -34,6 +34,7 @@ open module info.openrocket.swing {
 	requires org.checkerframework.checker.qual;
 	requires org.apache.commons.lang3;
 	requires java.management;
+	requires jdk.management;
     //requires info.openrocket.swing;
 
     // Service providers

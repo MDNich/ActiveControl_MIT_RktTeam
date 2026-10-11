@@ -133,7 +133,9 @@ public class SimulationStatus implements Cloneable, Monitorable {
 		o = o.multiplyLeft(Quaternion.rotation(new Coordinate(0, 0, Math.PI / 2.0 - this.simulationConditions.getLaunchRodDirection())));
 		
 		this.orientation = o;
-		this.rotationVelocity = Coordinate.NUL;
+		// Angular velocity is stored in world coordinates. Spin about body +Z,
+		// including when the launch rod is tilted, and preserve it along the rod.
+		this.rotationVelocity = o.rotate(new Coordinate(0, 0, simulationConditions.getInitialRollRate()));
 
 		/*
 		 * Calculate the effective launch rod length taking into account launch lugs.

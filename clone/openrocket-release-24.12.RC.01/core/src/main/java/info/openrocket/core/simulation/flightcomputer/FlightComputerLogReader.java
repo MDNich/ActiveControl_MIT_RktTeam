@@ -22,7 +22,11 @@ public final class FlightComputerLogReader {
                 var match=HEADER.matcher(line);if(!match.find())continue;
                 String runId=match.group(1),action=match.group(3),detail=match.group(4);var run=runs.computeIfAbsent(runId,Run::new);
                 if(action.equals("fc.plot_metadata")){
-                    try(var json=Json.createReader(new StringReader(detail))){var metadata=json.readObject();if(metadata.getInt("version")!=1)throw new IOException("Unsupported FC plot log version");metadata.getJsonObject("states").forEach((key,value)->run.names.put(key,((JsonString)value).getString()));}
+                    try(var json=Json.createReader(new StringReader(detail))){var metadata=json.readObject();if(metadata.getInt("version")!=1)throw new IOException("Unsupported FC plot log version");metadata.getJsonObject("states").forEach((key,value)->run.names.put(key,((JsonString)value).getString()));
+                        if(metadata.containsKey("actuators"))for(var item:metadata.getJsonArray("actuators").getValuesAs(JsonObject.class)) {
+                            var channels=FlightComputerData.actuatorChannels(item.getString("port"),item.getString("id"),item.getString("name"));
+                            symbols.put(channels.command().getSymbol(),channels.command());symbols.put(channels.physical().getSymbol(),channels.physical());
+                        }}
                 }else if(action.equals("fc.plot_event")){
                     try(var json=Json.createReader(new StringReader(detail))){var event=json.readObject();var type=FlightEvent.Type.valueOf(event.getString("type"));double time=event.getJsonNumber("time").doubleValue();
                         if(!Double.isFinite(time)||run.events.size()>10000)throw new IOException("Invalid or excessive log events");

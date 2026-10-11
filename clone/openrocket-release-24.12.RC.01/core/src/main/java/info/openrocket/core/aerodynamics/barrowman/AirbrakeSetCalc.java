@@ -37,7 +37,7 @@ public class AirbrakeSetCalc extends RocketComponentCalc {
         double cos2 = Math.cos(a)*Math.cos(a);
         double sin2 = Math.sin(a)*Math.sin(a);
         if (area > MathUtil.EPSILON && refArea > MathUtil.EPSILON) {
-            return area/refArea * (CD_perp*cos2 + CD_par*sin2)*overrideCD;
+            return area/refArea * (CD_perp*cos2 + CD_par*sin2)*localRef.getLocalOverrideCD();
         }
         return 0;
     }

@@ -37,6 +37,7 @@ public class SimulationConditions implements Monitorable, Cloneable {
 	
 	/** Launch rod direction, 0 = north */
 	private double launchRodDirection = 0;
+	private double initialRollRate = 0;
 	
 	// Launch site location (lat, lon, alt)
 	private WorldCoordinate launchSite = new WorldCoordinate(0, 0, 0);
@@ -101,6 +102,15 @@ public class SimulationConditions implements Monitorable, Cloneable {
 
 	public double getLaunchRodLength() {
 		return launchRodLength;
+	}
+
+	/** Signed spin about body +Z, in radians per second. */
+	public double getInitialRollRate() { return initialRollRate; }
+
+	public void setInitialRollRate(double rate) {
+		if (!Double.isFinite(rate)) throw new IllegalArgumentException("Initial roll rate must be finite");
+		this.initialRollRate = rate;
+		this.modID = new ModID();
 	}
 
 	public void setLaunchRodLength(double launchRodLength) {

@@ -78,7 +78,6 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 			}
 			FlightDataBranch initialBranch = new FlightDataBranch( branchName, FlightDataType.TYPE_TIME);
 			currentStatus.setFlightDataBranch(initialBranch);
-			MidControlStepLauncher.datStorage = initialBranch;
 			
 			// Sanity checks on design and configuration
 			

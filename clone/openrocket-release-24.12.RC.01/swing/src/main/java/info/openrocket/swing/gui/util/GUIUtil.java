@@ -583,10 +583,12 @@ public class GUIUtil {
 		} else if (c instanceof AbstractButton) {
 			
 			AbstractButton button = (AbstractButton) c;
+			// removeActionListener clears the Action when it is that listener.
+			// Capture it first so its source subscription still gets invalidated.
+			Action model = button.getAction();
 			for (ActionListener l : button.getActionListeners()) {
 				button.removeActionListener(l);
 			}
-			Action model = button.getAction();
 			button.setAction(new AbstractAction() {
 				private static final long serialVersionUID = 3499667830135101535L;
 

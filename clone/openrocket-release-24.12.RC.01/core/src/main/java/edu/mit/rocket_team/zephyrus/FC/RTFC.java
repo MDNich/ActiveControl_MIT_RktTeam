@@ -48,18 +48,30 @@ public class RTFC {
             case "flight_ms"->elapsed32(trace.millis(),flightBeginTime);
             case "apogee_ms"->elapsed32(trace.millis(),apogeeTime);
             default->signal(key);
-        },this::connected,(board,port,value,sampleUs)->{
-            boardOutput(port,value);
+        },this::connected,(board,port,target,value,sampleUs)->{
+            boardOutput(port,target,value);
             if(connected(port)&&!port.equals("recovery")){lastBoardCommandUs=trace.bootUs();lastBoardSampleUs=sampleUs;}
         },message->trace.log("java.board",message));
     }
     public String getDesignStateId(){return stateMachine==null?(currentState.ID<5?FlightComputerStateMachine.PHASES.get(currentState.ID):"end"):stateMachine.id();}
     public boolean connected(String port){return design==null||design.active(port)!=null;}
-    private void boardOutput(String port,Double value){
+    private final java.util.Map<String,Float> namedRoll = new java.util.LinkedHashMap<>();
+    private final java.util.Map<String,Float> namedAirbrakes = new java.util.LinkedHashMap<>();
+    private void boardOutput(String port,Double value){boardOutput(port,null,value);}
+    private void boardOutput(String port,String target,Double value){
         if(!connected(port)){trace.log("output.discard","port="+port+" value="+value+" reason=no_component");return;}
+        if(target!=null){
+            switch(port){
+                case "roll":namedRoll.put(target,value.floatValue());rollSignalEnabled=true;break;
+                case "airbrakes":namedAirbrakes.put(target,(float)Math.min(value,setting("airbrakeLimit",1)));break;
+                default:throw new IllegalArgumentException("Named output unsupported: "+port);
+            }
+            trace.log("output.command","port="+port+" target="+target+" value="+value);
+            return;
+        }
         switch(port){
-            case "airbrakes":airbrakesEnabled=false;airbrakesSetAngle=dpToDeg((float)Math.min(value,setting("airbrakeLimit",1)));break;
-            case "roll":rollControlEnabled=false;rollControlSetAngle=value.floatValue();rollSignalEnabled=true;break;
+            case "airbrakes":namedAirbrakes.clear();airbrakesEnabled=false;airbrakesSetAngle=dpToDeg((float)Math.min(value,setting("airbrakeLimit",1)));break;
+            case "roll":namedRoll.clear();rollControlEnabled=false;rollControlSetAngle=value.floatValue();rollSignalEnabled=true;break;
             case "recovery":fireChannels(value.intValue());break;
             default:throw new IllegalArgumentException("Unknown output "+port);
         }
@@ -115,7 +127,13 @@ public class RTFC {
     /** Null accel/GPS means no new sample. Barometer/gyro retain last delivered readings. */
     public record Inputs(long acquisitionUs, RTAccelData accel, RTBaroData baro, RTGPSData gps, RTGyroData gyro) {}
     public record Output(float requestedDeployment,float selectedAngle,int airbrakePulseUs,
-                         float exposedFraction,float rollAngle,int servo2Us,int servo3Us) {}
+                         float exposedFraction,float rollAngle,int servo2Us,int servo3Us,
+                         java.util.Map<String,Float> rollAngles,java.util.Map<String,Float> airbrakeFractions) {
+        public Output { rollAngles=java.util.Map.copyOf(rollAngles);airbrakeFractions=java.util.Map.copyOf(airbrakeFractions); }
+        public Output(float requested,float selectedAngle,int airbrakePulseUs,float exposedFraction,float rollAngle,int servo2Us,int servo3Us) {
+            this(requested,selectedAngle,airbrakePulseUs,exposedFraction,rollAngle,servo2Us,servo3Us,java.util.Map.of(),java.util.Map.of());
+        }
+    }
     public RTFC() { this(new Trace()); }
     public RTFC(Trace trace) { this(trace, TelemetryLinkSettings.DEFAULT); }
     public RTFC(Trace trace, TelemetryLinkSettings link) {
@@ -243,6 +261,7 @@ public class RTFC {
     private void deployMain(){fireChannels(2);rollSignalEnabled=false;powerBoard.setConverter(4,false);trace.log("roll.disable_signal","servo2=false servo3=false");}
     private void finishFlight(){loggingEnabled=false;trace.log("logging.enable","enabled=false");}
     private void closeControllers() {
+        namedRoll.clear();namedAirbrakes.clear();
         rollControlSetAngle=0; airbrakesSetAngle=CLOSED_ANGLE; airbrakesEnabled=rollControlEnabled=false;
         trace.log("controllers.close", "airbrakes_angle="+airbrakesSetAngle+" roll_angle=0");
     }
@@ -271,7 +290,13 @@ public class RTFC {
         int pulse=degToUsAirbrakes(angle);
         float fraction=(float)(degToUsAirbrakes(CLOSED_ANGLE)-pulse)/(degToUsAirbrakes(CLOSED_ANGLE)-degToUsAirbrakes(OPEN_ANGLE));
         fraction=Math.max(0,Math.min(1,fraction));
-        output=new Output(requested,angle,connected("airbrakes")?pulse:0,fraction,roll,rollSignalEnabled&&connected("roll")?degToUsRollControl(roll-0.5f):0,rollSignalEnabled&&connected("roll")?degToUsRollControl(roll-7.0f):0);
+        var latchedAirbrakes=new java.util.LinkedHashMap<String,Float>();
+        namedAirbrakes.forEach((name,deployment)->{
+            int namedPulse=degToUsAirbrakes(dpToDeg(deployment));
+            float exposed=(float)(degToUsAirbrakes(CLOSED_ANGLE)-namedPulse)/(degToUsAirbrakes(CLOSED_ANGLE)-degToUsAirbrakes(OPEN_ANGLE));
+            latchedAirbrakes.put(name,Math.max(0,Math.min(1,exposed)));
+        });
+        output=new Output(requested,angle,connected("airbrakes")?pulse:0,fraction,roll,rollSignalEnabled&&connected("roll")?degToUsRollControl(roll-0.5f):0,rollSignalEnabled&&connected("roll")?degToUsRollControl(roll-7.0f):0,namedRoll,latchedAirbrakes);
         trace.log("pwm.latch", "requested="+requested+" enabled="+airbrakesEnabled+" angle_deg="+angle+" pulse_us="+pulse+" exposed="+fraction+" roll_deg="+roll+" servo2_us="+output.servo2Us()+" servo3_us="+output.servo3Us());
     }
     public Output getOutput() { return output; }
