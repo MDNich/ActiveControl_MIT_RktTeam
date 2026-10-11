@@ -46,6 +46,11 @@ class MotorBatchDialogTest {
                 override.doClick();assertTrue(override.isSelected());
                 assertTrue(table.getModel().getValueAt(0,ignored).toString().contains("MOTOR_INTERSECTS:"));
                 override.doClick();assertEquals("",table.getModel().getValueAt(0,ignored));
+                var lengthField=MotorBatchDialog.class.getDeclaredField("length");lengthField.setAccessible(true);
+                ((JTextField)lengthField.get(dialog)).setText("10");
+                find(dialog,JButton.class,"Update candidates").doClick();
+                assertEquals("MOTOR_TOO_LONG",table.getModel().getValueAt(0,table.getColumn("Fit warnings").getModelIndex()));
+                assertFalse(table.getModel().getValueAt(0,table.getColumn("Reasons").getModelIndex()).toString().contains("MOTOR_TOO_LONG"));
                 var image=new BufferedImage(dialog.getWidth(),dialog.getHeight(),BufferedImage.TYPE_INT_RGB);
                 var graphics=image.createGraphics();dialog.getRootPane().printAll(graphics);graphics.dispose();
                 var destination=Path.of("build/reports/motor-batch-dialog.png");Files.createDirectories(destination.getParent());javax.imageio.ImageIO.write(image,"png",destination.toFile());

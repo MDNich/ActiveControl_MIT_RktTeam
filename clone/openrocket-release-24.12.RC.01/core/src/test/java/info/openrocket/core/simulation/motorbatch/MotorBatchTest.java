@@ -129,11 +129,13 @@ class MotorBatchTest extends BaseTestCase {
         ((EngineBlock)mount.getChild(0)).setAxialOffset(.001);
         var strict=settings(s,2,MotorBatchSettings.DelayPolicy.KEEP_BASELINE);
         assertFalse(strict.ignoreComponentIntersections());
-        var settings=strict.withIgnoreComponentIntersections(true);
+        var settings=MotorBatchIO.settings(jakarta.json.Json.createObjectBuilder(MotorBatchIO.settings(strict.withIgnoreComponentIntersections(true)))
+                .add("length",.01).build());
         var blocked=MotorCandidateSelector.select(List.of(motor),strict,s);
         assertTrue(blocked.get(0).exclusion().contains("MOTOR_INTERSECTS:"));
         var preview=MotorCandidateSelector.select(List.of(motor),settings,s).get(0);
         assertEquals("",preview.exclusion());assertFalse(preview.ignoredIntersections().isEmpty());
+        assertEquals(List.of("MOTOR_TOO_LONG"),preview.fitWarnings());
         // Even a preview made with the previous setting is re-screened using the captured inputs.
         var result=new MotorBatchRunner(MotorBatchSnapshot.capture(s,settings),settings,blocked).run(p->{});
         var row=result.rows().get(0);
@@ -145,6 +147,7 @@ class MotorBatchTest extends BaseTestCase {
         var restored=MotorBatchIO.read(MotorBatchIO.write(result));
         assertTrue(restored.settings().ignoreComponentIntersections());
         assertEquals(row.candidate().ignoredIntersections(),restored.rows().get(0).candidate().ignoredIntersections());
+        assertEquals(preview.fitWarnings(),restored.rows().get(0).candidate().fitWarnings());
         var doc=MotorBatchSnapshot.restore(restored);doc.putMotorBatch(restored);
         var bytes=new ByteArrayOutputStream();var storage=new StorageOptions();storage.setSaveSimulationData(false);
         new info.openrocket.core.file.openrocket.OpenRocketSaver().save(bytes,doc,storage,new info.openrocket.core.logging.WarningSet(),new info.openrocket.core.logging.ErrorSet());
@@ -154,31 +157,34 @@ class MotorBatchTest extends BaseTestCase {
         var saved=context.getOpenRocketDocument().getMotorBatches().get(0);
         assertTrue(saved.settings().ignoreComponentIntersections());
         assertEquals(row.candidate().ignoredIntersections(),saved.rows().get(0).candidate().ignoredIntersections());
+        assertEquals(preview.fitWarnings(),saved.rows().get(0).candidate().fitWarnings());
         for(var scope:List.of(MotorBatchCSV.Scope.ALL_CANDIDATES,MotorBatchCSV.Scope.MEETS_CRITERIA,MotorBatchCSV.Scope.ALL_DELAY_TRIALS)) {
             var csv=new StringWriter();MotorBatchCSV.write(csv,saved,scope,Set.of());
             try(var reader=new com.opencsv.CSVReader(new StringReader(csv.toString()))) {
                 var records=reader.readAll();assertEquals(2,records.size());var headers=Arrays.asList(records.get(0));
                 assertEquals("true",records.get(1)[headers.indexOf("component_intersection_override")]);
                 assertEquals(String.join("; ",preview.ignoredIntersections()),records.get(1)[headers.indexOf("ignored_component_intersections")]);
+                assertEquals("MOTOR_TOO_LONG",records.get(1)[headers.indexOf("fit_warnings")]);
             }
         }
         var json=jakarta.json.Json.createReader(new StringReader(MotorBatchIO.write(result))).readObject();
         var oldSettings=jakarta.json.Json.createObjectBuilder(json.getJsonObject("settings")).remove("ignoreComponentIntersections");
         var oldRows=jakarta.json.Json.createArrayBuilder();
-        json.getJsonArray("rows").getValuesAs(jakarta.json.JsonObject.class).forEach(r->oldRows.add(jakarta.json.Json.createObjectBuilder(r).remove("ignoredIntersections")));
+        json.getJsonArray("rows").getValuesAs(jakarta.json.JsonObject.class).forEach(r->oldRows.add(jakarta.json.Json.createObjectBuilder(r).remove("ignoredIntersections").remove("fitWarnings")));
         var legacy=MotorBatchIO.read(jakarta.json.Json.createObjectBuilder(json).add("settings",oldSettings).add("rows",oldRows).build().toString());
         assertFalse(legacy.settings().ignoreComponentIntersections());assertTrue(legacy.rows().get(0).candidate().ignoredIntersections().isEmpty());
+        assertTrue(legacy.rows().get(0).candidate().fitWarnings().isEmpty());
         var strictAgain=new MotorBatchRunner(MotorBatchSnapshot.capture(s,strict),strict,List.of(preview));
         assertEquals(0,strictAgain.totalTrials());assertEquals(Status.SCREENED_OUT,strictAgain.report().rows().get(0).selected().status());
     }
-    @Test void intersectionOverrideKeepsSizeDelayAndFlightCriteriaChecks() throws Exception {
+    @Test void intersectionOverrideKeepsDiameterDelayAndFlightCriteriaChecks() throws Exception {
         var s=baseline();var mount=(InnerTube)mount(s);var motor=motor(s);
         s.getOptions().setMaxSimulationTime(300);
         ((EngineBlock)mount.getChild(0)).setAxialOffset(.001);
         var settings=settings(s,1,MotorBatchSettings.DelayPolicy.KEEP_BASELINE).withIgnoreComponentIntersections(true);
         var tooShort=MotorBatchIO.settings(jakarta.json.Json.createObjectBuilder(MotorBatchIO.settings(settings)).add("length",.01).build());
-        var blocked=new MotorBatchRunner(MotorBatchSnapshot.capture(s,tooShort),tooShort,List.of(new MotorCandidateSelector.Candidate("motor",motor,"")));
-        assertEquals(0,blocked.totalTrials());assertTrue(blocked.report().rows().get(0).selected().reasons().toString().contains("MOTOR_TOO_LONG"));
+        var longMotor=new MotorBatchRunner(MotorBatchSnapshot.capture(s,tooShort),tooShort,List.of(new MotorCandidateSelector.Candidate("motor",motor,"")));
+        assertEquals(1,longMotor.totalTrials());assertEquals(List.of("MOTOR_TOO_LONG"),longMotor.report().rows().get(0).candidate().fitWarnings());
         mount.setThickness(.002);
         assertTrue(MotorCandidateSelector.select(List.of(motor),settings,s).get(0).exclusion().contains("DIAMETER_TOO_LARGE"));
         mount.setThickness(.0003);
@@ -191,6 +197,28 @@ class MotorBatchTest extends BaseTestCase {
         assertEquals(Status.COMPLETE,result.rows().get(0).selected().status());
         assertEquals(Assessment.DOES_NOT_MEET_CRITERIA,result.rows().get(0).selected().assessment());
         assertTrue(result.rows().get(0).selected().reasons().toString().contains("APOGEE"));
+    }
+    @Test void motorLongerThanMountRunsWithWarningWithoutAnIntersectionOverride() throws Exception {
+        var s=baseline();s.getOptions().setMaxSimulationTime(300);
+        var mount=(InnerTube)mount(s);var motor=motor(s);
+        mount.removeChild(mount.getChild(0)); // No forward engine block in this short-mount fixture.
+        mount.setLength(.04);
+        var settings=MotorBatchIO.settings(jakarta.json.Json.createObjectBuilder(MotorBatchIO.settings(settings(s,1,MotorBatchSettings.DelayPolicy.KEEP_BASELINE)))
+                .add("length",mount.getLength()+mount.getMotorOverhang()).build());
+        assertTrue(motor.getLength()>settings.maximumLength());assertFalse(settings.ignoreComponentIntersections());
+        var candidate=MotorCandidateSelector.select(List.of(motor),settings,s).get(0);
+        assertEquals("",candidate.exclusion());assertTrue(candidate.ignoredIntersections().isEmpty());
+        assertEquals(List.of("MOTOR_TOO_LONG"),candidate.fitWarnings());
+        // Previously saved length exclusions must be re-screened before a new run.
+        var stale=new MotorCandidateSelector.Candidate(candidate.id(),motor,"MOTOR_TOO_LONG");
+        var result=new MotorBatchRunner(MotorBatchSnapshot.capture(s,settings),settings,List.of(stale)).run(p->{});
+        var row=result.rows().get(0);
+        assertEquals(1,row.trials().size());assertEquals(Status.COMPLETE,row.selected().status());
+        assertEquals(Assessment.MEETS_CRITERIA,row.selected().assessment());
+        assertTrue(row.selected().metrics().get(MotorBatchMetrics.Metric.APOGEE)>0);
+        assertEquals(List.of("MOTOR_TOO_LONG"),row.candidate().fitWarnings());
+        assertFalse(row.selected().reasons().contains("MOTOR_TOO_LONG"));
+        assertNull(s.getSimulatedData());assertSame(motor,motor(s));
     }
     @Test void fcFilesAreUniqueAndStateIsRepeatableUnderParallelExecution() throws Exception {
         var rocket=edu.mit.rocket_team.zephyrus.RTFCVerificationRocket.rocket();

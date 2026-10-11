@@ -81,6 +81,9 @@ public final class MotorBatchRunner {
                 System.out.println("MOTOR_BATCH excluded candidate="+row.candidate().id()+" reasons="+row.selected().reasons());
             if(!row.candidate().ignoredIntersections().isEmpty())
                 System.out.println("MOTOR_BATCH intersection_override candidate="+row.candidate().id()+" ignored="+row.candidate().ignoredIntersections());
+            if(!row.candidate().fitWarnings().isEmpty())
+                System.out.println("MOTOR_BATCH fit_warning candidate="+row.candidate().id()+" motor_length_m="+row.candidate().motor().getLength()+
+                        " reference_length_m="+settings.maximumLength()+" warnings="+row.candidate().fitWarnings());
         }
         publish();
         int next=0,pending=0;

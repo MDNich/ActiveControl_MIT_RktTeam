@@ -34,7 +34,7 @@ public record MotorBatchSettings(UUID mountId, int threads, double nominalDiamet
         Objects.requireNonNull(mountId); Objects.requireNonNull(delayPolicy);
         if (threads < 1 || threads > 256) throw new IllegalArgumentException("Thread count must be between 1 and 256");
         if (!Double.isFinite(nominalDiameter) || nominalDiameter <= 0 || !Double.isFinite(maximumLength) || maximumLength <= 0)
-            throw new IllegalArgumentException("Mount diameter and available length must be positive");
+            throw new IllegalArgumentException("Mount diameter and length warning threshold must be positive");
         double[] ranges = {minImpulse,maxImpulse,minThrust,maxThrust,minBurn,maxBurn};
         for (double x : ranges) if (!Double.isFinite(x) || x < 0) throw new IllegalArgumentException("Filter ranges must be finite and nonnegative");
         if(minImpulse>maxImpulse || minThrust>maxThrust || minBurn>maxBurn) throw new IllegalArgumentException("Filter minimum exceeds maximum");

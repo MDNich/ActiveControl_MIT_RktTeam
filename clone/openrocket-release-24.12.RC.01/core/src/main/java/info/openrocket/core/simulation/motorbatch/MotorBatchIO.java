@@ -95,6 +95,7 @@ public final class MotorBatchIO {
             var trials=Json.createArrayBuilder();row.trials().forEach(t->trials.add(trial(t)));
             rows.add(Json.createObjectBuilder().add("id",row.candidate().id()).add("motor",motor(row.candidate().motor()))
                     .add("ignoredIntersections",strings(row.candidate().ignoredIntersections()))
+                    .add("fitWarnings",strings(row.candidate().fitWarnings()))
                     .add("exclusion",row.candidate().exclusion()).add("planned",row.planned()).add("trials",trials).add("selected",trial(row.selected())));
         }
         return Json.createObjectBuilder().add("version",1).add("id",r.id()).add("created",r.created()).add("settings",settings(r.settings()))
@@ -122,7 +123,8 @@ public final class MotorBatchIO {
             if(!ids.add(v.getString("id")))throw new IllegalArgumentException("Duplicate batch candidate ID");
             if(v.getInt("planned")<0 || v.getInt("planned")>1000 || v.getJsonArray("trials").size()>1000)throw new IllegalArgumentException("Invalid delay trial count");
             var candidate=new MotorCandidateSelector.Candidate(v.getString("id"),motor(v.getJsonObject("motor")),v.getString("exclusion"),
-                    v.containsKey("ignoredIntersections")?strings(v.getJsonArray("ignoredIntersections")):List.of());
+                    v.containsKey("ignoredIntersections")?strings(v.getJsonArray("ignoredIntersections")):List.of(),
+                    v.containsKey("fitWarnings")?strings(v.getJsonArray("fitWarnings")):List.of());
             rows.add(new Row(candidate,v.getJsonArray("trials").getValuesAs(JsonObject.class).stream().map(MotorBatchIO::trial).toList(),v.getInt("planned"),trial(v.getJsonObject("selected"))));
         }
         return new MotorBatchReport(j.getString("id"),j.getString("created"),settings,input,rows,j.getInt("peakThreads"));

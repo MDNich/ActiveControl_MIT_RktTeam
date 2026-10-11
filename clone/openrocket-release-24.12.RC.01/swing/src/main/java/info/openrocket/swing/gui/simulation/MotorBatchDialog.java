@@ -80,13 +80,14 @@ public final class MotorBatchDialog extends JDialog {
         var launch=section("Rocket and workers");
         launch.add(new JLabel("Motor mount"),"span,wrap");launch.add(mount,"span,growx,wmin 0,wrap");
         launch.add(new JLabel("Nominal diameter (mm)"));launch.add(diameter,"span 2,growx,wmin 0,wrap");
-        launch.add(label("Available motor length (mm)"));launch.add(length,"span 2,growx,wmin 0,wrap");
+        launch.add(label("Length warning above (mm)"));launch.add(length,"span 2,growx,wmin 0,wrap");
+        length.setToolTipText("Motors longer than this value still run. Defaults to mount length + overhang.");
         launch.add(ignoreIntersections,"span,wrap");
-        ignoreIntersections.setToolTipText("Run motors despite modeled component intersections. Ignored intersections remain in results and CSV. Diameter and available-length limits still apply.");
+        ignoreIntersections.setToolTipText("Run motors despite modeled component intersections. Ignored intersections remain in results and CSV. The motor diameter must still fit the mount.");
         ignoreIntersections.addActionListener(e->refreshPreview());
         launch.add(new JLabel("Worker threads"));launch.add(threads,"span 2,growx,wmin 0,wrap");
         launch.add(new JLabel("Ejection delay"),"span,wrap");launch.add(delay,"span,growx,wmin 0,wrap");
-        var hint=new JTextArea("Length starts at mount length + overhang. The intersection override allows overlapping motors to run and records the overlaps. Diameter and length limits still apply.");
+        var hint=new JTextArea("Longer motors still run; length warnings remain in results. The intersection override allows overlapping motors to run and records the overlaps. Motor diameter must fit the mount.");
         hint.setLineWrap(true);hint.setWrapStyleWord(true);hint.setEditable(false);hint.setOpaque(false);hint.setRows(4);launch.add(hint,"span,growx,wmin 0,h 72!");settingsPanel.add(launch);
 
         var filters=section("Motor filters");
@@ -189,7 +190,7 @@ public final class MotorBatchDialog extends JDialog {
     private void refreshHistory(){loadingHistory=true;history.removeAllItems();for(var r:document.getMotorBatches())history.addItem(r);if(report!=null)history.setSelectedItem(report);else history.setSelectedIndex(-1);loadingHistory=false;}
     @SuppressWarnings("unchecked") private void filterView(){((TableRowSorter<Model>)table.getRowSorter()).setRowFilter(new RowFilter<>(){@Override public boolean include(Entry<? extends Model,? extends Integer> entry){var a=model.rows.get(entry.getIdentifier()).selected().assessment();return view.getSelectedIndex()==0 || view.getSelectedIndex()==1&&a==Assessment.MEETS_CRITERIA || view.getSelectedIndex()==2&&a==Assessment.DOES_NOT_MEET_CRITERIA || view.getSelectedIndex()==3&&a==Assessment.NEEDS_REVIEW;}});}
     private List<Row> selected(){return Arrays.stream(table.getSelectedRows()).map(table::convertRowIndexToModel).mapToObj(i->model.rows.get(i)).toList();}
-    private void showDetails(){var rows=selected();if(rows.size()!=1){details.setText("");return;}var r=rows.get(0);var m=r.candidate().motor();var classification=MotorCertification.classify(m);var text=new StringBuilder(m.getManufacturer()+" "+m.getDesignation()+"\nCurve: "+m.getDigest()+"\nMotor level: "+levelLabel(classification.level().name())+" ("+classification.impulseClass()+") — "+classification.basis()+"\n"+classification.note()+"\n"+String.join("; ",r.selected().reasons()));if(!r.candidate().ignoredIntersections().isEmpty())text.append("\nIntersection override — ignored: ").append(String.join("; ",r.candidate().ignoredIntersections()));for(var t:r.trials())text.append("\nDelay ").append(t.delay()).append(": ").append(t.status()).append(" ").append(t.assessment()).append(" ").append(t.reasons()).append("\nWarnings: ").append(t.warnings()).append("\n").append(t.error()).append("\nTelemetry: ").append(t.telemetryPath()).append("\nLog: ").append(t.logPath());details.setText(text.toString());details.setCaretPosition(0);}
+    private void showDetails(){var rows=selected();if(rows.size()!=1){details.setText("");return;}var r=rows.get(0);var m=r.candidate().motor();var classification=MotorCertification.classify(m);var text=new StringBuilder(m.getManufacturer()+" "+m.getDesignation()+"\nCurve: "+m.getDigest()+"\nMotor level: "+levelLabel(classification.level().name())+" ("+classification.impulseClass()+") — "+classification.basis()+"\n"+classification.note()+"\n"+String.join("; ",r.selected().reasons()));if(!r.candidate().fitWarnings().isEmpty())text.append("\nFit warnings (simulation allowed): ").append(String.join("; ",r.candidate().fitWarnings()));if(!r.candidate().ignoredIntersections().isEmpty())text.append("\nIntersection override — ignored: ").append(String.join("; ",r.candidate().ignoredIntersections()));for(var t:r.trials())text.append("\nDelay ").append(t.delay()).append(": ").append(t.status()).append(" ").append(t.assessment()).append(" ").append(t.reasons()).append("\nWarnings: ").append(t.warnings()).append("\n").append(t.error()).append("\nTelemetry: ").append(t.telemetryPath()).append("\nLog: ").append(t.logPath());details.setText(text.toString());details.setCaretPosition(0);}
     private void updateButtons(){run.setEnabled(worker==null&&mount.getItemCount()>0);cancel.setEnabled(worker!=null);export.setEnabled(report!=null);shortlist.setEnabled(worker==null&&report!=null&&!selected().isEmpty());}
     private static void enableTree(Container c,boolean enabled){for(Component child:c.getComponents()){child.setEnabled(enabled);if(child instanceof Container container)enableTree(container,enabled);}}
     private void close(){if(worker!=null){closeAfterCancel=true;runner.cancel();status.setText("Cancelling before closing…");}else dispose();}
@@ -214,13 +215,14 @@ public final class MotorBatchDialog extends JDialog {
     }
     private static final class Model extends AbstractTableModel {
         List<Row> rows=List.of();
-        private final String[] names={"Manufacturer","Motor","Length (mm)","Delay (s)","Status","Assessment","Apogee (m)","Rail exit (m/s)","Max speed (m/s)","Max Mach","Max accel (m/s²)","Min stability (cal)","Deploy speed (m/s)","NAR/Tripoli level","Impulse class","Reasons","Ignored intersections"};
+        private final String[] names={"Manufacturer","Motor","Length (mm)","Delay (s)","Status","Assessment","Apogee (m)","Rail exit (m/s)","Max speed (m/s)","Max Mach","Max accel (m/s²)","Min stability (cal)","Deploy speed (m/s)","NAR/Tripoli level","Impulse class","Reasons","Ignored intersections","Fit warnings"};
         @Override public int getRowCount(){return rows.size();}@Override public int getColumnCount(){return names.length;}@Override public String getColumnName(int c){return names[c];}
         @Override public Class<?> getColumnClass(int c){return c==2||c==3||c>=6&&c<=12?Double.class:String.class;}
         @Override public Object getValueAt(int r,int c){var row=rows.get(r);var t=row.selected();var m=row.candidate().motor();return switch(c){
             case 0->m.getManufacturer().getDisplayName();case 1->m.getDesignation();case 2->m.getLength()*1000;
-            case 3->Double.isNaN(t.delay())?null:t.delay();case 4->t.status().name();case 5->t.assessment().name()+(row.candidate().ignoredIntersections().isEmpty()?"":" (intersection override)");
+            case 3->Double.isNaN(t.delay())?null:t.delay();case 4->t.status().name();case 5->t.assessment().name()+(row.candidate().ignoredIntersections().isEmpty()?"":" (intersection override)")+(row.candidate().fitWarnings().isEmpty()?"":" (fit warning)");
             case 16->String.join("; ",row.candidate().ignoredIntersections());
+            case 17->String.join("; ",row.candidate().fitWarnings());
             case 13->levelLabel(MotorCertification.classify(m).level().name());case 14->MotorCertification.classify(m).impulseClass();case 15->String.join("; ",t.reasons());default->{var metrics=new MotorBatchMetrics.Metric[]{MotorBatchMetrics.Metric.APOGEE,MotorBatchMetrics.Metric.RAIL_SPEED,MotorBatchMetrics.Metric.MAX_SPEED,MotorBatchMetrics.Metric.MAX_MACH,MotorBatchMetrics.Metric.MAX_ACCELERATION,MotorBatchMetrics.Metric.MIN_STABILITY,MotorBatchMetrics.Metric.DEPLOY_SPEED};Double v=t.metrics().get(metrics[c-6]);yield v!=null&&Double.isFinite(v)?v:null;}};}
     }
 }

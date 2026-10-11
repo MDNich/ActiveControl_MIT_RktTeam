@@ -26,7 +26,7 @@ public final class MotorBatchCSV {
         for(var metric:MotorBatchMetrics.Metric.values())headers.add(metric.column);
         headers.addAll(List.of("impulse_class","nar_tripoli_motor_level","classification_basis","classification_note","application_version","created_utc","baseline_simulation","configuration_id","input_hash","threads","peak_threads","random_seed",
                 "fc_enabled","fc_reference","fc_fingerprint","fc_seed","fc_timing_seed","telemetry_path","log_path","filters_and_criteria_json","launch_conditions_xml",
-                "component_intersection_override","ignored_component_intersections"));
+                "component_intersection_override","ignored_component_intersections","fit_warnings"));
         line(out,headers);
         for(Row row:report.rows()) {
             if(scope==Scope.MEETS_CRITERIA&&row.selected().assessment()!=Assessment.MEETS_CRITERIA)continue;
@@ -46,7 +46,8 @@ public final class MotorBatchCSV {
                 fields.addAll(List.of(certification.impulseClass(),certification.level().name(),certification.basis(),certification.note(),input.getString("version"),report.created(),input.getString("baseline"),input.getString("configuration"),input.getString("hash"),
                         report.settings().threads(),report.peakThreads(),input.getInt("seed"),input.getBoolean("fcEnabled"),input.getString("fcReference"),input.getString("fcFingerprint"),
                         input.getInt("fcSeed"),input.getInt("fcTimingSeed"),t.telemetryPath(),t.logPath(),MotorBatchIO.settings(report.settings()).toString(),launch,
-                        report.settings().ignoreComponentIntersections(),String.join("; ",row.candidate().ignoredIntersections())));
+                        report.settings().ignoreComponentIntersections(),String.join("; ",row.candidate().ignoredIntersections()),
+                        String.join("; ",row.candidate().fitWarnings())));
                 line(out,fields);
             }
         }

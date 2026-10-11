@@ -1,0 +1,35 @@
+{
+  "verified_source_tree": "f725f9c5466eecf1a5574582f1582a53465675bc",
+  "scope": "Run motors over the reference length; retain MOTOR_TOO_LONG as advisory fit warning",
+  "tests": [
+    {
+      "name": "info.openrocket.core.simulation.motorbatch.MotorBatchTest",
+      "tests": "16",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "info.openrocket.swing.gui.main.SimulationPanelTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "info.openrocket.swing.gui.simulation.MotorBatchDialogTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "staged_source_jar": {
+    "name": "OpenRocket-MIT-v6.4.jar",
+    "sha256": "87ed13fb65d455054a676797c3ef43d6c4b362016371eb2b059c8d6be688e7fb"
+  },
+  "working_project_jar": {
+    "name": "OpenRocket-MIT-v6.4.jar",
+    "sha256": "ee40922de587bedf63b83c8e67b6fa23d5081ca6a0909bc4096018629716d95d"
+  }
+}

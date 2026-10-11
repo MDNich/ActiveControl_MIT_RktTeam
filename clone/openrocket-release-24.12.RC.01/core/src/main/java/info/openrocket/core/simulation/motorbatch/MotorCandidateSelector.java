@@ -8,9 +8,16 @@ import java.util.*;
 /** Catalogue filters and mechanical screening are distinct, so rejected fits remain explainable. */
 public final class MotorCandidateSelector {
     private MotorCandidateSelector() { }
-    public record Candidate(String id, ThrustCurveMotor motor, String exclusion, List<String> ignoredIntersections) {
-        public Candidate { ignoredIntersections = List.copyOf(ignoredIntersections); }
-        public Candidate(String id, ThrustCurveMotor motor, String exclusion) { this(id, motor, exclusion, List.of()); }
+    public record Candidate(String id, ThrustCurveMotor motor, String exclusion, List<String> ignoredIntersections,
+                            List<String> fitWarnings) {
+        public Candidate {
+            ignoredIntersections = List.copyOf(ignoredIntersections);
+            fitWarnings = List.copyOf(fitWarnings);
+        }
+        public Candidate(String id, ThrustCurveMotor motor, String exclusion, List<String> ignoredIntersections) {
+            this(id, motor, exclusion, ignoredIntersections, List.of());
+        }
+        public Candidate(String id, ThrustCurveMotor motor, String exclusion) { this(id, motor, exclusion, List.of(), List.of()); }
     }
     public static List<Candidate> select(List<ThrustCurveMotor> preferredCurves, MotorBatchSettings s, Simulation baseline) {
         List<Candidate> result = new ArrayList<>();
@@ -35,15 +42,17 @@ public final class MotorCandidateSelector {
         MotorMount mount=MotorBatchSnapshot.target(baseline,settings.mountId());
         var exclusions=new ArrayList<String>();
         var ignored=new ArrayList<String>();
+        var warnings=new ArrayList<String>();
         if (!(motor.getDiameter()>0) || !(motor.getLength()>0)) exclusions.add("DIMENSIONS_UNKNOWN");
         else if (motor.getDiameter()>mount.getMotorMountDiameter()+1e-6) exclusions.add("DIAMETER_TOO_LARGE");
-        else if (motor.getLength()>settings.maximumLength()+1e-6) exclusions.add("MOTOR_TOO_LONG");
+        // A motor can extend forward out of its mount; this threshold is not the rocket's usable length.
+        if (motor.getLength()>settings.maximumLength()+1e-6) warnings.add("MOTOR_TOO_LONG");
         for (String conflict:MotorClearance.conflicts(baseline.getActiveConfiguration(),mount,motor)) {
             boolean intersection=conflict.startsWith("MOTOR_INTERSECTS:") || conflict.startsWith("CLEARANCE_REVIEW_ENVELOPE:");
             if (settings.ignoreComponentIntersections() && intersection) ignored.add(conflict);
             else exclusions.add(conflict);
         }
-        return new Candidate(id,motor,String.join("; ",exclusions),ignored);
+        return new Candidate(id,motor,String.join("; ",exclusions),ignored,warnings);
     }
     private static boolean in(double v,double lo,double hi) { return Double.isFinite(v)&&v>=lo&&v<=hi; }
 }
