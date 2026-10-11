@@ -125,6 +125,7 @@ public class SimulationPanel extends JPanel {
 	private final SimulationAction deleteSimulationAction;
 	private final SimulationAction simTableExportAction;
 	private final SimulationAction selectedSimsExportAction;
+	private final SimulationAction motorBatchAction;
 
 	private int[] previousSelection = null;
 
@@ -157,6 +158,19 @@ public class SimulationPanel extends JPanel {
 		deleteSimulationAction = new DeleteSimulationAction();
 		simTableExportAction = new ExportSimulationTableAsCSVAction();
 		selectedSimsExportAction = new ExportSelectedSimulationsAsCSVAction();
+		motorBatchAction = new SimulationAction() {
+			{ putValue(NAME, "Batch simulate motors…"); }
+			@Override public void actionPerformed(ActionEvent e) {
+				Simulation[] selected = getSelectedSimulations();
+				if (selected != null && selected.length == 1 && selected[0].getStatus() != Simulation.Status.EXTERNAL) {
+					new info.openrocket.swing.gui.simulation.MotorBatchDialog(parent, document, selected[0]).setVisible(true);
+				}
+			}
+			@Override public void updateEnabledState() {
+				Simulation[] selected = getSelectedSimulations();
+				setEnabled(selected != null && selected.length == 1 && selected[0].getStatus() != Simulation.Status.EXTERNAL);
+			}
+		};
 
 		////////  The simulation action buttons ////////
 
@@ -188,6 +202,7 @@ public class SimulationPanel extends JPanel {
 		plotButton = new IconButton();
 		RocketActions.tieActionToButton(plotButton, plotSimulationAction, trans.get("simpanel.but.plotexport"));
 		this.add(plotButton, "wrap para");
+		this.add(new JButton(motorBatchAction), "span, align left, wrap para");
 
 		//// Run then Dump simulations
 		simTableExportButton = new IconButton();
@@ -740,6 +755,7 @@ public class SimulationPanel extends JPanel {
 		plotSimulationAction.updateEnabledState();
 		simTableExportAction.updateEnabledState();
 		selectedSimsExportAction.updateEnabledState();
+		motorBatchAction.updateEnabledState();
 	}
 
 	/// when the simulation tab is selected this run outdated simulated if appropriate.

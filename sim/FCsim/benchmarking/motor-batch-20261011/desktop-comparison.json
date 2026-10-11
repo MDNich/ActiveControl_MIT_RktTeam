@@ -1,0 +1,149 @@
+[
+  {
+    "motor": "A8",
+    "metric": "apogee_agl_m",
+    "macos": 225.47567350110538,
+    "windows": 225.47567350110546,
+    "windows_minus_macos": 8.526512829121202e-14
+  },
+  {
+    "motor": "A8",
+    "metric": "rail_exit_speed_m_s",
+    "macos": 9.983602251780347,
+    "windows": 9.983602251780347,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "A8",
+    "metric": "max_speed_before_recovery_m_s",
+    "macos": 109.55913746855211,
+    "windows": 109.55913746855211,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "A8",
+    "metric": "max_mach_before_recovery",
+    "macos": 0.3221228580188274,
+    "windows": 0.3221228580188274,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "A8",
+    "metric": "max_acceleration_before_recovery_m_s2",
+    "macos": 139.8617316789205,
+    "windows": 139.8617316789205,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "A8",
+    "metric": "min_ascent_stability_cal",
+    "macos": -3.06240424410937,
+    "windows": -3.0624042441666397,
+    "windows_minus_macos": -5.7269744502264075e-11
+  },
+  {
+    "motor": "A8",
+    "metric": "max_deployment_speed_m_s",
+    "macos": 7.345642929789575,
+    "windows": 7.345642929789458,
+    "windows_minus_macos": -1.1723955140041653e-13
+  },
+  {
+    "motor": "B4",
+    "metric": "apogee_agl_m",
+    "macos": 255.46999837715472,
+    "windows": 255.46999837715518,
+    "windows_minus_macos": 4.547473508864641e-13
+  },
+  {
+    "motor": "B4",
+    "metric": "rail_exit_speed_m_s",
+    "macos": 10.701497891104259,
+    "windows": 10.701497891104259,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "B4",
+    "metric": "max_speed_before_recovery_m_s",
+    "macos": 127.50964586425087,
+    "windows": 127.50964586425087,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "B4",
+    "metric": "max_mach_before_recovery",
+    "macos": 0.3749399891678596,
+    "windows": 0.3749399891678596,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "B4",
+    "metric": "max_acceleration_before_recovery_m_s2",
+    "macos": 163.29205744418283,
+    "windows": 163.29205744418283,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "B4",
+    "metric": "min_ascent_stability_cal",
+    "macos": -3.0590213524054635,
+    "windows": -3.0590213523717518,
+    "windows_minus_macos": 3.3711700098137953e-11
+  },
+  {
+    "motor": "B4",
+    "metric": "max_deployment_speed_m_s",
+    "macos": 8.419088178189725,
+    "windows": 8.419088178191004,
+    "windows_minus_macos": 1.2789769243681803e-12
+  },
+  {
+    "motor": "C6",
+    "metric": "apogee_agl_m",
+    "macos": 273.9508974373864,
+    "windows": 273.9508974373867,
+    "windows_minus_macos": 2.8421709430404007e-13
+  },
+  {
+    "motor": "C6",
+    "metric": "rail_exit_speed_m_s",
+    "macos": 19.012104247754184,
+    "windows": 19.012104247754184,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "C6",
+    "metric": "max_speed_before_recovery_m_s",
+    "macos": 103.10569397815469,
+    "windows": 103.10569397815469,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "C6",
+    "metric": "max_mach_before_recovery",
+    "macos": 0.30345277883735505,
+    "windows": 0.30345277883735505,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "C6",
+    "metric": "max_acceleration_before_recovery_m_s2",
+    "macos": 272.1324103025512,
+    "windows": 272.1324103025512,
+    "windows_minus_macos": 0.0
+  },
+  {
+    "motor": "C6",
+    "metric": "min_ascent_stability_cal",
+    "macos": -3.024614760613235,
+    "windows": -3.024614760608233,
+    "windows_minus_macos": 5.002220859751105e-12
+  },
+  {
+    "motor": "C6",
+    "metric": "max_deployment_speed_m_s",
+    "macos": 8.767235954215769,
+    "windows": 8.767235954215497,
+    "windows_minus_macos": -2.717825964282383e-13
+  }
+]

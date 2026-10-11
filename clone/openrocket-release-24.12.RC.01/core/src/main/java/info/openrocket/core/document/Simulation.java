@@ -139,6 +139,8 @@ public class Simulation implements ChangeSource, Cloneable {
     public void setEnsembleRunNumber(int n) { ensembleRunNumber=n; }
     public String getEnsembleRunTag() { return ensembleRunTag; }
     public void setEnsembleRunTag(String tag) { ensembleRunTag=tag; }
+    public String getRunOutputTag() { return ensembleRunTag; }
+    public void setRunOutputTag(String tag) { ensembleRunTag=tag; }
 
 	
 	/** The conditions to use */
@@ -791,12 +793,18 @@ public class Simulation implements ChangeSource, Cloneable {
 	 * @return	a new deep copy of the simulation and rocket with the same conditions and properties.
 	 */
 	public Simulation duplicateSimulation(Rocket newRocket) {
+		return duplicateSimulation(this.document, newRocket);
+	}
+
+	/** Copy settings into an explicitly owned document, without sharing runtime data. */
+	public Simulation duplicateSimulation(OpenRocketDocument targetDocument, Rocket newRocket) {
 		mutex.lock("duplicateSimulation");
 		try {
-			final Simulation newSim = new Simulation(this.document, newRocket);
+			final Simulation newSim = new Simulation(targetDocument, newRocket);
 			newSim.name = this.name;
 			newSim.configId = this.configId;
 			newSim.options.copyConditionsFrom(this.options);
+			newSim.options.setRandomSeed(this.options.getRandomSeed());
 			newSim.simulatedConfigurationDescription = this.simulatedConfigurationDescription;
 			for (SimulationExtension c : this.simulationExtensions) {
 				newSim.simulationExtensions.add(c.clone());

@@ -1,0 +1,82 @@
+"schema_version","batch_id","candidate_id","trial_number","manufacturer","designation","motor_type","curve_digest","motor_diameter_m","motor_length_m","total_impulse_N_s","average_thrust_N","peak_thrust_N","burn_time_s","motor_launch_mass_kg","motor_burnout_mass_kg","mount_id","mount_name","motor_instances","delay_s_or_plugged","delay_policy","execution_status","assessment","reasons","warnings","error","trials_attempted","trials_planned","apogee_agl_m","rail_exit_speed_m_s","max_speed_before_recovery_m_s","max_mach_before_recovery","max_acceleration_before_recovery_m_s2","min_ascent_stability_cal","max_deployment_speed_m_s","landing_descent_speed_m_s","ground_contact_speed_m_s","launch_mass_kg","average_thrust_launch_weight","time_to_apogee_s","flight_duration_s","landing_distance_m","impulse_class","nar_tripoli_motor_level","classification_basis","classification_note","application_version","created_utc","baseline_simulation","configuration_id","input_hash","threads","peak_threads","random_seed","fc_enabled","fc_reference","fc_fingerprint","fc_seed","fc_timing_seed","telemetry_path","log_path","filters_and_criteria_json","launch_conditions_xml"
+"1","3090956f-487c-4979-aeda-119e09d16f73","motor-1","1","Estes","A8","SINGLE","digest A8 test","0.018","0.07","9.0","4.725","9.0","1.9000000000000001","0.0164","0.0131","feea7c7f-c401-4bc5-9493-454343d0574b","Motor Mount Tube","1","3.0","KEEP_BASELINE","COMPLETE","DOES_NOT_MEET_CRITERIA","MIN_STABILITY_LOW; RAIL_SPEED_LOW","Messages[]","","1","1","225.47567350110538","9.983602251780347","109.55913746855211","0.3221228580188274","139.8617316789205","-3.06240424410937","7.345642929789575","3.287050832049692","3.2870508350859042","0.04151550488565116","14.722262682804828","5.349165237743221","73.77878114569269","0.04670223632612481","A","BELOW_L1","Manufacturer designation","Below H by impulse. Check sparking propellant, uncertain catalogue data, and complete rocket/cluster requirements.","24.12.RC.01","2026-10-11T17:55:26.337463Z","Packaged motor batch verification","f41bee5b-ebb8-4d92-bce7-53001577a313","16063eff1d1db2b2031f0cb72b417d4f1d6b1d05743ba5c122343530626978c0","4","3","17","false","","","1","1","","","{""mount"":""feea7c7f-c401-4bc5-9493-454343d0574b"",""threads"":4,""diameter"":0.018,""length"":0.07,""manufacturers"":[""Estes""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""ALL"",""hideUnavailable"":false,""minImpulse"":0.0,""maxImpulse"":1.0E+9,""minThrust"":0.0,""maxThrust"":1.0E+9,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""MIN_STABILITY"":[1.0,null],""RAIL_SPEED"":[15.0,null]}}","<conditions>
+        <configid>f41bee5b-ebb8-4d92-bce7-53001577a313</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>0.0</windaverage>
+        <windturbulence>0.0</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>0.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.0</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>80.0</maxtime>
+        <ensemble enabled=""false"" motorsigma=""5.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" runs=""30"" seed=""12345"" temperaturesigma=""2.0"" windsigma=""1.0""/>
+      </conditions>"
+"1","3090956f-487c-4979-aeda-119e09d16f73","motor-2","1","Estes","B4","SINGLE","digest B4 test","0.018","0.07","11.4","5.985","11.4","1.9","0.0195","0.013","feea7c7f-c401-4bc5-9493-454343d0574b","Motor Mount Tube","1","3.0","KEEP_BASELINE","INCOMPLETE","DOES_NOT_MEET_CRITERIA","NO_GROUND_CONTACT_OR_TIME_LIMIT; MIN_STABILITY_LOW; RAIL_SPEED_LOW","Messages[]","","1","1","255.46999837715472","10.701497891104259","127.50964586425087","0.3749399891678596","163.29205744418283","-3.0590213524054635","8.419088178189725","","","0.044615504885651164","13.699322016019435","5.364309636228385","79.96823860951164","","B","BELOW_L1","Manufacturer designation","Below H by impulse. Check sparking propellant, uncertain catalogue data, and complete rocket/cluster requirements.","24.12.RC.01","2026-10-11T17:55:26.337463Z","Packaged motor batch verification","f41bee5b-ebb8-4d92-bce7-53001577a313","16063eff1d1db2b2031f0cb72b417d4f1d6b1d05743ba5c122343530626978c0","4","3","17","false","","","1","1","","","{""mount"":""feea7c7f-c401-4bc5-9493-454343d0574b"",""threads"":4,""diameter"":0.018,""length"":0.07,""manufacturers"":[""Estes""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""ALL"",""hideUnavailable"":false,""minImpulse"":0.0,""maxImpulse"":1.0E+9,""minThrust"":0.0,""maxThrust"":1.0E+9,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""MIN_STABILITY"":[1.0,null],""RAIL_SPEED"":[15.0,null]}}","<conditions>
+        <configid>f41bee5b-ebb8-4d92-bce7-53001577a313</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>0.0</windaverage>
+        <windturbulence>0.0</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>0.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.0</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>80.0</maxtime>
+        <ensemble enabled=""false"" motorsigma=""5.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" runs=""30"" seed=""12345"" temperaturesigma=""2.0"" windsigma=""1.0""/>
+      </conditions>"
+"1","3090956f-487c-4979-aeda-119e09d16f73","motor-3","1","Estes","C6","SINGLE","digest C6 test","0.018","0.07","11.15","5.362560153994225","12.0","2.0780000000000003","0.0227","0.012","feea7c7f-c401-4bc5-9493-454343d0574b","Motor Mount Tube","1","3.0","KEEP_BASELINE","INCOMPLETE","DOES_NOT_MEET_CRITERIA","NO_GROUND_CONTACT_OR_TIME_LIMIT; MIN_STABILITY_LOW","Messages[]","","1","1","273.9508974373864","19.012104247754184","103.10569397815469","0.30345277883735505","272.1324103025512","-3.024614760613235","8.767235954215769","","","0.04781550488565116","12.782509978666729","5.464842135877539","79.99233966457798","","C","BELOW_L1","Manufacturer designation","Below H by impulse. Check sparking propellant, uncertain catalogue data, and complete rocket/cluster requirements.","24.12.RC.01","2026-10-11T17:55:26.337463Z","Packaged motor batch verification","f41bee5b-ebb8-4d92-bce7-53001577a313","16063eff1d1db2b2031f0cb72b417d4f1d6b1d05743ba5c122343530626978c0","4","3","17","false","","","1","1","","","{""mount"":""feea7c7f-c401-4bc5-9493-454343d0574b"",""threads"":4,""diameter"":0.018,""length"":0.07,""manufacturers"":[""Estes""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""ALL"",""hideUnavailable"":false,""minImpulse"":0.0,""maxImpulse"":1.0E+9,""minThrust"":0.0,""maxThrust"":1.0E+9,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""MIN_STABILITY"":[1.0,null],""RAIL_SPEED"":[15.0,null]}}","<conditions>
+        <configid>f41bee5b-ebb8-4d92-bce7-53001577a313</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>0.0</windaverage>
+        <windturbulence>0.0</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>0.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.0</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>80.0</maxtime>
+        <ensemble enabled=""false"" motorsigma=""5.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" runs=""30"" seed=""12345"" temperaturesigma=""2.0"" windsigma=""1.0""/>
+      </conditions>"

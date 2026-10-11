@@ -29,6 +29,10 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 		return context.getOpenRocketDocument();
 	}
 
+    @Override public void closeElement(String element, HashMap<String,String> attributes, String content, WarningSet warnings) throws org.xml.sax.SAXException {
+        if (!element.equals("motorbatch")) super.closeElement(element, attributes, content, warnings);
+    }
+
 	@Override
 	public ElementHandler openElement(String element, HashMap<String, String> attributes,
 			WarningSet warnings) {
@@ -43,6 +47,16 @@ class OpenRocketContentHandler extends AbstractElementHandler {
 			rocketDefined = true;
 			return new ComponentParameterHandler(getDocument().getRocket(), context);
 		}
+
+        if (element.equals("motorbatch")) {
+            return new AbstractElementHandler() {
+                @Override public ElementHandler openElement(String name, HashMap<String,String> a, WarningSet w) { return null; }
+                @Override public void endHandler(String name, HashMap<String,String> a, String text, WarningSet w) {
+                    try { context.getOpenRocketDocument().putMotorBatch(info.openrocket.core.simulation.motorbatch.MotorBatchIO.read(text)); }
+                    catch (RuntimeException e) { w.add("Motor batch results could not be loaded: " + e.getMessage()); }
+                }
+            };
+        }
 
 		if (element.equals("datatypes")) {
 			if (datatypesDefined) {

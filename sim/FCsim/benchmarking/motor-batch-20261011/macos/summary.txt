@@ -1,0 +1,6 @@
+OS: Mac OS X
+Java: 17.0.11
+Motors: 3
+Peak workers: 3
+Shortlist: 3
+Passed dialog, execution, CSV, report reload, shortlist, and baseline isolation.

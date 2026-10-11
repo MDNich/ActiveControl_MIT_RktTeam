@@ -1,0 +1,46 @@
+{
+  "jar": "clone/openrocket-release-24.12.RC.01/build/libs/OpenRocket-MIT-v6.4.jar",
+  "sha256": "33f70d60ef124175751a3bae3c707d84d49f5471a1f40db8822a4b1c45b481af",
+  "suites": [
+    {
+      "name": "info.openrocket.core.simulation.motorbatch.MotorBatchTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "12.37"
+    },
+    {
+      "name": "edu.mit.rocket_team.zephyrus.RTFCOutputTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.042"
+    },
+    {
+      "name": "edu.mit.rocket_team.zephyrus.RTFCTimingTest",
+      "tests": "6",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.179"
+    },
+    {
+      "name": "info.openrocket.core.document.SimulationTest",
+      "tests": "10",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.123"
+    },
+    {
+      "name": "info.openrocket.swing.gui.simulation.MotorBatchDialogTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "2.992"
+    }
+  ]
+}

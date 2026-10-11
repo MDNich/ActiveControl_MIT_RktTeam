@@ -1,0 +1,6 @@
+Model: Rocket
+Original model unchanged.
+Candidates: 16
+Trials: 0
+Peak workers: 0
+Baseline clearance: [MOTOR_INTERSECTS:Airbrakes Casing [8eb096b6-4a02-4f85-a1a4-77031b222709], MOTOR_INTERSECTS:Airbrakes Module [0d107726-b3cc-4178-8204-b4452730f5ed], MOTOR_INTERSECTS:Airframe (Outside edge of P Motor) [158f3366-2a0a-45aa-b427-5bf0b3664b0d], MOTOR_INTERSECTS:Fin Collar [4525eed5-c772-402e-af35-6bc96c60923c], MOTOR_INTERSECTS:P-Motor [f5f2076e-5c83-4933-a795-5d52e3177d73], MOTOR_INTERSECTS:Transition [b7c7d9a8-f587-4360-899e-17f3ae0ba01a]]

@@ -1,0 +1,36 @@
+{
+  "verified_source_tree": "525eb0a461e329588da405a0ea6577424c0a170d",
+  "scope": "Motor batch feature, intersection override, startup selection regression",
+  "tests": [
+    {
+      "name": "info.openrocket.core.simulation.motorbatch.MotorBatchTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "info.openrocket.swing.gui.main.SimulationPanelTest",
+      "tests": "2",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "info.openrocket.swing.gui.simulation.MotorBatchDialogTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "staged_source_jar": {
+    "name": "OpenRocket-MIT-v6.4.jar",
+    "sha256": "320802a5dcdcaff837f2e53b3c3f2fe21e93ae01136669a20a35fda545065ad6"
+  },
+  "working_project_jar": {
+    "name": "OpenRocket-MIT-v6.4.jar",
+    "sha256": "2f129ac5be61242ef60a59ea300b6136080b948ce0be6a916667e962416dcf15"
+  },
+  "installed_launcher": "Startup completed; main thread returned and AWT event thread was idle after loading disposable example rocket."
+}

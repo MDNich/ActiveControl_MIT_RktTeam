@@ -646,27 +646,7 @@ public class ThrustCurveMotorSelectionPanel extends JPanel implements MotorSelec
 	 * @return		the default motor in this set
 	 */
 	private ThrustCurveMotor selectMotor(ThrustCurveMotorSet set) {
-		if (set.getMotorCount() == 0) {
-			throw new BugException("Attempting to select motor from empty ThrustCurveMotorSet: " + set);
-		}
-		if (set.getMotorCount() == 1) {
-			return set.getMotors().get(0);
-		}
-
-
-		// Find which motor has been used the most recently
-		List<ThrustCurveMotor> list = set.getMotors();
-		Preferences prefs = ((SwingPreferences) Application.getPreferences()).getNode(ApplicationPreferences.PREFERRED_THRUST_CURVE_MOTOR_NODE);
-		for (ThrustCurveMotor m : list) {
-			String digest = m.getDigest();
-			if (prefs.getBoolean(digest, false)) {
-				return m;
-			}
-		}
-
-		// No motor has been used
-		list.sort(MOTOR_COMPARATOR);
-		return list.get(0);
+		return PreferredMotorCurve.select(set);
 	}
 
 	/**

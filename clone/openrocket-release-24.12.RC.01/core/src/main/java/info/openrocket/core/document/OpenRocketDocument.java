@@ -121,6 +121,18 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 	private final DecalRegistry decalRegistry = new DecalRegistry();
 	
 	private final List<DocumentChangeListener> listeners = new ArrayList<>();
+	private final List<info.openrocket.core.simulation.motorbatch.MotorBatchReport> motorBatches = new ArrayList<>();
+	public List<info.openrocket.core.simulation.motorbatch.MotorBatchReport> getMotorBatches() { return List.copyOf(motorBatches); }
+	public void putMotorBatch(info.openrocket.core.simulation.motorbatch.MotorBatchReport report) {
+		motorBatches.removeIf(r -> r.id().equals(report.id()));
+		motorBatches.add(report); setSaved(false);
+		fireDocumentChangeEvent(new DocumentChangeEvent(this));
+	}
+	public void removeMotorBatch(String id) {
+		if(motorBatches.removeIf(r -> r.id().equals(id))) {
+			setSaved(false); fireDocumentChangeEvent(new DocumentChangeEvent(this));
+		}
+	}
 	
 	/**
 	 * main constructor, enable events in the rocket 
@@ -827,8 +839,9 @@ public class OpenRocketDocument implements ComponentChangeListener, StateChangeL
 		OpenRocketDocument documentCopy = OpenRocketDocumentFactory.createDocumentFromRocket(rocketCopy);
 		
 		for (Simulation s : simulations) {
-			documentCopy.addSimulation(s.duplicateSimulation(rocketCopy));
+			documentCopy.addSimulation(s.duplicateSimulation(documentCopy, rocketCopy));
 		}
+		documentCopy.motorBatches.addAll(motorBatches);
 		return documentCopy;
 	}
 	

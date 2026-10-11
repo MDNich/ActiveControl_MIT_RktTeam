@@ -92,6 +92,7 @@ open module info.openrocket.core {
     exports info.openrocket.core.simulation.flightcomputer;
 	exports info.openrocket.core.simulation.customexpression;
 	exports info.openrocket.core.simulation.exception;
+	exports info.openrocket.core.simulation.motorbatch;
 	exports info.openrocket.core.simulation.extension;
 	exports info.openrocket.core.simulation.extension.example;
 	exports info.openrocket.core.simulation.extension.impl;

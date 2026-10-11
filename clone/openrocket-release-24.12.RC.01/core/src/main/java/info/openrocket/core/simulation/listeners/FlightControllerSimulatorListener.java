@@ -163,7 +163,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         status.getSimulationConditions().setTimeStep(maxPhysicsStep);
         var simulation = status.getSimulationConditions().getSimulation();
         run.fc.telemetry.open(Path.of(System.getProperty("openrocket.fc.telemetryDir","fc-telemetry")),
-                outputSettings.forRun(simulation == null ? null : simulation.getEnsembleRunTag()));
+                outputSettings.forRun(simulation == null ? null : simulation.getRunOutputTag()));
         if (status.getSimulationConditions().getSimulation() != null) {
             status.getSimulationConditions().getSimulation().setFlightComputerTelemetryPath(run.fc.telemetry.getCsvPath());
             status.getSimulationConditions().getSimulation().setFlightComputerLogPath(run.fc.telemetry.getLogPath());

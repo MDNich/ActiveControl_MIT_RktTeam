@@ -113,6 +113,10 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</simulations>");
 
+        for (var batch : document.getMotorBatches()) {
+            writeln("<motorbatch>" + TextUtil.escapeXML(info.openrocket.core.simulation.motorbatch.MotorBatchIO.write(batch)) + "</motorbatch>");
+        }
+
 		// Save PhotoSettings
 		savePhotoSettings(document.getPhotoSettings());
 
