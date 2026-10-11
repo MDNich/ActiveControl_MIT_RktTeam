@@ -21,7 +21,7 @@ The [source manifest](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/doc/FCsim/j
 | 9. Timing | 10 ms FC ticks, 20 ms PWM, maximum 2.5 ms physics step, 1 s pad warmup; deadline handling across RK4/RK6, recovery and ignition delays | Identical FC schedules at 2.5/1 ms and under RK4/RK6; off-grid ignition, zero launch rod, repeat runs and existing engine regressions |
 | 10. Packaging | Root shadow JAR, CLI support runner, prepared ORK, streamed console and telemetry files | Packaged synthetic flight; independent binary/CSV validation; benchmark motor-load inspection |
 
-The proposed lifecycle/timing/roll test names were consolidated into `RTFCOutputTest`, `RTFCSimulationTest`, and `RTAirbrakesReplayTest`. Sensor-adapter tests are in `RTFCSensorAdapterTest`. All test sources live under [the FC test directory](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/test/java/edu/mit/rocket_team/zephyrus/).
+The proposed lifecycle/timing/roll test names were consolidated into `RTFCOutputTest`, `RTFCSimulationTest`, and `RTAirbrakesReplayTest`. Sensor-adapter tests are in `RTFCSensorAdapterTest`. All test sources live under [the FC test directory](/Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/test/java/edu/mit/rocket_team/).
 
 The validation selected **33 tests: 25 FC cases and 8 existing simulation tests**. All passed. The output tests were subsequently rerun successfully after adding an explicit nonfinite automatic-output assertion. Both core and Swing compiled, and root `shadowJar` succeeded with JDK 17.0.11 and Gradle 8.12.1.
 

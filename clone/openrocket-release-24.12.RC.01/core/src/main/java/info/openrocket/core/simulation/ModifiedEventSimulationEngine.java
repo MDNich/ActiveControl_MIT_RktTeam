@@ -377,14 +377,18 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				}
 			}
 			
+            FlightControllerSimulatorListener recoveryFC=FlightControllerSimulatorListener.active(currentStatus);
+            if(recoveryFC!=null && !recoveryFC.allowRecoveryEvent(currentStatus,event)) continue;
 			// Call simulation listeners, allow aborting event handling
 			if (!SimulationListenerHelper.fireHandleFlightEvent(currentStatus, event)) {
+                if(recoveryFC!=null)recoveryFC.rejectRecoveryEvent(event,"event_listener_veto");
 				continue;
 			}
 			
 			if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
 				RecoveryDevice device = (RecoveryDevice) event.getSource();
 				if (!SimulationListenerHelper.fireRecoveryDeviceDeployment(currentStatus, device)) {
+                    if(recoveryFC!=null)recoveryFC.rejectRecoveryEvent(event,"deployment_listener_veto");
 					continue;
 				}
 			}
@@ -410,7 +414,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 				if (!(c instanceof RecoveryDevice))
 					continue;
 				DeploymentConfiguration deployConfig = ((RecoveryDevice) c).getDeploymentConfigurations().get(this.fcid);
-				if (deployConfig.isActivationEvent(event, c)) {
+				if (recoveryFC==null && deployConfig.isActivationEvent(event, c)) {
 					// Delay event by at least 1ms to allow stage separation to occur first
 					currentStatus.addEvent(new FlightEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,
 							event.getTime() + Math.max(0.001, deployConfig.getDeployDelay()), c));
@@ -628,6 +632,7 @@ public class ModifiedEventSimulationEngine implements SimulationEngine {
 					}
 					
 					currentStatus.getFlightDataBranch().addEvent(event);
+                    if(recoveryFC!=null)recoveryFC.recoveryDeployed(currentStatus,event);
 				}
 				log.debug("deployed recovery devices: " + currentStatus.getDeployedRecoveryDevices().size()	);
 				break;

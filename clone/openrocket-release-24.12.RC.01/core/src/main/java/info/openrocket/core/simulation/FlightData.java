@@ -23,7 +23,7 @@ import info.openrocket.core.util.Mutable;
  * <p>
  * A FlightData object can be made immutable by calling {@link #immute()}.
  * 
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public class FlightData {
 	private static final Logger log = LoggerFactory.getLogger(FlightData.class);

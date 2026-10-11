@@ -39,9 +39,9 @@ Relevant starting files:
 | `swing/src/main/java/info/openrocket/swing/gui/simulation/SimulationOptionsPanel.java` | Preserve the left-column placement below ensemble controls |
 | `core/src/main/java/info/openrocket/core/simulation/extension/impl/ZephyrusFlightComputer.java` | Evolve persisted configuration into a computer/file reference while preserving legacy readers |
 | `core/src/main/java/info/openrocket/core/simulation/listeners/FlightControllerSimulatorListener.java` | Resolve a prepared Java model into the existing sample, scheduling, output, and logging lifecycle |
-| `core/src/main/java/edu/mit/rocket_team/zephyrus/FC/RTFC.java` | Retain the translated Zephyrus implementation and expose supported configuration points |
-| `core/src/main/java/edu/mit/rocket_team/zephyrus/FC/FlightComputerTimingSettings.java` | Reuse current timing semantics and distinguish source-derived, estimated, and measured values |
-| `core/src/main/java/edu/mit/rocket_team/zephyrus/util/RTSimulationCommunicator.java` | Keep the boundary between logical FC outputs and rocket actuation |
+| `core/src/main/java/edu/mit/rocket_team/FC/RTFC.java` | Retain the translated Zephyrus implementation and expose supported configuration points |
+| `core/src/main/java/edu/mit/rocket_team/FC/FlightComputerTimingSettings.java` | Reuse current timing semantics and distinguish source-derived, estimated, and measured values |
+| `core/src/main/java/edu/mit/rocket_team/util/RTSimulationCommunicator.java` | Keep the boundary between logical FC outputs and rocket actuation |
 | `core/src/main/java/info/openrocket/core/document/Simulation.java` | Track selected-file changes, result provenance, and stale results |
 | `core/src/main/java/info/openrocket/core/simulation/ensemble/EnsembleRunner.java` | Freeze one resolved design for all N members of a batch |
 

@@ -9,7 +9,7 @@ import info.openrocket.core.simulation.exception.SimulationException;
  * SimulationStepper to
  * move the rocket forward step by step.
  * 
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public interface SimulationEngine {
 

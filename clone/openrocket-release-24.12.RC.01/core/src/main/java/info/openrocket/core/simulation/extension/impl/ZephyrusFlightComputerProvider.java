@@ -6,7 +6,23 @@ import java.util.List;
 
 @Plugin
 public class ZephyrusFlightComputerProvider extends AbstractSimulationExtensionProvider {
-    public ZephyrusFlightComputerProvider() { super(ZephyrusFlightComputer.class, "Zephyrus flight computer"); }
+    /**
+     * Creates a ZephyrusFlightComputerProvider with the supplied dependencies and per-instance
+     * state.
+     */
+    public ZephyrusFlightComputerProvider() {
+        super(ZephyrusFlightComputer.class, "Zephyrus flight computer");
+    }
+
     // Configured by the dedicated box, not a second Add extensions entry.
-    @Override public List<String> getName(String id) { return null; }
+    /**
+     * Returns the extension-provider display name for the FC simulation option.
+     *
+     * @param id stable identifier
+     * @return the extension-provider display name for the FC simulation option
+     */
+    @Override
+    public List<String> getName(String id) {
+        return null;
+    }
 }

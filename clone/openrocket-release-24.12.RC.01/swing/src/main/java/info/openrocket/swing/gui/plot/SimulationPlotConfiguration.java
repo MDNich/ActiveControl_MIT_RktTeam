@@ -170,6 +170,8 @@ public class SimulationPlotConfiguration extends PlotConfiguration<FlightDataTyp
         config=new SimulationPlotConfiguration("Flight computer: airbrake deployment");config.addPlotDataType(FlightComputerData.AIRBRAKE,0);configs.add(config);
         config=new SimulationPlotConfiguration("Flight computer: measured vs physical height");config.addPlotDataType(FlightComputerData.BARO_ALTITUDE,0);config.addPlotDataType(FlightComputerData.GPS_ALTITUDE,0);config.addPlotDataType(FlightDataType.TYPE_ALTITUDE,0);configs.add(config);
         config=new SimulationPlotConfiguration("Flight computer: estimated vs physical velocity");config.addPlotDataType(FlightComputerData.VELOCITY,0);config.addPlotDataType(FlightDataType.TYPE_VELOCITY_Z,0);configs.add(config);
+        config=new SimulationPlotConfiguration("Flight computer: recovery firing");for(var type:FlightComputerData.RECOVERY_PULSE)config.addPlotDataType(type,0);config.setEvent(FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT,true);configs.add(config);
+        config=new SimulationPlotConfiguration("Flight computer: recovery armed");for(var type:FlightComputerData.RECOVERY_ARMED)config.addPlotDataType(type,0);configs.add(config);
         config=new SimulationPlotConfiguration("Flight computer: state");config.addPlotDataType(FlightComputerData.STATE,0);configs.add(config);
         for(var pair:FlightComputerData.PAIRS){config=new SimulationPlotConfiguration("Flight computer: measured vs physical "+pair.label());config.addPlotDataType(pair.measured(),0);config.addPlotDataType(pair.truth(),0);configs.add(config);}
         DEFAULT_CONFIGURATIONS = configs.toArray(new SimulationPlotConfiguration[0]);

@@ -16,13 +16,23 @@ class TabControlledTrapezoidFinSetTest extends BaseTestCase {
 
     private static final double EPSILON = 1e-10;
 
+    /**
+     * Builds or reads the fin fixture for the regression assertions.
+     *
+     * @return the resulting TabControlledTrapezoidFinSet
+     */
     private TabControlledTrapezoidFinSet fin() {
-        TabControlledTrapezoidFinSet fin = new TabControlledTrapezoidFinSet(
-                4, 0.12, 0.12, 0, 0.08, 0.03, 0.02, 0.015, 0);
+        TabControlledTrapezoidFinSet fin =
+                new TabControlledTrapezoidFinSet(4, 0.12, 0.12, 0, 0.08, 0.03, 0.02, 0.015, 0);
         fin.setThickness(0.006);
         return fin;
     }
 
+    /**
+     * Verifies that tab rotates about its upstream mid thickness hinge.
+     *
+     * @param degrees degrees
+     */
     @ParameterizedTest
     @ValueSource(doubles = {-90, -60, -30, 0, 30, 60, 90})
     void tabRotatesAboutItsUpstreamMidThicknessHinge(double degrees) {
@@ -33,8 +43,12 @@ class TabControlledTrapezoidFinSetTest extends BaseTestCase {
         Coordinate[] points = fin.getRollCtrlTabPoints();
         assertPoint(new Coordinate(0.10, 0.015, 0), points[1]);
         assertPoint(new Coordinate(0.10, 0.045, 0), points[2]);
-        assertPoint(new Coordinate(0.10 + 0.02 * Math.cos(angle), 0.015, -0.02 * Math.sin(angle)), points[0]);
-        assertPoint(new Coordinate(0.10 + 0.02 * Math.cos(angle), 0.045, -0.02 * Math.sin(angle)), points[3]);
+        assertPoint(
+                new Coordinate(0.10 + 0.02 * Math.cos(angle), 0.015, -0.02 * Math.sin(angle)),
+                points[0]);
+        assertPoint(
+                new Coordinate(0.10 + 0.02 * Math.cos(angle), 0.045, -0.02 * Math.sin(angle)),
+                points[3]);
         assertEquals(0.02, points[0].sub(points[1]).length(), EPSILON);
         assertEquals(0.03, points[3].sub(points[0]).length(), EPSILON);
 
@@ -45,9 +59,16 @@ class TabControlledTrapezoidFinSetTest extends BaseTestCase {
         Coordinate lower = rotation.transform(hinge.add(0, 0, -0.003));
         assertPoint(hinge, upper.add(lower).multiply(0.5));
         assertEquals(0.006, upper.sub(lower).length(), EPSILON);
-        assertPoint(new Coordinate(0.003 * Math.sin(angle), 0, 0.003 * Math.cos(angle)), upper.sub(hinge));
+        assertPoint(
+                new Coordinate(0.003 * Math.sin(angle), 0, 0.003 * Math.cos(angle)),
+                upper.sub(hinge));
     }
 
+    /**
+     * Verifies that hinge follows either trailing edge sweep.
+     *
+     * @param sweep sweep
+     */
     @ParameterizedTest
     @ValueSource(doubles = {-0.04, 0, 0.04})
     void hingeFollowsEitherTrailingEdgeSweep(double sweep) {
@@ -55,21 +76,24 @@ class TabControlledTrapezoidFinSetTest extends BaseTestCase {
         fin.setSweep(sweep);
         Coordinate[] neutral = fin.getRollCtrlTabNeutralPoints();
         Coordinate axis = neutral[2].sub(neutral[1]).multiply(1 / fin.getTabSpan());
-        for (double degrees : new double[]{-90, 45, 90}) {
+        for (double degrees : new double[] {-90, 45, 90}) {
             fin.setTabAngle(Math.toRadians(degrees));
             Coordinate[] points = fin.getRollCtrlTabPoints();
             assertPoint(neutral[1], points[1]);
             assertPoint(neutral[2], points[2]);
             assertEquals(0, points[0].sub(points[1]).dot(axis), EPSILON);
             assertEquals(fin.getTabChord(), points[0].sub(points[1]).length(), EPSILON);
-            assertEquals(-fin.getTabChord() * Math.sin(Math.toRadians(degrees)), points[0].z, EPSILON);
+            assertEquals(
+                    -fin.getTabChord() * Math.sin(Math.toRadians(degrees)), points[0].z, EPSILON);
         }
     }
 
+    /** Verifies that all angle entry points respect the ninety degree limit. */
     @Test
     void allAngleEntryPointsRespectTheNinetyDegreeLimit() {
-        TabControlledTrapezoidFinSet fin = new TabControlledTrapezoidFinSet(
-                4, 0.12, 0.12, 0, 0.08, 0.03, 0.02, 0.015, Math.PI);
+        TabControlledTrapezoidFinSet fin =
+                new TabControlledTrapezoidFinSet(
+                        4, 0.12, 0.12, 0, 0.08, 0.03, 0.02, 0.015, Math.PI);
         assertEquals(Math.PI / 2, fin.getTabAngle(), EPSILON);
         fin.setTabShape(0.03, 0.02, 0.015, -Math.PI);
         assertEquals(-Math.PI / 2, fin.getTabAngle(), EPSILON);
@@ -82,24 +106,38 @@ class TabControlledTrapezoidFinSetTest extends BaseTestCase {
         assertEquals(0, fin.getTabAngle(), EPSILON);
     }
 
+    /** Verifies that bounding box includes deflected tab and its rotated thickness. */
     @Test
     void boundingBoxIncludesDeflectedTabAndItsRotatedThickness() {
         TabControlledTrapezoidFinSet fin = fin();
-        for (double angle : new double[]{-Math.PI / 2, 0, Math.PI / 2}) {
+        for (double angle : new double[] {-Math.PI / 2, 0, Math.PI / 2}) {
             fin.setTabAngle(angle);
             BoundingBox bounds = fin.getInstanceBoundingBox();
-            Coordinate halfThickness = fin.getRollCtrlTabRotation().linearTransform(new Coordinate(0, 0, 0.003));
+            Coordinate halfThickness =
+                    fin.getRollCtrlTabRotation().linearTransform(new Coordinate(0, 0, 0.003));
             for (Coordinate point : fin.getRollCtrlTabPoints()) {
-                for (double side : new double[]{-1, 1}) {
+                for (double side : new double[] {-1, 1}) {
                     Coordinate corner = point.add(halfThickness.multiply(side));
-                    assertTrue(corner.x >= bounds.min.x - EPSILON && corner.x <= bounds.max.x + EPSILON);
-                    assertTrue(corner.y >= bounds.min.y - EPSILON && corner.y <= bounds.max.y + EPSILON);
-                    assertTrue(corner.z >= bounds.min.z - EPSILON && corner.z <= bounds.max.z + EPSILON);
+                    assertTrue(
+                            corner.x >= bounds.min.x - EPSILON
+                                    && corner.x <= bounds.max.x + EPSILON);
+                    assertTrue(
+                            corner.y >= bounds.min.y - EPSILON
+                                    && corner.y <= bounds.max.y + EPSILON);
+                    assertTrue(
+                            corner.z >= bounds.min.z - EPSILON
+                                    && corner.z <= bounds.max.z + EPSILON);
                 }
             }
         }
     }
 
+    /**
+     * Checks .
+     *
+     * @param expected expected
+     * @param actual actual
+     */
     private void assertPoint(Coordinate expected, Coordinate actual) {
         assertEquals(expected.x, actual.x, EPSILON);
         assertEquals(expected.y, actual.y, EPSILON);

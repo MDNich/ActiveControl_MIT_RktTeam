@@ -24,7 +24,7 @@ import info.openrocket.core.util.WorldCoordinate;
  * during the flight of a rocket, for example launch rod parameters, atmospheric models,
  * aerodynamic calculators etc.
  * 
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public class SimulationConditions implements Monitorable, Cloneable {
 	

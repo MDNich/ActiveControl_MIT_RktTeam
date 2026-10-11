@@ -35,7 +35,7 @@ import info.openrocket.core.util.StateChangeListener;
  * This class is not thread-safe and enforces single-threaded access with a
  * SafetyMutex.
  *
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public class Simulation implements ChangeSource, Cloneable {
 	private static final Logger log = LoggerFactory.getLogger(Simulation.class);

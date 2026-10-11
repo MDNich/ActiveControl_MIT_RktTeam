@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>OpenRocket MIT simulation API</title></head>
+<body>
+<h1>Flight computer and MIT simulation extensions</h1>
+<p>The flight-computer runtime now lives under <code>edu.mit.rocket_team</code>.
+Its existing functional subpackages are retained. The former <code>.zephyrus</code>
+namespace segment has been removed; direct imports must use the new names.</p>
+<p>This reference includes private implementation methods, the graphical FC designer,
+controller blocks, recovery, telemetry/replay, ensembles, motor batches and 3D plotting.
+Selected existing OpenRocket engine classes are included to make integration links navigable.</p>
+<p>See the <a href="../14-flight-computer-api-and-architecture.md">architecture guide</a>
+for editable UML diagrams, clock/coordinate contracts and regeneration instructions.</p>
+<p>Simulation time is virtual. Custom Java boards do not model communications contention or
+shared processor timing. Hardware adapters such as camera, flash and power are logical models.
+The documentation describes the implementation; it does not qualify physical flight hardware.</p>
+</body></html>

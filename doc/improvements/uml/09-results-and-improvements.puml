@@ -1,0 +1,64 @@
+@startuml
+allowmixing
+!pragma layout smetana
+set namespaceSeparator none
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+title Result storage and surrounding MIT simulation improvements
+
+left to right direction
+class FlightControllerSimulatorListener
+class FlightComputerData
+class FlightComputerControllerPlots
+class FlightComputerLogReader
+class FlightDataBranch
+class EnsembleRunner
+class EnsembleRunListener
+class GaussianThrustNoise
+class EnsembleAccumulator
+class EnsembleResult
+class EnsembleRunArchive
+class EnsembleBandRenderer
+class EnsembleDistributionDialog
+class TrajectoryData
+class Trajectory3DDialog
+class Trajectory3DPanel
+class MotorBatchRunner
+class MotorBatchSnapshot
+class MotorBatchReport
+class MotorBatchCSV
+FlightControllerSimulatorListener --> FlightComputerData : measured/truth samples
+FlightControllerSimulatorListener --> FlightComputerControllerPlots : diagnostics
+FlightComputerData --> FlightDataBranch
+FlightComputerControllerPlots --> FlightDataBranch
+FlightComputerLogReader --> FlightDataBranch : external log import
+EnsembleRunner *-- EnsembleRunListener
+EnsembleRunListener --> GaussianThrustNoise : T(t) + e(t)
+EnsembleRunner --> EnsembleAccumulator
+EnsembleAccumulator --> EnsembleResult : mean + sample standard deviation
+EnsembleRunner --> EnsembleRunArchive : individual flights
+EnsembleBandRenderer --> EnsembleResult : 2D mean ±1σ
+EnsembleDistributionDialog --> EnsembleResult : individual scalar metrics
+TrajectoryData --> FlightDataBranch : position + quaternion + events
+TrajectoryData --> EnsembleResult : mean trajectory
+Trajectory3DDialog *-- Trajectory3DPanel
+Trajectory3DPanel --> TrajectoryData
+MotorBatchRunner --> MotorBatchSnapshot : isolated worker baselines
+MotorBatchRunner --> MotorBatchReport
+MotorBatchCSV --> MotorBatchReport
+note bottom of FlightDataBranch
+Digital FC state/command channels use held-value plotting.
+3D orientation follows recorded quaternions, not velocity direction.
+Actual recovery events control the canopy animation.
+end note
+
+@enduml

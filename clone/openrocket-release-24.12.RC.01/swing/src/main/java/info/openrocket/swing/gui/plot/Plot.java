@@ -240,6 +240,12 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 				// Add data and map to the axis
 				plot.setDataset(axisno, data[axisno]);
 				ModifiedXYItemRenderer r = new ModifiedXYItemRenderer(branchCount);
+                if(filledConfig.getDomainAxisType().equals(FlightDataType.TYPE_TIME))
+                    for(int series=0;series<data[axisno].getSeriesCount();series++) {
+                        var metadata=(MetadataXYSeries)data[axisno].getSeries(series);
+                        if(filledConfig.getType(metadata.getDataIdx()) instanceof FlightDataType type &&
+                                info.openrocket.core.simulation.flightcomputer.FlightComputerData.isDiscrete(type))r.stepSeries.add(series);
+                    }
 				renderers.add(r);
 				r.setDefaultToolTipGenerator(tooltipGenerator);
 				plot.setRenderer(axisno, r);
@@ -351,6 +357,7 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 						eventStr = eventStr + ", ";
 					}
 					eventStr = eventStr + event.getType();
+                    if(event.getData() instanceof info.openrocket.core.simulation.flightcomputer.RecoveryDeployment recovery)eventStr += " ("+info.openrocket.core.util.TextUtil.escapeXML(recovery.deviceName())+")";
 				}
 			}
 			if (eventStr != "") {
@@ -446,6 +453,23 @@ public abstract class Plot<T extends DataType, B extends DataBranch<T>, C extend
 	 */
 	protected static class ModifiedXYItemRenderer extends XYLineAndShapeRenderer {
 
+        private final java.util.Set<Integer> stepSeries=new java.util.HashSet<>();
+        @Override protected void drawPrimaryLine(org.jfree.chart.renderer.xy.XYItemRendererState state,
+                Graphics2D g2, XYPlot plot, XYDataset dataset, int pass, int series, int item,
+                ValueAxis domainAxis, ValueAxis rangeAxis, Rectangle2D area) {
+            if(!stepSeries.contains(series)){super.drawPrimaryLine(state,g2,plot,dataset,pass,series,item,domainAxis,rangeAxis,area);return;}
+            if(item==0)return;
+            double x0=domainAxis.valueToJava2D(dataset.getXValue(series,item-1),area,plot.getDomainAxisEdge());
+            double x1=domainAxis.valueToJava2D(dataset.getXValue(series,item),area,plot.getDomainAxisEdge());
+            double y0=rangeAxis.valueToJava2D(dataset.getYValue(series,item-1),area,plot.getRangeAxisEdge());
+            double y1=rangeAxis.valueToJava2D(dataset.getYValue(series,item),area,plot.getRangeAxisEdge());
+            if(!Double.isFinite(x0)||!Double.isFinite(x1)||!Double.isFinite(y0)||!Double.isFinite(y1))return;
+            boolean horizontal=plot.getOrientation()==PlotOrientation.HORIZONTAL;
+            state.workingLine.setLine(horizontal?y0:x0,horizontal?x0:y0,horizontal?y0:x1,horizontal?x1:y0);
+            if(org.jfree.chart.util.LineUtils.clipLine(state.workingLine,area))drawFirstPassShape(g2,pass,series,item,state.workingLine);
+            state.workingLine.setLine(horizontal?y0:x1,horizontal?x1:y0,horizontal?y1:x1,horizontal?x1:y1);
+            if(org.jfree.chart.util.LineUtils.clipLine(state.workingLine,area))drawFirstPassShape(g2,pass,series,item,state.workingLine);
+        }
 		private final int branchCount;
 
 		protected ModifiedXYItemRenderer(int branchCount) {

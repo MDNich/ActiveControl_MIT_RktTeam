@@ -1,0 +1,74 @@
+@startuml
+allowmixing
+!pragma layout smetana
+set namespaceSeparator none
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+left to right direction
+title Firmware controller models and physical actuation
+
+abstract class RTController {
+ +setup()
+ +performLoopAction()
+ +backdoorFudge(data)
+}
+class RTRollController {
+ +setPidGains(kp, ki, kd)
+ +update(t, altitude, velocity, angle, rate)
+ +getAngle() : float
+}
+class RTAirbrakesController {
+ +setPidGains(kp, ki, kd)
+ +update(t, measured)
+ +getDeployment() : float
+}
+class RTPyroController {
+ +armPyro(channel)
+ +firePyro(channel, origin)
+ +pyroMonitor(state)
+ +setFireObserver(callback)
+}
+class RTFudgedData
+class RTFudgedAirbrakesData
+class RTAirbrakesAccelerationMeasurement
+class RTAirbrakesVelocityMeasurement
+enum RTAirbrakesControllerState
+enum RTPyroStatus
+class RTSimulationCommunicator {
+ +bind(configuration, connectedPorts)
+ +apply(output, holdClosed)
+ +recordData(branch, output)
+}
+class FlightComputerRecoveryBridge
+class TabControlledTrapezoidFinSet
+class AirbrakeSet
+class FinSetCalc
+RTController <|-- RTRollController
+RTController <|-- RTAirbrakesController
+RTController <|-- RTPyroController
+RTFudgedData <|-- RTFudgedAirbrakesData
+RTAirbrakesController --> RTFudgedAirbrakesData
+RTAirbrakesController *-- RTAirbrakesAccelerationMeasurement
+RTAirbrakesController *-- RTAirbrakesVelocityMeasurement
+RTAirbrakesController --> RTAirbrakesControllerState
+RTPyroController --> RTPyroStatus
+RTPyroController --> FlightComputerRecoveryBridge : accepted command observer
+RTSimulationCommunicator --> TabControlledTrapezoidFinSet : latched angle (radians)
+RTSimulationCommunicator --> AirbrakeSet : exposed fraction [0,1]
+FinSetCalc --> TabControlledTrapezoidFinSet : reads live deflection
+note bottom of RTSimulationCommunicator
+Named Java outputs use exact rocket component names.
+Controller blocks use stable UUID assignments.
+All physical edits target the run copy, not the design.
+end note
+
+@enduml

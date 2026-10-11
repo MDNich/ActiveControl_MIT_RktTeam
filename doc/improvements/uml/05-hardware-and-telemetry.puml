@@ -1,0 +1,64 @@
+@startuml
+allowmixing
+!pragma layout smetana
+set namespaceSeparator none
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+left to right direction
+title Telemetry, logical hardware and support utilities
+
+class RTFC
+class RTTelemetryEngine {
+ +open(parent, outputs)
+ +send(packet)
+ +deliverDue(bootUs)
+ +decode(packet, timestamp)
+ +finish(complete)
+}
+class TelemetryLinkSettings <<record>>
+class FlightComputerOutputSettings <<record>>
+class RTFlashDriver <<logical>>
+class RTPowerBoard <<nominal values>>
+class RTCamera <<logical>>
+class RTVTX <<logical>>
+class RTRangingEngine <<empty placeholder>>
+class RTHardwareSerial <<stdout adapter>>
+class RTUtilLibrary {
+ +unsigned32(value) : long
+ +elapsed32(now, then) : long
+}
+class "RTUtilLibrary.Trace" as Trace
+class ErrorFunction <<legacy math>>
+class FlightComputerLogReader
+artifact "transmitted CSV + packets" as TX
+artifact "received CSV + packets" as RX
+artifact "OR.log + metadata" as LOG
+RTFC *-- RTTelemetryEngine
+RTFC *-- RTFlashDriver
+RTFC *-- RTPowerBoard
+RTFC *-- "2" RTCamera
+RTFC *-- RTVTX
+RTFC --> RTUtilLibrary
+RTUtilLibrary +-- Trace
+RTTelemetryEngine --> TelemetryLinkSettings
+RTTelemetryEngine --> FlightComputerOutputSettings
+RTTelemetryEngine --> TX : every generated packet
+RTTelemetryEngine --> RX : loss + receive delay
+RTTelemetryEngine --> LOG : streaming output
+FlightComputerLogReader --> LOG : imports physical/FC channels
+RTFlashDriver --> Trace : operation trace
+note bottom of RTRangingEngine
+Ranging, serial and ErrorFunction are retained support classes;
+they are not active devices in the current RTFC loop.
+end note
+
+@enduml

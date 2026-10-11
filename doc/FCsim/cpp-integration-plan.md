@@ -52,7 +52,7 @@ Suggested layout, to be created during implementation:
 
 - In the shared firmware library: portable FC runtime/state types and sensor-processing units; Arduino acquisition/output adapters remain alongside them.
 - In OpenRocket: `core/src/main/native/zephyrus/` for host adapters, a C interface, JNI glue, native tests and CMake configuration.
-- In `edu.mit.rocket_team.zephyrus`: instance-based `RTFC`, a `FlightComputerBackend` interface, `NativeFlightComputerBackend`, immutable sensor/output records, clock/scheduler, diagnostics and component adapters.
+- In `edu.mit.rocket_team`: instance-based `RTFC`, a `FlightComputerBackend` interface, `NativeFlightComputerBackend`, immutable sensor/output records, clock/scheduler, diagnostics and component adapters.
 - Generated native libraries under the build directory, copied into `core` resources for the root JAR; nothing generated into handwritten source folders.
 
 ### Native API
@@ -180,7 +180,7 @@ The completed integration should run shared C++ FC logic from the distributable 
 [OR-engine]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/ModifiedEventSimulationEngine.java:28
 [OR-coast]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/ModifiedEventSimulationEngine.java:772
 [OR-RK6]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/RK6SimulationStepper.java:90
-[OR-Java-AB]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/control/airbrakes/RTAirbrakesController.java:20
+[OR-Java-AB]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/control/airbrakes/RTAirbrakesController.java:20
 [OR-AB-component]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/rocketcomponent/AirbrakeSet.java:405
 [OR-AB-aero]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/aerodynamics/barrowman/AirbrakeSetCalc.java:33
 [OR-status-clone]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/SimulationStatus.java:571

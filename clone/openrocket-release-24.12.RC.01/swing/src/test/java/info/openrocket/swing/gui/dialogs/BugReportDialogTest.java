@@ -16,29 +16,43 @@ import info.openrocket.swing.startup.GuiModule;
 
 class BugReportDialogTest {
 
+    /** Initializes application services and isolated state for this regression fixture. */
     @BeforeAll
     static void setup() {
         Application.setInjector(Guice.createInjector(new GuiModule(), new PluginModule()));
     }
 
+    /**
+     * Verifies that copied and saved report includes edits and complete plain text diagnostics.
+     *
+     * @throws Exception if the requested operation cannot be completed
+     */
     @Test
     void copiedAndSavedReportIncludesEditsAndCompletePlainTextDiagnostics() throws Exception {
-        SwingUtilities.invokeAndWait(() -> {
-            try {
-                String logs = "diagnostic entry ä &lt;frame&gt;<br>".repeat(4000);
-                JEditorPane editor = new JEditorPane("text/html",
-                        "<html><p>Error: &lt;boom&gt; &amp; detail</p><p>" + logs + "FINAL ENTRY</p></html>");
-                editor.getDocument().insertString(0, "User description: opening my rocket\n", null);
-                String report = BugReportDialog.reportText(editor);
-                assertTrue(report.contains("User description: opening my rocket"));
-                assertTrue(report.contains("Error: <boom> & detail"));
-                assertTrue(report.contains("diagnostic entry ä <frame>"));
-                assertTrue(report.contains("FINAL ENTRY"));
-                assertTrue(report.length() > 100000, "Reports must not be truncated to fit mailto links");
-                assertFalse(report.contains("<html>"));
-            } catch (Exception failure) {
-                throw new AssertionError(failure);
-            }
-        });
+        SwingUtilities.invokeAndWait(
+                () -> {
+                    try {
+                        String logs = "diagnostic entry ä &lt;frame&gt;<br>".repeat(4000);
+                        JEditorPane editor =
+                                new JEditorPane(
+                                        "text/html",
+                                        "<html><p>Error: &lt;boom&gt; &amp; detail</p><p>"
+                                                + logs
+                                                + "FINAL ENTRY</p></html>");
+                        editor.getDocument()
+                                .insertString(0, "User description: opening my rocket\n", null);
+                        String report = BugReportDialog.reportText(editor);
+                        assertTrue(report.contains("User description: opening my rocket"));
+                        assertTrue(report.contains("Error: <boom> & detail"));
+                        assertTrue(report.contains("diagnostic entry ä <frame>"));
+                        assertTrue(report.contains("FINAL ENTRY"));
+                        assertTrue(
+                                report.length() > 100000,
+                                "Reports must not be truncated to fit mailto links");
+                        assertFalse(report.contains("<html>"));
+                    } catch (Exception failure) {
+                        throw new AssertionError(failure);
+                    }
+                });
     }
 }

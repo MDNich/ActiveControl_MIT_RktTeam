@@ -348,8 +348,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 	}
 
 	/**
-	 * Calculate the linear and angular acceleration at the given status.  The results
-	 * are stored in the fields {@link #linearAcceleration} and {@link #angularAcceleration}.
+	 * Calculate the linear and angular acceleration at the given status.  The returned
+	 * acceleration data contains both the linear and angular components.
 	 *  
 	 * @param status   the status of the rocket.
 	 * @throws SimulationException 

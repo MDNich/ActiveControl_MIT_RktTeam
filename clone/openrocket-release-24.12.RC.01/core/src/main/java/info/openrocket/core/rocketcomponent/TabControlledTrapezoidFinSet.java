@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * A set of trapezoidal fins with tabs used for roll control.
  *
- * @author Marc D NICHITIU <nichitiu@mit.edu>
+ * @author Marc D NICHITIU &lt;nichitiu@mit.edu&gt;
  */
 
 public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {

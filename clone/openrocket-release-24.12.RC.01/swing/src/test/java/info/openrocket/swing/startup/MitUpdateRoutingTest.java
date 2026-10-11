@@ -8,19 +8,24 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assumptions;
 
 class MitUpdateRoutingTest {
-	@Test
-	void mitBuildDoesNotStartAnUpstreamUpdateFetcher() {
-		Assumptions.assumeTrue(BuildProperties.isMitEdition());
-		assertNull(SwingStartup.startUpdateChecker());
-		assertEquals("https://api.github.com/repos/MDNich/ActiveControl_MIT_RktTeam/releases/latest",
-				BuildProperties.getMitUpdateUrl());
-	}
+    /** Verifies that mit build does not start an upstream update fetcher. */
+    @Test
+    void mitBuildDoesNotStartAnUpstreamUpdateFetcher() {
+        Assumptions.assumeTrue(BuildProperties.isMitEdition());
+        assertNull(SwingStartup.startUpdateChecker());
+        assertEquals(
+                "https://api.github.com/repos/MDNich/ActiveControl_MIT_RktTeam/releases/latest",
+                BuildProperties.getMitUpdateUrl());
+    }
 
-	@Test
-	void legacyFetcherRefusesUpstreamChecksEvenIfCalledDirectly() {
-		Assumptions.assumeTrue(BuildProperties.isMitEdition());
-		var failure = assertThrows(UpdateInfoRetriever.UpdateInfoFetcher.UpdateCheckerException.class,
-				() -> new UpdateInfoRetriever.UpdateInfoFetcher().runUpdateFetcher());
-		assertTrue(failure.getMessage().contains("disabled for the MIT edition"));
-	}
+    /** Verifies that legacy fetcher refuses upstream checks even if called directly. */
+    @Test
+    void legacyFetcherRefusesUpstreamChecksEvenIfCalledDirectly() {
+        Assumptions.assumeTrue(BuildProperties.isMitEdition());
+        var failure =
+                assertThrows(
+                        UpdateInfoRetriever.UpdateInfoFetcher.UpdateCheckerException.class,
+                        () -> new UpdateInfoRetriever.UpdateInfoFetcher().runUpdateFetcher());
+        assertTrue(failure.getMessage().contains("disabled for the MIT edition"));
+    }
 }

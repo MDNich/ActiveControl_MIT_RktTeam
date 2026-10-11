@@ -167,6 +167,17 @@ public class SimulationPlotPanel extends PlotPanel<FlightDataType, FlightDataBra
                 presets.add(presets.size()-1,config);break;
             }
         }
+        for(var measurement:types)if(measurement.getSymbol().matches("FC_ctrl_[0-9a-f]{32}_measurement_.*")) {
+            String prefix=measurement.getSymbol().substring(0,41);
+            String name=measurement.getName().replace(" · measured input", "");
+            String[][] fields={{"measurement","baseline","error"},{"p","i","d"},{"requested","output","latched"},{"active","valid","saturated","weight"}};
+            String[] titles={"tracking","PID terms","output","status"};
+            for(int group=0;group<fields.length;group++) {
+                var config=new SimulationPlotConfiguration("Flight computer: "+name+" · "+titles[group]);
+                for(String field:fields[group])for(var type:types)if(type.getSymbol().startsWith(prefix+field+"_"))config.addPlotDataType(type,0);
+                if(config.getDataCount()>0)presets.add(presets.size()-1,config);
+            }
+        }
         return presets.toArray(SimulationPlotConfiguration[]::new);
     }
 	public static SimulationPlotPanel create(Simulation simulation) {

@@ -58,3 +58,15 @@ The existing Swing/core framework is extended. The installed macOS launcher keep
 [Motor batch simulation and CSV export](07-motor-batch-simulation.md), planned and implemented 11 October 2026: manufacturer/motor filters, parallel flights (default four workers), installed-motor clearance checks, NAR/Tripoli levels, recovery-delay selection, flight criteria, cancellation, CSV export, and saved summaries. See [implementation and verification](08-motor-batch-implementation.md) for usage, tests, and the Zephyrus clearance findings.
 
 [Idle memory investigation and fix](09-idle-memory-reclamation.md): live-object measurements, repeated FC runs, dialog lifetime checks, and automatic idle heap reclamation in the 6.4 startup path.
+
+[Flight computer recovery coupling](10-flight-computer-recovery-coupling.md), planned 11 October 2026: exclusive FC recovery authority while FC simulation is enabled, channel-to-device mappings, timed physical deployment, plots/logs and implementation acceptance checks. OR deployment rules remain saved and resume when FC simulation is disabled.
+
+[Flight computer recovery implementation and use](11-flight-computer-recovery-implementation.md): configuring channel assignments, physical deployment timing, saved/imported recovery plots, verification results and the rebuilt 6.4 application.
+
+[Flight computer controller blocks](12-flight-computer-controller-blocks.md), planned 11 October 2026: graphical PID and velocity-weighted controllers, sensor/quantity selection, baseline capture, fin-tab/fin-cant/airbrake assignments, output ownership, virtual timing, plots and staged implementation checks.
+
+[Controller blocks: implementation and verification](13-flight-computer-controller-implementation.md) — Signal flow designer, measured inputs, PID/velocity weighting, tab/cant/airbrake assignments and timing.
+
+[Flight-computer API and architecture](14-flight-computer-api-and-architecture.md) — package rename to `edu.mit.rocket_team`, method documentation, [browsable Javadoc](javadoc/index.html), nine editable UML views and regeneration/verification instructions.
+
+The architecture report is also available as a [17-page PDF](14-flight-computer-api-and-architecture.pdf) with nine native TikZ figures; the [standalone LaTeX source](14-flight-computer-api-and-architecture.tex) contains the complete report and every figure.

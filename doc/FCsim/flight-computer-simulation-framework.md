@@ -14,7 +14,7 @@ The existing Java package provides the connection points for software-in-the-loo
 
 The working trees were clean when inspected. These revisions identify the local source baseline, not a verified flashed flight binary. The sketch's actual Arduino library search path and board build configuration were not established; the adjacent `RT_Firmware_Libs` checkout is the concrete dependency source for this plan.
 
-The review covered all 33 Java files under `edu.mit.rocket_team.zephyrus`, the simulation listener and its engine/stepper/component connections, the FC and standalone airbrake sketches, and the relevant shared C++ libraries. Camera, radio, power and flash code were considered as FC dependencies, rather than targets for detailed hardware simulation. Existing prose notes were treated as background and checked against source; their instructions were not adopted as user requests.
+The review covered all 33 Java files under `edu.mit.rocket_team`, the simulation listener and its engine/stepper/component connections, the FC and standalone airbrake sketches, and the relevant shared C++ libraries. Camera, radio, power and flash code were considered as FC dependencies, rather than targets for detailed hardware simulation. Existing prose notes were treated as background and checked against source; their instructions were not adopted as user requests.
 
 ## 2. Build and simulation entry points
 
@@ -179,11 +179,11 @@ The links throughout this document point to the exact local source locations use
 [OR-RK-choice]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/listeners/NewControlStepListener.java:84
 [OR-listener]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/listeners/FlightControllerSimulatorListener.java:86
 [OR-fudge]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/listeners/FlightControllerSimulatorListener.java:200
-[OR-FC]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/FC/RTFC.java:37
-[OR-FC-input]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/FC/RTFC.java:60
-[OR-Java-AB]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/control/airbrakes/RTAirbrakesController.java:20
-[OR-Java-clock]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/control/airbrakes/RTAirbrakesController.java:503
-[OR-output]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/util/RTSimulationCommunicator.java:20
+[OR-FC]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/FC/RTFC.java:37
+[OR-FC-input]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/FC/RTFC.java:60
+[OR-Java-AB]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/control/airbrakes/RTAirbrakesController.java:20
+[OR-Java-clock]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/control/airbrakes/RTAirbrakesController.java:503
+[OR-output]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/util/RTSimulationCommunicator.java:20
 [OR-AB-component]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/rocketcomponent/AirbrakeSet.java:405
 [OR-AB-aero]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/aerodynamics/barrowman/AirbrakeSetCalc.java:33
 [OR-legacy-AB]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/listeners/AirbrakesControllerListener.java:25

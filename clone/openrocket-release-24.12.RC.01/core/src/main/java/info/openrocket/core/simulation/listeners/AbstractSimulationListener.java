@@ -23,7 +23,7 @@ import info.openrocket.core.util.Coordinate;
  * The recommended way of implementing simulation listeners is to extend this
  * class.
  * 
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public class AbstractSimulationListener implements SimulationListener, SimulationComputationListener,
 		SimulationEventListener, Cloneable {

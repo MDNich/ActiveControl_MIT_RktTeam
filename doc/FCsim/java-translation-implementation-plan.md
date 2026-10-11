@@ -4,7 +4,7 @@ Updated direction, 20 September 2026. **This is the implementation plan to follo
 
 ## 1. Scope and fixed decisions
 
-Translate the flight computer into the **existing** `edu.mit.rocket_team.zephyrus` classes. Keep **`FlightControllerSimulatorListener`** as its OpenRocket entry point and retain the `RTFC.init → pre_loop → loop` lifecycle. Finish with a working root **`:shadowJar`** containing the Java implementation.
+Translate the flight computer into the **existing** `edu.mit.rocket_team` classes. Keep **`FlightControllerSimulatorListener`** as its OpenRocket entry point and retain the `RTFC.init → pre_loop → loop` lifecycle. Finish with a working root **`:shadowJar`** containing the Java implementation.
 
 Use these authoritative firmware sources:
 
@@ -63,7 +63,7 @@ flowchart LR
 
 ## 4. Implementation checklist
 
-Follow the steps in order. Each step states what to edit and what must pass before moving on. Test names below were planning labels under `core/src/test/java/edu/mit/rocket_team/zephyrus/`; the completion report maps them to the implemented, partly consolidated test classes. In early steps, use simple recording stubs for dependencies completed in later steps; do not wait for a full simulated flight to test a translation.
+Follow the steps in order. Each step states what to edit and what must pass before moving on. Test names below were planning labels under `core/src/test/java/edu/mit/rocket_team/`; the completion report maps them to the implemented, partly consolidated test classes. In early steps, use simple recording stubs for dependencies completed in later steps; do not wait for a full simulated flight to test a translation.
 
 ### Step 1 — Record the translation baseline
 
@@ -233,7 +233,7 @@ Run from [the OpenRocket root][or]. Add `--offline` only when dependencies are c
 
 ```sh
 ./gradlew :core:compileJava :swing:compileJava
-./gradlew :core:test --tests 'edu.mit.rocket_team.zephyrus.*'
+./gradlew :core:test --tests 'edu.mit.rocket_team.*'
 ./gradlew :core:test --tests 'info.openrocket.core.simulation.FlightEventsTest' --tests 'info.openrocket.core.simulation.SimulationConditionsTest'
 ./gradlew shadowJar
 ```
@@ -243,15 +243,15 @@ The first implementation is complete when a packaged OpenRocket run uses the exi
 After that milestone, evaluate separately: firmware-behavior corrections, measured sensor/linkage calibration, finite actuator motion, physical roll/recovery coupling, and JNI via its own listener. The saved replay inputs and outputs provide the common comparison basis; they do not require a backend abstraction now.
 
 [or]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/
-[java]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/
+[java]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/
 [fc]: /Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Arduino/Zephyrus/FC/FC.ino
 [libs]: /Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/
 [abh]: /Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/airbrakes.h
 [abc]: /Users/mdn/Developer/MIT_Rkt_Team/Avionics2025/RT_Firmware_Libs/airbrakes.cpp
-[rtfc]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/FC/RTFC.java
-[jabc]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/control/airbrakes/RTAirbrakesController.java
+[rtfc]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/FC/RTFC.java
+[jabc]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/control/airbrakes/RTAirbrakesController.java
 [listener]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/listeners/FlightControllerSimulatorListener.java
-[comm]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/zephyrus/util/RTSimulationCommunicator.java
+[comm]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/edu/mit/rocket_team/util/RTSimulationCommunicator.java
 [engine]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/ModifiedEventSimulationEngine.java
 [rk6]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/RK6SimulationStepper.java
 [rk4]: /Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket/core/src/main/java/info/openrocket/core/simulation/RK4SimulationStepper.java

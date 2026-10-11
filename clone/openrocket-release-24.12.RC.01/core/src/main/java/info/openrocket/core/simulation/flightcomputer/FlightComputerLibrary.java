@@ -7,63 +7,197 @@ import java.util.*;
 
 /** Per-user managed library. Import never overwrites the source or an existing distinct design. */
 public final class FlightComputerLibrary {
-    private FlightComputerLibrary(){}
+    /** Prevents instantiation of this utility class. */
+    private FlightComputerLibrary() {}
+
+    /**
+     * Returns the standard user flight-computer library directory, creating it when needed.
+     *
+     * @return the standard user flight-computer library directory, creating it when needed
+     */
     public static Path directory() {
-        return Path.of(System.getProperty("openrocket.fc.library",SystemInfo.getUserApplicationDirectory().toPath().resolve("FlightComputers").toString())).toAbsolutePath().normalize();
+        return Path.of(
+                        System.getProperty(
+                                "openrocket.fc.library",
+                                SystemInfo.getUserApplicationDirectory()
+                                        .toPath()
+                                        .resolve("FlightComputers")
+                                        .toString()))
+                .toAbsolutePath()
+                .normalize();
     }
+
+    /**
+     * Returns the installed bundled baseline .fc template.
+     *
+     * @return the installed bundled baseline .fc template
+     * @throws IOException if the requested operation cannot be completed
+     */
     public static synchronized Path template() throws IOException {
-        Path p=directory().resolve("Templates/zephyrus.fc");
-        var baseline=FlightComputerDesign.zephyrus();
-        if(!Files.exists(p)) baseline.write(p);
-        else if(!FlightComputerDesign.read(p).json().equals(baseline.json())) {
+        Path p = directory().resolve("Templates/zephyrus.fc");
+        var baseline = FlightComputerDesign.zephyrus();
+        if (!Files.exists(p)) baseline.write(p);
+        else if (!FlightComputerDesign.read(p).json().equals(baseline.json())) {
             // Preserve a manually modified older template; never silently replace its contents.
-            p=directory().resolve("Templates/zephyrus-"+baseline.fingerprint().substring(0,12)+".fc");
-            if(!Files.exists(p))baseline.write(p);
+            p =
+                    directory()
+                            .resolve(
+                                    "Templates/zephyrus-"
+                                            + baseline.fingerprint().substring(0, 12)
+                                            + ".fc");
+            if (!Files.exists(p)) baseline.write(p);
         }
         return p;
     }
-    public static boolean protectedFile(Path p){return p.toAbsolutePath().normalize().startsWith(directory().resolve("Templates"));}
+
+    /**
+     * Checks whether a path identifies a protected bundled/library source.
+     *
+     * @param p p
+     * @return true when the condition described above holds
+     */
+    public static boolean protectedFile(Path p) {
+        return p.toAbsolutePath().normalize().startsWith(directory().resolve("Templates"));
+    }
+
+    /**
+     * Copies a .fc file into the user library, deduplicating by content and preserving existing
+     * filenames.
+     *
+     * @param source source text, model or measured-channel selection
+     * @return the resulting Path
+     * @throws IOException if the requested operation cannot be completed
+     */
     public static synchronized Path importFile(Path source) throws IOException {
-        Path from=source.toAbsolutePath().normalize();
-        FlightComputerDesign.read(from); // Validate format before copying; editable drafts need not run yet.
+        Path from = source.toAbsolutePath().normalize();
+        FlightComputerDesign.read(
+                from); // Validate format before copying; editable drafts need not run yet.
         Files.createDirectories(directory());
-        if(from.startsWith(directory())) return from;
-        byte[] data=Files.readAllBytes(from); String hash=FlightComputerDesign.hash(data);
-        for(Path existing:list()) if(FlightComputerDesign.hash(Files.readAllBytes(existing)).equals(hash))return existing;
-        String name=from.getFileName().toString().replaceAll("[^A-Za-z0-9._-]","-");
-        if(!name.toLowerCase(Locale.ROOT).endsWith(".fc"))name+=".fc";
-        Path target=directory().resolve(name);
-        if(Files.exists(target)) target=directory().resolve(name.substring(0,name.length()-3)+"-"+hash.substring(0,12)+".fc");
-        int suffix=2; Path base=target;
-        while(Files.exists(target))target=base.resolveSibling(base.getFileName().toString().replace(".fc","-"+(suffix++)+".fc"));
-        Path temp=Files.createTempFile(directory(),".fc-import-",".tmp");
-        try {Files.write(temp,data); Files.move(temp,target);} finally {Files.deleteIfExists(temp);}
-        System.out.println("FC library.import source="+from+" library_file="+target+" sha256="+hash);
+        if (from.startsWith(directory())) return from;
+        byte[] data = Files.readAllBytes(from);
+        String hash = FlightComputerDesign.hash(data);
+        for (Path existing : list())
+            if (FlightComputerDesign.hash(Files.readAllBytes(existing)).equals(hash))
+                return existing;
+        String name = from.getFileName().toString().replaceAll("[^A-Za-z0-9._-]", "-");
+        if (!name.toLowerCase(Locale.ROOT).endsWith(".fc")) name += ".fc";
+        Path target = directory().resolve(name);
+        if (Files.exists(target))
+            target =
+                    directory()
+                            .resolve(
+                                    name.substring(0, name.length() - 3)
+                                            + "-"
+                                            + hash.substring(0, 12)
+                                            + ".fc");
+        int suffix = 2;
+        Path base = target;
+        while (Files.exists(target))
+            target =
+                    base.resolveSibling(
+                            base.getFileName().toString().replace(".fc", "-" + (suffix++) + ".fc"));
+        Path temp = Files.createTempFile(directory(), ".fc-import-", ".tmp");
+        try {
+            Files.write(temp, data);
+            Files.move(temp, target);
+        } finally {
+            Files.deleteIfExists(temp);
+        }
+        System.out.println(
+                "FC library.import source=" + from + " library_file=" + target + " sha256=" + hash);
         return target;
     }
+
+    /**
+     * Lists available .fc designs in the user library.
+     *
+     * @return the resulting List&lt;Path&gt;
+     * @throws IOException if the requested operation cannot be completed
+     */
     public static List<Path> list() throws IOException {
-        if(!Files.isDirectory(directory()))return List.of();
-        try(var stream=Files.walk(directory(),2)) {return stream.filter(Files::isRegularFile).filter(p->p.toString().toLowerCase(Locale.ROOT).endsWith(".fc")).sorted().toList();}
+        if (!Files.isDirectory(directory())) return List.of();
+        try (var stream = Files.walk(directory(), 2)) {
+            return stream.filter(Files::isRegularFile)
+                    .filter(p -> p.toString().toLowerCase(Locale.ROOT).endsWith(".fc"))
+                    .sorted()
+                    .toList();
+        }
     }
+
+    /**
+     * Creates an external design reference with its path and behavior fingerprint.
+     *
+     * @param p absolute value
+     * @return formatted or resolved text
+     * @throws IllegalArgumentException when rejected: Import this design into the FC library first
+     */
     public static String reference(Path p) {
-        Path absolute=p.toAbsolutePath().normalize();
-        if(!absolute.startsWith(directory()))throw new IllegalArgumentException("Import this design into the FC library first");
-        return "library:"+directory().relativize(absolute).toString().replace('\\','/');
+        Path absolute = p.toAbsolutePath().normalize();
+        if (!absolute.startsWith(directory()))
+            throw new IllegalArgumentException("Import this design into the FC library first");
+        return "library:" + directory().relativize(absolute).toString().replace('\\', '/');
     }
+
+    /**
+     * Resolves a saved design reference to a readable external .fc file.
+     *
+     * @param reference reference
+     * @return the resulting Path
+     * @throws IOException if the requested operation cannot be completed
+     */
     public static Path resolve(String reference) throws IOException {
-        if(!reference.startsWith("library:"))throw new IOException("Locate and import this flight computer into the library: "+reference);
-        Path p=directory().resolve(reference.substring(8)).normalize();
-        if(!p.startsWith(directory())||!Files.isRegularFile(p))throw new IOException("Missing flight computer. Use Browse to locate/import: "+reference);
+        if (!reference.startsWith("library:"))
+            throw new IOException(
+                    "Locate and import this flight computer into the library: " + reference);
+        Path p = directory().resolve(reference.substring(8)).normalize();
+        if (!p.startsWith(directory()) || !Files.isRegularFile(p))
+            throw new IOException(
+                    "Missing flight computer. Use Browse to locate/import: " + reference);
         return p;
     }
-    public record Resolved(FlightComputerDesign design,Path path,String exactHash) {
-        public Map<String,String> provenance(){var data=new java.util.LinkedHashMap<String,String>(Map.of("designId",design.id(),"name",design.name(),"computer",design.computer(),
-                "model",design.model(),"semanticHash",design.fingerprint(),"fileHash",exactHash,"reference",reference(path)));data.putAll(FlightComputerData.stateNames(design));return Map.copyOf(data);}
+
+    public record Resolved(FlightComputerDesign design, Path path, String exactHash) {
+        /**
+         * Builds the design identity and fingerprint recorded with simulation results.
+         *
+         * @return the resulting Map&lt;String, String&gt;
+         */
+        public Map<String, String> provenance() {
+            var data =
+                    new java.util.LinkedHashMap<String, String>(
+                            Map.of(
+                                    "designId",
+                                    design.id(),
+                                    "name",
+                                    design.name(),
+                                    "computer",
+                                    design.computer(),
+                                    "model",
+                                    design.model(),
+                                    "semanticHash",
+                                    design.fingerprint(),
+                                    "fileHash",
+                                    exactHash,
+                                    "reference",
+                                    reference(path)));
+            data.putAll(FlightComputerData.stateNames(design));
+            return Map.copyOf(data);
+        }
     }
+
+    /**
+     * Loads a referenced design and validates its current external content.
+     *
+     * @param reference reference
+     * @return the resulting Resolved
+     * @throws IOException if the requested operation cannot be completed
+     */
     public static Resolved load(String reference) throws IOException {
-        Path p=resolve(reference);byte[] bytes=Files.readAllBytes(p);
-        if(bytes.length>4_000_000)throw new IOException("FC file exceeds 4 MB");
-        var d=FlightComputerDesign.read(new ByteArrayInputStream(bytes));d.requireRunnable();
-        return new Resolved(d,p,FlightComputerDesign.hash(bytes));
+        Path p = resolve(reference);
+        byte[] bytes = Files.readAllBytes(p);
+        if (bytes.length > 4_000_000) throw new IOException("FC file exceeds 4 MB");
+        var d = FlightComputerDesign.read(new ByteArrayInputStream(bytes));
+        d.requireRunnable();
+        return new Resolved(d, p, FlightComputerDesign.hash(bytes));
     }
 }

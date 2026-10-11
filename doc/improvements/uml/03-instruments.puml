@@ -1,0 +1,89 @@
+@startuml
+allowmixing
+!pragma layout smetana
+set namespaceSeparator none
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+left to right direction
+title Instrument adapters and engineering-unit payloads
+
+abstract class RTInstrument {
+ #trace : RTUtilLibrary.Trace
+ +setup()
+ +backdoorFudge(data)
+}
+abstract class RTFudgedData
+class RTAccel {
+ +update(state)
+ +getVerticalAccelMinusGravity() : float
+ +getIntegratedVelo() : float
+}
+class RTBaro {
+ +updateAll()
+ +getFilteredAltitude() : float
+ +zeroAlt()
+}
+class RTGPS {
+ +updateAndParse()
+ +getHeight() : float
+ +getLatE7() : int
+}
+class RTGyro {
+ +update()
+ +getRollRate() : float
+ +zeroRollPitchYaw()
+}
+class RTMag <<legacy placeholder>>
+class RTAccelData {
+ specific force : m/s²
+}
+class RTBaroData {
+ pressure : hPa
+ temperature : Celsius
+ raw counts : optional
+}
+class RTGPSData {
+ lat/lon : decimal degrees
+ altitude : metres MSL
+}
+class RTGyroData {
+ sensor rates : degrees/second
+}
+class RTMagData {
+ legacy magnetometer + roll
+}
+RTInstrument <|-- RTAccel
+RTInstrument <|-- RTBaro
+RTInstrument <|-- RTGPS
+RTInstrument <|-- RTGyro
+RTInstrument <|-- RTMag
+RTFudgedData <|-- RTAccelData
+RTFudgedData <|-- RTBaroData
+RTFudgedData <|-- RTGPSData
+RTFudgedData <|-- RTGyroData
+RTFudgedData <|-- RTMagData
+RTAccel --> RTAccelData : consumes once
+RTBaro --> RTBaroData : filters pressure altitude
+RTGPS --> RTGPSData : holds quantized fix
+RTGyro --> RTGyroData : integrates held rates
+RTMag --> RTMagData
+note bottom of RTGPS
+RTGPSData carries MSL altitude;
+RTGPS.getHeight/getAltitude return zero-relative metres.
+end note
+note bottom of RTAccel
+FC sensor X = rocket body Z.
+The velocity estimate integrates sensor X minus gravity;
+it is not ground speed or airspeed.
+end note
+
+@enduml

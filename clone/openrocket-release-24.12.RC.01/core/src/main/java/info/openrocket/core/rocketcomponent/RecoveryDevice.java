@@ -18,7 +18,7 @@ import java.util.List;
  * area of the device from {@link #getArea()}.  {@link #getComponentMass()}
  * may be overridden if additional mass needs to be included.
  * 
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public abstract class RecoveryDevice extends MassObject implements FlightConfigurableComponent {
 	////

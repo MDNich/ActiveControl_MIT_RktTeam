@@ -1,0 +1,22 @@
+# Existing framework classes directly connecting the MIT simulation additions.
+core/src/main/java/info/openrocket/core/document/Simulation.java
+core/src/main/java/info/openrocket/core/simulation/SimulationEngine.java
+core/src/main/java/info/openrocket/core/simulation/BasicEventSimulationEngine.java
+core/src/main/java/info/openrocket/core/simulation/ModifiedEventSimulationEngine.java
+core/src/main/java/info/openrocket/core/simulation/SimulationStatus.java
+core/src/main/java/info/openrocket/core/simulation/SimulationConditions.java
+core/src/main/java/info/openrocket/core/simulation/SimulationOptions.java
+core/src/main/java/info/openrocket/core/simulation/SimulationStepper.java
+core/src/main/java/info/openrocket/core/simulation/RK4SimulationStepper.java
+core/src/main/java/info/openrocket/core/simulation/FlightData.java
+core/src/main/java/info/openrocket/core/simulation/FlightDataBranch.java
+core/src/main/java/info/openrocket/core/simulation/FlightEvent.java
+core/src/main/java/info/openrocket/core/simulation/listeners/SimulationListener.java
+core/src/main/java/info/openrocket/core/simulation/listeners/AbstractSimulationListener.java
+core/src/main/java/info/openrocket/core/simulation/listeners/SimulationListenerHelper.java
+core/src/main/java/info/openrocket/core/rocketcomponent/TabControlledTrapezoidFinSet.java
+core/src/main/java/info/openrocket/core/rocketcomponent/AirbrakeSet.java
+core/src/main/java/info/openrocket/core/rocketcomponent/FinSet.java
+core/src/main/java/info/openrocket/core/rocketcomponent/RecoveryDevice.java
+core/src/main/java/info/openrocket/core/aerodynamics/barrowman/FinSetCalc.java
+swing/src/main/java/info/openrocket/swing/gui/simulation/SimulationConfigDialog.java

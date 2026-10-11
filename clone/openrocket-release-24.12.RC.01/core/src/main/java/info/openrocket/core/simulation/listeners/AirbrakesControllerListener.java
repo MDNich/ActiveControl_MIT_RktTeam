@@ -9,7 +9,7 @@ import info.openrocket.core.simulation.SimulationStatus;
 import info.openrocket.core.simulation.exception.SimulationException;
 
 
-import static edu.mit.rocket_team.zephyrus.util.ErrorFunction.erf;
+import static edu.mit.rocket_team.util.ErrorFunction.erf;
 
 import java.util.ArrayList;
 import java.util.Arrays;

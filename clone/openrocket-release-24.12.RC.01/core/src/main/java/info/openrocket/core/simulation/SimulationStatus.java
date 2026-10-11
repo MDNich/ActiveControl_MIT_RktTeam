@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A holder class for the dynamic status during the rocket's flight.
  *
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  *
  * The initial SimulationStatus is saved to the FlightDataBranch when it is
  * created.

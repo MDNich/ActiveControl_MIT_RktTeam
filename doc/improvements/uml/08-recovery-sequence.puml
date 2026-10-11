@@ -1,0 +1,42 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+title Recovery: FC command → actual OpenRocket deployment
+
+participant "FC state action / Java board" as FC
+participant RTPyroController as P
+participant FlightComputerRecoveryBridge as B
+participant "Basic/Modified event engine" as E
+participant RecoveryDevice as D
+participant FlightDataBranch as F
+FC -> P : armPyro(channel); firePyro(channel, origin)
+P -> P : validate arm gate; capture bootUs + sequence
+P -> B : accepted FireCommand
+B -> B : resolve channel → device UUID + delayUs
+B -> E : enqueue FC-owned deployment event
+E -> B : allow(event)?
+B --> E : ownership + run/device eligibility
+alt accepted and not vetoed/aborted by the engine
+ E -> D : deploy physical device
+ E -> B : recoveryDeployed(event)
+ B -> F : actual device state + event timestamp
+else rejected
+ E -> B : rejectRecoveryEvent(event, reason)
+end
+note over B,E
+FC-enabled simulations override normal deployment rules.
+A logical pulse is not proof of physical deployment.
+Recovery deadlines do not wait for servo PWM or radio delivery.
+end note
+
+@enduml

@@ -151,7 +151,7 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 		if (element.equals("event")) {
 			double time;
 			FlightEvent.Type type;
-			Message data = null;
+			Object data = null;
 			RocketComponent source = null;
 			String sourceID;
 
@@ -191,6 +191,10 @@ class FlightDataBranchHandler extends AbstractElementHandler {
 
 			FlightEvent event = null;
 			try {
+                if(type==FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT && attributes.containsKey("fcrecovery"))
+                    try(var reader=jakarta.json.Json.createReader(new java.io.StringReader(attributes.get("fcrecovery")))) {
+                        data=info.openrocket.core.simulation.flightcomputer.RecoveryDeployment.read(reader.readObject());
+                    }
 				event = new FlightEvent(type, time, source, data);
 				branch.addEvent(event);
 			} catch (Exception e) {

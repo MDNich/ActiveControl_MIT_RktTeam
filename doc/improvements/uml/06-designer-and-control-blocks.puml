@@ -1,0 +1,74 @@
+@startuml
+allowmixing
+!pragma layout smetana
+set namespaceSeparator none
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+title External design, graphical editor and control-block runtime
+
+top to bottom direction
+package "Designer / simulation UI" {
+ class SimulationConfigDialog
+ class FlightComputerPanel
+ class FlightComputerDesigner
+ class FlightComputerControllerPanel
+ class FlightComputerActuatorMappingPanel
+ class FlightComputerRecoveryPanel
+}
+package "Design / persistence" {
+ class FlightComputerLibrary
+ class FlightComputerDesign
+ class FlightComputerModels
+ class FlightComputerController
+ class FlightComputerControllerSettings
+ class FlightComputerRecoverySettings
+ artifact ".fc external JSON" as FCFILE
+ artifact ".ork simulation options" as ORKFILE
+}
+package "Execution" {
+ class FlightComputerControllerRuntime
+ class FlightComputerControllerActuators
+ class FlightComputerTaskSchedule
+ class FlightComputerSignals
+ abstract class JavaBoardProgram
+ class JavaBoardRuntime
+ class FlightComputerControllerPlots
+}
+SimulationConfigDialog *-- FlightComputerPanel : FC tab
+FlightComputerPanel --> FlightComputerDesigner
+FlightComputerPanel --> FlightComputerRecoveryPanel
+FlightComputerDesigner *-- FlightComputerControllerPanel
+FlightComputerControllerPanel *-- FlightComputerActuatorMappingPanel
+FlightComputerDesigner --> FlightComputerDesign : immutable edits + undo
+FlightComputerLibrary --> FCFILE : imports/copies/loads
+FlightComputerDesign --> FCFILE : schema + behavior fingerprint
+FlightComputerDesign --> FlightComputerModels : topology + properties
+FlightComputerDesign o-- FlightComputerController
+FlightComputerControllerSettings --> ORKFILE : component UUID bindings
+FlightComputerRecoverySettings --> ORKFILE : channel/device bindings
+FlightComputerControllerPanel --> FlightComputerControllerSettings
+FlightComputerRecoveryPanel --> FlightComputerRecoverySettings
+FlightComputerControllerRuntime --> FlightComputerController
+FlightComputerControllerRuntime --> FlightComputerSignals : frozen measured inputs
+FlightComputerControllerRuntime --> FlightComputerTaskSchedule
+JavaBoardRuntime --> FlightComputerTaskSchedule
+JavaBoardRuntime *-- JavaBoardProgram : one instance per board/run
+FlightComputerControllerRuntime --> FlightComputerControllerActuators : bounds + ownership
+FlightComputerControllerActuators --> FlightComputerControllerSettings
+FlightComputerControllerRuntime --> FlightComputerControllerPlots
+note bottom of JavaBoardProgram
+Approved Java runs inside OpenRocket.
+Independent task timing does not model board communications
+or a shared processor's contention.
+end note
+
+@enduml

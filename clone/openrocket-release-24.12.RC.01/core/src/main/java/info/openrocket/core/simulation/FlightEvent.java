@@ -11,7 +11,7 @@ import info.openrocket.core.startup.Application;
 /**
  * A class that defines an event during the flight of a rocket.
  * 
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public class FlightEvent implements Comparable<FlightEvent> {
 	private static final Translator trans = Application.getTranslator();
@@ -19,7 +19,7 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	/**
 	 * The type of the flight event.
 	 * 
-	 * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+	 * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
 	 */
 	public enum Type {
 		/** 
@@ -72,7 +72,7 @@ public class FlightEvent implements Comparable<FlightEvent> {
 		SIMULATION_END(trans.get("FlightEvent.Type.SIMULATION_END")),
 		
 		/**
-		 * A change in altitude has occurred.  Data is a <code>Pair<Double,Double></code>
+		 * A change in altitude has occurred.  Data is a {@code Pair<Double, Double>}
 		 * which contains the old and new altitudes.
 		 */
 		ALTITUDE(trans.get("FlightEvent.Type.ALTITUDE")),
@@ -202,7 +202,6 @@ public class FlightEvent implements Comparable<FlightEvent> {
 	 * 
 	 * User actions should not cause these.
 	 * 
-	 * @return
 	 */
 	public void validate(){
 		if(Double.isNaN(this.time)){

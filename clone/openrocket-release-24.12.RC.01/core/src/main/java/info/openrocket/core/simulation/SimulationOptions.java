@@ -33,7 +33,7 @@ import info.openrocket.core.util.WorldCoordinate;
  * as a ChangeSource.  A SimulationConditions instance is generated from this class
  * using {@link #toSimulationConditions()}.
  * 
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public class SimulationOptions implements ChangeSource, Cloneable, SimulationOptionsInterface {
 	

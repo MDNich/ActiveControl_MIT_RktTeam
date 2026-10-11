@@ -712,6 +712,8 @@ public class OpenRocketSaver extends RocketSaver {
 				eventStr += " source=\"" + TextUtil.escapeXML(event.getSource().getID()) + "\"";
 			}
 
+            if(event.getData() instanceof info.openrocket.core.simulation.flightcomputer.RecoveryDeployment recovery)
+                eventStr += " fcrecovery=\"" + TextUtil.escapeXML(recovery.json().toString()) + "\"";
 			if (event.getType() == FlightEvent.Type.SIM_WARN) {
 				eventStr += " warnid=\"" + TextUtil.escapeXML(((Warning) event.getData()).getID()) + "\"";
 			}

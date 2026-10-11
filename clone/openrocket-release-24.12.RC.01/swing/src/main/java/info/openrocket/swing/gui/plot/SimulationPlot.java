@@ -82,6 +82,8 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
         var ensemble = simulation.getSimulatedData().getEnsembleResult();
         if (ensemble == null) return;
         chart.addSubtitle(new TextTitle(ensemble.description()));
+        if(java.util.stream.IntStream.range(0,filledConfig.getDataCount()).anyMatch(i->info.openrocket.core.simulation.flightcomputer.FlightComputerData.isRecoveryType(filledConfig.getType(i))))
+            chart.addSubtitle(new TextTitle("Recovery values are fractions of runs armed, firing or deployed."));
         chart.addSubtitle(new TextTitle("Common flight time only; gaps require all runs. Events use mean times. Bands show Y spread at each time."));
         XYPlot plot = chart.getXYPlot();
         for (int axis = 0; axis < 2; axis++) {
@@ -286,6 +288,7 @@ public class SimulationPlot extends Plot<FlightDataType, FlightDataBranch, Simul
 				text += ", ";
 			}
 			text += event.getType().toString();
+            if(event.getData() instanceof info.openrocket.core.simulation.flightcomputer.RecoveryDeployment recovery)text += " ("+recovery.deviceName()+")";
 		}
 
 		return text;

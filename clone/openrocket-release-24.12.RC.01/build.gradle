@@ -198,3 +198,5 @@ tasks.register('dist') {
         println "Completed the deployable jar in './build/libs"
     }
 }
+
+apply from: 'gradle/mit-documentation.gradle'

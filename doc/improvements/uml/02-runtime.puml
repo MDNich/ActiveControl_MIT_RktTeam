@@ -1,0 +1,95 @@
+@startuml
+allowmixing
+!pragma layout smetana
+set namespaceSeparator none
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+left to right direction
+title Per-run flight-computer composition
+
+package "edu.mit.rocket_team.FC" {
+ class RTFC {
+  +configure(design)
+  +init()
+  +pre_loop(bootUs, input)
+  +beginLoop()
+  +readSensors()
+  +completeLoop()
+  +latchPwm()
+  +dispatchBoards(bootUs)
+  +dispatchControllers(bootUs)
+ }
+ class "RTFC.Inputs" as Inputs <<record>> {
+  acquisitionUs : long
+  accel, baro, gps, gyro
+  gpsAcquisitionUs : long
+ }
+ class "RTFC.Output" as Output <<record>> {
+  legacy servo pulses + angles
+  named roll/airbrake maps
+  controllerOutputs + activeControllers
+ }
+ class FlightComputerTimingSettings <<record>> {
+  sensorReadUs : int
+  extraWorkUs : int
+  workJitterUs : int
+  pwmPhaseUs : int
+  randomSeed : int
+ }
+}
+package "edu.mit.rocket_team.util" {
+ class "RTUtilLibrary.Trace" as Trace {
+  +time(bootUs)
+  +micros() : long
+  +millis() : long
+  +log(action, detail)
+ }
+ enum RTRocketState
+}
+package "info.openrocket.core.simulation.flightcomputer" {
+ class FlightComputerDesign
+ class FlightComputerSensors
+ class FlightComputerSignals
+ class FlightComputerStateMachine
+ class FlightComputerControllerRuntime
+ class JavaBoardRuntime
+}
+class RTAccel
+class RTBaro
+class RTGPS
+class RTGyro
+RTFC *-- Trace
+RTFC --> Inputs : pending acquisition
+RTFC *-- Output : PWM-latched snapshot
+RTFC --> RTRocketState : firmware phase
+RTFC --> FlightComputerDesign : frozen design
+FlightComputerDesign --> FlightComputerTimingSettings
+RTFC *-- FlightComputerSensors : noise/acquisition
+RTFC *-- FlightComputerSignals : measured channels
+RTFC *-- FlightComputerStateMachine : optional editable graph
+RTFC *-- FlightComputerControllerRuntime : controller tasks
+RTFC *-- JavaBoardRuntime : independent Java tasks
+RTFC *-- RTAccel
+RTFC *-- RTBaro
+RTFC *-- RTGPS
+RTFC *-- RTGyro
+FlightComputerSensors --> Inputs
+FlightComputerSignals --> RTAccel
+FlightComputerSignals --> RTBaro
+FlightComputerSignals --> RTGPS
+FlightComputerSignals --> RTGyro
+note bottom of Output
+Commands computed now become physical at a later PWM latch.
+A completion tied with PWM misses that interrupt: PWM runs first.
+end note
+
+@enduml

@@ -1,0 +1,74 @@
+// Developer-only documentation tools; nothing is added to the application runtime.
+configurations { mitJavaFormatter; mitUmlRenderer }
+dependencies {
+    mitJavaFormatter('com.google.googlejavaformat:google-java-format:1.24.0:all-deps') { transitive = false }
+    mitUmlRenderer 'net.sourceforge.plantuml:plantuml:1.2024.8'
+}
+def sourceManifest = file('config/mit-documentation-sources.txt')
+def readManifest = { File manifest ->
+    manifest.readLines('UTF-8').collect { it.trim() }
+        .findAll { it && !it.startsWith('#') }.collect { file(it) }
+}
+def javaExecutable = new File(System.getProperty('java.home'), 'bin/java').absolutePath
+
+tasks.register('formatMitJava', Exec) {
+    group = 'documentation'
+    description = 'Formats the MIT Java sources without changing imports or string literals.'
+    workingDir rootDir
+    doFirst {
+        commandLine([javaExecutable, '-jar', configurations.mitJavaFormatter.singleFile.absolutePath,
+            '--aosp', '--skip-sorting-imports', '--skip-removing-unused-imports',
+            '--skip-reflowing-long-strings', '--replace'] + readManifest(sourceManifest).collect { it.absolutePath })
+    }
+}
+tasks.register('verifyMitJavadoc', Exec) {
+    group = 'verification'
+    description = 'Checks Javadoc on every explicit MIT method, constructor and callback, including private code and tests.'
+    workingDir rootDir
+    commandLine javaExecutable, 'tools/documentation/JavaSourceInventory.java', sourceManifest.absolutePath, '--check'
+}
+tasks.register('rocketTeamJavadoc', Javadoc) {
+    group = 'documentation'
+    description = 'Generates the FC and MIT-improvements API reference, including connected OpenRocket engine classes.'
+    dependsOn 'verifyMitJavadoc', ':core:classes', ':swing:classes'
+    source readManifest(sourceManifest).findAll { it.path.contains('/src/main/java/') }
+    source fileTree('core/src/main/java/edu/mit/rocket_team') { include '**/package-info.java' }
+    source readManifest(file('config/mit-javadoc-connectors.txt'))
+    destinationDir = file('../../doc/improvements/javadoc')
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+    options.encoding = 'UTF-8'
+    options.charSet = 'UTF-8'
+    options.docEncoding = 'UTF-8'
+    options.windowTitle = 'OpenRocket MIT — Flight computer and simulation API'
+    options.docTitle = 'OpenRocket MIT — Flight computer and simulation API'
+    options.overview = file('tools/documentation/overview.html').absolutePath
+    options.addStringOption('Xdoclint:all,-missing', '-quiet')
+    options.addStringOption('sourcepath', '')
+    failOnError = true
+    doLast {
+        // JDK templates and inherited comments can leave trailing spaces in generated HTML.
+        fileTree(destinationDir) { include '**/*.html' }.each { html ->
+            html.setText(html.getText('UTF-8').replaceAll('(?m)[\\t ]+$', ''), 'UTF-8')
+        }
+    }
+}
+tasks.register('rocketTeamUml', JavaExec) {
+    group = 'documentation'
+    description = 'Renders editable UML sources to SVG using the bundled Smetana layout engine.'
+    classpath = configurations.mitUmlRenderer
+    mainClass = 'net.sourceforge.plantuml.Run'
+    args '-tsvg', '-charset', 'UTF-8', '-failfast2', file('../../doc/improvements/uml').absolutePath + '/*.puml'
+    doLast {
+        // An explicit background also survives SVG-to-image/PDF renderers that ignore root CSS.
+        fileTree('../../doc/improvements/uml') { include '*.svg' }.each { svg ->
+            svg.setText(svg.getText('UTF-8').replace('<defs/>',
+                '<defs/><rect width="100%" height="100%" fill="#FFFFFF"/>'), 'UTF-8')
+        }
+    }
+}
+gradle.projectsEvaluated {
+    tasks.named('rocketTeamJavadoc') {
+        classpath = project(':core').sourceSets.main.output + project(':core').sourceSets.main.compileClasspath +
+                project(':swing').sourceSets.main.output + project(':swing').sourceSets.main.compileClasspath
+    }
+}

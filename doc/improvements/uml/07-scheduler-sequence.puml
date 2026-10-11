@@ -1,0 +1,52 @@
+@startuml
+!pragma layout smetana
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+title Virtual-time scheduling and the PWM completion tie
+
+actor "Physics engine" as E
+participant FlightControllerSimulatorListener as L
+participant "Accepted sensor sample" as S
+participant RTFC as FC
+participant "Controller / Java task" as T
+participant "PWM output latch" as P
+participant "Per-run rocket" as R
+E -> L : postStep(accepted status)
+L -> S : publish coherent physical acquisition
+L -> L : dispatch earliest due boot-time boundary
+opt PWM deadline at this instant
+ L -> FC : latchPwm()
+ FC -> P : copy previously published commands
+ L -> R : apply latched physical outputs
+end
+opt FC sensor-read completion
+ L -> FC : readSensors()
+ FC -> S : consume held acquisition (never a future sample)
+end
+opt FC loop completion
+ L -> FC : completeLoop()
+ FC -> FC : state actions + legacy controller updates
+end
+L -> T : dispatch completed controller tasks, then Java boards
+T -> T : publish only completed, still-valid work
+opt task start due
+ T -> S : snapshot measured values + timestamps
+ T -> T : next start = max(start + period, completion)
+end
+L -> E : limit next physics step to next deadline
+note over P,T
+A task completing exactly on a PWM boundary becomes visible
+after that boundary's latch and moves hardware on the next PWM.
+FC/board/controller clocks are virtual, not wall-clock sleeps.
+end note
+
+@enduml

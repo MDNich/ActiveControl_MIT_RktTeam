@@ -11,6 +11,14 @@ import java.util.HexFormat;
 
 /** Runs only in a disposable copied app image; serves the candidate over loopback. */
 public class WindowsUpdateProbe {
+    /**
+     * Runs the windows update probe entry point, reporting verification failures to the invoking
+     * process.
+     *
+     * @param args command-line arguments
+     * @throws Exception if the requested operation cannot be completed
+     * @throws AssertionError when rejected: Corrupt update accepted
+     */
     public static void main(String[] args) throws Exception {
         Path source = Path.of(args[0]);
         Path evidence = Path.of(args[1]);
@@ -20,32 +28,54 @@ public class WindowsUpdateProbe {
         String before = hash(target);
         String expected = reject ? "0".repeat(64) : hash(source);
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        server.createContext("/update.jar", exchange -> {
-            exchange.sendResponseHeaders(200, Files.size(source));
-            try (var out = exchange.getResponseBody()) { Files.copy(source, out); }
-        });
+        server.createContext(
+                "/update.jar",
+                exchange -> {
+                    exchange.sendResponseHeaders(200, Files.size(source));
+                    try (var out = exchange.getResponseBody()) {
+                        Files.copy(source, out);
+                    }
+                });
         server.start();
         try {
-            MitReleaseInfo.Asset asset = new MitReleaseInfo.Asset("OpenRocket-MIT-v6.3.jar",
-                "http://127.0.0.1:" + server.getAddress().getPort() + "/update.jar", "", Files.size(source));
+            MitReleaseInfo.Asset asset =
+                    new MitReleaseInfo.Asset(
+                            "OpenRocket-MIT-v6.3.jar",
+                            "http://127.0.0.1:" + server.getAddress().getPort() + "/update.jar",
+                            "",
+                            Files.size(source));
             MitUpdateInfo info = new MitUpdateInfo(null, asset, null, true, expected);
             try {
                 MitUpdateInstaller.downloadVerifyAndLaunchInstaller(info);
                 if (reject) throw new AssertionError("Corrupt update accepted");
                 // The old app must be usable until it exits; the helper may only stage now.
                 Thread.sleep(1500);
-                if (!hash(target).equals(before)) throw new AssertionError("Target replaced while parent still running");
-                Files.writeString(evidence.resolve("ready.txt"), "READY; original JAR unchanged while running");
+                if (!hash(target).equals(before))
+                    throw new AssertionError("Target replaced while parent still running");
+                Files.writeString(
+                        evidence.resolve("ready.txt"),
+                        "READY; original JAR unchanged while running");
             } catch (MitUpdateInstaller.UpdateInstallException failure) {
                 if (!reject || !failure.getMessage().contains("checksum mismatch")) throw failure;
-                if (!hash(target).equals(before)) throw new AssertionError("Rejected update altered target");
-                Files.writeString(evidence.resolve("rejected.txt"), "PASS: wrong checksum rejected; target unchanged");
+                if (!hash(target).equals(before))
+                    throw new AssertionError("Rejected update altered target");
+                Files.writeString(
+                        evidence.resolve("rejected.txt"),
+                        "PASS: wrong checksum rejected; target unchanged");
             }
         } finally {
             server.stop(0);
         }
         System.exit(0);
     }
+
+    /**
+     * Computes the file digest used to compare update artifacts.
+     *
+     * @param file source or destination file
+     * @return formatted or resolved text
+     * @throws Exception if the requested operation cannot be completed
+     */
     private static String hash(Path file) throws Exception {
         MessageDigest hash = MessageDigest.getInstance("SHA-256");
         try (var in = Files.newInputStream(file)) {

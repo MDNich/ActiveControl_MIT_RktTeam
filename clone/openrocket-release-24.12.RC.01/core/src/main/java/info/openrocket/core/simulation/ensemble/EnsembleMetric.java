@@ -8,24 +8,77 @@ import java.util.function.ToDoubleFunction;
 public enum EnsembleMetric {
     MAX_ALTITUDE("Maximum altitude", UnitGroup.UNITS_DISTANCE, FlightData::getMaxAltitude),
     MAX_VELOCITY("Maximum velocity", UnitGroup.UNITS_VELOCITY, FlightData::getMaxVelocity),
-    MAX_ACCELERATION("Maximum acceleration (before recovery)", UnitGroup.UNITS_ACCELERATION, FlightData::getMaxAcceleration),
+    MAX_ACCELERATION(
+            "Maximum acceleration (before recovery)",
+            UnitGroup.UNITS_ACCELERATION,
+            FlightData::getMaxAcceleration),
     MAX_MACH("Maximum Mach number", UnitGroup.UNITS_NONE, FlightData::getMaxMachNumber),
-    MIN_STABILITY("Minimum stability (entire flight)", FlightDataType.TYPE_STABILITY.getUnitGroup(), d -> d.getBranch(0).getMinimum(FlightDataType.TYPE_STABILITY)),
+    MIN_STABILITY(
+            "Minimum stability (entire flight)",
+            FlightDataType.TYPE_STABILITY.getUnitGroup(),
+            d -> d.getBranch(0).getMinimum(FlightDataType.TYPE_STABILITY)),
     TIME_TO_APOGEE("Time to apogee", UnitGroup.UNITS_LONG_TIME, FlightData::getTimeToApogee),
     FLIGHT_TIME("Flight duration", UnitGroup.UNITS_LONG_TIME, FlightData::getFlightTime),
-    LAUNCH_ROD_VELOCITY("Launch rod exit velocity", UnitGroup.UNITS_VELOCITY, FlightData::getLaunchRodVelocity),
-    DEPLOYMENT_VELOCITY("Recovery deployment velocity", UnitGroup.UNITS_VELOCITY, FlightData::getDeploymentVelocity),
-    GROUND_HIT_VELOCITY("Ground impact velocity", UnitGroup.UNITS_VELOCITY, FlightData::getGroundHitVelocity),
+    LAUNCH_ROD_VELOCITY(
+            "Launch rod exit velocity", UnitGroup.UNITS_VELOCITY, FlightData::getLaunchRodVelocity),
+    DEPLOYMENT_VELOCITY(
+            "Recovery deployment velocity",
+            UnitGroup.UNITS_VELOCITY,
+            FlightData::getDeploymentVelocity),
+    GROUND_HIT_VELOCITY(
+            "Ground impact velocity", UnitGroup.UNITS_VELOCITY, FlightData::getGroundHitVelocity),
     OPTIMUM_DELAY("Optimum delay", UnitGroup.UNITS_LONG_TIME, FlightData::getOptimumDelay),
-    LANDING_DISTANCE("Final horizontal distance", UnitGroup.UNITS_DISTANCE, d -> Math.hypot(d.getBranch(0).getLast(FlightDataType.TYPE_POSITION_X), d.getBranch(0).getLast(FlightDataType.TYPE_POSITION_Y)));
+    LANDING_DISTANCE(
+            "Final horizontal distance",
+            UnitGroup.UNITS_DISTANCE,
+            d ->
+                    Math.hypot(
+                            d.getBranch(0).getLast(FlightDataType.TYPE_POSITION_X),
+                            d.getBranch(0).getLast(FlightDataType.TYPE_POSITION_Y)));
 
     private final String label;
     private final UnitGroup units;
     private final ToDoubleFunction<FlightData> value;
+
+    /**
+     * Creates a EnsembleMetric with the supplied dependencies and per-instance state.
+     *
+     * @param label initial label
+     * @param units initial units
+     * @param value replacement or input value
+     */
     EnsembleMetric(String label, UnitGroup units, ToDoubleFunction<FlightData> value) {
-        this.label = label; this.units = units; this.value = value;
+        this.label = label;
+        this.units = units;
+        this.value = value;
     }
-    public UnitGroup units() { return units; }
-    public double value(FlightData flight) { return value.applyAsDouble(flight); }
-    @Override public String toString() { return label; }
+
+    /**
+     * Returns the unit group for this single-valued flight metric.
+     *
+     * @return the unit group for this single-valued flight metric
+     */
+    public UnitGroup units() {
+        return units;
+    }
+
+    /**
+     * Extracts this metric from one complete flight before ensemble averaging.
+     *
+     * @param flight flight
+     * @return computed numeric value
+     */
+    public double value(FlightData flight) {
+        return value.applyAsDouble(flight);
+    }
+
+    /**
+     * Returns the display representation used by this value in logs or UI controls.
+     *
+     * @return the display representation used by this value in logs or UI controls
+     */
+    @Override
+    public String toString() {
+        return label;
+    }
 }

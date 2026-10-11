@@ -20,47 +20,130 @@ import java.awt.image.BufferedImage;
 import java.nio.file.*;
 
 class MotorBatchDialogTest {
-    @Test void dialogOffersFourThreadsLevelsAndCSVAndFitsItsControls() throws Exception {
+    /**
+     * Verifies that dialog offers four threads levels and csv and fits its controls.
+     *
+     * @throws Exception if the requested operation cannot be completed
+     */
+    @Test
+    void dialogOffersFourThreadsLevelsAndCSVAndFitsItsControls() throws Exception {
         assumeFalse(GraphicsEnvironment.isHeadless());
-        var database=new ThrustCurveMotorSetDatabase();
-        Application.setInjector(Guice.createInjector(Modules.override(new info.openrocket.swing.ServicesForTesting()).with(new AbstractModule(){
-            @Override protected void configure(){
-                bind(ApplicationPreferences.class).toInstance(new SwingPreferences());
-                bind(Translator.class).toInstance(new ResourceBundleTranslator("l10n.messages"));
-                bind(ThrustCurveMotorSetDatabase.class).toInstance(database);
-            }
-        }),new info.openrocket.core.plugin.PluginModule()));
-        var rocket=TestRockets.makeEstesAlphaIII();var doc=OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
-        var source=new Simulation(doc,rocket);source.setFlightConfigurationId(TestRockets.TEST_FCID_1);source.setName("Motor batch UI verification");doc.addSimulation(source);
-        for(var c:rocket)if(c instanceof InnerTube mount && mount.isMotorMount())for(var it=mount.getMotorIterator();it.hasNext();)if(it.next().getMotor() instanceof ThrustCurveMotor motor)database.addMotor(motor);
-        SwingUtilities.invokeAndWait(()->{
-            var dialog=new MotorBatchDialog(null,doc,source);
-            try {
-                dialog.setModalityType(java.awt.Dialog.ModalityType.MODELESS);dialog.setVisible(true);dialog.validate();
-                JSpinner count=find(dialog,JSpinner.class,null);assertNotNull(count);assertEquals(4,count.getValue());
-                assertNotNull(find(dialog,JButton.class,"Export CSV…"));assertNotNull(find(dialog,JButton.class,"Run batch"));
-                var table=find(dialog,JTable.class,null);assertTrue(table.getRowCount()>0);assertEquals("NAR/Tripoli level",table.getColumnName(2));
-                var override=find(dialog,JCheckBox.class,"Ignore component intersections");assertNotNull(override);assertFalse(override.isSelected());
-                int ignored=table.getColumn("Ignored intersections").getModelIndex();
-                assertEquals("",table.getModel().getValueAt(0,ignored));
-                override.doClick();assertTrue(override.isSelected());
-                assertTrue(table.getModel().getValueAt(0,ignored).toString().contains("MOTOR_INTERSECTS:"));
-                override.doClick();assertEquals("",table.getModel().getValueAt(0,ignored));
-                var lengthField=MotorBatchDialog.class.getDeclaredField("length");lengthField.setAccessible(true);
-                ((JTextField)lengthField.get(dialog)).setText("10");
-                find(dialog,JButton.class,"Update candidates").doClick();
-                assertEquals("MOTOR_TOO_LONG",table.getModel().getValueAt(0,table.getColumn("Fit warnings").getModelIndex()));
-                assertFalse(table.getModel().getValueAt(0,table.getColumn("Reasons").getModelIndex()).toString().contains("MOTOR_TOO_LONG"));
-                var image=new BufferedImage(dialog.getWidth(),dialog.getHeight(),BufferedImage.TYPE_INT_RGB);
-                var graphics=image.createGraphics();dialog.getRootPane().printAll(graphics);graphics.dispose();
-                var destination=Path.of("build/reports/motor-batch-dialog.png");Files.createDirectories(destination.getParent());javax.imageio.ImageIO.write(image,"png",destination.toFile());
-            }catch(Exception e){throw new RuntimeException(e);}finally{dialog.dispose();}
-        });
+        var database = new ThrustCurveMotorSetDatabase();
+        Application.setInjector(
+                Guice.createInjector(
+                        Modules.override(new info.openrocket.swing.ServicesForTesting())
+                                .with(
+                                        new AbstractModule() {
+                                            /**
+                                             * Configures isolated application dependencies for
+                                             * these regression checks.
+                                             */
+                                            @Override
+                                            protected void configure() {
+                                                bind(ApplicationPreferences.class)
+                                                        .toInstance(new SwingPreferences());
+                                                bind(Translator.class)
+                                                        .toInstance(
+                                                                new ResourceBundleTranslator(
+                                                                        "l10n.messages"));
+                                                bind(ThrustCurveMotorSetDatabase.class)
+                                                        .toInstance(database);
+                                            }
+                                        }),
+                        new info.openrocket.core.plugin.PluginModule()));
+        var rocket = TestRockets.makeEstesAlphaIII();
+        var doc = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+        var source = new Simulation(doc, rocket);
+        source.setFlightConfigurationId(TestRockets.TEST_FCID_1);
+        source.setName("Motor batch UI verification");
+        doc.addSimulation(source);
+        for (var c : rocket)
+            if (c instanceof InnerTube mount && mount.isMotorMount())
+                for (var it = mount.getMotorIterator(); it.hasNext(); )
+                    if (it.next().getMotor() instanceof ThrustCurveMotor motor)
+                        database.addMotor(motor);
+        SwingUtilities.invokeAndWait(
+                () -> {
+                    var dialog = new MotorBatchDialog(null, doc, source);
+                    try {
+                        dialog.setModalityType(java.awt.Dialog.ModalityType.MODELESS);
+                        dialog.setVisible(true);
+                        dialog.validate();
+                        JSpinner count = find(dialog, JSpinner.class, null);
+                        assertNotNull(count);
+                        assertEquals(4, count.getValue());
+                        assertNotNull(find(dialog, JButton.class, "Export CSV…"));
+                        assertNotNull(find(dialog, JButton.class, "Run batch"));
+                        var table = find(dialog, JTable.class, null);
+                        assertTrue(table.getRowCount() > 0);
+                        assertEquals("NAR/Tripoli level", table.getColumnName(2));
+                        var override =
+                                find(dialog, JCheckBox.class, "Ignore component intersections");
+                        assertNotNull(override);
+                        assertFalse(override.isSelected());
+                        int ignored = table.getColumn("Ignored intersections").getModelIndex();
+                        assertEquals("", table.getModel().getValueAt(0, ignored));
+                        override.doClick();
+                        assertTrue(override.isSelected());
+                        assertTrue(
+                                table.getModel()
+                                        .getValueAt(0, ignored)
+                                        .toString()
+                                        .contains("MOTOR_INTERSECTS:"));
+                        override.doClick();
+                        assertEquals("", table.getModel().getValueAt(0, ignored));
+                        var lengthField = MotorBatchDialog.class.getDeclaredField("length");
+                        lengthField.setAccessible(true);
+                        ((JTextField) lengthField.get(dialog)).setText("10");
+                        find(dialog, JButton.class, "Update candidates").doClick();
+                        assertEquals(
+                                "MOTOR_TOO_LONG",
+                                table.getModel()
+                                        .getValueAt(
+                                                0,
+                                                table.getColumn("Fit warnings").getModelIndex()));
+                        assertFalse(
+                                table.getModel()
+                                        .getValueAt(0, table.getColumn("Reasons").getModelIndex())
+                                        .toString()
+                                        .contains("MOTOR_TOO_LONG"));
+                        var image =
+                                new BufferedImage(
+                                        dialog.getWidth(),
+                                        dialog.getHeight(),
+                                        BufferedImage.TYPE_INT_RGB);
+                        var graphics = image.createGraphics();
+                        dialog.getRootPane().printAll(graphics);
+                        graphics.dispose();
+                        var destination = Path.of("build/reports/motor-batch-dialog.png");
+                        Files.createDirectories(destination.getParent());
+                        javax.imageio.ImageIO.write(image, "png", destination.toFile());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        dialog.dispose();
+                    }
+                });
     }
-    private static <T extends Component> T find(Container parent,Class<T> type,String text){
-        for(Component c:parent.getComponents()) {
-            if(type.isInstance(c)&&(text==null||c instanceof AbstractButton b&&text.equals(b.getText())))return type.cast(c);
-            if(c instanceof Container child){T found=find(child,type,text);if(found!=null)return found;}
+
+    /**
+     * Finds a descendant Swing component matching the requested test selector.
+     *
+     * @param <T> t type used by this operation
+     * @param parent parent window, model or output directory
+     * @param type type
+     * @param text text
+     * @return the resulting T
+     */
+    private static <T extends Component> T find(Container parent, Class<T> type, String text) {
+        for (Component c : parent.getComponents()) {
+            if (type.isInstance(c)
+                    && (text == null || c instanceof AbstractButton b && text.equals(b.getText())))
+                return type.cast(c);
+            if (c instanceof Container child) {
+                T found = find(child, type, text);
+                if (found != null) return found;
+            }
         }
         return null;
     }

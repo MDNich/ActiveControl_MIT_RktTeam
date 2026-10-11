@@ -58,7 +58,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	private final double thickness;
 	private final double bodyRadius;
 	private final int finCount;
-	private final double cantAngle;
+	private final FinSet liveFinSet;
 	private final FinSet.CrossSection crossSection;
 	private final double leadingEdgeAngle;
 
@@ -83,7 +83,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		this.bodyRadius = component.getBodyRadius();
 		this.finCount = component.getFinCount();
 
-		this.cantAngle = component.getCantAngle();
+		this.liveFinSet = component;
 		this.span = component.getSpan();
 		this.finArea = component.getPlanformArea();
 		this.crossSection = component.getCrossSection();
@@ -193,7 +193,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		//		forces.CrollForce = fins * (macSpan+r) * cna1 * component.getCantAngle() / 
 		//			conditions.getRefLength();
 		// With body-fin interference effect:
-		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * cantAngle /
+		forces.setCrollForce((macSpan + r) * cna1 * (1 + tau) * liveFinSet.getCantAngle() /
 				conditions.getRefLength());
 		
 		if (conditions.getAOA() > STALL_ANGLE) {

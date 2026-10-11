@@ -43,8 +43,8 @@ Source root: `/Users/mdn/Developer/ActiveControl_MIT_RktTeam/clone/openrocket-re
 | `core/src/main/java/info/openrocket/core/simulation/extension/impl/` | Add `ZephyrusFlightComputer` and its standard extension provider |
 | `core/src/main/java/info/openrocket/core/document/Simulation.java` | Notify configuration changes and mark existing results outdated when FC settings change |
 | `core/src/main/java/info/openrocket/core/simulation/listeners/FlightControllerSimulatorListener.java` | Accept immutable run settings and pass them into the existing FC/telemetry objects |
-| `core/src/main/java/edu/mit/rocket_team/zephyrus/telemetry/RTTelemetryEngine.java` | Apply loss/delay after packet construction; preserve transmitted bytes and produce received output |
-| `core/src/main/java/edu/mit/rocket_team/zephyrus/FC/RTFC.java` | Pass settings to existing telemetry initialization without changing loop order or controller logic |
+| `core/src/main/java/edu/mit/rocket_team/telemetry/RTTelemetryEngine.java` | Apply loss/delay after packet construction; preserve transmitted bytes and produce received output |
+| `core/src/main/java/edu/mit/rocket_team/FC/RTFC.java` | Pass settings to existing telemetry initialization without changing loop order or controller logic |
 | `core/src/main/resources/l10n/messages.properties` | Labels, units, help and validation messages |
 
 Also inspect/update the existing CLI runner and verifier under `/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/` so they honor the same settings and output semantics.

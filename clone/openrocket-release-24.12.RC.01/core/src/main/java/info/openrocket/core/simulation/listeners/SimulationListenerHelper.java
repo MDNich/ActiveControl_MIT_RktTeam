@@ -23,7 +23,7 @@ import info.openrocket.core.util.ModID;
 /**
  * Helper methods for firing events to simulation listeners.
  * 
- * @author Sampo Niskanen <sampo.niskanen@iki.fi>
+ * @author Sampo Niskanen &lt;sampo.niskanen@iki.fi&gt;
  */
 public class SimulationListenerHelper {
 

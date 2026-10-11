@@ -1,0 +1,77 @@
+@startuml
+allowmixing
+!pragma layout smetana
+set namespaceSeparator none
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #45627B
+skinparam classBackgroundColor #EEF5FB
+skinparam classBorderColor #45627B
+skinparam packageBackgroundColor #FAFCFE
+hide empty members
+title OpenRocket engine ↔ flight-computer integration
+
+top to bottom direction
+package "Existing OpenRocket simulation" {
+ class Simulation
+ interface SimulationEngine
+ class BasicEventSimulationEngine
+ class ModifiedEventSimulationEngine
+ interface SimulationStepper
+ class RK4SimulationStepper
+ class SimulationStatus
+ class SimulationConditions
+ class FlightDataBranch
+ class SimulationListenerHelper
+ interface SimulationListener
+ abstract class AbstractSimulationListener
+}
+package "FC integration" {
+ class ZephyrusFlightComputer <<extension>> {
+  prepareDesign()
+  initialize(conditions)
+ }
+ class FlightControllerSimulatorListener {
+  startSimulation(status)
+  preStep(status)
+  postStep(status)
+  dispatch(bootUs)
+  endSimulation(status, error)
+ }
+ class RTFC
+ class RTSimulationCommunicator
+ class FlightComputerRecoveryBridge
+}
+Simulation --> SimulationEngine : simulate
+SimulationEngine <|.. BasicEventSimulationEngine
+SimulationEngine <|.. ModifiedEventSimulationEngine
+SimulationStepper <|.. RK4SimulationStepper
+BasicEventSimulationEngine --> SimulationStepper : advances physics
+ModifiedEventSimulationEngine --> SimulationStepper : advances physics
+SimulationStatus --> SimulationConditions
+SimulationStatus --> FlightDataBranch : records samples
+SimulationConditions o-- SimulationListener
+SimulationListener <|.. AbstractSimulationListener
+AbstractSimulationListener <|-- FlightControllerSimulatorListener
+SimulationListenerHelper --> SimulationListener : dispatches callbacks
+BasicEventSimulationEngine --> SimulationListenerHelper
+ModifiedEventSimulationEngine --> SimulationListenerHelper
+ZephyrusFlightComputer --> FlightControllerSimulatorListener : installs one per run
+FlightControllerSimulatorListener *-- RTFC : fresh boot
+FlightControllerSimulatorListener *-- RTSimulationCommunicator
+FlightControllerSimulatorListener *-- FlightComputerRecoveryBridge
+FlightControllerSimulatorListener --> SimulationStatus : accepted truth + deadlines
+RTSimulationCommunicator --> SimulationStatus : per-run rocket actuators
+FlightComputerRecoveryBridge --> BasicEventSimulationEngine : queued deployment events
+FlightComputerRecoveryBridge --> ModifiedEventSimulationEngine : queued deployment events
+note bottom of FlightControllerSimulatorListener
+The extension's legacy class name is retained.
+The firmware root package is edu.mit.rocket_team.
+No unrelated AirbrakesControllerListener is used.
+end note
+
+@enduml
