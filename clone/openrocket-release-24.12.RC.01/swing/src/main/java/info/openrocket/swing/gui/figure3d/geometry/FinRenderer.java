@@ -12,15 +12,22 @@ import com.jogamp.opengl.glu.GLUtessellatorCallbackAdapter;
 import info.openrocket.core.rocketcomponent.EllipticalFinSet;
 import info.openrocket.core.rocketcomponent.FinSet;
 import info.openrocket.core.rocketcomponent.InsideColorComponent;
+import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
+import info.openrocket.core.util.Transformation;
+import info.openrocket.swing.gui.rocketfigure.FinProfileGeometry;
+import info.openrocket.swing.gui.rocketfigure.FinSetShapes;
 import info.openrocket.core.util.BoundingBox;
 import info.openrocket.core.util.Coordinate;
 import info.openrocket.swing.gui.figure3d.geometry.Geometry.Surface;
 
 public class FinRenderer {
-	private GLUtessellator tess = GLU.gluNewTess();
+	// Each render call owns its tessellator; never reuse a deleted native object.
 	
 	public void renderFinSet(final GL2 gl, FinSet finSet, Surface which) {
 		
+        GLUtessellator tess = GLU.gluNewTess();
+        boolean profiled = finSet.getCrossSection() != FinSet.CrossSection.SQUARE
+                || finSet instanceof TabControlledTrapezoidFinSet;
 	    BoundingBox bounds = finSet.getInstanceBoundingBox();
 		gl.glMatrixMode(GL.GL_TEXTURE);
 		gl.glPushMatrix();
@@ -43,6 +50,14 @@ public class FinRenderer {
             gl.glTranslated(0, - finSet.getBodyRadius(), 0);		// Move to the parent centerline
             
             gl.glRotated( Math.toDegrees(finSet.getCantAngle()), 0, 1, 0);
+
+            if (profiled) {
+                var profile = new FinProfileGeometry(finSet);
+                renderProfile(gl, profile.faces(FinSetShapes.previewFinOutline(finSet)), finSet.getBodyRadius(), which, Transformation.IDENTITY);
+                if (finSet instanceof TabControlledTrapezoidFinSet controlled)
+                    renderProfile(gl, profile.faces(controlled.getRollCtrlTabNeutralPoints()), finSet.getBodyRadius(), which,
+                            controlled.getRollCtrlTabRotation());
+            }
 
             GLUtessellatorCallback cb = new GLUtessellatorCallbackAdapter() {
 				@Override
@@ -78,7 +93,7 @@ public class FinRenderer {
 			GLU.gluTessCallback(tess, GLU.GLU_TESS_COMBINE, cb);
 
 			// fin side: +z
-			if (finSet.getSpan() > 0 && which == Surface.INSIDE) {		// Right side
+			if (!profiled && finSet.getSpan() > 0 && which == Surface.INSIDE) {		// Right side
 				GLU.gluTessBeginPolygon(tess, null);
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, 1);
@@ -106,7 +121,7 @@ public class FinRenderer {
 			}
 			
 			// fin side: -z
-			if (finSet.getSpan() > 0 && which == Surface.OUTSIDE) {		// Left side
+			if (!profiled && finSet.getSpan() > 0 && which == Surface.OUTSIDE) {		// Left side
 				GLU.gluTessBeginPolygon(tess, null);
 				GLU.gluTessBeginContour(tess);
 				gl.glNormal3f(0, 0, -1);
@@ -139,7 +154,7 @@ public class FinRenderer {
 			GLU.gluDeleteTess(tess);
 			
 			// Fin strip around the edge
-			if (finSet.getSpan() > 0 && which == Surface.EDGES) {
+			if (!profiled && finSet.getSpan() > 0 && which == Surface.EDGES) {
 				if (!(finSet instanceof EllipticalFinSet))
 					gl.glShadeModel(GLLightingFunc.GL_FLAT);
 				gl.glBegin(GL.GL_TRIANGLE_STRIP);
@@ -189,4 +204,26 @@ public class FinRenderer {
 		gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
 		
 	}
+    private static void renderProfile(GL2 gl, java.util.List<FinProfileGeometry.Face> faces,
+            double bodyRadius, Surface which, Transformation transform) {
+        int side = which == Surface.INSIDE ? 1 : which == Surface.OUTSIDE ? -1 : 0;
+        gl.glBegin(GL2.GL_QUADS);
+        for (var face : faces) {
+            if (face.side() != side) continue;
+            Coordinate[] p = face.points();
+            Coordinate normal = p[1].sub(p[0]).cross(p[3].sub(p[0]));
+            if (normal.length() < 1e-18) normal = p[2].sub(p[1]).cross(p[0].sub(p[1]));
+            if (normal.length() < 1e-18) continue;
+            // Small but valid fin facets fall below Coordinate.normalize()'s general tolerance.
+            normal = transform.linearTransform(normal.multiply(1 / normal.length()));
+            gl.glNormal3d(normal.x, normal.y, normal.z);
+            for (Coordinate vertex : p) {
+                gl.glTexCoord2d(vertex.x, vertex.y + bodyRadius);
+                Coordinate rotated = transform.transform(vertex);
+                gl.glVertex3d(rotated.x, rotated.y + bodyRadius, rotated.z);
+            }
+        }
+        gl.glEnd();
+    }
+
 }

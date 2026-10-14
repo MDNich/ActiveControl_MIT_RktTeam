@@ -465,9 +465,14 @@ public abstract class FinSet extends ExternalComponent
 	 * @param offsetRequest new requested tab offset
 	 */
 	public void setTabOffset(final double offsetRequest) {
+		setMountingTabOffset(offsetRequest);
+	}
+
+	/** Set the through-the-wall mounting-tab offset, independent of roll-control tabs. */
+	public void setMountingTabOffset(final double offsetRequest) {
 		for (RocketComponent listener : configListeners) {
 			if (listener instanceof FinSet) {
-				((FinSet) listener).setTabOffset(offsetRequest);
+				((FinSet) listener).setMountingTabOffset(offsetRequest);
 			}
 		}
 
@@ -482,6 +487,11 @@ public abstract class FinSet extends ExternalComponent
 	}
 
 	public double getTabOffset() {
+		return getMountingTabOffset();
+	}
+
+	/** Return the through-the-wall mounting-tab offset in the selected reference frame. */
+	public double getMountingTabOffset() {
 		return getTabOffset(this.tabOffsetMethod);
 	}
 
@@ -1625,6 +1635,8 @@ public abstract class FinSet extends ExternalComponent
 		this.finCount = src.finCount;
 		this.finRotationIncrement = src.finRotationIncrement;
 		this.firstFinOffsetRadians = src.firstFinOffsetRadians;
+		this.baseRotation = src.baseRotation;
+		this.angleMethod = src.angleMethod;
 		this.cantRadians = src.cantRadians;
 		this.cantRotation = src.cantRotation;
 		this.thickness = src.thickness;
@@ -1634,6 +1646,12 @@ public abstract class FinSet extends ExternalComponent
 		this.tabLength = src.tabLength;
 		this.tabOffsetMethod = src.tabOffsetMethod;
 		this.tabPosition = src.tabPosition;
+		this.tabOffset = src.tabOffset;
+		this.filletRadius = src.filletRadius;
+		this.filletMaterial = src.filletMaterial;
+		this.singlePlanformArea = Double.NaN;
+		this.totalVolume = Double.NaN;
+		this.centerOfMass = Coordinate.NaN;
 		
 		return super.copyFrom(c);
 	}

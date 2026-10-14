@@ -38,7 +38,7 @@ public class FinSetSaver extends ExternalComponentSaver {
 			// TODO: delete this when no backward compatibility with OR 15.03 is needed
 			// anymore
 			String offset = "center";
-			double offsetVal = fins.getTabOffset();
+			double offsetVal = fins.getMountingTabOffset();
 			offset = switch (fins.getTabOffsetMethod()) {
 				case TOP -> "front";
 				case BOTTOM -> "end";
@@ -49,7 +49,7 @@ public class FinSetSaver extends ExternalComponentSaver {
 					offsetVal + "</tabposition>");
 			elements.add("<tabposition relativeto=\"" +
 					fins.getTabOffsetMethod().name().toLowerCase(Locale.ENGLISH) + "\">" +
-					fins.getTabOffset() + "</tabposition>");
+					fins.getMountingTabOffset() + "</tabposition>");
 
 		}
 

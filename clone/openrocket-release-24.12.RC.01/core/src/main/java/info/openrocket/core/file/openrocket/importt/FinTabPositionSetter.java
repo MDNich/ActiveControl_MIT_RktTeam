@@ -15,7 +15,7 @@ class FinTabPositionSetter extends DoubleSetter {
 	private static final Logger log = LoggerFactory.getLogger(FinTabPositionSetter.class);
 
 	public FinTabPositionSetter() {
-		super(Reflection.findMethod(FinSet.class, "setTabOffset", double.class));
+		super(Reflection.findMethod(FinSet.class, "setMountingTabOffset", double.class));
 	}
 
 	@Override

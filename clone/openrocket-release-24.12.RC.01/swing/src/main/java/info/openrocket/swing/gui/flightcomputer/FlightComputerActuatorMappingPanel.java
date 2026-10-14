@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
-/** Shared assignment editor; changes stay local until its enclosing editor applies them. */
+/** Assignments stay local until applied; the explicit Add tabs action edits the rocket with Undo. */
 public final class FlightComputerActuatorMappingPanel extends JPanel {
     private record Device(UUID id, String label) {
         /**
@@ -34,6 +34,7 @@ public final class FlightComputerActuatorMappingPanel extends JPanel {
     private final Runnable changed;
     private final List<Row> rows = new ArrayList<>();
     private final JPanel contents = new JPanel();
+    private boolean refreshingDevices;
 
     /**
      * Builds the flight computer actuator mapping panel and connects its controls to the supplied
@@ -61,6 +62,7 @@ public final class FlightComputerActuatorMappingPanel extends JPanel {
             add(new JLabel("Assign actuators when opened from a simulation."), BorderLayout.NORTH);
             return;
         }
+        if (controller.mode() == FlightComputerController.Mode.TABS) addTabCreationControls();
         var add = new JButton("Add another target");
         add.setName("fc.controller.addTarget");
         add.addActionListener(
@@ -99,38 +101,9 @@ public final class FlightComputerActuatorMappingPanel extends JPanel {
                                 "fillx,insets 5,wrap 2", "[grow,fill][grow,fill]"));
         row.device = new JComboBox<>();
         row.device.setName("fc.controller.target");
-        row.device.addItem(new Device(null, "Recorded only / no physical target"));
-        var active = simulation.getActiveConfiguration();
-        boolean found = binding == null;
-        for (var component : simulation.getRocket())
-            if (FlightComputerControllerSettings.eligible(controller.mode(), component)) {
-                boolean available = active.isComponentActive(component);
-                String label =
-                        component.getName()
-                                + " — "
-                                + (component.getParent() == null
-                                        ? "Rocket"
-                                        : component.getParent().getName())
-                                + " · "
-                                + component.getID().toString().substring(0, 8)
-                                + (available ? "" : " (inactive)");
-                if (component instanceof TabControlledTrapezoidFinSet fin
-                        && (fin.getTabChord() * fin.getTabSpan() == 0 || fin.getCNALPHA() == 0))
-                    label += " (zero tab authority)";
-                var item = new Device(component.getID(), label);
-                row.device.addItem(item);
-                if (binding != null && binding.deviceId().equals(item.id)) {
-                    row.device.setSelectedItem(item);
-                    found = true;
-                }
-            }
-        if (!found) {
-            var missing = new Device(binding.deviceId(), "Missing: " + binding.deviceId());
-            row.device.addItem(missing);
-            row.device.setSelectedItem(missing);
-        }
+        fillDevices(row, binding == null ? null : binding.deviceId());
         row.panel.add(row.device, "span,growx,wmin 0");
-        row.device.addActionListener(e -> changed.run());
+        row.device.addActionListener(e -> { if (!refreshingDevices) changed.run(); });
         row.reverse =
                 new JCheckBox("Reverse direction", binding != null && binding.direction() < 0);
         row.reverse.addActionListener(e -> changed.run());
@@ -165,6 +138,99 @@ public final class FlightComputerActuatorMappingPanel extends JPanel {
         repaint();
     }
 
+    private void fillDevices(Row row, UUID selected) {
+        refreshingDevices = true;
+        try {
+            row.device.removeAllItems();
+            row.device.addItem(new Device(null, "Recorded only / no physical target"));
+            var active = simulation.getActiveConfiguration();
+            boolean found = selected == null;
+            for (var component : simulation.getRocket())
+                if (FlightComputerControllerSettings.eligible(controller.mode(), component)) {
+                    boolean available = active.isComponentActive(component);
+                    String label =
+                            component.getName()
+                                    + " — "
+                                    + (component.getParent() == null
+                                            ? "Rocket"
+                                            : component.getParent().getName())
+                                    + " · "
+                                    + component.getID().toString().substring(0, 8)
+                                    + (available ? "" : " (inactive)");
+                    if (component instanceof TabControlledTrapezoidFinSet fin
+                            && (fin.getTabChord() * fin.getTabSpan() == 0 || fin.getCNALPHA() == 0))
+                        label += " (zero tab authority)";
+                    var item = new Device(component.getID(), label);
+                    row.device.addItem(item);
+                    if (selected != null && selected.equals(item.id)) {
+                        row.device.setSelectedItem(item);
+                        found = true;
+                    }
+                }
+            if (!found) {
+                var missing = new Device(selected, "Missing: " + selected);
+                row.device.addItem(missing);
+                row.device.setSelectedItem(missing);
+            }
+        } finally { refreshingDevices = false; }
+    }
+
+    private void addTabCreationControls() {
+        var tools = new JPanel(new net.miginfocom.swing.MigLayout("fillx, insets 5, wrap 2", "[grow,fill][]"));
+        var note = new JTextArea("Fin tabs need a roll-control fin set, not through-the-wall mounting tabs. "
+                + "Select an existing target below, or add control tabs to trapezoidal fins here.");
+        note.setLineWrap(true); note.setWrapStyleWord(true); note.setEditable(false); note.setOpaque(false);
+        note.setColumns(30); note.setRows(3);
+        tools.add(note, "span,growx");
+        var candidates = new JComboBox<Device>();
+        candidates.setName("fc.controller.tabCandidate");
+        for (var c : simulation.getRocket())
+            if (c instanceof TrapezoidFinSet && !(c instanceof TabControlledTrapezoidFinSet)
+                    && simulation.getActiveConfiguration().isComponentActive(c))
+                candidates.addItem(new Device(c.getID(), c.getName()));
+        tools.add(candidates, "wmin 0");
+        var convert = new JButton("Add roll-control tabs");
+        convert.setName("fc.controller.createTabs");
+        convert.setEnabled(candidates.getItemCount() > 0);
+        convert.setToolTipText("Changes the rocket, with Undo. Review tab geometry and lift slope in the fin editor.");
+        tools.add(convert);
+        var explanation = new JTextArea("New tabs: 25% span, 20% chord, centered on the trailing edge; "
+                + "initial lift slope 6.283 /rad (editable approximation). This changes the rocket; Undo is available.");
+        explanation.setLineWrap(true); explanation.setWrapStyleWord(true); explanation.setEditable(false);
+        explanation.setOpaque(false); explanation.setColumns(30); explanation.setRows(3);
+        tools.add(explanation, "span,growx");
+        convert.addActionListener(event -> {
+            var selected = (Device) candidates.getSelectedItem();
+            if (selected == null) return;
+            var component = simulation.getRocket().findComponent(selected.id());
+            if (!(component instanceof TrapezoidFinSet plain) || component instanceof TabControlledTrapezoidFinSet) return;
+            if (simulation.getDocument() != null) simulation.getDocument().addUndoPosition("Add roll-control tabs");
+            double chord = .2 * Math.max(1e-6, Math.min(plain.getRootChord(),
+                    plain.getTipChord() > 0 ? plain.getTipChord() : plain.getRootChord() / 2));
+            var fin = new TabControlledTrapezoidFinSet(plain);
+            double edge = fin.getFinPoints()[2].sub(fin.getFinPoints()[3]).length();
+            fin.setTabShape(edge * .25, chord, edge * .375, 0);
+            fin.setCNALPHA(2 * Math.PI);
+            for (var row : rows) {
+                var current = (Device) row.device.getSelectedItem();
+                fillDevices(row, current == null ? null : current.id());
+            }
+            var target = rows.stream()
+                    .filter(row -> ((Device) row.device.getSelectedItem()).id() == null)
+                    .findFirst().orElseGet(() -> {
+                        addRow(null);
+                        return rows.get(rows.size() - 1);
+                    });
+            for (int i = 0; i < target.device.getItemCount(); i++)
+                if (fin.getID().equals(target.device.getItemAt(i).id())) target.device.setSelectedIndex(i);
+            candidates.removeItem(selected);
+            convert.setEnabled(candidates.getItemCount() > 0);
+            System.out.println("FC_CONTROLLER added roll-control tabs component=" + fin.getID() + " name=" + fin.getName());
+            changed.run();
+        });
+        add(tools, BorderLayout.NORTH);
+    }
+
     /**
      * Reads and commits a numeric target-binding editor.
      *
@@ -196,7 +262,7 @@ public final class FlightComputerActuatorMappingPanel extends JPanel {
                                 .toList());
         for (var row : rows) {
             var device = (Device) row.device.getSelectedItem();
-            if (device.id() != null)
+            if (device != null && device.id() != null)
                 bindings.add(
                         new FlightComputerControllerSettings.Binding(
                                 controller.id(),

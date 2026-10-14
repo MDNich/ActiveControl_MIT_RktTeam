@@ -313,7 +313,17 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		UnitSelector distanceUnit = new UnitSelector(distanceModel);
 		editor.add(distanceUnit, "growx, wrap");
 
+        FinSectionPreview sectionPreview = new FinSectionPreview(finSet);
+        panel.add(sectionPreview, "span, growx, h 100lp!, wrap");
+        StateChangeListener sectionListener = event -> {
+            sectionPreview.setVisible(finSet.getCrossSection() != FinSet.CrossSection.TRIANGULAR);
+            sectionPreview.repaint();
+        };
+        component.addChangeListener(sectionListener);
+        register(() -> component.removeChangeListener(sectionListener));
+        sectionListener.stateChanged(null);
 		LeadingEdgePreview preview = new LeadingEdgePreview(finSet);
+        register(() -> finSet.removeChangeListener(preview));
 		editor.add(preview, "skip, span 3, growx, h 90lp!, wrap");
 
 		ActionListener updateEditMode = e -> {
@@ -345,6 +355,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 			}
 		};
 		component.addChangeListener(visibilityListener);
+        register(() -> component.removeChangeListener(visibilityListener));
 		visibilityListener.stateChanged(new EventObject(component));
 
 		panel.add(editor, "span, growx, wrap para");
@@ -489,7 +500,7 @@ public abstract class FinSetConfig extends RocketComponentConfig {
 		label.setToolTipText(trans.get("FinSetConfig.ttip.Tabposition"));
 		panel.add(label);
 
-		final DoubleModel tabOffset = new DoubleModel(component, "TabOffset", UnitGroup.UNITS_LENGTH);
+		final DoubleModel tabOffset = new DoubleModel(component, "MountingTabOffset", UnitGroup.UNITS_LENGTH);
 		register(tabOffset);
 		component.addChangeListener( tabOffset);
 		spin = new JSpinner(tabOffset.getSpinnerModel());

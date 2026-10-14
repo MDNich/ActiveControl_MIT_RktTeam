@@ -423,6 +423,13 @@ public class BasicFrame extends JFrame {
 		exportSubMenu.getAccessibleContext().setAccessibleDescription(trans.get("main.menu.file.exportAs.desc"));
 		exportSubMenu.setIcon(Icons.FILE_EXPORT);
 
+		JMenuItem exportVanilla = new JMenuItem(info.openrocket.swing.gui.dialogs.VanillaExportDialog.MENU_LABEL);
+		exportVanilla.setToolTipText("Export a compatible copy without MIT simulation features");
+		exportVanilla.addActionListener(e ->
+				info.openrocket.swing.gui.dialogs.VanillaExportDialog.show(BasicFrame.this, document));
+		exportSubMenu.add(exportVanilla);
+		exportSubMenu.addSeparator();
+
 		////// 		Export RASAero
 		JMenuItem exportRASAero = new JMenuItem(trans.get("main.menu.file.exportAs.RASAero"));
 		exportRASAero.setIcon(Icons.RASAERO);

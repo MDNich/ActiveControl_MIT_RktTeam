@@ -182,7 +182,7 @@ public abstract class AbstractEulerStepper extends AbstractSimulationStepper {
 		
 		// note some of our forces don't end up getting set, so they're all NaN.
 		AerodynamicForces forces = new AerodynamicForces();
-		double cd = computeCD(status);
+		double cd = info.openrocket.core.simulation.ensemble.EnsembleRunListener.descentDrag(status, computeCD(status));
 		forces.setCD(cd);
 		forces.setCDaxial(cd);
 		forces.setFrictionCD(0);

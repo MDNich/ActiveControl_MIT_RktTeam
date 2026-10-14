@@ -45,7 +45,30 @@ class EnsembleOptionsPanelTest extends EnsembleSwingTestCase {
                         assertTrue(simulation.getOptions().getEnsembleSettings().enabled());
                         assertEquals(
                                 12, simulation.getOptions().getEnsembleSettings().motorSigma());
+                        var mass = (JSpinner) find(panel, "ensemble.Total mass σ (%)");
+                        var drag = (JSpinner) find(panel, "ensemble.Overall Cd σ (%)");
+                        var force = (JSpinner) find(panel, "ensemble.Roll forcing σ (%)");
+                        var damping = (JSpinner) find(panel, "ensemble.Roll damping σ (%)");
+                        var threads = (JSpinner) find(panel, "ensemble.Threads");
+                        assertEquals(4, ((Number) threads.getValue()).intValue());
+                        threads.setValue(2);
+                        var direction = (JSpinner) find(panel, "ensemble.Wind direction σ (°)");
+                        direction.setValue(15.0);
+                        assertEquals(2, simulation.getOptions().getEnsembleSettings().threads());
+                        assertEquals(Math.toRadians(15), simulation.getOptions().getEnsembleSettings().windDirectionSigma());
+                        mass.setValue(10.0);
+                        drag.setValue(15.0);
+                        force.setValue(20.0);
+                        damping.setValue(25.0);
+                        assertEquals(.1, simulation.getOptions().getEnsembleSettings().massSigma());
+                        assertEquals(.15, simulation.getOptions().getEnsembleSettings().dragSigma());
+                        assertEquals(.2, simulation.getOptions().getEnsembleSettings().rollForceSigma());
+                        assertEquals(.25, simulation.getOptions().getEnsembleSettings().rollDampingSigma());
                         checkbox.doClick();
+                        assertFalse(mass.isEnabled());
+                        assertFalse(drag.isEnabled());
+                        assertFalse(force.isEnabled());
+                        assertFalse(damping.isEnabled());
                         assertFalse(thrust.isEnabled());
                         assertEquals(
                                 12, simulation.getOptions().getEnsembleSettings().motorSigma());

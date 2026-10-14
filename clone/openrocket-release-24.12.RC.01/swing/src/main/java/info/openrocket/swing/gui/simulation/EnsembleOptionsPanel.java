@@ -31,6 +31,8 @@ final class EnsembleOptionsPanel extends JPanel {
                         1,
                         "Each run is a complete flight. Failed runs stop the batch.",
                         fields);
+        JSpinner threads = field("Threads", s.threads(), 1, 256, 1,
+                "Maximum concurrent flights. Default 4; each uses its own rocket and output files.", fields);
         JSpinner motor =
                 field(
                         "Thrust noise σ (N)",
@@ -76,6 +78,16 @@ final class EnsembleOptionsPanel extends JPanel {
                         .1,
                         "Independent East and North offsets per run, applied at all altitudes. Baseline turbulence stays fixed.",
                         fields);
+        JSpinner windDirection = field("Wind direction σ (°)", Math.toDegrees(s.windDirectionSigma()), 0, 180, 1,
+                "One Gaussian bearing offset per flight, applied to the wind at all altitudes. Launch-rod direction stays fixed; East/North offsets are added separately.", fields);
+        JSpinner mass = field("Total mass σ (%)", s.massSigma() * 100, 0, 100, 1,
+                "One Gaussian mass multiplier per flight. Scales all active mass (including motor/propellant) and inertia; preserves CG.", fields);
+        JSpinner drag = field("Overall Cd σ (%)", s.dragSigma() * 100, 0, 100, 1,
+                "One Gaussian drag multiplier per flight, including recovery-device and tumbling drag.", fields);
+        JSpinner rollForce = field("Roll forcing σ (%)", s.rollForceSigma() * 100, 0, 100, 1,
+                "One Gaussian multiplier for roll forcing from fin cant and control tabs. Zero nominal forcing stays zero.", fields);
+        JSpinner rollDamping = field("Roll damping σ (%)", s.rollDampingSigma() * 100, 0, 100, 1,
+                "One Gaussian multiplier for roll damping throughout each flight.", fields);
         JSpinner seed =
                 field(
                         "Random seed",
@@ -96,7 +108,10 @@ final class EnsembleOptionsPanel extends JPanel {
                                     number(temperature),
                                     number(pressure) / 100,
                                     number(wind),
-                                    ((Number) seed.getValue()).intValue()));
+                                    ((Number) seed.getValue()).intValue(),
+                                    number(mass) / 100, number(drag) / 100,
+                                    number(rollForce) / 100, number(rollDamping) / 100,
+                                    Math.toRadians(number(windDirection)), ((Number) threads.getValue()).intValue()));
                     fields.forEach(f -> f.setEnabled(enabled.isSelected()));
                 };
         for (var f : fields) {
@@ -106,7 +121,7 @@ final class EnsembleOptionsPanel extends JPanel {
         enabled.addActionListener(e -> update.run());
         add(
                 new JLabel(
-                        "<html>Set a σ to 0 to disable that source. Both sources → combined band.<br>2D: mean ±1σ; 3D: mean; distributions: individual flight summaries.<br>Saving simulation data includes the full results of every run.</html>"),
+                        "<html>Set a σ to 0 to disable that source. Enabled sources combine.<br>Percent errors: Gaussian σ, constant per flight.<br>10% means ±10% at 1σ.<br>Nonpositive mass/Cd/roll multipliers stop the batch.<br>2D: mean ±1σ; 3D: mean; distributions: individual flight summaries.<br>Saving simulation data includes the full results of every run.</html>"),
                 "span, wrap");
     }
 

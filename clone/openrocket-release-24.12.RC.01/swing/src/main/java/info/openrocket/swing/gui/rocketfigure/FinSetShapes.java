@@ -46,6 +46,7 @@ public class FinSetShapes extends RocketComponentShapes {
 			shapeList.add(new RocketComponentShapes(fillets, finset));
 		}
 
+		int bevelIndex = -1;
 		if (finset instanceof TrapezoidFinSet && finset.getCrossSection() == FinSet.CrossSection.TRIANGULAR) {
 			// The crease lies on the visible face, rather than the fin's centre plane.
 			double side = Math.copySign(1, compositeTransform.linearTransform(new Coordinate(0, 0, 1)).z);
@@ -53,9 +54,17 @@ public class FinSetShapes extends RocketComponentShapes {
 					new Transformation(0, 0, side * finset.getThickness() / 2));
 			Path2D bevel = leadingEdgeBevelShape(finset, surface);
 			if (bevel.getCurrentPoint() != null) {
+				bevelIndex = shapeList.size();
 				shapeList.add(new RocketComponentShapes(bevel, finset));
 			}
 		}
+
+        if (finset instanceof TabControlledTrapezoidFinSet controlled && controlled.getTabAngle() != 0) {
+            var visibility = new FinTabVisibility(controlled, compositeTransform, false);
+            for (int index : new int[]{0, 3, bevelIndex}) if (index >= 0)
+                shapeList.set(index, new RocketComponentShapes(visibility.fixed(shapeList.get(index).shape), finset));
+            shapeList.set(2, new RocketComponentShapes(visibility.tab(shapeList.get(2).shape), finset));
+        }
 
 		return shapeList.toArray(new RocketComponentShapes[0]);
 	}
@@ -63,14 +72,16 @@ public class FinSetShapes extends RocketComponentShapes {
 	private static Shape controlTabShape(TabControlledTrapezoidFinSet finset, Transformation transform, boolean back) {
 		// Rotate the plate and its thickness together before cant and instance rotation.
 		Transformation tabTransform = transform.applyTransformation(finset.getRollCtrlTabRotation());
-		Shape[] faces = plateShapes(finset, finset.getRollCtrlTabNeutralPoints(), tabTransform, false, back);
+        Shape[] faces = curvedProfile(finset)
+                ? profiledShapes(finset, finset.getRollCtrlTabNeutralPoints(), tabTransform, back)
+                : plateShapes(finset, finset.getRollCtrlTabNeutralPoints(), tabTransform, false, back);
 		Path2D.Double tab = new Path2D.Double(faces[0]);
 		tab.append(faces[1], false);
 		return tab;
 	}
 
 	/** Leave an opening in the fixed fin where the control tab can swing out. */
-	private static Coordinate[] previewFinOutline(FinSet finset) {
+	public static Coordinate[] previewFinOutline(FinSet finset) {
 		Coordinate[] outline = finset.getFinPointsWithRoot();
 		if (!(finset instanceof TabControlledTrapezoidFinSet controlled)
 				|| controlled.getTabSpan() <= 0 || controlled.getTabChord() <= 0) {
@@ -111,6 +122,7 @@ public class FinSetShapes extends RocketComponentShapes {
 	}
 
 	private static Shape[] plateShapes(FinSet finset, Coordinate[] outline, Transformation transform, boolean bevel, boolean back) {
+        if (bevel && curvedProfile(finset)) return profiledShapes(finset, outline, transform, back);
 		ArrayList<Coordinate> boundary = new ArrayList<>();
 		for (int i = 0; i < outline.length; i++) {
 			Coordinate a = outline[i];
@@ -149,6 +161,31 @@ public class FinSetShapes extends RocketComponentShapes {
 		}
 		return new Shape[]{projectPath(front, transform, back, true), edges};
 	}
+
+    private static boolean curvedProfile(FinSet fin) {
+        return fin.getCrossSection() == FinSet.CrossSection.ROUNDED || fin.getCrossSection() == FinSet.CrossSection.AIRFOIL;
+    }
+
+    private static Shape[] profiledShapes(FinSet fin, Coordinate[] outline, Transformation transform, boolean back) {
+        var profile = new FinProfileGeometry(fin);
+        var projected = new Path2D.Double();
+        for (var face : profile.faces(outline)) appendProjectedFace(projected, face.points(), transform, back);
+        var contour = new Path2D.Double();
+        var boundary = projectPath(outline, Transformation.IDENTITY, false, true);
+        double sign = Math.copySign(1, back ? transform.linearTransform(new Coordinate(0, 0, 1)).x
+                : transform.linearTransform(new Coordinate(0, 0, 1)).z);
+        for (boolean trailing : new boolean[]{false, true}) {
+            if (trailing && fin.getCrossSection() != FinSet.CrossSection.ROUNDED) continue;
+            Coordinate[] points = profile.contour(trailing);
+            for (int i = 0; i < points.length; i++) points[i] = points[i].setZ(points[i].z * sign);
+            for (int i = 1; i < points.length; i++) {
+                var mid = points[i - 1].add(points[i]).multiply(.5);
+                if (boundary.contains(mid.x, mid.y))
+                    contour.append(projectPath(new Coordinate[]{points[i - 1], points[i]}, transform, back, false), false);
+            }
+        }
+        return new Shape[]{new Area(projected), contour};
+    }
 
 	/** Chordwise position relative to the triangular nose's end; other profiles are plates. */
 	private static double bevelFraction(FinSet finset, Coordinate point) {
@@ -211,12 +248,14 @@ public class FinSetShapes extends RocketComponentShapes {
 			}
 		}
 		stations.add(roots[roots.length - 1]);
+        var profile = curvedProfile(finset) ? new FinProfileGeometry(finset) : null;
 		final int arcSteps = 16;
 		for (double side : new double[]{-1, 1}) {
 			Coordinate[] previous = null;
 			for (Coordinate root : stations) {
 				double bodyRadius = body.getRadius(finset.getFinFront().x + root.x);
-				double halfThickness = finset.getThickness() / 2 * MathUtil.clamp(bevelFraction(finset, root), 0, 1);
+				double halfThickness = profile == null ? finset.getThickness() / 2 * MathUtil.clamp(bevelFraction(finset, root), 0, 1)
+                        : profile.halfThickness(root);
 				if (!Double.isFinite(bodyRadius) || bodyRadius <= halfThickness) {
 					previous = null;
 					continue;
@@ -358,7 +397,15 @@ public class FinSetShapes extends RocketComponentShapes {
 		
 		Shape[] toReturn;
 
-		if (MathUtil.equals(finset.getCantAngle(), 0)) {
+        if (curvedProfile(finset)) {
+            Transformation combined = transformation.applyTransformation(finset.getCantRotation());
+            Shape[] shapes = profiledShapes(finset, previewFinOutline(finset), combined, true);
+            var back = new Path2D.Double(shapes[0]);
+            Shape[] mounting = plateShapes(finset, finset.getTabPointsWithRoot(), combined, false, true);
+            back.append(mounting[0], false);
+            back.append(mounting[1], false);
+            toReturn = new Shape[]{back};
+        } else if (MathUtil.equals(finset.getCantAngle(), 0)) {
 			toReturn = uncantedShapesBack(finset, transformation);
 		} else {
 			toReturn = cantedShapesBack(finset, transformation);
@@ -366,7 +413,9 @@ public class FinSetShapes extends RocketComponentShapes {
 
 
 		Transformation compositeTransform = transformation.applyTransformation(finset.getCantRotation());
+		int controlTabIndex = -1;
 		if (finset instanceof TabControlledTrapezoidFinSet controlled) {
+			controlTabIndex = toReturn.length;
 			toReturn = Arrays.copyOf(toReturn, toReturn.length + 1);
 			toReturn[toReturn.length - 1] = controlTabShape(controlled, compositeTransform, true);
 		}
@@ -380,6 +429,11 @@ public class FinSetShapes extends RocketComponentShapes {
 			toReturn = Arrays.copyOf(toReturn, toReturn.length + 1);
 			toReturn[toReturn.length - 1] = visibleFillets;
 		}
+        if (finset instanceof TabControlledTrapezoidFinSet controlled && controlled.getTabAngle() != 0) {
+            var visibility = new FinTabVisibility(controlled, compositeTransform, true);
+            for (int i = 0; i < controlTabIndex; i++) toReturn[i] = visibility.fixed(toReturn[i]);
+            toReturn[controlTabIndex] = visibility.tab(toReturn[controlTabIndex]);
+        }
 		return RocketComponentShapes.toArray(toReturn, finset);
 	}
 

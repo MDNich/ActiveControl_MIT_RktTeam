@@ -70,3 +70,74 @@ The existing Swing/core framework is extended. The installed macOS launcher keep
 [Flight-computer API and architecture](14-flight-computer-api-and-architecture.md) — package rename to `edu.mit.rocket_team`, method documentation, [browsable Javadoc](javadoc/index.html), nine editable UML views and regeneration/verification instructions.
 
 The architecture report is also available as a [17-page PDF](14-flight-computer-api-and-architecture.pdf) with nine native TikZ figures; the [standalone LaTeX source](14-flight-computer-api-and-architecture.tex) contains the complete report and every figure.
+
+## Vanilla OpenRocket 24.12 export (13 October 2026)
+
+Use **File → Export as → Vanilla OpenRocket 24.12 (.ork)…**. The conversion summary is shown before the file selector; the suggested filename ends in `-vanilla-24.12.ork`. The active MIT document, its saved state, source file and full simulation results are preserved. Exporting over that source file (including a symbolic or hard link) is rejected.
+
+- Roll-control fin sets become ordinary trapezoidal fins, retaining their planform, thickness, mounting tabs, fillets, appearance and IDs. Movable tab deflection is removed.
+- Triangular leading edges become **rounded** cross-sections. This keeps a plate-like fin and rounded leading edge without replacing the whole section by an airfoil. Calculated fin mass and aerodynamic behavior can differ; existing explicit mass/CG overrides remain.
+- Fin cant outside vanilla's ±15° limit is clamped, with a conversion notice.
+- Airbrakes become internal ballast with the same effective mass and axial CG. Their actuation, drag and detailed inertia are not represented.
+- All simulation extensions are removed, including FC definitions/references, custom Java listeners and scripts. Saved standard recovery deployment rules remain and should be reviewed before rerunning.
+- Simulations retain their configurations and ordinary launch/weather settings but export as unrun baselines. Flight data, external telemetry/log histories, FC provenance, ensemble settings/results, initial roll and motor-batch history are omitted. Ordinary motor configurations remain.
+- Vanilla-compatible custom expressions and embedded textures remain. Expressions using MIT-only/extension variables, and expressions depending on those, are omitted.
+
+The exporter streams a separate ZIP without cloning stored flight histories. It writes to a temporary file and replaces the destination only after success; cancellation and missing textures preserve an existing destination. Conversion details also appear on the console with the `VANILLA_EXPORT` prefix.
+
+Validation used the [official OpenRocket 24.12 release JAR](https://github.com/openrocket/openrocket/releases/tag/release-24.12), SHA-256 `4959b72f52f5f607941e9722abbb7b7f0c4a38ebbbf84204a329db9f31c4f897`, downloaded separately from our MIT build. The official JVM (with no MIT classes on its classpath) loaded, saved and reopened the Zephyrus, demonstrator iteration 4, and mixed-feature example exports with zero warnings. The mixed-feature example completed a vanilla simulation through apogee and ground impact. The official desktop application also opened the demonstrator export. Seven export regressions plus eight existing saver tests passed; the two simulation-panel startup tests passed.
+
+To reproduce after building `shadowJar` (run from the repository root with a Java 17 `JAVA_HOME`):
+
+```sh
+python3 packaging/verification/verify-vanilla24-export.py /path/to/design.ork
+```
+
+The script verifies the official binary's checksum and leaves exports, roundtripped files, logs and `verification.json` in `clone/openrocket-release-24.12.RC.01/build/vanilla-24.12/`. It also checks that input file hashes are unchanged. The optional `VanillaExportGuiAgent` checks that the desktop app opens the exported model and that the MIT build contains the enabled export menu item.
+
+## Fin conversion preservation and percentage uncertainty (13 October 2026)
+
+Adding or removing roll-control tabs now retains fillet radius **and material**, axial offset, mounting-tab offset, angular positioning mode, and the rotation used to calculate the CG of a single fin. The shared fin-copy routine previously omitted these fields. Appearance, inside appearance, visibility, material, finish, geometry, component identity, comments, and active mass/CG/Cd overrides are also covered by conversion regressions. The mounting-tab and roll-control-tab offsets now have separate editor/save/load accessors; changing one no longer changes the other. Existing file tags remain compatible. Previously lost values cannot be recovered automatically from files saved with the old conversion.
+
+The **Ensemble simulation** box includes four additional controls, all initially zero:
+
+| Input | Effect of one run's multiplier |
+| --- | --- |
+| Total mass σ (%) | Scales the active vehicle's structure, motor and remaining propellant mass, plus all moments of inertia; preserves its CG and nominal burn timing. |
+| Overall Cd σ (%) | Scales axial drag and the drag coefficient breakdown, including user overrides, deployed recovery devices, and tumbling descent. |
+| Roll forcing σ (%) | Scales aerodynamic roll forcing from fin cant and control tabs. Zero nominal forcing remains zero. |
+| Roll damping σ (%) | Scales the aerodynamic roll-damping moment. |
+
+Each is an independent Gaussian **fractional standard deviation**, not a hard bound: a 10% input draws a multiplier `1 + 0.10 × N(0,1)`, once per flight. That same multiplier applies throughout the flight and to separated stages. Percent uncertainty combines with the existing time-varying additive thrust noise and atmospheric uncertainty. Nonpositive multipliers stop the batch with an error and preserve previous results; they are not clipped or redrawn. The coefficient stream is seeded separately so older motor/weather realizations remain reproducible when these controls are disabled.
+
+The existing 2D mean ±1σ bands, 3D mean trajectory and flight-summary probability distributions include all enabled variations. The console prints the four sampled multipliers for every flight. Saving simulation data retains each member's complete results **and** its sampled multipliers inside the `.ork`; old files default to zero added uncertainty and unit multipliers.
+
+Verification covers physical mass/inertia/CG consistency, higher drag reducing apogee, recovery drag scaling, separate roll forcing/damping effects, fixed-seed repeatability, full-result save/reopen, old-file defaults, invalid-input handling, and the rendered Swing controls. Fin conversion tests cover one- and four-fin sets at four axial reference modes and independent mounting/control-tab persistence.
+
+114 distinct focused regressions passed across core and Swing checks. The rebuilt v6.4 JAR opened the demonstrator in the desktop application. Vanilla 24.12 again loaded, saved and reopened all three compatibility fixtures without warnings. Logs and the current JAR checksum are saved under `clone/openrocket-release-24.12.RC.01/build/ensemble-verification/`.
+
+
+## Fin profiles, wind direction, parallel ensembles and controller tab setup (13 October 2026)
+
+Rounded fins now show curved leading and trailing edges in the rocket preview. Airfoil fins show a rounded nose and tapered tail; the fin editor includes an enlarged section sketch. The 3D renderer uses the same section geometry and retains control-tab deflection about the mid-thickness hinge, including ±90°. Dimensions in the rocket preview retain the specified thickness. These drawings are illustrative section categories, not a named or measured airfoil; this change does not alter the aerodynamic or mass model.
+
+The ensemble panel adds **Wind direction σ (°)** and **Threads** (default **4**, range 1–256). Direction uncertainty is an independent Gaussian bearing offset drawn once per flight and applied to the existing wind profile at every altitude. It rotates clockwise from north, preserves nominal wind speed, and leaves the launch rod direction unchanged. A direction perturbation alone does not create wind when the baseline is calm. Component-wise east/north wind uncertainty is added after rotation. Direction draws and settings are retained alongside each member's complete saved results; older files default to zero direction uncertainty and four threads.
+
+Parallel members use independent rocket copies, listeners and FC telemetry/log files. Random sampling and aggregation stay in run order, so changing thread count preserves results for the same seed. Only up to the worker count of flight histories is live at once; completed histories are compressed into the archive. Cancellation interrupts and closes all workers before returning, and failed batches preserve earlier results. FC extensions support parallel operation; other simulation extensions currently require one thread because their runtime isolation is not guaranteed. Each run's console output includes its bearing offset and output paths.
+
+In **Flight computer designer → Controllers → Setup → Actuation: Fin tabs**, the physical-target list previously included only fins that had already been converted to roll-control fins. Through-the-wall mounting tabs are a different feature. The panel now explains this and offers **Add roll-control tabs** for active ordinary trapezoidal fins. This explicitly edits the rocket with Undo, preserving the fin's existing properties, and automatically selects the new target in the first unassigned row. New tabs occupy 25% of the trailing-edge length, centered along that edge, with chord equal to 20% of the smaller positive fin chord and an initial editable lift-slope approximation of 2π/rad. Review these values in the fin editor for the actual hardware. Existing targets with zero area or zero lift slope are labelled as having zero authority. Enable the controller, apply it, and save the FC design and rocket to retain the setup.
+
+Verification covers tab conversion and UUID assignment, preserved fillets and mounting-tab positions, physical tab/cant coupling, wind-bearing convention, lateral dispersion, saved settings and sampled offsets, concurrent worker overlap, exact serial/parallel agreement, cancellation cleanup, and independent completed FC output files. Drawing checks cover curved profiles, true thickness, tab cutouts and ±90° deflection in both 2D geometry and the 3D rendering commands. UI screenshots are generated under `swing/build/ensemble-verification/`, `swing/build/fin-profile-verification/` and `swing/build/fc-controller-verification/`.
+
+
+## Roll-control tab preview visibility (14 October 2026)
+
+The 2D preview now resolves depth between the fixed fin and its deflected control tab. Previously, drawing their outlines independently exposed hinge edges buried inside the fixed fin and drew the cutout rim through the tab. This was particularly noticeable on a fin above the fuselage. Hidden segments are now removed, and the visible intersection of the two thickness profiles supplies a continuous hinge seam. Side, top and rear projections use the same visibility calculation. Selection hit-testing and drawing bounds are preserved; the actual tab geometry, mid-thickness hinge and simulation physics are unchanged.
+
+Verification: the hinge-edge regression first failed on the previous renderer and now passes. All 41 focused drawing checks pass, covering positive/negative deflections, eight viewing angles above and below the body, ±90° travel, the analytic hinge seam, true thickness, curved profiles, cutout selection and fillets. Before/after images are in `swing/build/fin-profile-verification/roll-tabs-before.png` and `roll-tabs.png`.
+
+The subsequent orientation audit used the user's `20267.demonstrator.iteration4.ork` without saving it. Its `MainFins` has four fins, zero cant, and a +40° control-tab angle. An independent Rodrigues rotation agrees with the tab corners and their world/side/rear projections to within 2.4 × 10⁻¹⁶ m across 9,800 coordinate checks. These cover ±90°, ±40°, zero deflection, all four fin instances, different view rotations, swept trailing edges and ±12° cant. The hinge remains at mid-thickness and parallel to the trailing edge. No angle-sign or rotation-order defect was found; the visibility repair does not change those rotations.
+
+For this model's vertical trailing edge, a side-view tab chord projects as `(c cos δ, c sin δ sin φ)`, where δ is tab deflection and φ is the fin azimuth including view rotation. A fin directly above/below the body therefore shows a shortened chord (24.906 mm instead of 32.512 mm at 40°), while the near/far fins show +40°/−40° slopes. Its out-of-plane trailing-edge displacement is 20.898 mm. The visible outline is offset from the tab's centre plane by its 9.398 mm thickness and the hinge intersection. `swing/build/fin-profile-verification/roll-tab-orientation.png` overlays the preview with the independent centre-plane calculation; `roll-tab-orientation.txt` records the measured values. To rerun the file-specific audit, set `OR_TAB_CHECK_ROCKET` to the source `.ork` path and run `:swing:test --tests '*RollTabOrientationTest'`; the test checks that the source bytes remain unchanged.
+
+The 3D rendering test also checks all eight thick-tab corners against independent hinge rotation for five deflections and three cant settings. Final verification comprises 43 drawing/3D tests, two orientation audits and 12 core tab tests, all passing. The built v6.4 JAR passed a desktop startup check; the installed `/Applications/OpenRocket_MIT.app` launcher resolves to that build on its next launch. Verification logs and the JAR checksum are in `build/roll-tab-visibility-verification/`.

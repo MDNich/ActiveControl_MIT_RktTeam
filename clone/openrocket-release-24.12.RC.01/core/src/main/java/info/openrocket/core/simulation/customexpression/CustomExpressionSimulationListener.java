@@ -20,6 +20,12 @@ public class CustomExpressionSimulationListener extends AbstractSimulationListen
 		this.expressions = expressions;
 	}
 
+    @Override
+    public CustomExpressionSimulationListener clone() {
+        return new CustomExpressionSimulationListener(expressions == null ? null :
+                expressions.stream().map(e -> (CustomExpression) e.clone()).toList());
+    }
+
 	@Override
 	public void postStep(SimulationStatus status) throws SimulationException {
 		if (expressions == null || expressions.size() == 0) {

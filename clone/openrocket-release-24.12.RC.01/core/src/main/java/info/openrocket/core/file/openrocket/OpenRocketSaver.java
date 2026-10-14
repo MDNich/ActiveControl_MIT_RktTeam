@@ -69,6 +69,16 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	private int indent;
 	private Writer dest;
+	private final boolean vanilla24;
+
+	public OpenRocketSaver() {
+		this(false);
+	}
+
+	// Used only by the separate vanilla export path; ordinary saves retain all MIT features.
+	OpenRocketSaver(boolean vanilla24) {
+		this.vanilla24 = vanilla24;
+	}
 	
 	@Override
 	public void save(OutputStream output, OpenRocketDocument document, StorageOptions options, WarningSet warnings, ErrorSet errors) throws IOException {
@@ -113,7 +123,7 @@ public class OpenRocketSaver extends RocketSaver {
 		indent--;
 		writeln("</simulations>");
 
-        for (var batch : document.getMotorBatches()) {
+        for (var batch : vanilla24 ? List.<info.openrocket.core.simulation.motorbatch.MotorBatchReport>of() : document.getMotorBatches()) {
             writeln("<motorbatch>" + TextUtil.escapeXML(info.openrocket.core.simulation.motorbatch.MotorBatchIO.write(batch)) + "</motorbatch>");
         }
 
@@ -141,7 +151,7 @@ public class OpenRocketSaver extends RocketSaver {
 		writeln("<datatypes>");
 		indent++;
 		
-		for (CustomExpression exp : doc.getCustomExpressions()) {
+		for (CustomExpression exp : vanilla24 ? VanillaOpenRocketExporter.compatibleExpressions(doc) : doc.getCustomExpressions()) {
 			saveCustomExpressionDatatype(exp);
 		}
 		
@@ -285,7 +295,9 @@ public class OpenRocketSaver extends RocketSaver {
 		Reflection.Method m = findGetElementsMethod(component);
 		
 		// Get the strings to save
-		List<String> list = (List<String>) m.invokeStatic(component);
+		List<String> list = vanilla24
+				? VanillaComponentSaver.getElements(component, () -> (List<String>) m.invokeStatic(component))
+				: (List<String>) m.invokeStatic(component);
 		int length = list.size();
 		
 		if (length == 0) // Nothing to do
@@ -327,10 +339,12 @@ public class OpenRocketSaver extends RocketSaver {
 	
 	
 	private void saveSimulation(Simulation simulation, boolean saveSimulationData) throws IOException {
-		SimulationOptions cond = simulation.getOptions();
+		// getLaunchRodDirection() can update launch-into-wind settings and fire events.
+		// Export must not dirty the original document, even for stale wind directions.
+		SimulationOptions cond = vanilla24 ? simulation.getOptions().clone() : simulation.getOptions();
 
 		Simulation.Status simStatus;
-		simStatus = saveSimulationData || simulation.getStatus() == Simulation.Status.EXTERNAL
+		simStatus = !vanilla24 && (saveSimulationData || simulation.getStatus() == Simulation.Status.EXTERNAL)
                 ? simulation.getStatus() : Simulation.Status.NOT_SIMULATED;
 
 		writeln("<simulation status=\"" + enumToXMLName(simStatus) + "\">");
@@ -347,9 +361,10 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("configid", simulation.getId().key);
 		writeElement("launchrodlength", cond.getLaunchRodLength());
+		if (vanilla24) writeElement("launchintowind", cond.getLaunchIntoWind());
 		writeElement("launchrodangle", cond.getLaunchRodAngle() * 180.0 / Math.PI);
 		writeElement("launchroddirection", cond.getLaunchRodDirection() * 360.0 / (2.0 * Math.PI));
-		writeElement("initialrollrate", Math.toDegrees(cond.getInitialRollRate())); // degrees/second
+		if (!vanilla24) writeElement("initialrollrate", Math.toDegrees(cond.getInitialRollRate())); // degrees/second
 
 		// TODO: remove once support for OR 23.09 and prior is dropped
 		writeElement("windaverage", cond.getAverageWindModel().getAverage());
@@ -398,12 +413,12 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		writeElement("timestep", cond.getTimeStep());
 		writeElement("maxtime", cond.getMaxSimulationTime());
-        writeln(ensembleTag("ensemble", cond.getEnsembleSettings(), true));
+        if (!vanilla24) writeln(ensembleTag("ensemble", cond.getEnsembleSettings(), true));
 		
 		indent--;
 		writeln("</conditions>");
 		
-		for (SimulationExtension extension : simulation.getSimulationExtensions()) {
+		for (SimulationExtension extension : vanilla24 ? List.<SimulationExtension>of() : simulation.getSimulationExtensions()) {
 			Config config = extension.getConfig();
 			writeln("<extension extensionid=\"" + TextUtil.escapeXML(extension.getId()) + "\">");
 			indent++;
@@ -419,7 +434,7 @@ public class OpenRocketSaver extends RocketSaver {
 		
 		// Write basic simulation data
 		
-        FlightData data = simulation.getSimulatedData();
+        FlightData data = vanilla24 ? null : simulation.getSimulatedData();
         saveFlightData(data, saveSimulationData || simulation.getStatus() == Simulation.Status.EXTERNAL,
                 data != null && data.getEnsembleResult() != null);
 

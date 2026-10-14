@@ -2976,6 +2976,7 @@ public abstract class RocketComponent implements ChangeSource, Cloneable, Iterab
 		// Set all parameters
 		this.length = src.length;
 		this.axialMethod = src.axialMethod;
+		this.axialOffset = src.axialOffset;
 		this.position = src.position;
 		this.color = src.color;
 		this.lineStyle = src.lineStyle;

@@ -127,6 +127,9 @@ public class Simulation implements ChangeSource, Cloneable {
 	private SafetyMutex mutex = SafetyMutex.newInstance();
 
 	private final OpenRocketDocument document;
+
+    /** Owning document for undoable geometry edits from simulation configuration. */
+    public OpenRocketDocument getDocument() { return document; }
 	private final Rocket rocket;
 	FlightConfigurationId configId = FlightConfigurationId.ERROR_FCID;
 	

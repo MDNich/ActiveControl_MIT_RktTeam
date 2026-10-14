@@ -523,16 +523,9 @@ public class CustomExpression implements Cloneable {
 	 * @see java.lang.Object#clone()
 	 */
 	public Object clone() {
-		try {
-			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			return new CustomExpression(doc,
-					new String(this.getName()),
-					new String(this.getSymbol()),
-					new String(this.getUnit()),
-					new String(this.getExpressionString()));
-		}
-	}
+        // Expression builders and nested range/index expressions are mutable during evaluation.
+        return new CustomExpression(doc, name, symbol, unit, expression);
+    }
 
 	/*
 	 * Returns a simple all upper case string hash code with a proceeding $ mark.

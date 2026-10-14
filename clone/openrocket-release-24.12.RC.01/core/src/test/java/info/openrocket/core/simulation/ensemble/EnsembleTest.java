@@ -280,7 +280,7 @@ class EnsembleTest extends BaseTestCase {
     @Test
     void saveReloadPreservesSettingsSamplesAndBands() throws Exception {
         var s = simulation();
-        var settings = settings(2, .1, .1);
+        var settings = new EnsembleSettings(true, 2, .1, .05, .1, .001, .1, 12345, .05, .06, .07, .08, Math.toRadians(12), 2);
         s.getOptions().setEnsembleSettings(settings);
         s.simulate();
         var doc = OpenRocketDocumentFactory.createDocumentFromRocket(s.getRocket());

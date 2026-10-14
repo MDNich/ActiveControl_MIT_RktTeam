@@ -259,7 +259,7 @@ public class SimulationRunDialog extends JDialog {
 
 		// Update the simulation fields
 		int ensembleRun = simulations[index].getEnsembleRunNumber();
-        simLabel.setText("Running " + simulationNames[index] + (ensembleRun > 0 ? " — run " + ensembleRun + "/" + ensembleRunCounts[index] : ""));
+        simLabel.setText("Running " + simulationNames[index] + (ensembleRun > 0 ? " — completed " + Math.min(ensembleRun - 1, ensembleRunCounts[index]) + "/" + ensembleRunCounts[index] : ""));
 		if (simulationStatuses[index] == null) {
 			log.debug("No simulation status data available, setting empty labels");
 			timeLabel.setText("");

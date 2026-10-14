@@ -261,6 +261,40 @@ class FinSetShapesTest extends BaseTestCase {
         assertTrue(negative.getBounds2D().getCenterY() < 0);
     }
 
+    @ParameterizedTest
+    @ValueSource(doubles = {-35, -15, 15, 35, 145, 165, 195, 215})
+    void fixedFinHidesTheTabHingeEdgeInsideIt(double viewDegrees) {
+        for (double deflection : new double[]{-40, 40}) {
+            var fin = controlFin(deflection);
+            fin.setCrossSection(FinSet.CrossSection.TRIANGULAR);
+            fin.setLeadingEdgeDistance(.015);
+            var instance = Transformation.rotate_x(Math.toRadians(viewDegrees));
+            var tabRotation = fin.getRollCtrlTabRotation();
+            var neutral = fin.getRollCtrlTabNeutralPoints();
+            var hidden = instance.transform(tabRotation.transform(
+                    neutral[1].add(neutral[2]).multiply(.5).add(0, 0, -Math.copySign(.003, deflection))));
+            Shape tab = renderer.getShapesSide(fin, instance)[2].shape;
+            assertTrue(distanceToBoundary(tab, hidden.x, hidden.y) > 1e-5,
+                    "The hinge edge lies inside the fixed fin and must not be drawn");
+            double side = Math.copySign(1, instance.applyTransformation(tabRotation)
+                    .linearTransform(new Coordinate(0, 0, 1)).z);
+            var trailing = instance.transform(tabRotation.transform(
+                    neutral[0].add(neutral[3]).multiply(.5).add(0, 0, side * .003)));
+            assertEquals(0, distanceToBoundary(tab, trailing.x, trailing.y), EPSILON);
+        }
+    }
+
+    @Test
+    void visibleHingeSeamFollowsTheIntersectionOfTheThickFinAndTab() {
+        var fin = controlFin(-40);
+        var view = Transformation.rotate_x(Math.toRadians(15));
+        var neutral = fin.getRollCtrlTabNeutralPoints();
+        var seam = view.transform(neutral[1].add(neutral[2]).multiply(.5)
+                .add(.003 * Math.tan(fin.getTabAngle() / 2), 0, .003));
+        Shape tab = renderer.getShapesSide(fin, view)[2].shape;
+        assertEquals(0, distanceToBoundary(tab, seam.x, seam.y), EPSILON);
+    }
+
     /** Verifies that tab hinge thickness is centered after cant and instance rotation. */
     @Test
     void tabHingeThicknessIsCenteredAfterCantAndInstanceRotation() {

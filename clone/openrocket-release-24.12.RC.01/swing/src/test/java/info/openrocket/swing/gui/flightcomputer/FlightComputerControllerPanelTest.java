@@ -96,6 +96,44 @@ class FlightComputerControllerPanelTest extends EnsembleSwingTestCase {
                 });
     }
 
+    @Test
+    void ordinaryFinsCanBecomeUsableControllerTargetsWithoutLosingProperties() throws Exception {
+        SwingUtilities.invokeAndWait(() -> {
+            var rocket = TestRockets.makeEstesAlphaIII();
+            var doc = info.openrocket.core.document.OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
+            var sim = new Simulation(doc, rocket);
+            var original = (TrapezoidFinSet) rocket.getSelectedConfiguration().getActiveComponents().stream()
+                    .filter(c -> c instanceof TrapezoidFinSet).findFirst().orElseThrow();
+            original.setFilletRadius(.004);
+            original.setMountingTabOffset(.009);
+            var id = original.getID();
+            var design = FlightComputerDesign.zephyrus();
+            var controller = FlightComputerController.create(design);
+            assertEquals(FlightComputerController.Mode.TABS, controller.mode());
+            var panel = new FlightComputerActuatorMappingPanel(sim, controller, FlightComputerControllerSettings.EMPTY, () -> {});
+            var target = (JComboBox<?>) find(panel, "fc.controller.target");
+            assertEquals(1, target.getItemCount());
+            ((JButton) find(panel, "fc.controller.createTabs")).doClick();
+            var fin = assertInstanceOf(TabControlledTrapezoidFinSet.class, rocket.findComponent(id));
+            assertEquals(.004, fin.getFilletRadius());
+            assertEquals(.009, fin.getMountingTabOffset(), 1e-12);
+            assertTrue(fin.getTabChord() * fin.getTabSpan() * fin.getCNALPHA() > 0);
+            assertEquals(2, target.getItemCount());
+            assertEquals(1, target.getSelectedIndex());
+            var settings = panel.settings(design.id());
+            assertEquals(id, settings.bindings().get(0).deviceId());
+            var withController = FlightComputerController.replace(design, java.util.List.of(controller));
+            settings.validate(withController, sim.getActiveConfiguration().getActiveComponents());
+            panel.setSize(550, 500);
+            layout(panel);
+            try {
+                Path images = Path.of("build/fc-controller-verification");
+                Files.createDirectories(images);
+                render(panel, images.resolve("tab-assignment.png"));
+            } catch (Exception e) { throw new RuntimeException(e); }
+        });
+    }
+
     /**
      * Renders the test view so its controls and layout can be inspected.
      *

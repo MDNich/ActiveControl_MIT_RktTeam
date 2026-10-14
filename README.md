@@ -1,105 +1,87 @@
-# Active Control: MIT Rocket Team
-*Active Control Algorithms and Simulation Testing for MIT Rocket Team.*
+# OpenRocket MIT
 
-In this repository, among testing frameworks, is an alternate "MIT Edition" of OpenRocket. Latest release can be downloaded [here](https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases/latest).
+**Rocket design, flight-computer development, and active-control simulation in OpenRocket.**
 
-The content below describes the python-to-openrocket scripting.
+The primary goal of **ActiveControl_MIT_RktTeam** is developing the MIT edition of [OpenRocket](https://github.com/openrocket/openrocket): a desktop environment for designing rockets, testing onboard control algorithms, and understanding flight performance. Flight computers, sensors, control surfaces, recovery events, and telemetry run alongside OpenRocket's flight simulation.
 
-## Overview
-A Python-based tool for rocket flight simulation that integrates with OpenRocket to analyze and visualize flight characteristics. This project focuses on processing and visualizing rocket flight data, particularly useful for analyzing pitch rates and velocities during flight.
+This repository contains the application source, platform packaging, verification tools, and supporting flight data. The earlier Python–OpenRocket experiments remain available under [`sim/old/`](sim/old/).
 
-*For a more comprehensive explanation, see [README.pdf](https://github.com/MDNich/ActiveControl_MIT_RktTeam/blob/main/README.pdf).*
+[**Download releases**](https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases/latest) · [**Feature documentation**](doc/improvements/README.md) · [**Architecture report**](doc/improvements/14-flight-computer-api-and-architecture.pdf) · [**Report an issue**](https://github.com/MDNich/ActiveControl_MIT_RktTeam/issues)
 
-This repository contains tools and code for advanced simulation and control of rocket flight using both Java (OpenRocket) and Python. The workflow integrates custom Java simulation logic with Python scripting and visualization.
+## What's improved
 
-## Prerequisites
-- Python 3.12+
-- Java Development Kit (JDK) 17
-- `matplotlib`
-- `numpy`
-- `jpype`
+| Area | MIT additions |
+| --- | --- |
+| **Flight-computer designer** | Graphical boards, sensors, connections, and editable flight states. Portable `.fc` files live in a managed library, with a supplied Zephyrus baseline and simulation-specific references in `.ork` files. |
+| **Programmable control** | Custom Java boards with syntax highlighting, completion, external-editor support, and compilation status. Controller blocks provide PID, velocity-weighted PID, and constant outputs, with measured inputs, baselines, and assignments to fin tabs, fin cant, or airbrakes. |
+| **Physical actuation and recovery** | Servo commands affect the simulated rocket; FC recovery channels can deploy assigned recovery devices and take authority over OpenRocket's normal deployment rules. Initial launch spin is configurable. |
+| **Sensors, timing, and telemetry** | Configurable measurement noise, acquisition intervals, execution costs, and PWM timing. Simulated radio packet loss/delay, selectable CSV/log destinations, measured-versus-physical plots, servo plots, and import of OR-produced FC logs as simulation results. |
+| **3D flight playback** | Rotate, pan, and zoom the trajectory with equal spatial scaling. Animate a rocket using recorded attitude, with a velocity arrow, motor exhaust, recovery canopy, and FC state labels. |
+| **Uncertainty analysis** | Parallel ensembles with additive Gaussian thrust-curve noise, atmospheric and wind variation, and mass/drag/roll-coefficient uncertainty. Plot the mean and ±1σ bands in 2D, the mean trajectory in 3D, and distributions of flight-summary quantities. Save every run's results in the `.ork`. |
+| **Motor comparison** | Run motor batches with manufacturer and certification filters, physical-fit checks, recovery-delay searches, flight criteria, saved summaries, and CSV export. |
+| **Design previews and compatibility** | Fin thickness, fillets, leading-edge profiles, and deflected roll tabs are visible in previews. Export a converted copy for vanilla OpenRocket 24.12, with a summary of the conversion. |
 
-## Environment Setup
+The FC runtime extends OpenRocket's existing simulation listeners. Custom Java boards support rapid algorithm experiments; board communication and servo dynamics remain simplified. See the [architecture and model limits](doc/improvements/14-flight-computer-api-and-architecture.md) for the implemented contracts.
 
-Python Dependencies:
-   ```bash
-   pip install numpy matplotlib jpype1
-   ```
-## Usage Instructions
+## Screenshots
 
-### 1. Compiling and Running
+Captures from the application and its verification views, using example designs and test data. Click an image for full resolution.
 
-- **Use the `OR_interfaceTest + JAR` run configuration** in your IDE to:
-  - Compile the Java code (including your modifications).
-  - Run the Python script that interfaces with the compiled Java classes.
+| Flight-computer hardware designer | Controller inputs, feedback, and actuator selection |
+| --- | --- |
+| [![Flight-computer designer showing boards, sensors, connections, and output devices](doc/improvements/screenshots/readme/flight-computer-designer.png)](doc/improvements/screenshots/readme/flight-computer-designer.png) | [![Controller editor showing a measured gyro signal feeding a roll controller and fin tabs](doc/improvements/screenshots/readme/controller-editor.png)](doc/improvements/screenshots/readme/controller-editor.png) |
+| **3D trajectory and recovery animation** | **Mean trajectories with ±1σ uncertainty bands** |
+| [![3D trajectory viewer showing the rocket under a recovery canopy](doc/improvements/verification/trajectory-render-probe.png)](doc/improvements/verification/trajectory-render-probe.png) | [![Ensemble plot with mean altitude and temperature curves and shaded standard-deviation bands](doc/improvements/screenshots/readme/ensemble-bands.png)](doc/improvements/screenshots/readme/ensemble-bands.png) |
+| **Roll-tab geometry at different deflections** | **Motor-batch simulation setup** |
+| [![Fin previews comparing negative, zero, and positive roll-tab deflections](doc/improvements/screenshots/readme/roll-tab-preview.png)](doc/improvements/screenshots/readme/roll-tab-preview.png) | [![Motor-batch dialog showing motor filters, worker settings, and candidate motors](doc/improvements/screenshots/readme/motor-batch.png)](doc/improvements/screenshots/readme/motor-batch.png) |
 
-### 2. Editing Simulation and Control Logic
+<!-- README captures are copied unchanged from swing/build/{fc-designer-verification,fc-controller-verification,ensemble-verification,fin-profile-verification} and sim/FCsim/benchmarking/motor-batch-20261011/macos. The trajectory capture is retained in doc/improvements/verification. -->
 
-- **Simulation Flow:**  
-  Edit only `ModifiedEventSimulationEngine.java` to manage the overall simulation flow, such as event handling, simulation stepping, and integration with listeners.
+## Get started
 
-- **Controller Behavior:**  
-  Edit `NewControlStepListener.java` to modify the controller's behavior and properties. This file is responsible for how the control system interacts with the simulation at each step.
+Download a macOS or Windows package from [GitHub Releases](https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases/latest), or run the release JAR with Java 17. Packaged installers include their Java runtime. The source tree may contain features newer than the published packages; the current development edition is **6.4**.
 
-- **Python Scripting:**  
-  Edit `openRocketInterface.py` (located in `sim/src/py/` or similar) to change how the Python script interacts with the Java code. This script is used to run specific tests, automate simulation runs, and collect results.
+1. Open or create a rocket and configure its motors and launch conditions.
+2. In **Edit simulation → Flight computer**, enable FC simulation, load a `.fc` design, and choose **Edit…** to configure hardware, behavior, Java boards, and controllers.
+3. Assign controllers and recovery channels to the rocket's physical components, then run the simulation.
+4. Use **Plot data** for FC diagnostics or 3D playback. Enable **Ensemble simulation** under **Simulation options** to explore uncertainty across multiple flights.
 
-## Python Script: `openRocketInterface.py`
+Share the external `.fc` alongside the `.ork` when sharing a flight-computer setup. The [designer guide](doc/improvements/06-flight-computer-designer-implementation.md), [controller guide](doc/improvements/13-flight-computer-controller-implementation.md), and [recovery guide](doc/improvements/11-flight-computer-recovery-implementation.md) explain the workflow in detail.
 
-This script uses `jpype` to launch the JVM and interface directly with the compiled Java classes. It allows you to:
+## Build from source
 
-- **Control Java Variables:**  
-  The script can set and get various simulation parameters in Java, such as:
-  - Time step size (variable `prefDt` in `openRocketInterface.py`)
-  - Controller gains and setpoints 
-  - Initial conditions (e.g., launch angle, velocity)
-  - Simulation duration and event triggers
+Use **JDK 17** and the included Gradle wrapper. Python is optional and is not required to build or run the desktop application.
 
-- **Run and Automate Simulations:**  
-  You can script multiple runs, parameter sweeps, or custom test scenarios by calling Java methods from Python.
+```bash
+git clone https://github.com/MDNich/ActiveControl_MIT_RktTeam.git
+cd ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01
+./gradlew shadowJar
+java -jar build/libs/OpenRocket-MIT-v6.4.jar
+```
 
-- **Graphing and Visualization:**  
-  The script collects simulation output (e.g., altitude, velocity, control surface deflections, error signals) and generates plots for analysis. The default graph plots two panels, showing
-  - Altitude, Velocity vs. time
-  - Control output (fin cant) and rotational velocity vs. time
+On Windows, use `gradlew.bat shadowJar`. Run the **root** `shadowJar` task to produce the complete application. The JAR name follows `OpenRocket-MIT-v<version>.jar`; its MIT version comes from [`build.properties`](clone/openrocket-release-24.12.RC.01/core/src/main/resources/build.properties).
 
-## Repository File Structure
+From the same Gradle directory:
 
-This repository is organized as follows:
+```bash
+./gradlew :core:test :swing:test
+./gradlew verifyMitJavadoc rocketTeamJavadoc rocketTeamUml
+```
 
-- `README.md` 
-  Project documentation and usage instructions.
+Some Swing and rendering checks need a graphical desktop. Platform packaging instructions are in [`packaging/macos/`](packaging/macos/README.md) and [`packaging/windows/`](packaging/windows/README.md).
 
-- `bib/`  
-  Reference materials and research papers.
+## Source and documentation
 
-- `canard/`, `ctrl/`, `wing/`  
-  Subdirectories for specific rocket components, control models, and aerodynamic studies.
+| Location | Contents |
+| --- | --- |
+| [`clone/openrocket-release-24.12.RC.01/`](clone/openrocket-release-24.12.RC.01/) | Main application, based on OpenRocket 24.12.RC.01. `core` contains simulation and FC logic; `swing` contains the desktop interface. |
+| [`core/…/edu/mit/rocket_team/`](clone/openrocket-release-24.12.RC.01/core/src/main/java/edu/mit/rocket_team/) | Java translation of the Zephyrus firmware. |
+| [`core/…/simulation/flightcomputer/`](clone/openrocket-release-24.12.RC.01/core/src/main/java/info/openrocket/core/simulation/flightcomputer/) | FC definitions, custom-board API, controller runtime, sensor models, and physical bindings. |
+| [`doc/improvements/`](doc/improvements/README.md) | Feature guides, implementation notes, verification results, [generated Javadoc](doc/improvements/javadoc/index.html), and the [LaTeX architecture report](doc/improvements/14-flight-computer-api-and-architecture.tex). Download the Javadoc directory to browse the HTML locally. |
+| [`sim/FCsim/`](sim/FCsim/README.md) | Simulation runners, telemetry benchmarks, flight-data comparisons, and verification utilities. |
+| [`packaging/`](packaging/) | macOS/Windows packaging and launcher/update verification. |
+| [`sim/old/`](sim/old/README.md), [`doc/FCsim/`](doc/FCsim/), [`bib/`](bib/) | Earlier Python integration, original FC studies, and research references. |
 
-- `clone/`  
-  Contains OpenRocket source code and related files:
-  - `openrocket/` and `openrocket-release-24.12.RC.01/`  
-    OpenRocket Java source, build scripts, and documentation.
-    `openrocket/` is a symlink to the openrocket version used, currently `openrocket-release-24.12.RC.01/`.
+## Upstream and license
 
-- `land.tbd/`  
-  Landing simulation (tbd - i.e. in progress) documentation and related files.
-
-- `sim/`  
-  Main simulation code and data:
-  - `src/py/`  
-    Python scripts for simulation and Java-Python integration (e.g., `openRocketInterface.py`).
- - `src/java/`  
-    A symlink to the Java source of the used openrocket distribution - for ease of navigation.
-  - `dat/`  
-    Simulation results and data output.
-
-- `stabil/`  
-  Additional files pertaining to the roll controller, mostly ideation.
-
-- `test/`  
-  Test scripts and utilities.
-
-Each directory contains files relevant to its purpose, such as source code, data, documentation, or research materials. The main simulation workflow is in the `sim/` directory, with integration to Java code in `clone/openrocket-release-24.12.RC.01/`.
-
----
+This is an MIT Rocket Team development fork of [OpenRocket](https://github.com/openrocket/openrocket). Credit for the original simulator belongs to the OpenRocket contributors. The OpenRocket code is distributed under [GPL-3.0-or-later](clone/openrocket-release-24.12.RC.01/LICENSE.TXT). Please report MIT-edition issues to [this repository](https://github.com/MDNich/ActiveControl_MIT_RktTeam/issues).

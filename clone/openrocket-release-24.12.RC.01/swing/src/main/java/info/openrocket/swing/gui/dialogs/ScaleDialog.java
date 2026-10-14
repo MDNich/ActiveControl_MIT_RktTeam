@@ -815,7 +815,7 @@ public class ScaleDialog extends JDialog {
 			AxialMethod originalTabOffsetMethod = finset.getTabOffsetMethod();
 			finset.setTabOffsetMethod(AxialMethod.ABSOLUTE);
 
-			double tabOffset = finset.getTabOffset();
+			double tabOffset = finset.getMountingTabOffset();
 			tabOffset = tabOffset * multiplier;
 
 
@@ -825,7 +825,7 @@ public class ScaleDialog extends JDialog {
 
 			performIterativeScaling(scalers, component, multiplier, scaleMass);
 
-			finset.setTabOffset(tabOffset);
+			finset.setMountingTabOffset(tabOffset);
 			finset.setTabOffsetMethod(originalTabOffsetMethod);
 		}
 	}

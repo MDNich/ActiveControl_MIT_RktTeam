@@ -25,6 +25,33 @@ import javax.xml.transform.TransformerException;
 
 public class FinSetConfigTest extends BaseTestCase {
 
+    @Test
+    void mountingTabEditorDoesNotMoveControlTab() {
+        var fins = new info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet();
+        var rocket = new info.openrocket.core.rocketcomponent.Rocket();
+        var stage = new info.openrocket.core.rocketcomponent.AxialStage();
+        rocket.addChild(stage);
+        var body = new BodyTube(.5, .05);
+        stage.addChild(body);
+        body.addChild(fins);
+        rocket.enableEvents();
+        fins.setTabOffset(.02);
+        fins.setTabOffsetMethod(AxialMethod.TOP);
+        var mounting = new DoubleModel(fins, "MountingTabOffset", info.openrocket.core.unit.UnitGroup.UNITS_LENGTH);
+        var control = new DoubleModel(fins, "TabOffset", info.openrocket.core.unit.UnitGroup.UNITS_LENGTH);
+        try {
+            mounting.setValue(.01);
+            Assertions.assertEquals(.01, fins.getMountingTabOffset(), 1e-12);
+            Assertions.assertEquals(.02, control.getValue(), 1e-12);
+            control.setValue(.03);
+            Assertions.assertEquals(.01, mounting.getValue(), 1e-12);
+            Assertions.assertEquals(.03, fins.getTabOffset(), 1e-12);
+        } finally {
+            mounting.invalidateMe();
+            control.invalidateMe();
+        }
+    }
+
     static Method method;
 
     @BeforeAll
