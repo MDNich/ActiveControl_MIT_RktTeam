@@ -1,0 +1,143 @@
+{
+  "source": "/Users/mdn/Developer/MIT_Rkt_Team/2026-7/MIT-RT-26_27-Work/simulation_work/generic/openrocket/OpenRocket2026/2627_official/20267.demonstrator.iteration4.ork",
+  "sourceHash": "80dccac0df5df058cead0c21932ff1e76efb961168ee17e49e2e2f0a8b804788",
+  "baseline": "AeroTech J1265ST (single-use; J1265T in OR)",
+  "applicationVersion": "24.12.RC.01",
+  "assumptions": [
+    "Current saved geometry, mass, 40-degree roll tabs, and launch conditions retained.",
+    "Apogee plus 1 second recovery retained; unused motor ejection events disabled on analysis copy.",
+    "User confirmed on 2026-10-14 that actual RCR/RRC hardware may be assumed to clear 54 mm motors; no other component intersections waived.",
+    "Nominal simulated apogee under 3000 ft AGL; not an uncertainty upper bound."
+  ],
+  "sources": [
+    "https://aerotech-rocketry.com/collections/all/hazmat?page=3",
+    "https://tripoli.org/content.aspx?club_id=795696&item_id=83506&page_id=5"
+  ],
+  "rows": [
+    {
+      "designation": "J1265T",
+      "diameterMm": 54,
+      "lengthMm": 397,
+      "type": "SINGLE",
+      "curveDigest": "d804890a693c68624d16375f16f2f3e7",
+      "apogeeFt": 2662.493866298496,
+      "railExitMs": 19.47516953805935,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "designation": "HP-J425R",
+      "diameterMm": 38,
+      "lengthMm": 356,
+      "type": "SINGLE",
+      "curveDigest": "e8de3c3c4472b283827725a828b29dab",
+      "apogeeFt": 1320.5182798385042,
+      "railExitMs": 10.195301307664971,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ]
+    },
+    {
+      "designation": "HP-J270W",
+      "diameterMm": 38,
+      "lengthMm": 356.3999938964844,
+      "type": "SINGLE",
+      "curveDigest": "6aa34aedb0bdb162e51cf6e2699e5364",
+      "apogeeFt": 1351.6601921475874,
+      "railExitMs": 9.273825701942075,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ]
+    },
+    {
+      "designation": "J435WS",
+      "diameterMm": 38,
+      "lengthMm": 365.8999938964844,
+      "type": "SINGLE",
+      "curveDigest": "3593f1b1ed8319d711d1c7d3f182f6ec",
+      "apogeeFt": 1691.058596045087,
+      "railExitMs": 13.277492730363347,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ]
+    },
+    {
+      "designation": "J450DM",
+      "diameterMm": 54,
+      "lengthMm": 359,
+      "type": "SINGLE",
+      "curveDigest": "0fee827f8da88f6ccc040b5f652ef9b2",
+      "apogeeFt": 2434.9888824360055,
+      "railExitMs": 9.940256953254348,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "designation": "J350W",
+      "diameterMm": 38,
+      "lengthMm": 337,
+      "type": "RELOAD",
+      "curveDigest": "3425c0019512b8c67b90eac455bda968",
+      "apogeeFt": 1332.4098043631932,
+      "railExitMs": 14.050281443866025,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ]
+    },
+    {
+      "designation": "J500G",
+      "diameterMm": 38,
+      "lengthMm": 345,
+      "type": "RELOAD",
+      "curveDigest": "689555679f5183646ae7c8007022c9d4",
+      "apogeeFt": 1522.423547587921,
+      "railExitMs": 14.133419901631916,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ]
+    },
+    {
+      "designation": "J1299N",
+      "diameterMm": 54,
+      "lengthMm": 231,
+      "type": "RELOAD",
+      "curveDigest": "6980700f96132f6eeaac108523479640",
+      "apogeeFt": 1962.955606541668,
+      "railExitMs": 20.027912607741218,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "designation": "J1799N",
+      "diameterMm": 54,
+      "lengthMm": 330,
+      "type": "RELOAD",
+      "curveDigest": "497ba0a56caee361be9ff14d35244575",
+      "apogeeFt": 2688.2872207513587,
+      "railExitMs": 23.085802049076978,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "designation": "J540R",
+      "diameterMm": 54,
+      "lengthMm": 314,
+      "type": "RELOAD",
+      "curveDigest": "d26028d0014e7d6f8b048899d12862e6",
+      "apogeeFt": 2864.6497335851705,
+      "railExitMs": 12.604521857990827,
+      "waivedPlaceholderIntersections": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    }
+  ]
+}

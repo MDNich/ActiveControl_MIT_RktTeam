@@ -1,0 +1,975 @@
+11:24:44.794 [main] INFO info.openrocket.core.file.openrocket.importt.OpenRocketLoader -- Loading .ork file
+11:24:44.883 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Single-use, manufacturer AeroTech, designation HP-I500T, diameter NaN, length NaN, digest 97f440a5abdc634633b433d244cc279b, warnings Messages[]
+11:24:44.885 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is HP-I500T
+11:24:44.886 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer AeroTech, designation J570W, diameter NaN, length NaN, digest 14373c65485521035497b1db20e110d3, warnings Messages[]
+11:24:44.887 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is J570W
+11:24:44.888 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer Cesaroni Technology, designation 1261J449-15A, diameter NaN, length NaN, digest 54a179dcffed659a6ee2d84c34238368, warnings Messages[]
+11:24:44.890 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is 1261J449-15A
+11:24:44.890 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer AeroTech, designation J800T, diameter NaN, length NaN, digest cb788683f45b481a33176306e89d3c3e, warnings Messages[]
+11:24:44.891 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is J800T
+11:24:44.892 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer Cesaroni Technology, designation 1266J760-19A, diameter NaN, length NaN, digest c2faf5d908e5ede30378a9aea669a836, warnings Messages[]
+11:24:44.894 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is 1266J760-19A
+11:24:44.894 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer AeroTech, designation J415W, diameter NaN, length NaN, digest 2de577124bd435045e7616270f4f9566, warnings Messages[]
+11:24:44.895 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is J415W
+11:24:44.895 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Single-use, manufacturer AeroTech, designation HP-K535W, diameter NaN, length NaN, digest 74451a159ce1001a76d319ed0d9a6f9a, warnings Messages[]
+11:24:44.896 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is HP-K535W
+11:24:44.896 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Single-use, manufacturer AeroTech, designation J1265T, diameter NaN, length NaN, digest d804890a693c68624d16375f16f2f3e7, warnings Messages[]
+11:24:44.897 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is J1265T
+11:24:45.015 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=359.339 maxVelocity=82.539 maxAcceleration=79.18 maxMachNumber=0.243 timeToApogee=8.915 flightTime=59.121 groundHitVelocity=7.364 launchRodVelocity=12.141 optimumDelay=7.580039157223637
+11:24:45.078 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=788.639 maxVelocity=129.49 maxAcceleration=158.699 maxMachNumber=0.381 timeToApogee=12.601 flightTime=121.295 groundHitVelocity=7.413 launchRodVelocity=17.327 optimumDelay=10.549221307450921
+11:24:46.127 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=359.29909024001114 maxVelocity=82.53705032256258 maxAcceleration=79.44079295783385 maxMachNumber=0.24288490468447727 timeToApogee=8.9145 flightTime=51.06575208753855 groundHitVelocity=7.491008453856179 launchRodVelocity=11.998073894962529 optimumDelay=7.624
+11:24:46.166 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=976.803 maxVelocity=148.582 maxAcceleration=72.749 maxMachNumber=0.438 timeToApogee=14.417 flightTime=146.729 groundHitVelocity=7.506 launchRodVelocity=10.906 optimumDelay=11.579384256687666
+11:24:46.198 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1005.178 maxVelocity=159.607 maxAcceleration=110.055 maxMachNumber=0.47 timeToApogee=14.092 flightTime=150.398 groundHitVelocity=7.462 launchRodVelocity=14.689 optimumDelay=12.00218808351756
+11:24:46.242 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1008.802 maxVelocity=163.589 maxAcceleration=121.905 maxMachNumber=0.482 timeToApogee=14.059 flightTime=150.545 groundHitVelocity=7.526 launchRodVelocity=14.692 optimumDelay=12.327648492514529
+11:24:46.277 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1006.001 maxVelocity=148.164 maxAcceleration=69.248 maxMachNumber=0.437 timeToApogee=14.624 flightTime=151.061 groundHitVelocity=7.48 launchRodVelocity=10.431 optimumDelay=11.266122812902307
+11:24:46.314 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1148.474 maxVelocity=165.949 maxAcceleration=79.327 maxMachNumber=0.489 timeToApogee=15.257 flightTime=169.867 groundHitVelocity=7.522 launchRodVelocity=12.567 optimumDelay=12.305076510418717
+11:24:46.344 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=811.499 maxVelocity=146.595 maxAcceleration=213.281 maxMachNumber=0.431 timeToApogee=12.505 flightTime=122.134 groundHitVelocity=7.516 launchRodVelocity=19.475 optimumDelay=11.603327466534493
+11:24:46.349 [main] INFO info.openrocket.core.file.openrocket.importt.OpenRocketLoader -- Loading done
+LOAD_WARNINGS Messages[]
+BASELINE AeroTech J1265ST (single-use; J1265T in OR) Balius CDR v0
+MOUNT FinCan bore=0.09906
+11:24:46.374 [main] INFO info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving .ork file
+11:24:46.374 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Storing file version 1.10
+11:24:46.374 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Rocket
+Looking for info.openrocket.core.file.openrocket.savers.RocketSaver
+11:24:46.376 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Stage
+Looking for info.openrocket.core.file.openrocket.savers.AxialStageSaver
+11:24:46.376 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Nose Cone
+Looking for info.openrocket.core.file.openrocket.savers.NoseConeSaver
+11:24:46.379 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Bulkhead
+Looking for info.openrocket.core.file.openrocket.savers.BulkheadSaver
+11:24:46.380 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Body Tube
+Looking for info.openrocket.core.file.openrocket.savers.BodyTubeSaver
+11:24:46.380 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Parachute
+Looking for info.openrocket.core.file.openrocket.savers.ParachuteSaver
+11:24:46.382 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Body Tube
+Looking for info.openrocket.core.file.openrocket.savers.BodyTubeSaver
+11:24:46.382 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Mass Component
+Looking for info.openrocket.core.file.openrocket.savers.MassComponentSaver
+11:24:46.382 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Tube Coupler
+Looking for info.openrocket.core.file.openrocket.savers.TubeCouplerSaver
+11:24:46.383 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Trapezoidal Fin Set
+Looking for info.openrocket.core.file.openrocket.savers.TrapezoidFinSetSaver
+11:24:46.383 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Body Tube
+Looking for info.openrocket.core.file.openrocket.savers.BodyTubeSaver
+11:24:46.384 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Mass Component
+Looking for info.openrocket.core.file.openrocket.savers.MassComponentSaver
+11:24:46.384 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Bulkhead
+Looking for info.openrocket.core.file.openrocket.savers.BulkheadSaver
+11:24:46.384 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Pod Set
+Looking for info.openrocket.core.file.openrocket.savers.PodSetSaver
+Looking for info.openrocket.core.file.openrocket.savers.ComponentAssemblySaver
+11:24:46.384 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Nose Cone
+Looking for info.openrocket.core.file.openrocket.savers.NoseConeSaver
+11:24:46.384 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Nose Cone
+Looking for info.openrocket.core.file.openrocket.savers.NoseConeSaver
+11:24:46.385 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Centering Ring
+Looking for info.openrocket.core.file.openrocket.savers.CenteringRingSaver
+11:24:46.385 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Body Tube
+Looking for info.openrocket.core.file.openrocket.savers.BodyTubeSaver
+11:24:46.386 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Tab Controlled Trapezoidal Fin Set
+Looking for info.openrocket.core.file.openrocket.savers.TabControlledTrapezoidFinSetSaver
+11:24:46.387 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Centering Ring
+Looking for info.openrocket.core.file.openrocket.savers.CenteringRingSaver
+11:24:46.387 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Mass Component
+Looking for info.openrocket.core.file.openrocket.savers.MassComponentSaver
+11:24:46.387 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Tube Coupler
+Looking for info.openrocket.core.file.openrocket.savers.TubeCouplerSaver
+11:24:46.389 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving Photo Settings
+11:24:46.389 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving Document Preferences
+11:24:46.389 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Writing complete, flushing buffers
+MANUFACTURERS [Loki Research, Public Missiles, Ltd., TSP, AMW/ProX, Apogee, HyperTEK, Gorilla Rocket Motors, Ellis Mountain, Kosdon by AeroTech, Rocketvision, Roadrunner Rocketry, AMWProX, Estes Industries, Inc., Klima, Animal Motor Works, Estes, RATT Works, West Coast Hybrids, Cesaroni Technology Inc., WECO Feuerwerk, Southern Cross Rocketry, AeroTech, Propulsion Polymers, Contrail Rockets, Quest, Unknown, Alpha Hybrid Rocketry LLC, Sky Ripper Systems]
+CATALOG Cesaroni Technology Inc. 932J1365-P 54mm 326mm Reloadable 931.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 977J400-P 54mm 326mm Reloadable 973.5Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1025J475-P 54mm 326mm Reloadable 1032.9Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1079J395-P 54mm 326mm Reloadable 1079.5Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1099J325-P 54mm 326mm Reloadable 1089.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1176K1720-P 54mm 403mm Reloadable 1183.6Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1196J745-P 54mm 326mm Reloadable 1198.3Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1379K665-P 54mm 403mm Reloadable 1352.6Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 644J94-P 38mm 367mm Reloadable 644.6Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 648J285-15A 38mm 360mm Reloadable 648.1Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 649J335-15A 38mm 367mm Reloadable 646.7Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 650J270-13A 38mm 367mm Reloadable 653.1Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 654J316-17A 38mm 367mm Reloadable 653.9Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 658J357-17A 38mm 260mm Reloadable 657.1Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 660J381-15A 38mm 419mm Reloadable 659.1Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 683J250-15A 54mm 237mm Reloadable 682.7Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 684J290-15A 38mm 367mm Reloadable 684.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 699J145-19A 54mm 236mm Reloadable 700.7Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 700J400-16A 38mm 419mm Reloadable 698.9Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 716J280-16A 54mm 236mm Reloadable 716.3Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 747J1055-17A 54mm 236mm Reloadable 738.5Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 765J330-16A 38mm 419mm Reloadable 765.1Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 774J410-16A 38mm 421mm Reloadable 771.9Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 784J425-16A 38mm 419mm Reloadable 785.0Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 806J240-16A 54mm 236mm Reloadable 809.0Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 819J354-16A 38mm 421mm Reloadable 819.4Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 821J430-18A 54mm 236mm Reloadable 820.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 836J210-16A 54mm 236mm Reloadable 843.3Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 838J293-13A 54mm 237mm Reloadable 831.6Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 848J520-16A 38mm 510mm Reloadable 847.7Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 867J244-14A 54mm 236mm Reloadable 849.4Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 896J580-17A 38mm 510mm Reloadable 894.8Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 949J150-P 38mm 500mm Reloadable 943.3Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 970J394-13A 38mm 500mm Reloadable 972.2Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 985J595-16A 38mm 510mm Reloadable 986.3Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 999J600-16A 38mm 510mm Reloadable 997.9Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 1008J420-15A 38mm 500mm Reloadable 1008.2Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 1013J453-16A 38mm 500mm Reloadable 1018.0Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 1016J360-15A 54mm 321mm Reloadable 1013.0Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1043J380-16A 54mm 320mm Reloadable 1043.4Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1092J1520-17A 54mm 329mm Reloadable 1071.0Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1115J530-15A 38mm 500mm Reloadable 1115.2Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG Cesaroni Technology Inc. 1190J355-17A 54mm 329mm Reloadable 1181.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1195J295-16A 54mm 320mm Reloadable 1187.4Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1211J140-P 54mm 329mm Reloadable 1211.4Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1261J449-15A 54mm 321mm Reloadable 1259.9Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1266J760-19A 54mm 329mm Reloadable 1267.3Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1281K360-13A 54mm 329mm Reloadable 1280.4Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG Cesaroni Technology Inc. 1364K454-19A 54mm 404mm Reloadable 1364.0Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+TRIALS 40
+MOTOR_BATCH start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 threads=4 candidates=40 trials=40 settings={"mount":"e3e123d9-6253-4732-b0a0-cdbe416567e1","threads":4,"diameter":0.054,"length":0.45,"manufacturers":["AMW/ProX","AMWProX","AeroTech","Alpha Hybrid Rocketry LLC","Animal Motor Works","Apogee","Cesaroni Technology Inc.","Contrail Rockets","Ellis Mountain","Estes","Estes Industries, Inc.","Gorilla Rocket Motors","HyperTEK","Klima","Kosdon by AeroTech","Loki Research","Propulsion Polymers","Public Missiles, Ltd.","Quest","RATT Works","Roadrunner Rocketry","Rocketvision","Sky Ripper Systems","Southern Cross Rocketry","TSP","Unknown","WECO Feuerwerk","West Coast Hybrids"],"search":"","motorType":"ALL","certificationLevel":"L2","hideUnavailable":true,"ignoreComponentIntersections":true,"minImpulse":640.01,"maxImpulse":1400.0,"minThrust":0.0,"maxThrust":1000000.0,"minBurn":0.0,"maxBurn":1000000.0,"delayPolicy":"KEEP_BASELINE","criteria":{"APOGEE":[null,914.4]}}
+MOTOR_BATCH intersection_override candidate=motor-0 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-1 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-2 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-3 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-4 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-5 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-6 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-7 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-8 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-9 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-10 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-11 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-12 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-13 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-14 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-15 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-16 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-17 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-18 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-19 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-20 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-21 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-22 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-23 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-24 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-25 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH intersection_override candidate=motor-26 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-27 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-28 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-29 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-30 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-31 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-32 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-33 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-34 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-35 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-36 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-37 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-38 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH intersection_override candidate=motor-39 ignored=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-0 motor=932J1365-P delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-1 motor=977J400-P delay=Infinity thread=motor-batch-76cf80e9-2
+11:24:46.463 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Installing Simulation Listeners
+[JAVA] Calling Simulator
+11:24:46.463 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Simulator Init
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:46.469 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:46.469 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:46.469 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+11:24:46.469 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-2 motor=1025J475-P delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:46.473 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:46.474 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:46.474 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+[JAVA] Confirmed start of simulation.
+11:24:46.475 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 977J400-P - Armed @: 0.0
+11:24:46.475 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 932J1365-P - Armed @: 0.0
+[JAVA] Confirmed start of simulation.
+11:24:46.476 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1025J475-P - Armed @: 0.0
+11:24:46.476 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 977J400-P - Armed @0.0
+11:24:46.476 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 932J1365-P - Armed @0.0
+11:24:46.476 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1025J475-P - Armed @0.0
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-3 motor=1079J395-P delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:46.477 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:46.478 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:46.478 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:46.479 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1079J395-P - Armed @: 0.0
+11:24:46.479 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1079J395-P - Armed @0.0
+11:24:46.783 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 932J1365-P@ 0.687  on stage 0: Sustainer
+11:24:47.160 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1025J475-P@ 2.117  on stage 0: Sustainer
+11:24:47.229 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 977J400-P@ 2.458  on stage 0: Sustainer
+11:24:47.305 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1079J395-P@ 2.76  on stage 0: Sustainer
+11:24:48.468 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:48.478 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:97.65241780361328    finTime:97.65241780361328
+11:24:48.479 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=644.6779829792654 maxVelocity=125.93936931653306 maxAcceleration=209.518311189189 maxMachNumber=0.37020274621825733 timeToApogee=11.245594892064183 flightTime=97.65241780361328 groundHitVelocity=7.6685065092260425 launchRodVelocity=19.451257926853096 optimumDelay=10.558594892064184
+Simulation: returning from simulator, simulation took 2s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-0 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-4 motor=1099J325-P delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:24:48.508 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:48.509 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:48.509 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:48.511 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1099J325-P - Armed @: 0.0
+11:24:48.511 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1099J325-P - Armed @0.0
+11:24:48.607 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:48.617 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:97.39122455367455    finTime:97.39122455367455
+11:24:48.618 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=631.839799373655 maxVelocity=110.93610687721151 maxAcceleration=57.80844186678205 maxMachNumber=0.32640844289481497 timeToApogee=12.061537908397463 flightTime=97.39122455367455 groundHitVelocity=7.589464038104927 launchRodVelocity=9.03106310689365 optimumDelay=9.603537908397463
+Simulation: returning from simulator, simulation took 2s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-1 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-5 motor=1176K1720-P delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:24:48.636 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:48.638 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:48.638 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:48.640 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1176K1720-P - Armed @: 0.0
+11:24:48.640 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1176K1720-P - Armed @0.0
+11:24:48.665 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:48.675 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:107.21004128467531    finTime:107.21004128467531
+11:24:48.676 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=705.0432767539528 maxVelocity=121.74225842172221 maxAcceleration=76.23681749947933 maxMachNumber=0.35819147489141173 timeToApogee=12.392138506547573 flightTime=107.21004128467531 groundHitVelocity=7.591591430961432 launchRodVelocity=10.397992928494402 optimumDelay=10.275138506547574
+Simulation: returning from simulator, simulation took 2s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-2 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-6 motor=1196J745-P delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:48.692 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:48.694 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:48.694 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:48.695 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1196J745-P - Armed @: 0.0
+11:24:48.695 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1196J745-P - Armed @0.0
+11:24:48.765 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1176K1720-P@ 0.684  on stage 0: Sustainer
+11:24:48.785 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:48.799 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:114.03159529426338    finTime:114.03159529426338
+11:24:48.800 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=752.4545526888099 maxVelocity=121.84023585340148 maxAcceleration=55.650181209714674 maxMachNumber=0.35865861007333977 timeToApogee=13.032531741388658 flightTime=114.03159529426338 groundHitVelocity=7.5653949537135805 launchRodVelocity=10.043844510948814 optimumDelay=10.272531741388658
+Simulation: returning from simulator, simulation took 2s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-3 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-7 motor=1379K665-P delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:48.814 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:48.816 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:48.816 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:48.817 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1379K665-P - Armed @: 0.0
+11:24:48.817 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1379K665-P - Armed @0.0
+11:24:48.989 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1196J745-P@ 1.61  on stage 0: Sustainer
+11:24:49.103 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1099J325-P@ 3.369  on stage 0: Sustainer
+11:24:49.158 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1379K665-P@ 2.046  on stage 0: Sustainer
+11:24:50.521 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:50.530 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:115.8612296075159    finTime:115.8612296075159
+11:24:50.530 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=764.8439236827053 maxVelocity=115.77331472152557 maxAcceleration=65.55399907829702 maxMachNumber=0.34099096043634025 timeToApogee=13.216323881991547 flightTime=115.8612296075159 groundHitVelocity=7.542136169459068 launchRodVelocity=10.847237385058481 optimumDelay=9.847323881991548
+Simulation: returning from simulator, simulation took 2s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-4 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-8 motor=644J94-P delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:24:50.541 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:50.542 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:50.542 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:50.543 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 644J94-P - Armed @: 0.0
+11:24:50.543 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 644J94-P - Armed @0.0
+11:24:50.577 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:50.587 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:128.71432110591786    finTime:128.71432110591786
+11:24:50.587 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=879.6744263868791 maxVelocity=156.08227584158166 maxAcceleration=257.07290767288254 maxMachNumber=0.45884745719174935 timeToApogee=12.870318213987053 flightTime=128.71432110591786 groundHitVelocity=7.704774468030547 launchRodVelocity=22.149804960970354 optimumDelay=12.186318213987054
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-5 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-9 motor=648J285-15A delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:24:50.598 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:50.599 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:50.599 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:50.600 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 648J285-15A - Armed @: 0.0
+11:24:50.600 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 648J285-15A - Armed @0.0
+11:24:50.706 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:50.716 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:136.05738582254304    finTime:136.05738582254304
+11:24:50.716 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=915.4827753719009 maxVelocity=151.53764875240407 maxAcceleration=112.4268908028841 maxMachNumber=0.44584630514291296 timeToApogee=13.493852652066685 flightTime=136.05738582254304 groundHitVelocity=7.63606568170492 launchRodVelocity=14.853521095500117 optimumDelay=11.883852652066686
+Simulation: returning from simulator, simulation took 2s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-6 trial=1 status=COMPLETE assessment=DOES_NOT_MEET_CRITERIA reasons=[APOGEE_HIGH] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-10 motor=649J335-15A delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:50.726 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:50.727 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:50.727 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:50.729 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 649J335-15A - Armed @: 0.0
+11:24:50.729 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 649J335-15A - Armed @0.0
+11:24:50.909 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+11:24:50.911 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 648J285-15A@ 2.26  on stage 0: Sustainer
+[JAVA] Ended Simulation.                           
+11:24:50.923 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:148.81364411127728    finTime:148.81364411127728
+11:24:50.923 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1014.9345043421605 maxVelocity=158.85840497592304 maxAcceleration=101.26418206776094 maxMachNumber=0.46758669644988027 timeToApogee=14.31479202300364 flightTime=148.81364411127728 groundHitVelocity=7.6786248668043 launchRodVelocity=12.327200560965728 optimumDelay=12.268792023003641
+Simulation: returning from simulator, simulation took 2s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-7 trial=1 status=COMPLETE assessment=DOES_NOT_MEET_CRITERIA reasons=[APOGEE_HIGH] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-11 motor=650J270-13A delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:50.934 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:50.935 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:50.935 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:50.936 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 650J270-13A - Armed @: 0.0
+11:24:50.936 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 650J270-13A - Armed @0.0
+11:24:51.013 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 649J335-15A@ 2.012  on stage 0: Sustainer
+11:24:51.322 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 650J270-13A@ 2.5  on stage 0: Sustainer
+11:24:51.538 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 644J94-P@ 6.928  on stage 0: Sustainer
+11:24:51.878 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:51.882 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:60.63853781402704    finTime:60.63853781402704
+11:24:51.882 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=365.118560802721 maxVelocity=77.63151922087754 maxAcceleration=47.27558862097358 maxMachNumber=0.22835023878306318 timeToApogee=9.388343650792088 flightTime=60.63853781402704 groundHitVelocity=7.343139034003279 launchRodVelocity=9.390473349289069 optimumDelay=7.128343650792088
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-9 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+11:24:51.884 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:51.886 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:42.122813546146595    finTime:42.122813546146595
+11:24:51.886 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=227.87392440051786 maxVelocity=38.994995002955996 maxAcceleration=15.608496645649504 maxMachNumber=0.11473790727458714 timeToApogee=9.93339282573987 flightTime=42.122813546146595 groundHitVelocity=7.415074701678377 launchRodVelocity=4.882069583203779 optimumDelay=3.0053928257398708
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-8 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-12 motor=654J316-17A delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:24:51.894 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:51.897 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:51.897 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:51.898 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 654J316-17A - Armed @: 0.0
+11:24:51.899 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 654J316-17A - Armed @0.0
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-13 motor=658J357-17A delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:24:51.900 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:51.901 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:51.901 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:51.902 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 658J357-17A - Armed @: 0.0
+11:24:51.902 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 658J357-17A - Armed @0.0
+11:24:51.978 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:51.982 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:60.91307322045888    finTime:60.91307322045888
+11:24:51.982 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=368.26881612034674 maxVelocity=80.30466825515325 maxAcceleration=52.700883698000915 maxMachNumber=0.23617800097284547 timeToApogee=9.29832746776415 flightTime=60.91307322045888 groundHitVelocity=7.403437148969524 launchRodVelocity=10.33845588745553 optimumDelay=7.286327467764149
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-10 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-14 motor=660J381-15A delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:51.991 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:51.993 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:51.993 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:51.994 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 660J381-15A - Armed @: 0.0
+11:24:51.994 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 660J381-15A - Armed @0.0
+11:24:52.150 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 658J357-17A@ 1.824  on stage 0: Sustainer
+11:24:52.199 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 654J316-17A@ 2.184  on stage 0: Sustainer
+11:24:52.222 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:52.226 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:59.166288869144786    finTime:59.166288869144786
+11:24:52.227 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=354.1537799317881 maxVelocity=75.8661759408353 maxAcceleration=36.537888874554 maxMachNumber=0.2231699367866212 timeToApogee=9.477248962119182 flightTime=59.166288869144786 groundHitVelocity=7.353920290513056 launchRodVelocity=8.332646590916237 optimumDelay=6.977248962119182
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-11 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-15 motor=683J250-15A delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:52.236 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:52.240 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:52.240 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:52.241 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 683J250-15A - Armed @: 0.0
+11:24:52.241 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 683J250-15A - Armed @0.0
+11:24:52.270 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 660J381-15A@ 1.874  on stage 0: Sustainer
+11:24:52.706 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 683J250-15A@ 2.965  on stage 0: Sustainer
+11:24:53.215 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+11:24:53.218 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:53.220 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:62.10725883316381    finTime:62.10725883316381
+11:24:53.220 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=375.1061458714331 maxVelocity=79.75766702223217 maxAcceleration=57.55506964872621 maxMachNumber=0.2346025177518572 timeToApogee=9.426041590783296 flightTime=62.10725883316381 groundHitVelocity=7.448139670232424 launchRodVelocity=10.078237085339909 optimumDelay=7.242041590783296
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-12 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+[JAVA] Ended Simulation.                           
+11:24:53.222 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:63.44775005146573    finTime:63.44775005146573
+11:24:53.222 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=385.0973914604302 maxVelocity=83.47510123661552 maxAcceleration=68.7780895708797 maxMachNumber=0.24548997614028928 timeToApogee=9.415762822053672 flightTime=63.44775005146573 groundHitVelocity=7.431246382589235 launchRodVelocity=10.761446273635173 optimumDelay=7.591762822053672
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-13 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-16 motor=684J290-15A delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:24:53.232 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:53.233 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:53.233 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:53.234 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 684J290-15A - Armed @: 0.0
+11:24:53.234 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 684J290-15A - Armed @0.0
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-17 motor=699J145-19A delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:24:53.236 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:53.237 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:53.237 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:53.238 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 699J145-19A - Armed @: 0.0
+11:24:53.238 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 699J145-19A - Armed @0.0
+11:24:53.296 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:53.300 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:63.04189808663623    finTime:63.04189808663623
+11:24:53.300 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=383.4118625833002 maxVelocity=83.3572582024362 maxAcceleration=66.31598610847757 maxMachNumber=0.24514238638516006 timeToApogee=9.361135805949797 flightTime=63.04189808663623 groundHitVelocity=7.4782753514695495 launchRodVelocity=11.21134702760678 optimumDelay=7.487135805949796
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-14 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-18 motor=700J400-16A delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:53.309 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:53.310 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:53.310 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:53.311 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 700J400-16A - Armed @: 0.0
+11:24:53.311 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 700J400-16A - Armed @0.0
+11:24:53.575 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 684J290-15A@ 2.402  on stage 0: Sustainer
+11:24:53.589 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 700J400-16A@ 1.85  on stage 0: Sustainer
+11:24:53.592 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:53.596 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:58.78236785284999    finTime:58.78236785284999
+11:24:53.596 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=353.58047105951306 maxVelocity=74.84447700103638 maxAcceleration=32.674041867497046 maxMachNumber=0.22015091926978989 timeToApogee=9.72850360457691 flightTime=58.78236785284999 groundHitVelocity=7.4555550657342 launchRodVelocity=6.806572597710245 optimumDelay=6.7635036045769095
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-15 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-19 motor=716J280-16A delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:53.609 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:53.611 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:53.611 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:53.612 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 716J280-16A - Armed @: 0.0
+11:24:53.612 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 716J280-16A - Armed @0.0
+11:24:53.963 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 699J145-19A@ 4.944  on stage 0: Sustainer
+11:24:53.996 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 716J280-16A@ 2.54  on stage 0: Sustainer
+11:24:54.604 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:54.608 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:65.14237175039062    finTime:65.14237175039062
+11:24:54.608 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=395.1533066248089 maxVelocity=81.16007089848222 maxAcceleration=49.53272983626557 maxMachNumber=0.23875384704106287 timeToApogee=9.781059050490283 flightTime=65.14237175039062 groundHitVelocity=7.379880310676104 launchRodVelocity=9.655613557258238 optimumDelay=7.379059050490283
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-16 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-20 motor=747J1055-17A delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:24:54.618 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:54.620 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:54.620 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:54.621 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 747J1055-17A - Armed @: 0.0
+11:24:54.621 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 747J1055-17A - Armed @0.0
+11:24:54.639 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:54.646 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:58.0340370811436    finTime:58.0340370811436
+11:24:54.646 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=345.1111264603337 maxVelocity=58.16501566863089 maxAcceleration=61.74447154379896 maxMachNumber=0.17115228422051837 timeToApogee=10.12815122393827 flightTime=58.0340370811436 groundHitVelocity=7.445381401207319 launchRodVelocity=7.530965975447033 optimumDelay=5.18415122393827
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-17 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-21 motor=765J330-16A delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:24:54.655 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:54.657 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:54.657 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:54.657 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 765J330-16A - Armed @: 0.0
+11:24:54.657 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 765J330-16A - Armed @0.0
+11:24:54.682 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:54.686 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:68.25973812668094    finTime:68.25973812668094
+11:24:54.686 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=419.7179369925147 maxVelocity=88.26895977634709 maxAcceleration=62.21334779775328 maxMachNumber=0.25959975655923906 timeToApogee=9.763815568973897 flightTime=68.25973812668094 groundHitVelocity=7.352748565162305 launchRodVelocity=11.018241875823213 optimumDelay=7.913815568973897
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-18 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-22 motor=774J410-16A delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:54.698 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:54.700 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:54.700 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:54.701 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 774J410-16A - Armed @: 0.0
+11:24:54.701 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 774J410-16A - Armed @0.0
+11:24:54.714 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 747J1055-17A@ 0.733  on stage 0: Sustainer
+11:24:54.953 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 774J410-16A@ 1.89  on stage 0: Sustainer
+11:24:54.955 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 765J330-16A@ 2.26  on stage 0: Sustainer
+11:24:54.968 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:54.973 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:63.67858651285707    finTime:63.67858651285707
+11:24:54.973 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=388.02504570726984 maxVelocity=80.81657298261356 maxAcceleration=37.78410598518057 maxMachNumber=0.2377055360687961 timeToApogee=9.990108877453004 flightTime=63.67858651285707 groundHitVelocity=7.511063932623564 launchRodVelocity=7.761244968001583 optimumDelay=7.450108877453004
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-19 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-23 motor=784J425-16A delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:54.983 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:54.984 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:54.984 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:54.985 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 784J425-16A - Armed @: 0.0
+11:24:54.985 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 784J425-16A - Armed @0.0
+11:24:55.279 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 784J425-16A@ 1.996  on stage 0: Sustainer
+11:24:55.966 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:55.971 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:76.71603284155216    finTime:76.71603284155216
+11:24:55.972 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=482.63105418564 maxVelocity=104.76798100380404 maxAcceleration=160.25994583449327 maxMachNumber=0.30796289818693184 timeToApogee=9.900544945015705 flightTime=76.71603284155216 groundHitVelocity=7.422193963944785 launchRodVelocity=17.542248187423645 optimumDelay=9.168544945015704
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-20 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-24 motor=806J240-16A delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:24:55.984 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:55.985 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:55.985 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:55.986 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 806J240-16A - Armed @: 0.0
+11:24:55.986 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 806J240-16A - Armed @0.0
+11:24:56.087 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:56.093 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:78.02060725851862    finTime:78.02060725851862
+11:24:56.094 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=484.93556788091144 maxVelocity=93.01400053391934 maxAcceleration=59.396926975072795 maxMachNumber=0.27364130520224966 timeToApogee=10.542691970457787 flightTime=78.02060725851862 groundHitVelocity=7.431077481109609 launchRodVelocity=10.900618872306858 optimumDelay=8.282691970457787
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-21 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-25 motor=819J354-16A delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:24:56.103 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:56.105 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:56.105 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:56.105 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 819J354-16A - Armed @: 0.0
+11:24:56.105 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 819J354-16A - Armed @0.0
+11:24:56.135 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:56.141 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:79.99316216506135    finTime:79.99316216506135
+11:24:56.141 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=498.2500013173956 maxVelocity=97.89918978269185 maxAcceleration=66.32880411558018 maxMachNumber=0.2879632694371556 timeToApogee=10.550328653824007 flightTime=79.99316216506135 groundHitVelocity=7.363433418411496 launchRodVelocity=11.459004678922563 optimumDelay=8.660328653824006
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-22 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-26 motor=821J430-18A delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:56.151 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:56.152 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:56.152 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:56.153 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 821J430-18A - Armed @: 0.0
+11:24:56.153 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 821J430-18A - Armed @0.0
+11:24:56.415 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 821J430-18A@ 1.963  on stage 0: Sustainer
+11:24:56.430 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 806J240-16A@ 3.348  on stage 0: Sustainer
+11:24:56.437 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 819J354-16A@ 2.5  on stage 0: Sustainer
+11:24:56.444 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:56.451 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:83.10247458822404    finTime:83.10247458822404
+11:24:56.451 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=519.8562215920044 maxVelocity=100.17798887164483 maxAcceleration=96.40547371637248 maxMachNumber=0.29465447145575907 timeToApogee=10.663737191344236 flightTime=83.10247458822404 groundHitVelocity=7.360877893747185 launchRodVelocity=12.432230629197301 optimumDelay=8.667737191344235
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-23 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-27 motor=836J210-16A delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:56.461 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:56.464 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:56.464 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:56.465 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 836J210-16A - Armed @: 0.0
+11:24:56.465 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 836J210-16A - Armed @0.0
+11:24:57.043 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 836J210-16A@ 4.1  on stage 0: Sustainer
+11:24:57.458 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:57.464 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:77.43628209943792    finTime:77.43628209943792
+11:24:57.464 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=479.16511802731907 maxVelocity=86.71060570159892 maxAcceleration=33.70245688607013 maxMachNumber=0.25519122025379093 timeToApogee=11.158780578082638 flightTime=77.43628209943792 groundHitVelocity=7.500496212074781 launchRodVelocity=7.633420240385877 optimumDelay=7.810780578082638
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-24 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-28 motor=838J293-13A delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:24:57.473 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:57.474 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:57.474 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:57.475 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 838J293-13A - Armed @: 0.0
+11:24:57.475 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 838J293-13A - Armed @0.0
+11:24:57.565 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:57.571 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:85.84623615893119    finTime:85.84623615893119
+11:24:57.571 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=538.0499842666097 maxVelocity=98.81413442732115 maxAcceleration=67.63348502005361 maxMachNumber=0.2907507688440878 timeToApogee=11.062698512884385 flightTime=85.84623615893119 groundHitVelocity=7.4370504865905405 launchRodVelocity=11.150283310981163 optimumDelay=8.562698512884385
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-25 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-29 motor=867J244-14A delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:24:57.580 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:57.583 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:57.584 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:57.584 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 867J244-14A - Armed @: 0.0
+11:24:57.584 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 867J244-14A - Armed @0.0
+11:24:57.588 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:57.594 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:84.98479883110153    finTime:84.98479883110153
+11:24:57.594 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=536.5225994603969 maxVelocity=102.91744589729673 maxAcceleration=69.73261397659851 maxMachNumber=0.3027273435783201 timeToApogee=10.963776671943664 flightTime=84.98479883110153 groundHitVelocity=7.5392615170331645 launchRodVelocity=10.852064768900108 optimumDelay=9.000776671943665
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-26 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-30 motor=1016J360-15A delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:57.603 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:57.604 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:57.604 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:57.605 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1016J360-15A - Armed @: 0.0
+11:24:57.605 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1016J360-15A - Armed @0.0
+11:24:57.854 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 838J293-13A@ 2.896  on stage 0: Sustainer
+11:24:58.001 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:58.007 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:81.4113487446043    finTime:81.4113487446043
+11:24:58.007 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=504.6294477408469 maxVelocity=83.80381207300748 maxAcceleration=36.789060413524915 maxMachNumber=0.2467420720430191 timeToApogee=11.651631870453073 flightTime=81.4113487446043 groundHitVelocity=7.412803481526251 launchRodVelocity=7.70192427938282 optimumDelay=7.551631870453074
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-27 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+11:24:58.015 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1016J360-15A@ 2.975  on stage 0: Sustainer
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-31 motor=1043J380-16A delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:58.017 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:58.018 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:58.018 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:58.019 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1043J380-16A - Armed @: 0.0
+11:24:58.019 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1043J380-16A - Armed @0.0
+11:24:58.062 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 867J244-14A@ 3.5  on stage 0: Sustainer
+11:24:58.371 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1043J380-16A@ 2.73  on stage 0: Sustainer
+11:24:58.924 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:58.929 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:82.5876719274516    finTime:82.5876719274516
+11:24:58.929 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=516.6655088877384 maxVelocity=94.2206022202431 maxAcceleration=46.419331608301455 maxMachNumber=0.2772608745313328 timeToApogee=11.306669476691384 flightTime=82.5876719274516 groundHitVelocity=7.432065188877615 launchRodVelocity=8.353418267484201 optimumDelay=8.410669476691385
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-28 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-32 motor=1092J1520-17A delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:24:58.938 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:58.939 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:58.939 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:58.940 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1092J1520-17A - Armed @: 0.0
+11:24:58.940 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1092J1520-17A - Armed @0.0
+11:24:59.030 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1092J1520-17A@ 0.737  on stage 0: Sustainer
+11:24:59.065 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:59.070 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:81.87200962521842    finTime:81.87200962521842
+11:24:59.070 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=508.0682556078342 maxVelocity=89.79069821989077 maxAcceleration=29.636846578158263 maxMachNumber=0.2642827552786376 timeToApogee=11.628173748526374 flightTime=81.87200962521842 groundHitVelocity=7.442453415952105 launchRodVelocity=7.180985583051789 optimumDelay=8.128173748526374
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-29 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-33 motor=1190J355-17A delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:24:59.079 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:59.080 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:59.080 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:59.081 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1190J355-17A - Armed @: 0.0
+11:24:59.081 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1190J355-17A - Armed @0.0
+11:24:59.216 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:59.223 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:107.7611049377422    finTime:107.7611049377422
+11:24:59.223 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=696.4673279858506 maxVelocity=116.27049118299603 maxAcceleration=69.337010138291 maxMachNumber=0.3422279437320251 timeToApogee=12.723609916994947 flightTime=107.7611049377422 groundHitVelocity=7.449217554988675 launchRodVelocity=8.682649290209778 optimumDelay=9.748609916994948
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-30 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-34 motor=1195J295-16A delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:24:59.232 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:59.233 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:59.233 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:59.234 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1195J295-16A - Armed @: 0.0
+11:24:59.234 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1195J295-16A - Armed @0.0
+11:24:59.484 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1190J355-17A@ 3.369  on stage 0: Sustainer
+11:24:59.599 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:24:59.606 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:109.77965381320448    finTime:109.77965381320448
+11:24:59.606 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=712.0764445252574 maxVelocity=119.46333132034596 maxAcceleration=51.73700035067182 maxMachNumber=0.35160000046223 timeToApogee=12.85000218501282 flightTime=109.77965381320448 groundHitVelocity=7.5015916935183835 launchRodVelocity=8.975488707939766 optimumDelay=10.120002185012819
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-31 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-35 motor=1211J140-P delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:24:59.615 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:24:59.616 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:24:59.616 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:24:59.617 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1211J140-P - Armed @: 0.0
+11:24:59.617 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1211J140-P - Armed @0.0
+11:24:59.741 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1195J295-16A@ 4.15  on stage 0: Sustainer
+11:25:00.432 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:25:00.440 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:124.14646757687765    finTime:124.14646757687765
+11:25:00.440 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=820.1192122411866 maxVelocity=150.0793833228205 maxAcceleration=237.01579974648467 maxMachNumber=0.4412015969122263 timeToApogee=12.47687420729158 flightTime=124.14646757687765 groundHitVelocity=7.4170275948686655 launchRodVelocity=20.54620962372181 optimumDelay=11.73987420729158
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-32 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-36 motor=1261J449-15A delay=Infinity thread=motor-batch-76cf80e9-2
+[JAVA] Installing Simulation Listeners
+11:25:00.449 [motor-batch-76cf80e9-2] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:25:00.450 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:25:00.450 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:25:00.451 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1261J449-15A - Armed @: 0.0
+11:25:00.451 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1261J449-15A - Armed @0.0
+11:25:00.770 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+11:25:00.774 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1211J140-P@ 9.464  on stage 0: Sustainer
+[JAVA] Ended Simulation.                           
+11:25:00.779 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:132.94247199271356    finTime:132.94247199271356
+11:25:00.779 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=874.9771258297161 maxVelocity=130.88535385825995 maxAcceleration=51.63962255204133 maxMachNumber=0.3855593468282603 timeToApogee=14.096488623745916 flightTime=132.94247199271356 groundHitVelocity=7.5119564405351635 launchRodVelocity=9.61487235288387 optimumDelay=10.727488623745916
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-33 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-37 motor=1266J760-19A delay=Infinity thread=motor-batch-76cf80e9-1
+[JAVA] Installing Simulation Listeners
+11:25:00.788 [motor-batch-76cf80e9-1] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:25:00.789 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:25:00.789 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:25:00.790 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1266J760-19A - Armed @: 0.0
+11:25:00.790 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1266J760-19A - Armed @0.0
+11:25:00.795 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1261J449-15A@ 2.847  on stage 0: Sustainer
+11:25:00.956 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:25:00.964 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:133.87644757017839    finTime:133.87644757017839
+11:25:00.964 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=880.2286528535724 maxVelocity=123.98195313035998 maxAcceleration=50.41580105953833 maxMachNumber=0.36539641244021615 timeToApogee=14.32486214745373 flightTime=133.87644757017839 groundHitVelocity=7.489958066300214 launchRodVelocity=9.57623682013757 optimumDelay=10.17586214745373
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-34 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-38 motor=1281K360-13A delay=Infinity thread=motor-batch-76cf80e9-3
+[JAVA] Installing Simulation Listeners
+11:25:00.975 [motor-batch-76cf80e9-3] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:25:00.976 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:25:00.977 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:25:00.977 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1281K360-13A - Armed @: 0.0
+11:25:00.977 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1281K360-13A - Armed @0.0
+11:25:01.004 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1266J760-19A@ 1.731  on stage 0: Sustainer
+11:25:01.405 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1281K360-13A@ 3.5  on stage 0: Sustainer
+11:25:01.497 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:25:01.504 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:119.75677956033611    finTime:119.75677956033611
+11:25:01.504 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=770.7901205574173 maxVelocity=86.65529262805426 maxAcceleration=20.455459165266667 maxMachNumber=0.2555493325801588 timeToApogee=15.605358674769322 flightTime=119.75677956033611 groundHitVelocity=7.564087559493376 launchRodVelocity=5.98442131427106 optimumDelay=6.141358674769322
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-35 trial=1 status=COMPLETE assessment=MEETS_CRITERIA reasons=[] csv= log=
+MOTOR_BATCH trial_start batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-39 motor=1364K454-19A delay=Infinity thread=motor-batch-76cf80e9-4
+[JAVA] Installing Simulation Listeners
+11:25:01.514 [motor-batch-76cf80e9-4] INFO info.openrocket.core.document.Simulation -- Simulation: calling simulator
+[JAVA] Calling Simulator
+[JAVA] Simulator Init
+11:25:01.515 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- !! WARNING !! 
+THIS IS THE CUSTOM SIMULATION ENGINE
+IT MOST DEFINITELY HAS BUGS
+BEWARE
+11:25:01.515 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- >>Starting simulation of branch: Sustainer
+[JAVA] Confirmed start of simulation.
+11:25:01.515 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- Queueing Ignition Event for:                  FinCan/e3e123d9 / 1364K454-19A - Armed @: 0.0
+11:25:01.515 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine --   Igniting motor:                  FinCan/e3e123d9 / 1364K454-19A - Armed @0.0
+11:25:01.895 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine --  detected Motor Burnout for motor 1364K454-19A@ 3.15  on stage 0: Sustainer
+11:25:02.174 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:25:02.184 [motor-batch-76cf80e9-2] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:146.87503074120468    finTime:146.87503074120468
+11:25:02.184 [motor-batch-76cf80e9-2] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=977.9177819959073 maxVelocity=148.62514832010882 maxAcceleration=72.74898356184698 maxMachNumber=0.437682488598415 timeToApogee=14.437043394159268 flightTime=146.87503074120468 groundHitVelocity=7.491130075179208 launchRodVelocity=10.906256586928656 optimumDelay=11.590043394159268
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-36 trial=1 status=COMPLETE assessment=DOES_NOT_MEET_CRITERIA reasons=[APOGEE_HIGH] csv= log=
+11:25:02.417 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:25:02.425 [motor-batch-76cf80e9-1] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:150.63770643036406    finTime:150.63770643036406
+11:25:02.425 [motor-batch-76cf80e9-1] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1009.4935799198026 maxVelocity=163.61936755250497 maxAcceleration=121.90537613103585 maxMachNumber=0.48147916916694716 timeToApogee=14.06634482521622 flightTime=150.63770643036406 groundHitVelocity=7.470130811029785 launchRodVelocity=14.691526126112393 optimumDelay=12.33534482521622
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-37 trial=1 status=COMPLETE assessment=DOES_NOT_MEET_CRITERIA reasons=[APOGEE_HIGH] csv= log=
+11:25:02.603 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:25:02.611 [motor-batch-76cf80e9-3] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:146.4009737599297    finTime:146.4009737599297
+11:25:02.611 [motor-batch-76cf80e9-3] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=970.3281107749632 maxVelocity=141.68063465311016 maxAcceleration=47.309878324297785 maxMachNumber=0.41745947634873537 timeToApogee=14.831591614408037 flightTime=146.4009737599297 groundHitVelocity=7.443031274523983 launchRodVelocity=9.243998214200856 optimumDelay=11.331591614408037
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-38 trial=1 status=COMPLETE assessment=DOES_NOT_MEET_CRITERIA reasons=[APOGEE_HIGH] csv= log=
+11:25:02.959 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.ModifiedEventSimulationEngine -- deployed recovery devices: 1
+[JAVA] Ended Simulation.                           
+11:25:02.967 [motor-batch-76cf80e9-4] INFO info.openrocket.core.simulation.ModifiedEventSimulationEngine -- <<Finished simulating branch: Sustainer    curTime:157.01854633997968    finTime:157.01854633997968
+11:25:02.967 [motor-batch-76cf80e9-4] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1056.6383495487237 maxVelocity=154.57350323713882 maxAcceleration=69.81068131221731 maxMachNumber=0.45536805271781317 timeToApogee=14.9992791708063 flightTime=157.01854633997968 groundHitVelocity=7.520804691502358 launchRodVelocity=10.377618760238018 optimumDelay=11.8492791708063
+Simulation: returning from simulator, simulation took 1s
+MOTOR_BATCH trial_end batch=76cf80e9-2834-4f84-a211-998ce100b7a9 candidate=motor-39 trial=1 status=COMPLETE assessment=DOES_NOT_MEET_CRITERIA reasons=[APOGEE_HIGH] csv= log=
+MOTOR_BATCH finished batch=76cf80e9-2834-4f84-a211-998ce100b7a9 trials=40 peak_threads=4 cancelled=false
+MOTOR_BATCH csv=/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/benchmarking/demonstrator-l2-20261014/cti/motor-batch-results.csv scope=ALL_CANDIDATES
+COMPLETE rows=40 workers=4

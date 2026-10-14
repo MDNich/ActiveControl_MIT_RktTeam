@@ -47,7 +47,7 @@ class FinRendererTest extends BaseTestCase {
                         for (double thickness : new double[]{-.5, .5}) {
                             var v = axis.multiply(span).add(axis.y * chord, -axis.x * chord,
                                     thickness * fin.getThickness());
-                            double angle = fin.getTabAngle();
+                            double angle = -fin.getTabAngle();
                             var expected = hinge.add(v.multiply(Math.cos(angle)))
                                     .add(axis.cross(v).multiply(Math.sin(angle)))
                                     .add(axis.multiply(axis.dot(v) * (1 - Math.cos(angle))))

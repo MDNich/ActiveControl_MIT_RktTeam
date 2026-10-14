@@ -49,7 +49,7 @@ public class FinSetShapes extends RocketComponentShapes {
 		int bevelIndex = -1;
 		if (finset instanceof TrapezoidFinSet && finset.getCrossSection() == FinSet.CrossSection.TRIANGULAR) {
 			// The crease lies on the visible face, rather than the fin's centre plane.
-			double side = Math.copySign(1, compositeTransform.linearTransform(new Coordinate(0, 0, 1)).z);
+			double side = Math.copySign(1, viewerDepth(compositeTransform.linearTransform(new Coordinate(0, 0, 1)), false));
 			Transformation surface = compositeTransform.applyTransformation(
 					new Transformation(0, 0, side * finset.getThickness() / 2));
 			Path2D bevel = leadingEdgeBevelShape(finset, surface);
@@ -138,7 +138,7 @@ public class FinSetShapes extends RocketComponentShapes {
 		Coordinate[] front = new Coordinate[boundary.size()];
 		Coordinate[] rear = new Coordinate[boundary.size()];
 		Coordinate normal = transform.linearTransform(new Coordinate(0, 0, 1));
-		double side = Math.copySign(1, back ? normal.x : normal.z);
+		double side = Math.copySign(1, viewerDepth(normal, back));
 		double area = 0;
 		for (int i = 0; i < boundary.size(); i++) {
 			Coordinate point = boundary.get(i);
@@ -154,7 +154,7 @@ public class FinSetShapes extends RocketComponentShapes {
 			Coordinate edge = boundary.get(next).sub(boundary.get(i));
 			Coordinate outward = new Coordinate(edge.y, -edge.x, 0).multiply(Math.signum(area));
 			Coordinate facing = transform.linearTransform(outward);
-			if ((back ? facing.x : facing.z) > MathUtil.EPSILON) {
+			if (viewerDepth(facing, back) > MathUtil.EPSILON) {
 				edges.append(projectPath(new Coordinate[]{front[i], front[next], rear[next], rear[i]},
 						transform, back, true), false);
 			}
@@ -172,8 +172,7 @@ public class FinSetShapes extends RocketComponentShapes {
         for (var face : profile.faces(outline)) appendProjectedFace(projected, face.points(), transform, back);
         var contour = new Path2D.Double();
         var boundary = projectPath(outline, Transformation.IDENTITY, false, true);
-        double sign = Math.copySign(1, back ? transform.linearTransform(new Coordinate(0, 0, 1)).x
-                : transform.linearTransform(new Coordinate(0, 0, 1)).z);
+        double sign = Math.copySign(1, viewerDepth(transform.linearTransform(new Coordinate(0, 0, 1)), back));
         for (boolean trailing : new boolean[]{false, true}) {
             if (trailing && fin.getCrossSection() != FinSet.CrossSection.ROUNDED) continue;
             Coordinate[] points = profile.contour(trailing);
@@ -201,6 +200,11 @@ public class FinSetShapes extends RocketComponentShapes {
 		double leadingX = points[0].x + (point.y - points[0].y) * (points[1].x - points[0].x) / height;
 		return (point.x - leadingX) / distance;
 	}
+
+    /** OpenRocket uses left-handed model coordinates: side/top look from -Z; rear from +X. */
+    static double viewerDepth(Coordinate point, boolean back) {
+        return back ? point.x : -point.z;
+    }
 
 	private static Path2D.Double projectPath(Coordinate[] points, Transformation transform, boolean back, boolean close) {
 		Path2D.Double path = new Path2D.Double();

@@ -14,10 +14,8 @@ final class FinTabVisibility {
     private static final double EPS = 1e-10;
     private final List<Triangle> fixed;
     private final List<Triangle> tab;
-    private final boolean back;
 
     FinTabVisibility(TabControlledTrapezoidFinSet fin, Transformation transform, boolean back) {
-        this.back = back;
         var profile = new FinProfileGeometry(fin);
         fixed = triangles(profile.faces(FinSetShapes.previewFinOutline(fin)), transform, back);
         tab = triangles(profile.faces(fin.getRollCtrlTabNeutralPoints()),
@@ -32,8 +30,10 @@ final class FinTabVisibility {
         surfaces.addAll(tab);
         // A finite-thickness tab intersects the fixed fin at the hinge. The intersection
         // of the visible faces is the seam; neither solid's original edge follows it.
-        for (var a : fixed) if (back ? a.area < 0 : a.area > 0)
-            for (var b : tab) if (back ? b.area < 0 : b.area > 0)
+        // Both orthographic projections have clockwise front-facing mesh winding:
+        // side/top view looks from model -Z, rear view from model +X.
+        for (var a : fixed) if (a.area < 0)
+            for (var b : tab) if (b.area < 0)
                 intersection(lines, a, b, surfaces);
         return new VisibleOutline(shape, lines);
     }
@@ -112,7 +112,8 @@ final class FinTabVisibility {
         var result = new ArrayList<Triangle>();
         for (var face : faces) {
             var p = transform.transform(face.points().clone());
-            if (back) for (int i = 0; i < p.length; i++) p[i] = new Coordinate(p[i].z, p[i].y, p[i].x);
+            for (int i = 0; i < p.length; i++) p[i] = new Coordinate(back ? p[i].z : p[i].x,
+                    p[i].y, FinSetShapes.viewerDepth(p[i], back));
             for (int i = 1; i < p.length - 1; i++) {
                 var a = p[0]; var b = p[i]; var c = p[i + 1];
                 double area = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);

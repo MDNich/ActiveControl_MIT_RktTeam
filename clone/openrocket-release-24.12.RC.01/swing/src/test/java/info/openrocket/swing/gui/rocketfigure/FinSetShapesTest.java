@@ -113,7 +113,7 @@ class FinSetShapesTest extends BaseTestCase {
         double[] start = new double[6];
         assertEquals(PathIterator.SEG_MOVETO, crease.currentSegment(start));
         Transformation surface =
-                fin.getCantRotation().applyTransformation(new Transformation(0, 0, 0.003));
+                fin.getCantRotation().applyTransformation(new Transformation(0, 0, -0.003));
         Coordinate[] root = surface.transform(fin.getRootPoints());
         double distanceToRoot = Double.POSITIVE_INFINITY;
         for (int i = 1; i < root.length; i++) {
@@ -154,8 +154,8 @@ class FinSetShapesTest extends BaseTestCase {
         assertCrease(
                 fin,
                 instance,
-                combined.transform(new Coordinate(0.015, 0, 0.003)),
-                combined.transform(new Coordinate(0.095, 0.1, 0.003)));
+                combined.transform(new Coordinate(0.015, 0, -0.003)),
+                combined.transform(new Coordinate(0.095, 0.1, -0.003)));
     }
 
     /** Verifies that other cross sections keep their existing shapes. */
@@ -231,7 +231,7 @@ class FinSetShapesTest extends BaseTestCase {
                 0.02 * Math.abs(Math.sin(angle)) + 0.006 * Math.cos(angle),
                 rearBounds.getWidth(),
                 EPSILON);
-        assertEquals(-0.01 * Math.sin(angle), rearBounds.getCenterX(), EPSILON);
+        assertEquals(0.01 * Math.sin(angle), rearBounds.getCenterX(), EPSILON);
     }
 
     /** Verifies that fixed fin leaves the control tab opening visible. */
@@ -257,8 +257,8 @@ class FinSetShapesTest extends BaseTestCase {
         assertEquals(0.02, positive.getBounds2D().getHeight(), EPSILON);
         assertEquals(
                 -negative.getBounds2D().getCenterY(), positive.getBounds2D().getCenterY(), EPSILON);
-        assertTrue(positive.getBounds2D().getCenterY() > 0);
-        assertTrue(negative.getBounds2D().getCenterY() < 0);
+        assertTrue(positive.getBounds2D().getCenterY() < 0);
+        assertTrue(negative.getBounds2D().getCenterY() > 0);
     }
 
     @ParameterizedTest
@@ -272,11 +272,11 @@ class FinSetShapesTest extends BaseTestCase {
             var tabRotation = fin.getRollCtrlTabRotation();
             var neutral = fin.getRollCtrlTabNeutralPoints();
             var hidden = instance.transform(tabRotation.transform(
-                    neutral[1].add(neutral[2]).multiply(.5).add(0, 0, -Math.copySign(.003, deflection))));
+                    neutral[1].add(neutral[2]).multiply(.5).add(0, 0, Math.copySign(.003, deflection))));
             Shape tab = renderer.getShapesSide(fin, instance)[2].shape;
             assertTrue(distanceToBoundary(tab, hidden.x, hidden.y) > 1e-5,
                     "The hinge edge lies inside the fixed fin and must not be drawn");
-            double side = Math.copySign(1, instance.applyTransformation(tabRotation)
+            double side = -Math.copySign(1, instance.applyTransformation(tabRotation)
                     .linearTransform(new Coordinate(0, 0, 1)).z);
             var trailing = instance.transform(tabRotation.transform(
                     neutral[0].add(neutral[3]).multiply(.5).add(0, 0, side * .003)));
@@ -290,7 +290,7 @@ class FinSetShapesTest extends BaseTestCase {
         var view = Transformation.rotate_x(Math.toRadians(15));
         var neutral = fin.getRollCtrlTabNeutralPoints();
         var seam = view.transform(neutral[1].add(neutral[2]).multiply(.5)
-                .add(.003 * Math.tan(fin.getTabAngle() / 2), 0, .003));
+                .add(.003 * Math.tan(fin.getTabAngle() / 2), 0, -.003));
         Shape tab = renderer.getShapesSide(fin, view)[2].shape;
         assertEquals(0, distanceToBoundary(tab, seam.x, seam.y), EPSILON);
     }
@@ -298,7 +298,9 @@ class FinSetShapesTest extends BaseTestCase {
     /** Verifies that tab hinge thickness is centered after cant and instance rotation. */
     @Test
     void tabHingeThicknessIsCenteredAfterCantAndInstanceRotation() {
-        TabControlledTrapezoidFinSet fin = controlFin(60);
+        // Deflect toward the viewer so the fin does not occlude the tested trailing edge.
+        TabControlledTrapezoidFinSet fin = controlFin(-60);
+        fin.setCrossSection(FinSet.CrossSection.SQUARE);
         fin.setCantAngle(Math.toRadians(10));
         Transformation instance =
                 new Transformation(0.5, 0.2, 0.1).applyTransformation(Transformation.rotate_x(0.7));
@@ -306,9 +308,16 @@ class FinSetShapesTest extends BaseTestCase {
                 instance.applyTransformation(fin.getCantRotation())
                         .applyTransformation(fin.getRollCtrlTabRotation());
         Coordinate normal = complete.linearTransform(new Coordinate(0, 0, 1));
-        Coordinate hingeFace =
-                fin.getRollCtrlTabNeutralPoints()[1].add(0, 0, Math.copySign(0.003, normal.z));
-        Coordinate expected = complete.transform(hingeFace);
+        Coordinate hinge = fin.getRollCtrlTabNeutralPoints()[1];
+        Coordinate plus = complete.transform(hinge.add(0, 0, .003));
+        Coordinate minus = complete.transform(hinge.add(0, 0, -.003));
+        assertEquals(0, plus.add(minus).multiply(.5).sub(complete.transform(hinge)).length(), EPSILON);
+        assertEquals(.006, plus.sub(minus).length(), EPSILON);
+        // Check the visible trailing edge; a hinge corner may be hidden inside the fixed fin.
+        Coordinate[] points = fin.getRollCtrlTabNeutralPoints();
+        Coordinate trailingFace = points[0].add(points[3]).multiply(.5)
+                .add(0, 0, -Math.copySign(0.003, normal.z));
+        Coordinate expected = complete.transform(trailingFace);
         Shape tab = renderer.getShapesSide(fin, instance)[2].shape;
         assertEquals(0, distanceToBoundary(tab, expected.x, expected.y), EPSILON);
     }
@@ -353,7 +362,7 @@ class FinSetShapesTest extends BaseTestCase {
                     foundLeadingEdge = true;
                 }
                 if (Math.abs(point[0] - 0.015) < EPSILON) {
-                    assertEquals(-0.003, point[1], EPSILON);
+                    assertEquals(0.003, point[1], EPSILON);
                     foundFullThickness = true;
                 }
             }

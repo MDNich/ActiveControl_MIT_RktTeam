@@ -56,6 +56,7 @@ class RollTabOrientationTest extends BaseTestCase {
         check(rocket, fin);
         fin.setTabAngle(savedAngle);
         render(fin);
+        renderScreenshotAngle(fin);
         var output = Path.of("build/fin-profile-verification/roll-tab-orientation.txt");
         Files.writeString(output, "Source: " + source + "\nFin: " + fin.getName()
                 + "\nSaved tab angle (deg): " + Math.toDegrees(savedAngle)
@@ -64,7 +65,7 @@ class RollTabOrientationTest extends BaseTestCase {
                 + "\nMaximum error against independent Rodrigues rotation (m): " + error
                 + "\nTab chord (mm): " + 1000 * fin.getTabChord()
                 + "\nChordwise projection at saved angle (mm): " + 1000 * fin.getTabChord() * Math.cos(savedAngle)
-                + "\nOut-of-plane displacement (mm): " + -1000 * fin.getTabChord() * Math.sin(savedAngle) + "\n");
+                + "\nOut-of-plane displacement (mm): " + 1000 * fin.getTabChord() * Math.sin(savedAngle) + "\n");
         assertArrayEquals(before, Files.readAllBytes(source));
         System.out.println(Files.readString(output));
     }
@@ -76,19 +77,19 @@ class RollTabOrientationTest extends BaseTestCase {
             var neutral = neutral(fin);
             var axis = neutral[2].sub(neutral[1]).multiply(1 / fin.getTabSpan());
             var rotated = fin.getRollCtrlTabPoints();
-            for (int i = 0; i < 4; i++) assertCoordinate(about(neutral[i], neutral[1], axis, fin.getTabAngle()), rotated[i]);
+            for (int i = 0; i < 4; i++) assertCoordinate(about(neutral[i], neutral[1], axis, -fin.getTabAngle()), rotated[i]);
             var u = neutral[0].sub(neutral[1]);
             var v = rotated[0].sub(rotated[1]);
-            assertEquals(fin.getTabAngle(), Math.atan2(axis.dot(u.cross(v)), u.dot(v)), 1e-10);
+            assertEquals(-fin.getTabAngle(), Math.atan2(axis.dot(u.cross(v)), u.dot(v)), 1e-10);
             for (var instance : rocket.getSelectedConfiguration().getActiveInstances().get(fin)) {
                 double azimuth = fin.getAngleOffset() + instance.instanceNumber * 2 * Math.PI / fin.getFinCount();
-                for (double roll : new double[]{0, Math.toRadians(-13.6), Math.toRadians(293.6)}) {
+                for (double roll : new double[]{0, Math.toRadians(158.1), Math.toRadians(293.6)}) {
                     for (boolean back : new boolean[]{false, true}) {
                         var transform = Transformation.rotate_x(roll).applyTransformation(instance.transform);
                         var expected = new Rectangle2D.Double();
                         boolean first = true;
                         for (var p : neutral) for (double thickness : new double[]{-.5, .5}) {
-                            var local = about(p.add(0, 0, thickness * fin.getThickness()), neutral[1], axis, fin.getTabAngle());
+                            var local = about(p.add(0, 0, thickness * fin.getThickness()), neutral[1], axis, -fin.getTabAngle());
                             var world = world(fin, local, azimuth);
                             var reference = rotateX(world, roll);
                             var actual = transform.applyTransformation(fin.getCantRotation())
@@ -160,7 +161,7 @@ class RollTabOrientationTest extends BaseTestCase {
         g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 20));
         g.setColor(Color.WHITE);
         g.drawString(fin.getName() + ": all four tabs at " + String.format(java.util.Locale.ROOT, "%+.0f°", Math.toDegrees(fin.getTabAngle())), 25, 30);
-        String[] labels = {"Above body (0°)", "Near side (90°)", "Below body (180°)", "Far side (270°)"};
+        String[] labels = {"Above body (0°)", "Far side (90°)", "Below body (180°)", "Near side (270°)"};
         var neutral = neutral(fin);
         for (int i = 0; i < 4; i++) {
             double azimuth = i * Math.PI / 2;
@@ -181,7 +182,7 @@ class RollTabOrientationTest extends BaseTestCase {
             var oracle = new Path2D.Double();
             var axis = neutral[2].sub(neutral[1]).multiply(1 / fin.getTabSpan());
             for (int j = 0; j < 4; j++) {
-                var p = rotateX(about(neutral[j], neutral[1], axis, fin.getTabAngle()), azimuth);
+                var p = rotateX(about(neutral[j], neutral[1], axis, -fin.getTabAngle()), azimuth);
                 if (j == 0) oracle.moveTo(p.x, p.y); else oracle.lineTo(p.x, p.y);
             }
             oracle.closePath();
@@ -193,5 +194,37 @@ class RollTabOrientationTest extends BaseTestCase {
         g.dispose();
         var dir = Path.of("build/fin-profile-verification"); Files.createDirectories(dir);
         javax.imageio.ImageIO.write(image, "png", dir.resolve("roll-tab-orientation.png").toFile());
+    }
+
+    private static void renderScreenshotAngle(TabControlledTrapezoidFinSet fin) throws Exception {
+        var image = new BufferedImage(1600, 860, BufferedImage.TYPE_INT_RGB);
+        var g = image.createGraphics();
+        g.setColor(new Color(71, 76, 80)); g.fillRect(0, 0, image.getWidth(), image.getHeight());
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 23)); g.setColor(Color.WHITE);
+        g.drawString("Demonstrator MainFins · view 158.1° · tabs +40° · thickness 9.398 mm", 30, 40);
+        g.drawString("All four fins", 30, 90);
+        g.drawString("Top fin enlarged", 850, 90);
+        for (int panel = 0; panel < 2; panel++) {
+            var screen = new AffineTransform();
+            screen.translate(panel == 0 ? 100 : 880, panel == 0 ? 460 : 590);
+            screen.scale(panel == 0 ? 2200 : 3200, panel == 0 ? -2200 : -3200);
+            double radius = fin.getBodyRadius();
+            g.setColor(new Color(155, 155, 155)); g.setStroke(new BasicStroke(1));
+            g.draw(screen.createTransformedShape(new Rectangle2D.Double(-.015, -radius, .24, 2 * radius)));
+            for (int i = 0; i < 4; i++) {
+                if (panel == 1 && i != 2) continue;
+                double phi = Math.toRadians(158.1 + 90 * i) + fin.getAngleOffset();
+                var transform = Transformation.rotate_x(phi)
+                        .applyTransformation(new Transformation(0, radius, 0));
+                g.setColor(new Color(140, 175, 255)); g.setStroke(new BasicStroke(2));
+                for (var shape : new FinSetShapes().getShapesSide(fin, transform))
+                    g.draw(screen.createTransformedShape(shape.shape));
+            }
+        }
+        g.setColor(Color.WHITE);
+        g.drawString("Positive Z points away from the viewer. The top tab's trailing edge is above and behind its hinge.", 30, 820);
+        g.dispose();
+        javax.imageio.ImageIO.write(image, "png", Path.of("build/fin-profile-verification/roll-tabs-158.1.png").toFile());
     }
 }

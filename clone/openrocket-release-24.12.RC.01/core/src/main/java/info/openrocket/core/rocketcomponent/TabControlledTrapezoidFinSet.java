@@ -266,8 +266,11 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
     }
 
     /**
-     * Rotate about the upstream hinge, parallel to the trailing edge. Positive angles
-     * move the trailing edge toward -Z, consistent with the fin cant convention.
+     * Rotate about the upstream hinge, parallel to the trailing edge. Positive tab
+     * deflection moves the trailing edge toward local +Z (away in OpenRocket's
+     * unrotated side view). Transformation uses right-handed matrix angles, so the
+     * tab's displayed deflection requires the opposite matrix angle. This does not
+     * change the saved actuator angle or its aerodynamic coefficient convention.
      */
     public Transformation getRollCtrlTabRotation() {
         if (tabAngle == 0) {
@@ -278,7 +281,7 @@ public class TabControlledTrapezoidFinSet extends TrapezoidFinSet {
         double frameAngle = Math.atan2(-direction.x, direction.y);
         return new Transformation(hinge)
                 .applyTransformation(Transformation.rotate_z(frameAngle))
-                .applyTransformation(Transformation.rotate_y(tabAngle))
+                .applyTransformation(Transformation.rotate_y(-tabAngle))
                 .applyTransformation(Transformation.rotate_z(-frameAngle))
                 .applyTransformation(new Transformation(hinge.multiply(-1)));
     }

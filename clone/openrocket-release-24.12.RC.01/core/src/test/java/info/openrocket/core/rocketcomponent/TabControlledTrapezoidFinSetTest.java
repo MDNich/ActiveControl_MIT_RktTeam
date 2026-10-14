@@ -44,10 +44,10 @@ class TabControlledTrapezoidFinSetTest extends BaseTestCase {
         assertPoint(new Coordinate(0.10, 0.015, 0), points[1]);
         assertPoint(new Coordinate(0.10, 0.045, 0), points[2]);
         assertPoint(
-                new Coordinate(0.10 + 0.02 * Math.cos(angle), 0.015, -0.02 * Math.sin(angle)),
+                new Coordinate(0.10 + 0.02 * Math.cos(angle), 0.015, 0.02 * Math.sin(angle)),
                 points[0]);
         assertPoint(
-                new Coordinate(0.10 + 0.02 * Math.cos(angle), 0.045, -0.02 * Math.sin(angle)),
+                new Coordinate(0.10 + 0.02 * Math.cos(angle), 0.045, 0.02 * Math.sin(angle)),
                 points[3]);
         assertEquals(0.02, points[0].sub(points[1]).length(), EPSILON);
         assertEquals(0.03, points[3].sub(points[0]).length(), EPSILON);
@@ -60,7 +60,7 @@ class TabControlledTrapezoidFinSetTest extends BaseTestCase {
         assertPoint(hinge, upper.add(lower).multiply(0.5));
         assertEquals(0.006, upper.sub(lower).length(), EPSILON);
         assertPoint(
-                new Coordinate(0.003 * Math.sin(angle), 0, 0.003 * Math.cos(angle)),
+                new Coordinate(-0.003 * Math.sin(angle), 0, 0.003 * Math.cos(angle)),
                 upper.sub(hinge));
     }
 
@@ -84,7 +84,7 @@ class TabControlledTrapezoidFinSetTest extends BaseTestCase {
             assertEquals(0, points[0].sub(points[1]).dot(axis), EPSILON);
             assertEquals(fin.getTabChord(), points[0].sub(points[1]).length(), EPSILON);
             assertEquals(
-                    -fin.getTabChord() * Math.sin(Math.toRadians(degrees)), points[0].z, EPSILON);
+                    fin.getTabChord() * Math.sin(Math.toRadians(degrees)), points[0].z, EPSILON);
         }
     }
 

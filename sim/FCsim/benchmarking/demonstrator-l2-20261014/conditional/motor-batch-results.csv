@@ -1,0 +1,811 @@
+"schema_version","batch_id","candidate_id","trial_number","manufacturer","designation","motor_type","curve_digest","motor_diameter_m","motor_length_m","total_impulse_N_s","average_thrust_N","peak_thrust_N","burn_time_s","motor_launch_mass_kg","motor_burnout_mass_kg","mount_id","mount_name","motor_instances","delay_s_or_plugged","delay_policy","execution_status","assessment","reasons","warnings","error","trials_attempted","trials_planned","apogee_agl_m","rail_exit_speed_m_s","max_speed_before_recovery_m_s","max_mach_before_recovery","max_acceleration_before_recovery_m_s2","min_ascent_stability_cal","max_deployment_speed_m_s","landing_descent_speed_m_s","ground_contact_speed_m_s","launch_mass_kg","average_thrust_launch_weight","time_to_apogee_s","flight_duration_s","landing_distance_m","impulse_class","nar_tripoli_motor_level","classification_basis","classification_note","application_version","created_utc","baseline_simulation","configuration_id","input_hash","threads","peak_threads","random_seed","fc_enabled","fc_reference","fc_fingerprint","fc_seed","fc_timing_seed","telemetry_path","log_path","filters_and_criteria_json","launch_conditions_xml","component_intersection_override","ignored_component_intersections","fit_warnings"
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-0","1","AeroTech","HP-I65W","SINGLE","e1d09c3f7de747b556a71b6b3e28c808","0.054","0.218","660.2139185000001","86.8646566312475","196.341","7.546855589560059","0.752","0.375","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","240.45649588695312","5.956326247351229","37.77237375375641","0.11111835091104415","19.582207557838284","-9.959285734582318","9.665510203087988","7.162138520842444","7.4363491731709095","6.694146442903599","19.142118947943704","10.005346086669931","43.66456651860229","76.68108350187484","J","L2","Integrated thrust-curve impulse (designation unavailable)","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-1","1","AeroTech","J340M","RELOAD","8143e597face29f20f589b1e2564c2be","0.038","0.337","652.7665295","364.34846349851256","606.518","1.78309431189899","0.5772999999999999","0.21229999999999993","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","387.34116981984965","11.72714354800205","82.70873106819393","0.2432476644122427","82.96273705152349","-9.805212949523796","9.60563346723796","7.067845952270599","7.333707186831829","6.519446442903599","19.65506559295309","9.385137726797826","63.95095248161656","116.58017239633841","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-2","1","AeroTech","J420R","RELOAD","3a47d105d8539e108a0446496e016261","0.038","0.337","651.222182","423.4487041363364","563.47","1.535831832701857","0.6496","0.27327999999999986","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","382.4101392401302","12.058984591698577","84.4497926804821","0.24833740162019136","75.84134076130793","-9.850727505338808","9.603923154369662","7.102644098944646","7.416029576503227","6.591746442903599","19.439483689935514","9.284505519962062","62.905210452768785","114.62815161994821","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-3","1","AeroTech","HP-J425R","SINGLE","e8de3c3c4472b283827725a828b29dab","0.038","0.356","676.8332624999999","416.8571216436955","452.851","1.622978108463675","0.631","0.2669999999999999","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","402.4939716947761","10.195301307664971","87.93520483587103","0.258590942520792","60.0727038257347","-9.84216496109771","9.611878694494669","7.099141799796221","7.3510088185639955","6.5731464429035995","19.49449150084822","9.616675497723762","66.04105200051356","120.32236261883257","J","L2","Integrated thrust-curve impulse (designation unavailable)","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-4","1","AeroTech","J350W","RELOAD","3425c0019512b8c67b90eac455bda968","0.038","0.337","669.1657749999998","445.4221627455097","841.443","1.4930574004598813","0.651","0.29","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","406.1185083699013","14.050281443866025","86.79942018059144","0.2552431376756838","116.32559471540762","-9.863051471827132","9.60951794322245","7.1136787760979105","7.369605632746185","6.593146442903599","19.43535587669769","9.428536142309506","66.25045211746234","121.99170097051305","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-5","1","AeroTech","HP-J270W","SINGLE","6aa34aedb0bdb162e51cf6e2699e5364","0.038","0.35639999389648436","701.47043","274.1624075756361","367.585","2.5584417181847323","0.642","0.26099999999999973","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","411.98602656658466","9.273825701942075","81.91201155061961","0.24098113574731125","45.79527954584563","-9.837636800317249","9.628588652879316","7.097315497510464","7.36320747731513","6.5841464429036","19.46192244905557","10.012449713742942","67.77635767428127","122.98955751914959","J","L2","Integrated thrust-curve impulse (designation unavailable)","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-6","1","AeroTech","J250W","SINGLE","60c1055971bb288dd8dcc2d9e3b2c1c9","0.054","0.2181999969482422","708.7502200000001","251.087397525264","335.735","2.8198568701083633","0.708","0.345","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","405.1152651812187","8.74437671989067","78.1639719280634","0.22999237820858542","41.11866940707273","-9.935050542563825","9.63424948814319","7.144291704404969","7.386186532716927","6.6501464429035995","19.268770780492186","10.065626201843935","66.50595389143957","122.48693497617003","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-7","1","AeroTech","J90W","RELOAD","0844e876bf1dfd4f472f80460b2f161f","0.054","0.243","689.4221965","97.62676752485466","187.242","7.048207871705539","0.852544","0.42515200000000003","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","INCOMPLETE","DOES_NOT_MEET_CRITERIA","NO_APOGEE; NO_GROUND_CONTACT_OR_TIME_LIMIT; SIMULATION_ABORT; RECOVERY_MISSING:Parachute","Messages[]","","1","1","1.0189944438297869","5.255647515416032","5.294181499523235","0.016462726863892514","15.406916422999231","","","","","6.794690442903599","18.858864659367228","","0.5574999999999988","","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-8","1","AeroTech","J500G","RELOAD","689555679f5183646ae7c8007022c9d4","0.038","0.345","722.6640531309401","515.190838417722","787.971","1.4006412545591094","0.654","0.2914000000000001","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","464.0346973047983","14.133419901631916","95.95746778723807","0.28218651267093925","109.89219251350508","-9.860053171348863","9.616555073567033","7.114383214086928","7.3569492432713215","6.596146442903599","19.426516462937734","9.983393185334442","74.77603003477901","138.49791727412926","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-9","1","AeroTech","J250FJ","RELOAD","e5c943b2cd47f663ba6eac7bd201abc1","0.054","0.241","707.1827489999998","255.0761188147886","306.038","2.7717095075050833","0.92","0.4089999999999998","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","378.13915339504405","7.270358544631816","77.2464631269364","0.22722541308685879","35.73866341393158","-9.979162357108756","9.638908166480997","7.181389654530587","7.444528163223785","6.862146442903599","18.673478995413955","9.94462475162145","62.41783131552321","114.9419306514781","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-10","1","AeroTech","J435WS","SINGLE","3593f1b1ed8319d711d1c7d3f182f6ec","0.038","0.36589999389648437","772.1129965000001","461.83793693392914","694.661","1.6690689911437007","0.624","0.27200000000000024","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","515.4346600745425","13.277492730363347","100.64831508671617","0.2960401684813014","94.95583078613156","-9.843586967024288","9.635066861826814","7.0945202503426605","7.3951347028640715","6.566146442903599","19.515274077309556","10.580817345770509","82.5419295517239","152.8391422851461","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-11","1","AeroTech","J615ST-20A","RELOAD","ace8e57bdd61c5efb52c376bfc048080","0.054","0.24039999389648437","762.9004905","631.5382035245536","829.659","1.2072200381784755","0.805","0.432","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","493.1398661362991","13.719036677191335","101.95911418791421","0.2997982566322639","112.71235717452421","-9.993751156195838","9.63180106018917","7.1943181222820565","7.46271915169901","6.747146442903599","18.99175429929908","10.237190322098096","78.27874590988482","146.82213367129503","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-12","1","AeroTech","J315R","RELOAD","b289fc0c10a8fb54cf21d500a94c8ec5","0.054","0.23","757.238292","296.9217094041033","376.062","2.54681318300328","0.8512","0.4300799999999999","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","447.03984465732293","9.071049020155042","86.68497281494643","0.255009819351411","46.240971313854494","-10.00342060224023","9.643647811680054","7.191576997389514","7.472080670699772","6.7933464429036","18.86259570919888","10.440833929634028","72.22422984472053","134.4709731763836","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-13","1","AeroTech","J180T","RELOAD","b0bc894294f10c4b647aa26d948b9503","0.054","0.23","786.8834609999999","174.17256344810795","313.71","4.50184461831684","0.809088","0.37990400000000013","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","459.3598238339542","8.529684611971641","74.62197535124072","0.21964529683557601","37.05300500383606","-9.959685693676835","9.655381738261505","7.164736576901125","7.410320612786546","6.751234442903599","18.980254433277228","11.025812356477415","74.7326796692043","138.94129293380806","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-14","1","AeroTech","J275W","RELOAD","c02e6901df8346c3ceba5b552923b335","0.054","0.23","842.739905","235.77695625268845","336.422","3.5635149390374408","0.864192","0.39558400000000016","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","521.6359360939689","8.051566970723902","88.30157808116046","0.25992291549448304","40.2891033763383","-9.972077287994942","9.659096428435793","7.173018569512764","7.453816108168006","6.806338442903599","18.82659061695881","11.480149601646039","83.59257849738727","155.91612802853328","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-15","1","AeroTech","J460T","RELOAD","95cb97bf0b41a4e405cd16cdc768134e","0.054","0.23","858.1083960000003","439.99921171677613","545.793","1.9472600739443828","0.801024","0.38752000000000003","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","583.4620232641095","11.61987343491132","107.73656025994366","0.3169206872822218","72.17371669946944","-9.965712135983189","9.647378437315428","7.168900577932001","7.4827491603432295","6.743170442903599","19.002952476140877","11.296700447782694","91.8570719167994","173.823634295455","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-16","1","AeroTech","J1299N","RELOAD","6980700f96132f6eeaac108523479640","0.054","0.231","850.1840000000002","1299.9918817477355","1452.0","0.6533551824817518","0.834","0.46239999999999987","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","598.3088688739005","20.027912607741218","120.77598869381843","0.35500872504638226","208.60148853859968","-10.023493419132821","9.639660242591239","7.210683772909808","7.508655785217623","6.776146442903599","18.910474935088107","10.851040989506306","92.94658151976572","177.16758404554218","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-17","1","AeroTech","J99N","RELOAD","052c36d57bd7b25348e59f4803d8c4ff","0.054","0.231","929.51007","95.9589069939144","144.305","9.678636273859086","0.899","0.3429999999999999","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","INCOMPLETE","DOES_NOT_MEET_CRITERIA","NO_APOGEE; NO_GROUND_CONTACT_OR_TIME_LIMIT; SIMULATION_ABORT; RECOVERY_MISSING:Parachute","Messages[]","","1","1","1.0142816340856171","4.685554834323683","4.712216456434766","0.014824932073222375","11.352920670576992","","","","","6.841146442903599","18.730800244443856","","0.47000000000000036","","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-18","1","AeroTech","J450DM","SINGLE","0fee827f8da88f6ccc040b5f652ef9b2","0.054","0.359","1061.596983","465.3721318579588","541.417","2.2802853335882123","1.223","0.7130000000000003","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","742.1846113664946","9.940256953254348","125.22988968312343","0.36851330328978094","66.75598712995372","-10.14269417841516","9.676861314387436","7.3508937818401305","7.6432800381812065","7.165146442903599","17.883814167109684","12.792630353307528","112.3070740972245","216.0541813241826","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-19","1","AeroTech","J135W","RELOAD","0151c799c46e181276309fa658c21958","0.054","0.368","1042.2504099999994","146.27500826825056","259.308","7.1006367240629205","1.14106","0.5183399999999997","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","653.008288098669","6.848115441674446","83.57518148126596","0.2462070961292586","27.336773741661965","-10.012792737085416","9.692236022895294","7.24278093300535","7.485375306537749","7.083206442903599","18.090697835497057","13.7418607492245","102.81822174501751","195.70697668663374","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-20","1","AeroTech","J1265T","SINGLE","d804890a693c68624d16375f16f2f3e7","0.054","0.397","1074.8989240000003","1254.7710435423926","1568.426","0.8556998689309336","1.095","0.5879999999999997","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","811.5281304477817","19.47516953805935","146.59777769378152","0.43102078654149517","213.28106945881765","-10.045659618100059","9.657629341725022","7.280564628595375","7.504461275153293","7.037146442903599","18.20910627691059","12.505376503196548","122.13705562194104","235.77131315091108","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-21","1","AeroTech","J401FJ","RELOAD","a8d4f4e18fbd0784f31b85a28f6a16ee","0.054","0.325","1107.5515224999997","411.3623747492149","488.102","2.6899322511011317","0.912","0.4009999999999999","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","835.7353737752694","10.459243632637847","132.59704821000295","0.3903849378529298","61.37418387401128","-9.94693467020914","9.669932804178082","7.1750221963073155","7.454418492754494","6.854146442903599","18.69527424493302","13.4991327642827","127.96367087033205","245.05262974781823","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-22","1","AeroTech","J540R","RELOAD","d26028d0014e7d6f8b048899d12862e6","0.054","0.314","1146.483978","532.2590232859004","666.924","2.152037228135416","1.08416","0.4704000000000001","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","873.14523879676","12.604521857990827","140.9400106622928","0.41485514329020795","86.64717330145987","-10.000194951695757","9.666219818641773","7.2159923926356075","7.477824686941499","7.026306442903599","18.23719880513231","13.453202010934186","132.28088745026272","255.0043267844847","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-23","1","AeroTech","J1799N","RELOAD","497ba0a56caee361be9ff14d35244575","0.054","0.33","1075.7359445","1781.897706653074","2114.006","0.6027213853863926","1.111","0.5200000000000004","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","MEETS_CRITERIA","","Messages[]","","1","1","819.3899448850142","23.085802049076978","150.52715878107537","0.4424794076766431","293.9295556416642","-10.043838911107931","9.65491337039911","7.242616135722763","7.457068632490032","7.053146442903599","18.167799081208777","12.403113306796262","123.64813935150309","240.2009546462188","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-24","1","AeroTech","J800T","RELOAD","cb788683f45b481a33176306e89d3c3e","0.054","0.316","1264.4460289999997","664.980129886462","841.341","1.89931987600175","1.08595","0.472638","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","DOES_NOT_MEET_CRITERIA","APOGEE_HIGH","Messages[]","","1","1","1005.8037728728258","14.689117906734339","159.63224114157705","0.4698475477237584","110.05507929987021","-10.00034154823218","9.672420431500013","7.21622081433309","7.509349820879273","7.0280964429036","18.232553936336554","14.098488562121636","150.47705864128926","289.73751073832784","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-25","1","AeroTech","J415W","RELOAD","2de577124bd435045e7616270f4f9566","0.054","0.314","1290.5404535000002","422.97204788276747","553.889","3.0425816615050842","1.15718","0.4708440000000003","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","DOES_NOT_MEET_CRITERIA","APOGEE_HIGH","Messages[]","","1","1","1007.2015618290867","10.431123746616455","148.20605706862852","0.43654535058355975","69.23848474981753","-10.000510435508044","9.68365365449752","7.215963080723968","7.531420125575188","7.0993264429036","18.049620410553494","14.636513981234373","151.21886386894678","291.69684818777296","J","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-26","1","AeroTech","K456DM","RELOAD","d2c22308685cdca70a212b3d9d5be449","0.054","0.401","1305.6380259999999","449.0186538807413","519.582","2.9047707053584038","1.484","0.6180000000000009","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","DOES_NOT_MEET_CRITERIA","APOGEE_HIGH","Messages[]","","1","1","980.1931540587312","10.477487690058773","147.19154230760455","0.4334986373145791","59.89759778194646","-10.062586161039812","9.690977051305037","7.29790426326462","7.494460775883449","7.426146442903599","17.255268051906683","14.565388742583362","146.09094338577603","283.41598424349485","K","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-27","1","AeroTech","K400C","SINGLE","d90c600ca3c0b7febf6749f2f85c232e","0.054","0.359","1307.2574510000006","409.5156516499366","548.466","3.190052844831774","1.194","0.7010000000000004","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","DOES_NOT_MEET_CRITERIA","APOGEE_HIGH","Messages[]","","1","1","1009.8478187902161","11.27228889370071","145.38887506973737","0.42833779515721443","66.88885535424787","-10.135118447878067","9.693865626872068","7.3444351233912935","7.572031715109466","7.136146442903599","17.956490732115146","14.743754439051292","149.30059219951187","287.47931836232385","K","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-28","1","AeroTech","K76WN-P","SINGLE","b915d60787241c5de017d019f0265385","0.054","0.368","1358.31501","66.91012339243385","284.07","20.269347908728772","1.2779","0.43790000000000034","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","INCOMPLETE","DOES_NOT_MEET_CRITERIA","NO_APOGEE; NO_GROUND_CONTACT_OR_TIME_LIMIT; SIMULATION_ABORT; RECOVERY_MISSING:Parachute","Messages[]","","1","1","720.6038803350681","7.616854893605925","85.38612385746514","0.25125400744553933","30.150958741167592","","","","","7.220046442903599","17.74782869865895","","16.827500000000356","","K","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""
+"1","6f39c056-cbdb-41d0-803d-96177627b265","motor-29","1","AeroTech","K185W","RELOAD","03afbcb8e1394719f45d25c39bc21c47","0.054","0.437","1378.5789425000003","193.527712186573","339.677","7.09504088813821","1.43405","0.6070420000000001","e3e123d9-6253-4732-b0a0-cdbe416567e1","FinCan","1","plugged","KEEP_BASELINE","COMPLETE","DOES_NOT_MEET_CRITERIA","APOGEE_HIGH","Messages[]","","1","1","1016.149335970777","7.694848084223912","115.9398563466986","0.3419689939602967","37.010468665624025","-10.039439391328381","9.720791511377907","7.290245122792984","7.569475655112264","7.376196442903599","17.372116978838662","16.106877808399265","152.4411188749149","295.13466118274397","K","L2","Manufacturer designation","Motor category only; current motor certification and complete rocket/cluster requirements are separate.","24.12.RC.01","2026-10-14T15:23:55.754302Z","AeroTech J1265ST (single-use; J1265T in OR)","2e2da9c8-c958-4389-b6f7-f00560ab33a6","a40e3a86ad1a9d0d8ac7b6629840e4d0412f02b1b3ca857380451e74639217d6","4","4","2050261008","false","","","1","1","","","{""mount"":""e3e123d9-6253-4732-b0a0-cdbe416567e1"",""threads"":4,""diameter"":0.054,""length"":0.45,""manufacturers"":[""AMW/ProX"",""AMWProX"",""AeroTech"",""Alpha Hybrid Rocketry LLC"",""Animal Motor Works"",""Apogee"",""Cesaroni Technology Inc."",""Contrail Rockets"",""Ellis Mountain"",""Estes"",""Estes Industries, Inc."",""Gorilla Rocket Motors"",""HyperTEK"",""Klima"",""Kosdon by AeroTech"",""Loki Research"",""Propulsion Polymers"",""Public Missiles, Ltd."",""Quest"",""RATT Works"",""Roadrunner Rocketry"",""Rocketvision"",""Sky Ripper Systems"",""Southern Cross Rocketry"",""TSP"",""Unknown"",""WECO Feuerwerk"",""West Coast Hybrids""],""search"":"""",""motorType"":""ALL"",""certificationLevel"":""L2"",""hideUnavailable"":true,""ignoreComponentIntersections"":true,""minImpulse"":640.01,""maxImpulse"":1400.0,""minThrust"":0.0,""maxThrust"":1000000.0,""minBurn"":0.0,""maxBurn"":1000000.0,""delayPolicy"":""KEEP_BASELINE"",""criteria"":{""APOGEE"":[null,914.4]}}","<conditions>
+        <configid>2e2da9c8-c958-4389-b6f7-f00560ab33a6</configid>
+        <launchrodlength>1.0</launchrodlength>
+        <launchrodangle>0.0</launchrodangle>
+        <launchroddirection>90.0</launchroddirection>
+        <initialrollrate>0.0</initialrollrate>
+        <windaverage>2.0</windaverage>
+        <windturbulence>0.1</windturbulence>
+        <winddirection>1.5707963267948966</winddirection>
+        <wind model=""average"">
+          <speed>2.0</speed>
+          <direction>1.5707963267948966</direction>
+          <standarddeviation>0.2</standarddeviation>
+        </wind>
+        <wind model=""multilevel"" altituderef=""msl"">
+          <windlevel altitude=""0.0"" speed=""2.0"" direction=""1.5707963267948966"" standarddeviation=""0.2""/>
+        </wind>
+        <windmodeltype>Average</windmodeltype>
+        <launchaltitude>0.0</launchaltitude>
+        <launchlatitude>28.61</launchlatitude>
+        <launchlongitude>-80.6</launchlongitude>
+        <geodeticmethod>spherical</geodeticmethod>
+        <atmosphere model=""isa""/>
+        <timestep>0.05</timestep>
+        <maxtime>1200.0</maxtime>
+        <ensemble dragsigma=""0.0"" enabled=""false"" masssigma=""0.0"" motorsigma=""20.0"" noiseinterval=""0.05"" pressuresigma=""0.01"" rolldampingsigma=""0.0"" rollforcesigma=""0.0"" runs=""50"" seed=""67"" temperaturesigma=""2.0"" threads=""4"" winddirectionsigma=""0.0"" windsigma=""1.0""/>
+      </conditions>","true","MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]",""

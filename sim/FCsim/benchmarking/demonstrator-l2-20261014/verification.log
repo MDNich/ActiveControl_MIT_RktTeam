@@ -1,0 +1,160 @@
+11:23:02.734 [main] INFO info.openrocket.core.file.openrocket.importt.OpenRocketLoader -- Loading .ork file
+11:23:02.831 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Single-use, manufacturer AeroTech, designation HP-I500T, diameter NaN, length NaN, digest 97f440a5abdc634633b433d244cc279b, warnings Messages[]
+11:23:02.832 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is HP-I500T
+11:23:02.833 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer AeroTech, designation J570W, diameter NaN, length NaN, digest 14373c65485521035497b1db20e110d3, warnings Messages[]
+11:23:02.835 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is J570W
+11:23:02.835 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer Cesaroni Technology, designation 1261J449-15A, diameter NaN, length NaN, digest 54a179dcffed659a6ee2d84c34238368, warnings Messages[]
+11:23:02.837 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is 1261J449-15A
+11:23:02.837 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer AeroTech, designation J800T, diameter NaN, length NaN, digest cb788683f45b481a33176306e89d3c3e, warnings Messages[]
+11:23:02.839 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is J800T
+11:23:02.839 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer Cesaroni Technology, designation 1266J760-19A, diameter NaN, length NaN, digest c2faf5d908e5ede30378a9aea669a836, warnings Messages[]
+11:23:02.841 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is 1266J760-19A
+11:23:02.841 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Reloadable, manufacturer AeroTech, designation J415W, diameter NaN, length NaN, digest 2de577124bd435045e7616270f4f9566, warnings Messages[]
+11:23:02.842 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is J415W
+11:23:02.843 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Single-use, manufacturer AeroTech, designation HP-K535W, diameter NaN, length NaN, digest 74451a159ce1001a76d319ed0d9a6f9a, warnings Messages[]
+11:23:02.844 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is HP-K535W
+11:23:02.844 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- type Single-use, manufacturer AeroTech, designation J1265T, diameter NaN, length NaN, digest d804890a693c68624d16375f16f2f3e7, warnings Messages[]
+11:23:02.844 [main] DEBUG info.openrocket.core.file.DatabaseMotorFinder -- motor is J1265T
+11:23:03.012 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=359.339 maxVelocity=82.539 maxAcceleration=79.18 maxMachNumber=0.243 timeToApogee=8.915 flightTime=59.121 groundHitVelocity=7.364 launchRodVelocity=12.141 optimumDelay=7.580039157223637
+11:23:03.104 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=788.639 maxVelocity=129.49 maxAcceleration=158.699 maxMachNumber=0.381 timeToApogee=12.601 flightTime=121.295 groundHitVelocity=7.413 launchRodVelocity=17.327 optimumDelay=10.549221307450921
+11:23:04.251 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=359.29909024001114 maxVelocity=82.53705032256258 maxAcceleration=79.44079295783385 maxMachNumber=0.24288490468447727 timeToApogee=8.9145 flightTime=51.06575208753855 groundHitVelocity=7.491008453856179 launchRodVelocity=11.998073894962529 optimumDelay=7.624
+11:23:04.293 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=976.803 maxVelocity=148.582 maxAcceleration=72.749 maxMachNumber=0.438 timeToApogee=14.417 flightTime=146.729 groundHitVelocity=7.506 launchRodVelocity=10.906 optimumDelay=11.579384256687666
+11:23:04.325 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1005.178 maxVelocity=159.607 maxAcceleration=110.055 maxMachNumber=0.47 timeToApogee=14.092 flightTime=150.398 groundHitVelocity=7.462 launchRodVelocity=14.689 optimumDelay=12.00218808351756
+11:23:04.359 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1008.802 maxVelocity=163.589 maxAcceleration=121.905 maxMachNumber=0.482 timeToApogee=14.059 flightTime=150.545 groundHitVelocity=7.526 launchRodVelocity=14.692 optimumDelay=12.327648492514529
+11:23:04.406 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1006.001 maxVelocity=148.164 maxAcceleration=69.248 maxMachNumber=0.437 timeToApogee=14.624 flightTime=151.061 groundHitVelocity=7.48 launchRodVelocity=10.431 optimumDelay=11.266122812902307
+11:23:04.442 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=1148.474 maxVelocity=165.949 maxAcceleration=79.327 maxMachNumber=0.489 timeToApogee=15.257 flightTime=169.867 groundHitVelocity=7.522 launchRodVelocity=12.567 optimumDelay=12.305076510418717
+11:23:04.473 [main] DEBUG info.openrocket.core.simulation.FlightData -- Computed flight values: maxAltitude=811.499 maxVelocity=146.595 maxAcceleration=213.281 maxMachNumber=0.431 timeToApogee=12.505 flightTime=122.134 groundHitVelocity=7.516 launchRodVelocity=19.475 optimumDelay=11.603327466534493
+11:23:04.477 [main] INFO info.openrocket.core.file.openrocket.importt.OpenRocketLoader -- Loading done
+LOAD_WARNINGS Messages[]
+BASELINE AeroTech J1265ST (single-use; J1265T in OR) Balius CDR v0
+MOUNT FinCan bore=0.09906
+11:23:04.502 [main] INFO info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving .ork file
+11:23:04.503 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Storing file version 1.10
+11:23:04.503 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Rocket
+Looking for info.openrocket.core.file.openrocket.savers.RocketSaver
+11:23:04.505 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Stage
+Looking for info.openrocket.core.file.openrocket.savers.AxialStageSaver
+11:23:04.505 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Nose Cone
+Looking for info.openrocket.core.file.openrocket.savers.NoseConeSaver
+11:23:04.508 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Bulkhead
+Looking for info.openrocket.core.file.openrocket.savers.BulkheadSaver
+11:23:04.509 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Body Tube
+Looking for info.openrocket.core.file.openrocket.savers.BodyTubeSaver
+11:23:04.509 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Parachute
+Looking for info.openrocket.core.file.openrocket.savers.ParachuteSaver
+11:23:04.511 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Body Tube
+Looking for info.openrocket.core.file.openrocket.savers.BodyTubeSaver
+11:23:04.511 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Mass Component
+Looking for info.openrocket.core.file.openrocket.savers.MassComponentSaver
+11:23:04.511 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Tube Coupler
+Looking for info.openrocket.core.file.openrocket.savers.TubeCouplerSaver
+11:23:04.511 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Trapezoidal Fin Set
+Looking for info.openrocket.core.file.openrocket.savers.TrapezoidFinSetSaver
+11:23:04.512 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Body Tube
+Looking for info.openrocket.core.file.openrocket.savers.BodyTubeSaver
+11:23:04.512 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Mass Component
+Looking for info.openrocket.core.file.openrocket.savers.MassComponentSaver
+11:23:04.512 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Bulkhead
+Looking for info.openrocket.core.file.openrocket.savers.BulkheadSaver
+11:23:04.513 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Pod Set
+Looking for info.openrocket.core.file.openrocket.savers.PodSetSaver
+Looking for info.openrocket.core.file.openrocket.savers.ComponentAssemblySaver
+11:23:04.513 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Nose Cone
+Looking for info.openrocket.core.file.openrocket.savers.NoseConeSaver
+11:23:04.513 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Nose Cone
+Looking for info.openrocket.core.file.openrocket.savers.NoseConeSaver
+11:23:04.514 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Centering Ring
+Looking for info.openrocket.core.file.openrocket.savers.CenteringRingSaver
+11:23:04.514 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Body Tube
+Looking for info.openrocket.core.file.openrocket.savers.BodyTubeSaver
+11:23:04.515 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Tab Controlled Trapezoidal Fin Set
+Looking for info.openrocket.core.file.openrocket.savers.TabControlledTrapezoidFinSetSaver
+11:23:04.516 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Centering Ring
+Looking for info.openrocket.core.file.openrocket.savers.CenteringRingSaver
+11:23:04.516 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Mass Component
+Looking for info.openrocket.core.file.openrocket.savers.MassComponentSaver
+11:23:04.516 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving component Tube Coupler
+Looking for info.openrocket.core.file.openrocket.savers.TubeCouplerSaver
+11:23:04.518 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving Photo Settings
+11:23:04.518 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Saving Document Preferences
+11:23:04.518 [main] DEBUG info.openrocket.core.file.openrocket.OpenRocketSaver -- Writing complete, flushing buffers
+CATALOG AeroTech HP-I65W 54mm 218mm Single-use 660.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J340M 38mm 337mm Reloadable 652.8Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J420R 38mm 337mm Reloadable 651.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J520W 38mm 502mm Reloadable 686.8Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech HP-J425R 38mm 356mm Single-use 676.8Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J350W 38mm 337mm Reloadable 669.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech HP-J270W 38mm 356mm Single-use 701.5Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J250W 54mm 218mm Single-use 708.8Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J90W 54mm 243mm Reloadable 689.4Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J500G 38mm 345mm Reloadable 722.7Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J250FJ 54mm 241mm Reloadable 707.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J435WS 38mm 366mm Single-use 772.1Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J615ST-20A 54mm 240mm Reloadable 762.9Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J315R 54mm 230mm Reloadable 757.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J180T 54mm 230mm Reloadable 786.9Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J275W 54mm 230mm Reloadable 842.7Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J575FJ 38mm 478mm Reloadable 796.0Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J460T 54mm 230mm Reloadable 858.1Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J1299N 54mm 231mm Reloadable 850.2Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J99N 54mm 231mm Reloadable 929.5Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J570W 38mm 479mm Reloadable 1033.8Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J825R 38mm 478mm Reloadable 962.2Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J450DM 54mm 359mm Single-use 1061.6Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J135W 54mm 368mm Reloadable 1042.3Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J1265T 54mm 397mm Single-use 1074.9Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J401FJ 54mm 325mm Reloadable 1107.6Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J540R 54mm 314mm Reloadable 1146.5Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J510W 38mm 584mm Reloadable 1180.5Ns clearance=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294], MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba], MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+CATALOG AeroTech J1799N 54mm 330mm Reloadable 1075.7Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J800T 54mm 316mm Reloadable 1264.4Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech J415W 54mm 314mm Reloadable 1290.5Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech K456DM 54mm 401mm Reloadable 1305.6Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech K400C 54mm 359mm Single-use 1307.3Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech K76WN-P 54mm 368mm Single-use 1358.3Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+CATALOG AeroTech K185W 54mm 437mm Reloadable 1378.6Ns clearance=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87], MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+TRIALS 0
+MOTOR_BATCH start batch=318e9799-ce00-425b-9594-cddcfb87c573 threads=4 candidates=35 trials=0 settings={"mount":"e3e123d9-6253-4732-b0a0-cdbe416567e1","threads":4,"diameter":0.054,"length":0.45,"manufacturers":["AMW/ProX","AMWProX","AeroTech","Alpha Hybrid Rocketry LLC","Animal Motor Works","Apogee","Cesaroni Technology Inc.","Contrail Rockets","Ellis Mountain","Estes","Estes Industries, Inc.","Gorilla Rocket Motors","HyperTEK","Klima","Kosdon by AeroTech","Loki Research","Propulsion Polymers","Public Missiles, Ltd.","Quest","RATT Works","Roadrunner Rocketry","Rocketvision","Sky Ripper Systems","Southern Cross Rocketry","TSP","Unknown","WECO Feuerwerk","West Coast Hybrids"],"search":"","motorType":"ALL","certificationLevel":"L2","hideUnavailable":true,"ignoreComponentIntersections":false,"minImpulse":640.01,"maxImpulse":1400.0,"minThrust":0.0,"maxThrust":1000000.0,"minBurn":0.0,"maxBurn":1000000.0,"delayPolicy":"KEEP_BASELINE","criteria":{"APOGEE":[null,914.4]}}
+MOTOR_BATCH excluded candidate=motor-0 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-1 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH excluded candidate=motor-2 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH excluded candidate=motor-3 reasons=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]; MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]; MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH fit_warning candidate=motor-3 motor_length_m=0.502 reference_length_m=0.45 warnings=[MOTOR_TOO_LONG]
+MOTOR_BATCH excluded candidate=motor-4 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH excluded candidate=motor-5 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH excluded candidate=motor-6 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH excluded candidate=motor-7 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-8 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-9 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH excluded candidate=motor-10 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-11 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH excluded candidate=motor-12 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-13 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-14 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-15 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-16 reasons=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]; MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]; MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH fit_warning candidate=motor-16 motor_length_m=0.478 reference_length_m=0.45 warnings=[MOTOR_TOO_LONG]
+MOTOR_BATCH excluded candidate=motor-17 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-18 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-19 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-20 reasons=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]; MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]; MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH fit_warning candidate=motor-20 motor_length_m=0.479 reference_length_m=0.45 warnings=[MOTOR_TOO_LONG]
+MOTOR_BATCH excluded candidate=motor-21 reasons=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]; MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]; MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH fit_warning candidate=motor-21 motor_length_m=0.478 reference_length_m=0.45 warnings=[MOTOR_TOO_LONG]
+MOTOR_BATCH excluded candidate=motor-22 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-23 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-24 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-25 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-26 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-27 reasons=[MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]; MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]; MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]]
+MOTOR_BATCH fit_warning candidate=motor-27 motor_length_m=0.5842000122070312 reference_length_m=0.45 warnings=[MOTOR_TOO_LONG]
+MOTOR_BATCH excluded candidate=motor-28 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-29 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-30 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-31 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-32 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-33 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH excluded candidate=motor-34 reasons=[MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]; MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]]
+MOTOR_BATCH finished batch=318e9799-ce00-425b-9594-cddcfb87c573 trials=0 peak_threads=0 cancelled=false
+MOTOR_BATCH csv=/Users/mdn/Developer/ActiveControl_MIT_RktTeam/sim/FCsim/benchmarking/demonstrator-l2-20261014/./motor-batch-results.csv scope=ALL_CANDIDATES
+COMPLETE rows=35 workers=0
