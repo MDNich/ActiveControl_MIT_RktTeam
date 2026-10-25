@@ -1,0 +1,17 @@
+{
+  "altitude_m": {
+    "maximum_mean_difference": 2.2737367544323206e-13,
+    "maximum_sd_difference": 2.4868995751603507e-14
+  },
+  "speed_m_s": {
+    "maximum_mean_difference": 5.684341886080802e-14,
+    "maximum_sd_difference": 4.440892098500626e-15
+  },
+  "same_20_runs_reproduced": true,
+  "samples": 4739,
+  "common_time_end_s": 60.59078625007978,
+  "earliest_landing_s": 60.90048594405962,
+  "altitude_unit": "ft AGL",
+  "speed_unit": "m/s",
+  "band": "pointwise mean \u00b1 sample SD (N-1)"
+}

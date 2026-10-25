@@ -1,0 +1,9 @@
+Source: /Users/mdn/Developer/MIT_Rkt_Team/2026-7/MIT-RT-26_27-Work/simulation_work/generic/openrocket/OpenRocket2026/2627_official/20267.demonstrator.iteration4.ork
+SHA256: 80dccac0df5df058cead0c21932ff1e76efb961168ee17e49e2e2f0a8b804788
+Baseline: Simulation 1
+Random seed: 12345
+Saved launch conditions retained; FC disabled.
+Roll tabs neutral on both models.
+Recovery remains apogee + 1 s; unused motor charge events suppressed.
+Requested motors simulated with intersection override; warnings remain in results.
+Source file unchanged.

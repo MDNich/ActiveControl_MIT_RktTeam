@@ -1,0 +1,48 @@
+{
+  "roll_tab_angle_deg": 0,
+  "fc_enabled": false,
+  "rows": [
+    {
+      "motor": "J1299N",
+      "total_impulse_curve_integral_N_s": 850.184,
+      "iteration3_apogee_ft_agl": 2018.1454980273734,
+      "iteration4_apogee_ft_agl": 1962.2496607802989
+    },
+    {
+      "motor": "J460T",
+      "total_impulse_curve_integral_N_s": 858.108396,
+      "iteration3_apogee_ft_agl": 1960.9989790282148,
+      "iteration4_apogee_ft_agl": 1911.9140654798227
+    },
+    {
+      "motor": "J450DM",
+      "total_impulse_curve_integral_N_s": 1061.596983,
+      "iteration3_apogee_ft_agl": 2503.6230914541998,
+      "iteration4_apogee_ft_agl": 2432.662274266262
+    },
+    {
+      "motor": "J1265T",
+      "total_impulse_curve_integral_N_s": 1074.898924,
+      "iteration3_apogee_ft_agl": 2757.860333544639,
+      "iteration4_apogee_ft_agl": 2661.068955559372
+    },
+    {
+      "motor": "J1799N",
+      "total_impulse_curve_integral_N_s": 1075.7359445,
+      "iteration3_apogee_ft_agl": 2788.4718053318006,
+      "iteration4_apogee_ft_agl": 2687.5601769885084
+    },
+    {
+      "motor": "J540R",
+      "total_impulse_curve_integral_N_s": 1146.483978,
+      "iteration3_apogee_ft_agl": 2965.185591794897,
+      "iteration4_apogee_ft_agl": 2862.06802518377
+    },
+    {
+      "motor": "J401FJ",
+      "total_impulse_curve_integral_N_s": 1107.5515225,
+      "iteration3_apogee_ft_agl": 2829.620215192412,
+      "iteration4_apogee_ft_agl": 2737.655067786994
+    }
+  ]
+}

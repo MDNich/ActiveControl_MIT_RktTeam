@@ -1,0 +1,208 @@
+{
+  "nominal_runs": 12,
+  "ensemble_runs": 240,
+  "runs_per_model_and_motor": 20,
+  "threads": 4,
+  "mass_gaussian_sigma_fraction": 0.05,
+  "cd_gaussian_sigma_fraction": 0.05,
+  "other_ensemble_variation_sigmas": 0,
+  "random_seed": 12345,
+  "fc_enabled": false,
+  "roll_tab_angle_deg_both_models": 0,
+  "standard_deviation": "Sample standard deviation, denominator N-1",
+  "wind": "Saved 2 m/s mean and 0.2 m/s turbulence; turbulence trace held fixed across members",
+  "mass_scope": "Whole active vehicle, including remaining propellant; inertia scaled with mass",
+  "original_model_sha256": {
+    "3": "18c4d206047ccc1962469a1d63da8bb155abbf7adb574beafb9308e411ab1c98",
+    "4": "80dccac0df5df058cead0c21932ff1e76efb961168ee17e49e2e2f0a8b804788"
+  },
+  "source_models_unchanged": true,
+  "rows": [
+    {
+      "iteration": 3,
+      "motor": "J270W",
+      "nominal_apogee_ft_agl": 1371.8323098457308,
+      "nominal_apogee_time_s": 10.160000000000153,
+      "ensemble_mean_apogee_ft_agl": 1347.282384656417,
+      "ensemble_stdev_apogee_ft": 72.33796178668382,
+      "ensemble_mean_apogee_time_s": 10.040250000000176,
+      "ensemble_stdev_apogee_time_s": 0.21484066923624207,
+      "trials_above_3000_ft": 0,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ]
+    },
+    {
+      "iteration": 3,
+      "motor": "J415W",
+      "nominal_apogee_ft_agl": 3429.0580058542464,
+      "nominal_apogee_time_s": 15.027499999999193,
+      "ensemble_mean_apogee_ft_agl": 3385.0353462529583,
+      "ensemble_stdev_apogee_ft": 130.68397480686173,
+      "ensemble_mean_apogee_time_s": 14.912124999999216,
+      "ensemble_stdev_apogee_time_s": 0.22777567883424343,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 3,
+      "motor": "J800T",
+      "nominal_apogee_ft_agl": 3433.85500769321,
+      "nominal_apogee_time_s": 14.50249999999929,
+      "ensemble_mean_apogee_ft_agl": 3392.384371947665,
+      "ensemble_stdev_apogee_ft": 125.21301281267338,
+      "ensemble_mean_apogee_time_s": 14.392374999999312,
+      "ensemble_stdev_apogee_time_s": 0.22264923292262406,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 3,
+      "motor": "K550W",
+      "nominal_apogee_ft_agl": 4553.1558447690695,
+      "nominal_apogee_time_s": 16.634999999999334,
+      "ensemble_mean_apogee_ft_agl": 4505.838162584266,
+      "ensemble_stdev_apogee_ft": 153.65704229352,
+      "ensemble_mean_apogee_time_s": 16.53237499999928,
+      "ensemble_stdev_apogee_time_s": 0.24543660747642215,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 3,
+      "motor": "K480W",
+      "nominal_apogee_ft_agl": 6527.577667047284,
+      "nominal_apogee_time_s": 19.535000000000714,
+      "ensemble_mean_apogee_ft_agl": 6475.793503819083,
+      "ensemble_stdev_apogee_ft": 205.6775504530694,
+      "ensemble_mean_apogee_time_s": 19.452750000000673,
+      "ensemble_stdev_apogee_time_s": 0.30366608652491556,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]",
+        "MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]",
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 3,
+      "motor": "K700W",
+      "nominal_apogee_ft_agl": 6469.189121322481,
+      "nominal_apogee_time_s": 19.017500000000545,
+      "ensemble_mean_apogee_ft_agl": 6421.969338222972,
+      "ensemble_stdev_apogee_ft": 202.14646069131913,
+      "ensemble_mean_apogee_time_s": 18.940250000000507,
+      "ensemble_stdev_apogee_time_s": 0.3074266065602477,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]",
+        "MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]",
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 4,
+      "motor": "J270W",
+      "nominal_apogee_ft_agl": 1348.6976744975993,
+      "nominal_apogee_time_s": 10.005194347889107,
+      "ensemble_mean_apogee_ft_agl": 1325.0153500312808,
+      "ensemble_stdev_apogee_ft": 69.45241808337435,
+      "ensemble_mean_apogee_time_s": 9.931724587187581,
+      "ensemble_stdev_apogee_time_s": 0.2049801122837392,
+      "trials_above_3000_ft": 0,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ]
+    },
+    {
+      "iteration": 4,
+      "motor": "J415W",
+      "nominal_apogee_ft_agl": 3300.980712180496,
+      "nominal_apogee_time_s": 14.62605155573648,
+      "ensemble_mean_apogee_ft_agl": 3260.479839982999,
+      "ensemble_stdev_apogee_ft": 121.8254392394078,
+      "ensemble_mean_apogee_time_s": 14.562179244408355,
+      "ensemble_stdev_apogee_time_s": 0.21700759799829544,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 4,
+      "motor": "J800T",
+      "nominal_apogee_ft_agl": 3297.2486554274365,
+      "nominal_apogee_time_s": 14.09104623589572,
+      "ensemble_mean_apogee_ft_agl": 3259.3389563200967,
+      "ensemble_stdev_apogee_ft": 116.51966287041893,
+      "ensemble_mean_apogee_time_s": 14.032606601449903,
+      "ensemble_stdev_apogee_time_s": 0.21185066717956783,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 4,
+      "motor": "K550W",
+      "nominal_apogee_ft_agl": 4340.679724084463,
+      "nominal_apogee_time_s": 16.10386222105839,
+      "ensemble_mean_apogee_ft_agl": 4298.227809786172,
+      "ensemble_stdev_apogee_ft": 143.0918200368834,
+      "ensemble_mean_apogee_time_s": 16.054569564249732,
+      "ensemble_stdev_apogee_time_s": 0.2391168595875113,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 4,
+      "motor": "K480W",
+      "nominal_apogee_ft_agl": 6164.436572460302,
+      "nominal_apogee_time_s": 18.81878222009376,
+      "ensemble_mean_apogee_ft_agl": 6119.308388215911,
+      "ensemble_stdev_apogee_ft": 192.33512605995193,
+      "ensemble_mean_apogee_time_s": 18.789161313402747,
+      "ensemble_stdev_apogee_time_s": 0.30023418518229533,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]",
+        "MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]",
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "iteration": 4,
+      "motor": "K700W",
+      "nominal_apogee_ft_agl": 6092.3482515649275,
+      "nominal_apogee_time_s": 18.28568534854673,
+      "ensemble_mean_apogee_ft_agl": 6051.672681728155,
+      "ensemble_stdev_apogee_ft": 189.4128975268203,
+      "ensemble_mean_apogee_time_s": 18.261773169932184,
+      "ensemble_stdev_apogee_time_s": 0.30351422348229273,
+      "trials_above_3000_ft": 20,
+      "clearance_warnings": [
+        "MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]",
+        "MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]",
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    }
+  ]
+}

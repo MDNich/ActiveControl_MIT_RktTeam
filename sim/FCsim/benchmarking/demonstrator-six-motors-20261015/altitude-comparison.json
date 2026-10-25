@@ -1,0 +1,115 @@
+{
+  "sources": {
+    "3": {
+      "path": "/Users/mdn/Developer/MIT_Rkt_Team/2026-7/MIT-RT-26_27-Work/simulation_work/generic/openrocket/OpenRocket2026/2627_official/20267.demonstrator.iteration3.ork",
+      "sha256": "18c4d206047ccc1962469a1d63da8bb155abbf7adb574beafb9308e411ab1c98"
+    },
+    "4": {
+      "path": "/Users/mdn/Developer/MIT_Rkt_Team/2026-7/MIT-RT-26_27-Work/simulation_work/generic/openrocket/OpenRocket2026/2627_official/20267.demonstrator.iteration4.ork",
+      "sha256": "80dccac0df5df058cead0c21932ff1e76efb961168ee17e49e2e2f0a8b804788"
+    }
+  },
+  "random_seed": 12345,
+  "units": "feet above launch level",
+  "conditions": "Saved standard simulation conditions retained: 1 m vertical rail, 2 m/s average wind, 0.2 m/s wind standard deviation, ISA, sea-level launch. Single nominal runs; no ensemble or FC. Apogee + 1 s recovery; unused motor charge events disabled.",
+  "geometry": "As saved. Iteration3 roll tabs 0 degrees. Iteration4 roll tabs 40 degrees.",
+  "clearance": "RCR/RRC placeholders assumed to clear 54 mm as authorized. K480W and K700W also intersect the modeled avionics bay and pressure bulkhead in both files; all six motors simulated as requested.",
+  "rows": [
+    {
+      "designation": "J270W",
+      "diameter_mm": 38.0,
+      "type": "SINGLE",
+      "iteration3_apogee_ft_agl": 1371.8323098457308,
+      "iteration4_apogee_ft_agl": 1351.777441360299,
+      "iteration3_clearance": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ],
+      "iteration4_clearance": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]"
+      ]
+    },
+    {
+      "designation": "J415W",
+      "diameter_mm": 54.0,
+      "type": "RELOAD",
+      "iteration3_apogee_ft_agl": 3429.0580058542464,
+      "iteration4_apogee_ft_agl": 3304.560648885648,
+      "iteration3_clearance": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ],
+      "iteration4_clearance": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "designation": "J800T",
+      "diameter_mm": 54.0,
+      "type": "RELOAD",
+      "iteration3_apogee_ft_agl": 3433.85500769321,
+      "iteration4_apogee_ft_agl": 3299.928695485732,
+      "iteration3_clearance": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ],
+      "iteration4_clearance": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "designation": "K550W",
+      "diameter_mm": 54.0,
+      "type": "RELOAD",
+      "iteration3_apogee_ft_agl": 4553.1558447690695,
+      "iteration4_apogee_ft_agl": 4343.454290721496,
+      "iteration3_clearance": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ],
+      "iteration4_clearance": [
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "designation": "K480W",
+      "diameter_mm": 54.0,
+      "type": "RELOAD",
+      "iteration3_apogee_ft_agl": 6527.577667047284,
+      "iteration4_apogee_ft_agl": 6168.72060439385,
+      "iteration3_clearance": [
+        "MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]",
+        "MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]",
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ],
+      "iteration4_clearance": [
+        "MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]",
+        "MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]",
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    },
+    {
+      "designation": "K700W",
+      "diameter_mm": 54.0,
+      "type": "RELOAD",
+      "iteration3_apogee_ft_agl": 6469.189121322481,
+      "iteration4_apogee_ft_agl": 6095.34276388542,
+      "iteration3_clearance": [
+        "MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]",
+        "MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]",
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ],
+      "iteration4_clearance": [
+        "MOTOR_INTERSECTS:AvionicsBay [8d583cb6-7984-4d86-880e-22f5569c2294]",
+        "MOTOR_INTERSECTS:PressureBulkhead [32ce67de-ae92-4245-9873-de77b15f97ba]",
+        "MOTOR_INTERSECTS:RCR [7ae16407-6584-4985-8483-2359c3e02d87]",
+        "MOTOR_INTERSECTS:RRC [f5fb77b3-05d6-40ea-916a-41758d086c3d]"
+      ]
+    }
+  ]
+}
