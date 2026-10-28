@@ -32,6 +32,9 @@ def main():
     if args.offline:
         gradle.append('--offline')
     if not args.skip_build:
+        # The upstream module transform inspects the core JAR during shadow task
+        # graph construction, before a clean checkout has created that artifact.
+        run(gradle + [':core:jar'], cwd=SOURCE, env=environment)
         run(gradle + ['shadowJar'], cwd=SOURCE, env=environment)
     edition = dict(line.split('=', 1) for line in (SOURCE / 'core/src/main/resources/build.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))['build.mit.version']
     jar = SOURCE / f'build/libs/OpenRocket-MIT-v{edition}.jar'
