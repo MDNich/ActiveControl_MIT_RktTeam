@@ -129,9 +129,10 @@ public class MotorConfiguration implements FlightConfigurableParameter<MotorConf
 	}
 
 	public void useDefaultIgnition() {
-		this.ignitionOveride = false;
 		setIgnitionDelay(0);
 		setIgnitionEvent(IgnitionEvent.AUTOMATIC);
+		// Both setters mark the configuration as overridden; clear that flag after resetting values.
+		this.ignitionOveride = false;
 
 		for (MotorConfiguration listener : configListeners) {
 			listener.useDefaultIgnition();

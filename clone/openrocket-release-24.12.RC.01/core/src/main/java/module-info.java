@@ -9,6 +9,8 @@ open module info.openrocket.core {
 	// Libraries
 	requires com.google.guice;
 	requires java.desktop;
+    requires jdk.httpserver;
+    requires org.apache.commons.compress;
     requires mgrs;
     requires grid;
     requires sf;

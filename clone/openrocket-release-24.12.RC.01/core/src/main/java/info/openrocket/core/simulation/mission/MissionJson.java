@@ -20,7 +20,13 @@ public final class MissionJson {
     }
 
     public static JsonObject parse(byte[] bytes) throws IOException {
-        if (bytes.length > MAX_BYTES) throw new IOException("Mission JSON exceeds 1 MiB");
+        return parse(bytes, MAX_BYTES);
+    }
+
+    /** Bounded archive inventories use a larger ceiling; API messages retain the 1 MiB limit. */
+    public static JsonObject parse(byte[] bytes, int maximumBytes) throws IOException {
+        if (maximumBytes < 1 || maximumBytes > 64 * 1024 * 1024 || bytes.length > maximumBytes)
+            throw new IOException("Mission JSON exceeds its size limit");
         String text;
         try {
             text = StandardCharsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)

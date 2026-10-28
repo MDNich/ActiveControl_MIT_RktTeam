@@ -42,6 +42,7 @@ extraJavaModuleInfo {
 
 dependencies {
     implementation 'mil.nga:mgrs:2.1.3'
+    implementation 'org.apache.commons:commons-compress:1.28.0'
     implementation group: 'org.commonmark', name: 'commonmark', version: '0.21.0'
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.12'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.0'

@@ -61,8 +61,20 @@ Preview import preserves all original fields and exact stored coordinates, with 
 
 Verification: 77 Java mission/FC/controller/ensemble checks passed before the additional full-flight snapshot comparison; the six snapshot checks then passed, including ordinary-flight solver samples matching within `1e-5` in SI units (native XML numeric serialization tolerance). Python passed 69 contract, codec, protocol and coordinate checks, plus lint. Fourteen shared contract files are identical between repositories. Packaged execution remains package G work.
 
+## B1 — configuration service and portable input storage
+
+Implemented a Java-owned, token-authenticated loopback API, revision-checked draft updates, typed validation findings, immutable resolution hashes and idempotent job dispatch. Job execution is supplied by the runner interface; without a runner the API explicitly advertises that execution is unavailable. Native file selection is an injected desktop operation, not an arbitrary browser path or shell endpoint.
+
+The new flight editor model covers every option companion field plus active stages, separation events/delays/altitudes, motor selection and ignition/ejection settings, recovery events/delays/altitudes, and all installed extension configuration values. Editing works on isolated snapshots. Its tests uncovered two native serialization omissions (inactive top-stage separation values and the ignition override flag); the snapshot companion now preserves these too. `MotorConfiguration.useDefaultIgnition()` also now clears its override flag after the setters that mark it overridden.
+
+Portable `.rktmission-setup` export/import carries the draft and frozen native inputs. A fixture deletes the original machine's entire input store and restores the setup on a fresh store. Missing elevations still produce draft findings. Loading retains the mission identity and advances an already-open draft's local revision to invalidate stale edits.
+
+The shared Java archive foundation writes ZIP64 with SHA-256 inventory, Deflate level 3, verified temporary publication and atomic replacement. Reads verify selected entries lazily; import rejects escaping paths, Windows device names, case collisions, symlinks, truncation, inconsistent inventories and oversized contents. These storage primitives are not yet a running result recorder, crash-recovery implementation or replay UI; those remain C–F work.
+
+Verification: 67 Java mission and motor tests passed, including loopback authentication/origin rejection, immutable resolution, repeated-start idempotency, full editor round trips, portable recovery and corrupt-archive rejection. The browser workspace and desktop entry point are B2, next.
+
 ## Remaining work
 
-**B:** Java-owned configuration service, full setting editors, menu/workspace integration and revision/idempotency behavior. The browser in `mission-ui/` is still the design prototype, not a connected mission runner.
+**B2:** bundled workspace, visible setting editors, menu integration and browser verification. The browser in `mission-ui/` remains the design prototype; the production service is implemented in core.
 
 **C–G:** deterministic station worker/scheduler and actual simulation, FC/software-station integration, media transmission, ensembles/bundles and packaged qualification remain as specified. No installer or GitHub release should describe Mission Simulation as delivered on the basis of A1 alone.

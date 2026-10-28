@@ -19,6 +19,7 @@ public final class MissionFlightSnapshot {
     public static JsonObject capture(Simulation source, Path directory) throws IOException {
         Files.createDirectory(directory); // New snapshot only: never overwrite a prior run's inputs.
         JsonObject options = MissionFlightOptions.capture(source.getOptions());
+        JsonObject editor = MissionFlightEditor.capture(source);
         var rocket = source.getRocket().copyWithOriginalID();
         var document = OpenRocketDocumentFactory.createDocumentFromRocket(rocket);
         Simulation simulation = source.duplicateSimulation(document, rocket);
@@ -44,7 +45,7 @@ public final class MissionFlightSnapshot {
         MissionJson.writeAtomic(directory.resolve("motors.json"), MissionMotorSnapshot.capture(rocket));
         JsonObject meta = Json.createObjectBuilder().add("format", "openrocket.mission-flight").add("version", 1)
                 .add("name", source.getName()).add("flightConfigurationId", source.getId().key.toString())
-                .add("options", options).add("extensionTypes", types).add("fcFiles", fcFiles).build();
+                .add("options", options).add("editor", editor).add("extensionTypes", types).add("fcFiles", fcFiles).build();
         MissionJson.writeAtomic(directory.resolve("flight.json"), meta);
         var hashes = Json.createObjectBuilder();
         try (var files = Files.list(directory)) {
@@ -96,6 +97,9 @@ public final class MissionFlightSnapshot {
         var restoredOptions = MissionFlightOptions.restore(meta.getJsonObject("options"));
         simulation.copySimulationOptionsFrom(restoredOptions);
         simulation.getOptions().setRandomSeed(restoredOptions.getRandomSeed());
+        // Native .ork serialization normalizes ignition overrides and omits top-stage separation settings.
+        // Keep the complete editable inventory in the companion, including currently inactive values.
+        if (meta.containsKey("editor")) MissionFlightEditor.apply(simulation, meta.getJsonObject("editor"), digest -> null);
         return simulation;
     }
 
