@@ -46,6 +46,33 @@ class MissionRunTest extends BaseTestCase {
             assertTrue(result.names().stream().anyMatch(n -> n.contains("/pointer/tx/")));
         }
     }
+    @Test void actualTelemetryApplicationOwnsOneReceiverAndArchivesItsNativeSession() throws Exception {
+        String python = System.getenv("MISSION_TEST_PYTHON"), source = System.getenv("MISSION_TEST_UI");
+        Assumptions.assumeTrue(python != null && source != null);
+        System.setProperty("openrocket.mission.python", python);
+        var original = ready(); var stations = Json.createArrayBuilder();
+        for (var value : original.mission().getJsonArray("stationBindings")) {
+            var station = value.asJsonObject(); stations.add(Json.createObjectBuilder(station).add("owner", station.getString("siteId").equals("gs1") ? "interactive-ui" : "headless-policy"));
+        }
+        var mission = Json.createObjectBuilder(original.mission()).add("stationBindings", stations).add("execution",
+                Json.createObjectBuilder(original.mission().getJsonObject("execution")).add("actions", Json.createArrayBuilder().add(Json.createObjectBuilder()
+                        .add("id", "start-ui-policy").add("timeUs", "0").add("siteId", "gs1").add("kind", "start-tracking")))).build();
+        var resolved = new MissionStore.Resolved(mission, original.flightDirectory(), MissionStore.hash(mission));
+        try (var recorder = new MissionRecorder(temp.resolve("app-staging"), mission)) {
+            var metrics = new MissionRun(resolved, recorder, "member-0", 0, new MissionRun.Control() {
+                public void check() { }
+                public void progress(long t, long end, String phase) { }
+            }).applicationPreferences(Json.createObjectBuilder().add("sourceProject", source).add("pythonExecutable", python).build()).execute(temp.resolve("app-private"));
+            assertTrue(metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("pointerCommands") > 0);
+            Path archive = temp.resolve("application.rktmission"); recorder.finish(archive, "complete");
+            try (var result = new MissionArchive(archive)) {
+                result.verifyAll();
+                assertTrue(result.names().stream().anyMatch(n -> n.endsWith("session.sqlite")));
+                assertTrue(result.names().stream().anyMatch(n -> n.endsWith("mission-clock.jsonl")));
+                assertFalse(result.names().stream().anyMatch(n -> n.contains("private.json")));
+            }
+        } finally { System.clearProperty("openrocket.mission.python"); }
+    }
     @Test void separatedStagesKeepStableIdentitiesAndIndependentTrajectories() throws Exception {
         var rocket = info.openrocket.core.util.TestRockets.makeMultiStageEventTestRocket();
         var flight = new info.openrocket.core.document.Simulation(rocket);

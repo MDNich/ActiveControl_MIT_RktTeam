@@ -120,3 +120,32 @@ D2 still needs the actual Telemetry UI process/manifest adapter and application 
 ## Remaining work
 
 **C–G:** deterministic station worker/scheduler and actual simulation, FC/software-station integration, media transmission, ensembles/bundles and packaged qualification remain as specified. No installer or GitHub release should describe Mission Simulation as delivered on the basis of A1 alone.
+
+## D2 — real Telemetry UI participants (2026-10-28)
+
+Implemented the `--mission-manifest` entry point using the actual StationWindow,
+with an injected MissionController and explicit SIMULATION source. It cannot open
+physical serial connections or switch into LIVE. Receiver bytes, decoded samples,
+and pointer writes use the same MissionStation policy as the bundled worker.
+Qt acknowledges every boundary before the producer continues; failures terminate
+the participant rather than silently losing canonical data. Interactive owners
+replace the corresponding headless command owner; observers cannot issue commands.
+Base uplinks return through the ordered simulator queue; opcode 0x07 remains disabled.
+
+Each role gets a private data directory, connection identity, OS-assigned loopback
+LAN port, simulation-only network acceptance, a native session, and a mission/host
+clock mapping. The result bundle imports closed native sessions separately by
+station/role/instance. Credential manifests are deleted after handshake and excluded
+from results. Source-project/Python or packaged-app paths come only from machine
+preferences. Interactive job admission requires paced execution.
+
+Validation: 57 Java mission tests passed; a further Java integration test launched
+the real Telemetry UI, ran a complete flight with GS1 owning the pointer, and verified
+its archived native SQLite session and clock mapping. The Python application test
+verified handshake, software receipt, tracking writes, fixed mission time during an
+idle boundary and complete session shutdown; 44 station/controller/protocol/network
+observation regression tests passed. No serial devices were opened.
+
+Remaining work includes mission video, ensemble execution/result indexing and crash
+recovery, runtime packaging and platform qualification. Existing-process attachment
+and paused ownership transfer still need their integration gates before final completion.

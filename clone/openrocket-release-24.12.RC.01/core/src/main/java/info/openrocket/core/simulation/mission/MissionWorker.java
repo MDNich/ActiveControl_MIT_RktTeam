@@ -20,6 +20,10 @@ public final class MissionWorker implements AutoCloseable {
     private JsonObject provenance;
 
     public MissionWorker(Path privateDirectory, String missionId, String runId, String memberId) throws IOException {
+        this(privateDirectory, missionId, runId, memberId, null, null);
+    }
+    public MissionWorker(Path privateDirectory, String missionId, String runId, String memberId,
+                         JsonObject application, JsonObject preferences) throws IOException {
         this.missionId = missionId; this.runId = runId; this.memberId = memberId;
         Files.createDirectories(privateDirectory);
         try { Files.setPosixFilePermissions(privateDirectory, java.nio.file.attribute.PosixFilePermissions.fromString("rwx------")); }
@@ -34,19 +38,20 @@ public final class MissionWorker implements AutoCloseable {
         try (var in = MissionWorker.class.getResourceAsStream("/mission/worker/worker.json")) { metadata = MissionJson.read(in); }
         if (!digest(bundle).equals(metadata.getString("sha256"))) throw new IOException("Bundled station worker hash mismatch");
         Path zip = privateDirectory.resolve("station-worker.zip"); Files.write(zip, bundle);
-        Path python = interpreter();
+        Path python = application == null ? interpreter() : null;
         byte[] random = new byte[32]; new SecureRandom().nextBytes(random);
         String credential = HexFormat.of().formatHex(random);
         try (var server = new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"))) {
-            server.setSoTimeout(10_000);
+            server.setSoTimeout(application == null ? 10_000 : 30_000);
             var launch = envelope("hello", -1_000_000, JsonValue.EMPTY_JSON_OBJECT);
             MissionJson.writeAtomic(manifest, Json.createObjectBuilder(launch)
-                    .add("host", "127.0.0.1").add("port", server.getLocalPort()).add("credential", credential).build());
+                    .add("host", "127.0.0.1").add("port", server.getLocalPort()).add("credential", credential)
+                    .addAll(Json.createObjectBuilder(application == null ? JsonValue.EMPTY_JSON_OBJECT : application)).build());
             try { Files.setPosixFilePermissions(manifest, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")); }
             catch (UnsupportedOperationException ignored) { }
-            var builder = new ProcessBuilder(python.toString(), "-I", "-c",
+            var builder = application == null ? new ProcessBuilder(python.toString(), "-I", "-c",
                     "import sys,runpy;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('rocket_gnc_monitor.mission_worker',run_name='__main__')",
-                    zip.toString(), manifest.toString());
+                    zip.toString(), manifest.toString()) : applicationProcess(preferences, manifest);
             builder.redirectOutput(privateDirectory.resolve("worker.stdout.log").toFile());
             builder.redirectError(privateDirectory.resolve("worker.stderr.log").toFile());
             process = builder.start(); socket = server.accept(); socket.setSoTimeout(10_000); socket.setTcpNoDelay(true);
@@ -60,6 +65,29 @@ public final class MissionWorker implements AutoCloseable {
         } catch (IOException | RuntimeException e) { close(); throw e; }
     }
 
+    private static ProcessBuilder applicationProcess(JsonObject preferences, Path manifest) throws IOException {
+        if (preferences.containsKey("sourceProject") && preferences.containsKey("pythonExecutable")) {
+            Path source = Path.of(preferences.getString("sourceProject")).resolve("src");
+            Path python = Path.of(preferences.getString("pythonExecutable"));
+            if (!Files.isRegularFile(source.resolve("rocket_gnc_monitor/mission_application.py")) || !Files.isExecutable(python))
+                throw new IOException("Selected Telemetry UI source/interpreter does not support Mission Simulation");
+            return new ProcessBuilder(python.toString(), "-I", "-c",
+                    "import sys,runpy;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('rocket_gnc_monitor',run_name='__main__')",
+                    source.toString(), "--mission-manifest", manifest.toString());
+        }
+        if (preferences.containsKey("packagedApp")) {
+            Path app = Path.of(preferences.getString("packagedApp"));
+            if (Files.isDirectory(app) && app.toString().endsWith(".app")) {
+                try (var files = Files.list(app.resolve("Contents/MacOS"))) {
+                    var executables = files.filter(Files::isExecutable).filter(Files::isRegularFile).toList();
+                    if (executables.size() != 1) throw new IOException("Select the application executable inside this bundle");
+                    app = executables.get(0);
+                }
+            }
+            if (Files.isExecutable(app)) return new ProcessBuilder(app.toString(), "--mission-manifest", manifest.toString());
+        }
+        throw new IOException("Select a Mission-capable Telemetry UI application or source project and Python in Connections");
+    }
     public static Path interpreter() throws IOException {
         String override = System.getProperty("openrocket.mission.python");
         if (override != null) {
@@ -113,6 +141,11 @@ public final class MissionWorker implements AutoCloseable {
         catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
     }
     @Override public void close() {
+        try { if (socket != null && !socket.isClosed() && input != null) {
+            request("close", 0, JsonValue.EMPTY_JSON_OBJECT);
+            if (process != null) process.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
+        } } catch (IOException | RuntimeException ignored) { }
+        catch (InterruptedException e) { Thread.currentThread().interrupt(); }
         try { if (socket != null) socket.close(); } catch (IOException ignored) { }
         if (process != null) { process.destroy(); try { if (!process.waitFor(2, java.util.concurrent.TimeUnit.SECONDS)) process.destroyForcibly(); }
             catch (InterruptedException e) { Thread.currentThread().interrupt(); process.destroyForcibly(); } }

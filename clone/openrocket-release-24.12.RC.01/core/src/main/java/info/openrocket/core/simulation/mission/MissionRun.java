@@ -33,7 +33,9 @@ public final class MissionRun {
     public MissionRun(MissionStore.Resolved resolved, MissionRecorder recorder, String runId, long member, Control control) {
         this.resolved = resolved; this.recorder = recorder; this.runId = runId; this.member = member; this.control = control;
     }
-    private MissionWorker worker;
+    private MissionParticipants worker;
+    private JsonObject preferences = JsonValue.EMPTY_JSON_OBJECT;
+    public MissionRun applicationPreferences(JsonObject value) { preferences = value; return this; }
     private MissionTruth truth;
     private TelemetryCodec codec;
     private edu.mit.rocket_team.FC.RTFC computer;
@@ -55,7 +57,7 @@ public final class MissionRun {
             control.progress(0, 0, "Calculating complete flight branches");
             truth = MissionTruth.compute(simulation, this::checkpoint);
         }
-        try (var stationWorker = new MissionWorker(privateDirectory, MissionStore.id(mission), runId, "member-" + member)) {
+        try (var stationWorker = new MissionParticipants(privateDirectory, mission, runId, "member-" + member, preferences, recorder)) {
             worker = stationWorker; worker.configure(stationConfiguration());
             if (coupled) {
                 truth = new MissionTruth(this::checkpoint);
@@ -129,7 +131,7 @@ public final class MissionRun {
         for (String id : stations.keySet()) {
             var array = Json.createArrayBuilder();
             if (!connected) array.add(Json.createObjectBuilder().add("kind", "connect").add("id", "scenario-connect"));
-            if (!started && timeUs >= 0 && pointers.containsKey(id) && stations.get(id).getString("owner").equals("headless-policy"))
+            if (!started && timeUs >= 0 && pointers.containsKey(id) && !stations.get(id).getString("owner").equals("interactive-ui"))
                 array.add(Json.createObjectBuilder().add("kind", "start-tracking").add("id", "scenario-track-at-launch"));
             actions.put(id, array.build());
         }
@@ -281,11 +283,13 @@ public final class MissionRun {
             }
         }
     }
-    private void consume(MissionWorker worker, Map<String, List<JsonObject>> batch, Map<String, JsonArray> actions, boolean evaluate, MissionTruth truth) throws IOException {
+    private void consume(MissionParticipants worker, Map<String, List<JsonObject>> batch, Map<String, JsonArray> actions, boolean evaluate, MissionTruth truth) throws IOException {
         var array = Json.createArrayBuilder();
         for (String id : stations.keySet()) { var packets = Json.createArrayBuilder(); batch.get(id).forEach(packets::add);
-            array.add(Json.createObjectBuilder().add("id", id).add("deliveries", packets).add("actions", actions.getOrDefault(id, JsonValue.EMPTY_JSON_ARRAY)).add("evaluate", evaluate)); }
+            array.add(Json.createObjectBuilder().add("id", id).add("deliveries", packets).add("actions", actions.getOrDefault(id, JsonValue.EMPTY_JSON_ARRAY)).add("evaluate", evaluate)
+                    .add("pointerPose", mounts.containsKey(id) ? mounts.get(id).state() : JsonValue.EMPTY_JSON_OBJECT)); }
         var result = worker.advance(timeUs, array.build());
+        for (var action : result.getJsonArray("operatorActions")) tape.add(Json.createObjectBuilder(action.asJsonObject()).add("timeUs", Long.toString(timeUs + 1)).build());
         for (var entry : result.getJsonArray("stations")) {
             var station = entry.asJsonObject(); String id = station.getString("id");
             counts.get(id)[2] += station.getJsonArray("samples").size(); counts.get(id)[3] += station.getInt("rejected");

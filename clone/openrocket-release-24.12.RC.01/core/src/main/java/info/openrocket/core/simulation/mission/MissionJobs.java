@@ -25,8 +25,9 @@ public final class MissionJobs implements MissionApi.Jobs {
         if (!mission.getJsonObject("video").getJsonArray("streams").isEmpty()) throw new IllegalArgumentException("Video transmission is being integrated; choose zero streams for this headless increment");
         var ensemble = mission.getJsonObject("flight").getJsonObject("editor").getJsonObject("options").getJsonObject("ensemble");
         if (ensemble.getString("enabled", "false").equals("true")) throw new IllegalArgumentException("Mission ensembles are being integrated; choose a single flight in this increment");
-        for (var entry : mission.getJsonArray("stationBindings")) if (!entry.asJsonObject().getString("owner").equals("headless-policy"))
-            throw new IllegalArgumentException("Connected application participants are being integrated; use headless policy ownership in this increment");
+        boolean interactive = mission.getJsonArray("stationBindings").stream().anyMatch(v -> v.asJsonObject().getString("owner").equals("interactive-ui"));
+        if (interactive && !mission.getJsonObject("execution").getString("clockMode", "lockstep").equals("paced"))
+            throw new IllegalArgumentException("Interactive station control requires paced execution");
         for (var entry : mission.getJsonArray("pointers")) if (entry.asJsonObject().getString("trackingPolicy").equals("truth-benchmark.v1"))
             throw new IllegalArgumentException("Truth benchmark is an analysis-only mode; choose a receiver tracking policy");
     }
@@ -114,7 +115,9 @@ public final class MissionJobs implements MissionApi.Jobs {
                 recorder = new MissionRecorder(staging, resolved.mission());
                 String hash = resolved.mission().getJsonObject("flight").getString("snapshotHash");
                 try (var files = Files.list(resolved.flightDirectory())) { for (var file : files.toList()) recorder.asset("assets/" + hash + "/" + file.getFileName(), file); }
-                metrics = new MissionRun(resolved, recorder, "member-0", 0, this).execute(directory.resolve("private-worker"));
+                JsonObject preferences = JsonValue.EMPTY_JSON_OBJECT;
+                if (Files.isRegularFile(root.resolve("machine-preferences.json"))) try (var in = Files.newInputStream(root.resolve("machine-preferences.json"))) { preferences = MissionJson.read(in); }
+                metrics = new MissionRun(resolved, recorder, "member-0", 0, this).applicationPreferences(preferences).execute(directory.resolve("private-worker"));
                 synchronized (this) { status = "finalizing"; phase = "Verifying and saving the result bundle"; persist(); }
                 recorder.finish(archive, "complete");
                 synchronized (this) { status = "complete"; phase = "Mission complete"; }
