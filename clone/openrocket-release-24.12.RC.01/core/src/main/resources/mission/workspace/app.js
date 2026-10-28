@@ -29,6 +29,7 @@ function renderTelemetry(){
   state.mission.telemetry.links.forEach((link,i)=>{
     const p=`telemetry.links.${i}.`;html+=`<details class="row-card" ${i===0?'open':''}><summary>${link.receiverId==='launch'?'Base station':'Away '+esc(link.receiverId.slice(2))}</summary><div class="field-grid">${field(p+'packetLossFraction','Packet loss · %',{type:'number',scale:100,min:0,max:100})}${field(p+'delayMs','Delivery delay · ms',{type:'number',min:0})}${field(p+'jitterMs','Delay jitter σ · ms',{type:'number',min:0})}${field(p+'bitErrorProbability','Bit error probability',{type:'number',min:0,max:1})}${field(p+'uartBaud','UART pacing · baud',{type:'number',min:0,step:1,note:'0 = software serial; typical hardware profile 115200.'})}${field(p+'directional','Directional antenna qualification')}${field(p+'beamWidthDeg','Illustrative beam width · °',{type:'number',min:.01,max:360})}${outages(p+'outages',link.outages||[])}</div></details>`;
   });html+='</div></div>';$('telemetry-fields').innerHTML=html;attachFields($('telemetry-fields'));bindOutages($('telemetry-fields'));
+  if(state.mission.recordedFlight){const recorded=state.mission.recordedFlight.telemetrySource==='recorded-tx';$('telemetry-fields').insertAdjacentHTML('afterbegin',`<p class=information>Recorded flight · ${recorded?'original packet timing, format and measurements':'new standard packets from the saved trajectory'}. The flight computer is not executed.</p>`);$('telemetry-fields').querySelectorAll('[data-field]').forEach(el=>{if(el.dataset.field==='telemetry.mode'||(recorded&&!el.dataset.field.startsWith('telemetry.links.')))el.disabled=true;});}
 }
 function renderConnections(){
   let html='<div class="form-section"><h2>Telemetry UI on this computer</h2><p class="hint">Application locations are machine preferences. Imported setups cannot select or start executables.</p><div class="rows">';
@@ -62,6 +63,7 @@ function renderRun(){
 
   if(state.mission.migration)html+=section('Imported preview review',[field('migration.reviewed','I have reviewed and applied the imported preview settings')],`${state.mission.migration.issues?.length||0} source fields need review. The original preview values are preserved in the saved configuration.`)+`<details><summary>Preview findings</summary>${(state.mission.migration.issues||[]).map(i=>`<div class="finding"><strong>${esc(i.path)}</strong><p>${esc(i.message)}</p></div>`).join('')}</details>`;
   $('run-fields').innerHTML=html;attachFields($('run-fields'));
+  if(state.mission.recordedFlight)$('run-fields').querySelector('[data-field="execution.mode"]').disabled=true;
   $('add-action').onclick=()=>{state.mission.execution.actions.push({id:'action-'+crypto.randomUUID(),timeUs:'1000000',siteId:'gs1',kind:'start-tracking',azimuthDeg:0,elevationDeg:0,opcode:2,value:1,angleDeg:0,targetVehicleId:state.mission.vehicleBindings[0].id});changed();renderRun();};
   document.querySelectorAll('[data-remove-action]').forEach(button=>button.onclick=()=>{state.mission.execution.actions.splice(Number(button.dataset.removeAction),1);changed();renderRun();});
   if(!state.resolved)$('start').disabled=true;
@@ -117,6 +119,6 @@ document.addEventListener('mission-loaded',render);document.addEventListener('mi
 document.addEventListener('field-changed',event=>{
   if(event.detail.startsWith('execution.actions.')&&event.detail.endsWith('.kind'))renderRun();
   if(event.detail==='telemetry.mode'){state.mission.execution.mode=get('telemetry.mode')==='custom-fc'?'coupled':'ground-link';renderTelemetry();renderRun();}
-  if(event.detail==='execution.mode'&&get('execution.mode')==='interactive'){state.mission.execution.clockMode='paced';renderRun();}
+  if(event.detail==='execution.mode'){if(get('execution.mode')==='interactive')state.mission.execution.clockMode='paced';else state.mission.telemetry.mode=get('execution.mode')==='coupled'?'custom-fc':'standard';renderTelemetry();renderRun();}
 });
 action(async()=>{await initialize();status('Mission workspace connected.');const job=sessionStorage.getItem('mission-job');if(job){state.job={id:job};await poll();}});

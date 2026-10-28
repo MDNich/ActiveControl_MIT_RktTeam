@@ -27,6 +27,7 @@ class MissionRunTest extends BaseTestCase {
         System.setProperty("openrocket.mission.python", python);
         var resolved = ready(); var staging = temp.resolve("staging"); var archive = temp.resolve("result.rktmission");
         try (var recorder = new MissionRecorder(staging, resolved.mission())) {
+            try(var files=Files.list(resolved.flightDirectory())){for(var file:files.toList())recorder.asset("assets/"+resolved.mission().getJsonObject("flight").getString("snapshotHash")+"/"+file.getFileName(),file);}
             var metrics = new MissionRun(resolved, recorder, "member-0", 0, new MissionRun.Control() {
                 public void check() { }
                 public void progress(long t, long end, String phase) { }
@@ -45,6 +46,34 @@ class MissionRunTest extends BaseTestCase {
             assertFalse(result.names().stream().anyMatch(n -> n.contains("/fc/") || n.contains("private") || n.contains("credential")));
             assertTrue(result.names().stream().anyMatch(n -> n.contains("/pointer/tx/")));
         }
+        System.setProperty("openrocket.mission.python",python);
+        try {
+            var derivedStore=new MissionStore(temp.resolve("derived-inputs"),digest->null);
+            var draft=derivedStore.deriveResult(archive,"member-0","recorded-tx");
+            assertNotEquals(MissionStore.id(resolved.mission()),MissionStore.id(draft));
+            draft=derivedStore.update(MissionStore.id(draft),0,Json.createObjectBuilder(draft).add("telemetry",Json.createObjectBuilder(draft.getJsonObject("telemetry"))
+                    .add("links",Json.createArrayBuilder().add(Json.createObjectBuilder().add("receiverId","gs2").add("packetLossFraction",0)))).build());
+            Path setup=temp.resolve("recorded-setup.zip");derivedStore.exportSetup(MissionStore.id(draft),setup);
+            var importedStore=new MissionStore(temp.resolve("imported-inputs"),digest->null);var imported=importedStore.importSetup(setup);
+            var selected=importedStore.resolve(MissionStore.id(imported),imported.getJsonObject("identity").getInt("revision"));
+            assertTrue(importedStore.validate(MissionStore.id(imported)).isEmpty());
+            Path replay=temp.resolve("replay.rktmission");
+            try(var recorder=new MissionRecorder(temp.resolve("replay-staging"),selected.mission())) {
+                var metrics=new MissionRun(selected,recorder,"member-0",0,new MissionRun.Control(){public void check(){}public void progress(long t,long end,String phase){}}).execute(temp.resolve("replay-private"));
+                assertTrue(metrics.getJsonObject("receivers").getJsonObject("gs2").getInt("acceptedFrames")>20);
+                recorder.finish(replay,"complete");
+            }
+            try(var before=new MissionArchive(archive);var after=new MissionArchive(replay)) {
+                for(String name:before.names())if(name.contains("/transmitters/") && name.endsWith(".bin") || name.contains("/truth/chunk-"))
+                    assertArrayEquals(before.read(name,(int)MissionRecorder.CHUNK_BYTES),after.read(name,(int)MissionRecorder.CHUNK_BYTES),name);
+                assertFalse(after.names().stream().anyMatch(n->n.contains("/fc/")));
+            }
+            var source=new MissionRecordedSource(selected.recordedSource(),selected.mission().getJsonObject("recordedFlight"),()->{});assertTrue(source.next()<Long.MAX_VALUE);source.close();
+            var changed=Json.createObjectBuilder(imported).add("flight",Json.createObjectBuilder(imported.getJsonObject("flight")).add("editor",
+                    Json.createObjectBuilder(imported.getJsonObject("flight").getJsonObject("editor")).add("options",Json.createObjectBuilder(imported.getJsonObject("flight").getJsonObject("editor").getJsonObject("options")).add("guideLengthM",99)))).build();
+            importedStore.update(MissionStore.id(imported),imported.getJsonObject("identity").getInt("revision"),changed);
+            assertFalse(importedStore.validate(MissionStore.id(imported)).isEmpty());
+        }finally{System.clearProperty("openrocket.mission.python");}
     }
     @org.junit.jupiter.params.ParameterizedTest
     @org.junit.jupiter.params.provider.CsvSource({"false,false","true,false","false,true"})
@@ -170,6 +199,7 @@ class MissionRunTest extends BaseTestCase {
                     .add(Json.createObjectBuilder().add("id","unsupported").add("kind","uplink").add("siteId","launch").add("timeUs","-600000").add("dataHex","aa000000000000000000000000070007")))).build());
         var resolved=store.resolve(MissionStore.id(draft),2);
         try(var recorder=new MissionRecorder(temp.resolve("fc-staging"),resolved.mission())){
+            try(var files=Files.list(resolved.flightDirectory())){for(var file:files.toList())recorder.asset("assets/"+resolved.mission().getJsonObject("flight").getString("snapshotHash")+"/"+file.getFileName(),file);}
             var metrics=new MissionRun(resolved,recorder,"member-0",0,new MissionRun.Control(){public void check(){}public void progress(long t,long end,String phase){}}).execute(temp.resolve("fc-private"));
             assertTrue(metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames")>20);
             assertEquals(0,metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("pointerCommands"),"Missing longitude/fix in codec must not be replaced by truth");
@@ -185,6 +215,22 @@ class MissionRunTest extends BaseTestCase {
                 var index=archive.names().stream().filter(n->n.contains("/transmitters/balius/tx/index-")).findFirst().orElseThrow();
                 String records=new String(archive.read(index,1000000),java.nio.charset.StandardCharsets.UTF_8);
                 for(String line:records.split("\n")){var row=MissionJson.parse(line.getBytes(java.nio.charset.StandardCharsets.UTF_8));assertEquals(14,row.getInt("length"));assertTrue(Long.parseLong(row.getString("txTimeUs"))<=2_000_000);}
+            }
+            for(String mode:java.util.List.of("recorded-tx","standard-generator")) {
+                var replayDraft=store.deriveResult(result,"member-0",mode);
+                var replayResolved=store.resolve(MissionStore.id(replayDraft),0);
+                try(var replayRecorder=new MissionRecorder(temp.resolve(mode+"-staging"),replayResolved.mission())) {
+                    var replayMetrics=new MissionRun(replayResolved,replayRecorder,"member-0",0,new MissionRun.Control(){public void check(){}public void progress(long t,long end,String phase){}}).execute(temp.resolve(mode+"-private"));
+                    assertTrue(replayMetrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames")>20);
+                    assertEquals(mode.equals("recorded-tx"),replayMetrics.getJsonObject("receivers").getJsonObject("gs1").getInt("pointerCommands")==0);
+                    Path replayFile=temp.resolve(mode+".rktmission");replayRecorder.finish(replayFile,"complete");
+                    try(var replay=new MissionArchive(replayFile)) {
+                        assertFalse(replay.names().stream().anyMatch(n->n.contains("/fc/")));
+                        if(mode.equals("recorded-tx"))try(var before=new MissionArchive(result)) {
+                            for(String name:before.names())if(name.contains("/transmitters/") && name.endsWith(".bin"))assertArrayEquals(before.read(name,(int)MissionRecorder.CHUNK_BYTES),replay.read(name,(int)MissionRecorder.CHUNK_BYTES));
+                        }
+                    }
+                }
             }
         } finally {System.clearProperty("openrocket.mission.python");}
     }

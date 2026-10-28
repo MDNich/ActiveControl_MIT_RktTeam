@@ -97,6 +97,10 @@ public final class MissionApi implements AutoCloseable {
             String id=UUID.randomUUID().toString();results.put(id,file);
             return Json.createObjectBuilder(summary).add("id",id).add("filename",file.getFileName().toString()).build();
         }
+        if(parts.length==3 && parts[0].equals("results") && parts[2].equals("derive") && method.equals("POST")) {
+            Path file=results.get(parts[1]);if(file==null)throw new IllegalArgumentException("Open a result first");
+            return store.deriveResult(file,body.getString("member"),body.getString("telemetrySource"));
+        }
         if(parts.length==3 && parts[0].equals("results") && parts[2].equals("export") && method.equals("POST")) {
             Path file=results.get(parts[1]);if(file==null)throw new IllegalArgumentException("Open a result first");
             Path destination=host.choose("Export selected station .rktflight",true);if(destination==null)return cancelled();
@@ -128,7 +132,9 @@ public final class MissionApi implements AutoCloseable {
             if (!Set.of("sourceProject", "pythonExecutable", "packagedApp").contains(kind)) throw new IllegalArgumentException("Unknown application location");
             String purpose = kind.equals("sourceProject") ? "Choose Telemetry UI project folder" : kind.equals("pythonExecutable") ? "Choose Python executable" : "Choose Telemetry UI application";
             Path file = host.choose(purpose, false); if (file == null) return cancelled();
-            preferences = Json.createObjectBuilder(preferences).add(kind, file.toAbsolutePath().toString()).build();
+            var selection=Json.createObjectBuilder(preferences);
+            if(kind.equals("packagedApp"))selection.remove("sourceProject").remove("pythonExecutable");else selection.remove("packagedApp");
+            preferences = selection.add(kind, file.toAbsolutePath().toString()).build();
             MissionJson.writeAtomic(store.root().resolve("machine-preferences.json"), preferences); return preferences;
         }
         if (path.equals("capabilities") && method.equals("GET")) return Json.createObjectBuilder()

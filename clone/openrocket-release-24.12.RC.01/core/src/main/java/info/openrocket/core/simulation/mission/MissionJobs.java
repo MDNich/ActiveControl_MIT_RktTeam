@@ -43,6 +43,11 @@ public final class MissionJobs implements MissionApi.Jobs {
                 .add("code","application-unavailable").add("severity","error").add("message",e.getMessage()==null?"Check the selected application connections":e.getMessage())).build();}
     }
     public static void admit(JsonObject mission) {
+        String mode=mission.getJsonObject("execution").getString("mode"),clock=mission.getJsonObject("execution").getString("clockMode","lockstep");
+        boolean custom=mission.getJsonObject("telemetry").getString("mode").equals("custom-fc");
+        if(!mission.containsKey("recordedFlight") && ((mode.equals("coupled") && !custom) || (mode.equals("ground-link") && custom)))
+            throw new IllegalArgumentException("Choose Coupled Mission Simulation for a custom FC, or Ground Link Analysis for the standard source");
+        if(mode.equals("interactive") && !clock.equals("paced"))throw new IllegalArgumentException("Application rehearsal uses a paced clock");
         MissionVideo.validate(mission.getJsonObject("video"));
         outputName(mission);
         if (mission.getJsonObject("outputs").getBoolean("recordEncodedVideo", false)) {
@@ -200,6 +205,7 @@ public final class MissionJobs implements MissionApi.Jobs {
             try {
                 synchronized (this) { status = "running"; persist(); }
                 recorder = new MissionRecorder(staging, resolved.mission());
+                if(resolved.recordedSource()!=null)recorder.asset("sources/"+resolved.mission().getJsonObject("recordedFlight").getString("sourceHash")+".rktmission",resolved.recordedSource());
                 String hash = resolved.mission().getJsonObject("flight").getString("snapshotHash");
                 try (var files = Files.list(resolved.flightDirectory())) { for (var file : files.toList()) recorder.asset("assets/" + hash + "/" + file.getFileName(), file); }
                 JsonObject preferences = JsonValue.EMPTY_JSON_OBJECT;

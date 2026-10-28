@@ -54,7 +54,7 @@ public final class MissionParticipants implements AutoCloseable {
             var manifest = Json.createObjectBuilder().add("station", config).add("role", binding.getString("role"))
                     .add("title",mission.getJsonObject("identity").getString("title"))
                     .add("launchSite",mission.getJsonArray("sites").stream().map(JsonValue::asJsonObject).filter(s -> s.getString("id").equals("launch-site")).findFirst().orElseThrow())
-                    .add("coupled", mission.getJsonObject("telemetry").getString("mode").equals("custom-fc"))
+                    .add("coupled", !mission.containsKey("recordedFlight") && mission.getJsonObject("telemetry").getString("mode").equals("custom-fc"))
                     .add("vehicleMode", mission.getJsonArray("vehicleBindings").size() > 1 ? "iris" : "balius")
                     .add("videoStreams", videoStreams).add("dataDirectory", data.toString()).add("network", network).build();
             manifest = Json.createObjectBuilder(manifest).add("recordEncodedVideo", mission.getJsonObject("outputs").getBoolean("recordEncodedVideo", false)).build();

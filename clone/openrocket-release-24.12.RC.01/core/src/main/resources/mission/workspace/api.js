@@ -17,7 +17,7 @@ export async function request(path, body, method=body===undefined?'GET':'POST') 
 }
 export function useMission(mission) { state.mission=mission; state.dirty=false; state.resolved=null; sessionStorage.setItem('mission-draft',mission.identity.missionId); document.dispatchEvent(new Event('mission-loaded')); }
 export async function commit() {
-  const invalid=document.querySelector('input:invalid,select:invalid,textarea:invalid');
+  const invalid=document.querySelector('[data-field]:invalid,[data-outages]:invalid');
   if(invalid){invalid.reportValidity();throw Error('Correct the invalid field before applying or running this configuration.');}
   if(!state.dirty) return;
   const mission=await request('drafts/'+state.mission.identity.missionId,{expectedRevision:state.mission.identity.revision,mission:state.mission},'PUT');

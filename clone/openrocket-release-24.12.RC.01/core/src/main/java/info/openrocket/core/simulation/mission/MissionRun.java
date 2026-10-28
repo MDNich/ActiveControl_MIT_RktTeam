@@ -54,7 +54,14 @@ public final class MissionRun {
     private long policyTick = -1_000_000, stop, transmitted;
     private boolean connected, started;
 
+    private MissionRecordedSource recorded;
     public JsonObject execute(Path privateDirectory) throws Exception {
+        if(resolved.recordedSource()==null)return executeInternal(privateDirectory);
+        try(var source=new MissionRecordedSource(resolved.recordedSource(),resolved.mission().getJsonObject("recordedFlight"),this::checkpoint)) {
+            recorded=source;return executeInternal(privateDirectory);
+        }
+    }
+    private JsonObject executeInternal(Path privateDirectory) throws Exception {
         JsonObject mission = resolved.mission(), execution = mission.getJsonObject("execution");
         var simulation = MissionFlightSnapshot.restore(resolved.flightDirectory());
         var ensembleSettings = simulation.getOptions().getEnsembleSettings();
@@ -66,7 +73,7 @@ public final class MissionRun {
             var inputs = Json.createObjectBuilder(); new TreeMap<>(ensembleInputs.attributes()).forEach(inputs::add);
             recorder.json("runs/" + runId + "/ensemble-inputs.json", inputs.build());
         }
-        boolean coupled = mission.getJsonObject("telemetry").getString("mode").equals("custom-fc");
+        boolean coupled = recorded==null && mission.getJsonObject("telemetry").getString("mode").equals("custom-fc");
         prepare();
         JsonObject participantMission=mission;
         if(headlessParticipants) {
@@ -80,7 +87,14 @@ public final class MissionRun {
                 .add("stationBindings",participantMission.getJsonArray("stationBindings")).build());
         video = new MissionVideo(mission, recorder, runId, member);
         var fc = info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer.read(simulation);
-        if (coupled) {
+        if(recorded!=null) {
+            truth=recorded.truth;
+            if(mission.getJsonObject("recordedFlight").getString("telemetrySource").equals("recorded-tx") && recorded.original.getJsonObject("telemetry").getString("mode").equals("custom-fc")) {
+                if(fc.getMissionDesign()==null)throw new IOException("Recorded custom packets require the original codec design");
+                codec=fc.getMissionDesign().design().telemetryCodec();
+            }
+            recorder.json("runs/"+runId+"/recorded-source.json",Json.createObjectBuilder(mission.getJsonObject("recordedFlight")).add("flightComputerExecuted",false).build());
+        } else if (coupled) {
             if (simulation.getActiveConfiguration().getActiveStageCount() != 1 || bindings.size() != 1 || fc.getMissionDesign() == null)
                 throw new IllegalArgumentException("Coupled missions need one active stage, one bound vehicle and a frozen FC design");
             codec = fc.getMissionDesign().design().telemetryCodec();
@@ -110,14 +124,19 @@ public final class MissionRun {
                 for (var binding : bindings.values()) if (truth.at(binding, 0) == null) throw new IllegalArgumentException("Vehicle " + binding.getString("id") + " has no launch trajectory");
                 long end = truth.end(); video.end(end); stop = Math.addExact(end, Long.parseLong(execution.getString("deliveryTailUs")));
                 var sources = new TreeMap<String, MissionTelemetrySource>();
-                bindings.forEach((id, binding) -> sources.put(id, new MissionTelemetrySource(mission.getJsonObject("telemetry"), binding, sites.get("launch-site"), execution.getString("seed"), member)));
+                boolean savedPackets=recorded!=null && mission.getJsonObject("recordedFlight").getString("telemetrySource").equals("recorded-tx");
+                if(!savedPackets)bindings.forEach((id, binding) -> sources.put(id, new MissionTelemetrySource(mission.getJsonObject("telemetry"), binding, sites.get("launch-site"), execution.getString("seed"), member)));
                 while (true) {
                     long next = nextStationDeadline();
+                    if(savedPackets && recorded.next()<=end)next=Math.min(next,recorded.next());
                     for (var source : sources.values()) if (source.next() <= end) next = Math.min(next, source.next());
                     if (next > stop) break;
                     moveClock(next, "Replaying telemetry and tracking stations");
                     for (var entry : sources.entrySet()) if (entry.getValue().next() == timeUs && timeUs <= end) {
                         var packet = entry.getValue().advance(timeUs, truth); if (packet != null) transmit(entry.getKey(), packet, truth);
+                    }
+                    if(savedPackets)while(recorded.next()==timeUs && timeUs<=end) {
+                        var packet=recorded.take();transmit(packet.vehicle(),packet.packet(),truth);
                     }
                     serviceBoundary();
                 }
@@ -125,7 +144,7 @@ public final class MissionRun {
             for (var delivery : deliveries) event("delivery-after-tail", stop, Json.createObjectBuilder(delivery.metadata).add("siteId", delivery.site).build());
             for (var pending : uplinks) event("uplink-after-tail", stop, Json.createObjectBuilder().add("commandId", pending.id).build());
             recorder.json("runs/" + runId + "/run.json", Json.createObjectBuilder().add("runId", runId).add("member", member)
-                    .add("source", coupled ? "custom-fc-coupled" : "standard-precomputed").add("seed", execution.getString("seed"))
+                    .add("source", recorded!=null ? "recorded-flight-"+mission.getJsonObject("recordedFlight").getString("telemetrySource") : coupled ? "custom-fc-coupled" : "standard-precomputed").add("seed", execution.getString("seed"))
                     .add("worker", worker.provenance()).add("timeUnit", "signed-int64-microseconds")
                     .add("warmupUs", "1000000").add("flightEndUs", Long.toString(truth.end())).add("deliveryEndUs", Long.toString(stop))
                     .add("sampling", MissionRandom.VERSION).add("queueMessages", 256).add("queueBytes", 4 * 1024 * 1024).build());

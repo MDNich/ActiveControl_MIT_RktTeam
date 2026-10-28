@@ -1,5 +1,7 @@
 # Mission Simulation: flight computers, ground stations, antenna pointers and telemetry
 
+Implementation status (28 October 2026): this document retains the reviewed plan and contracts. See [the implementation ledger](18-mission-implementation-progress.md) for completed increments and evidence, and [the user guide](19-mission-simulation-user-guide.md) for the implemented workflow and limits.
+
 Proposed 27 October 2026; final consistency review 28 October 2026. This is an integration plan, not an implementation report. It builds on the OpenRocket MIT source now versioned 6.5 and the RT Telemetry UI source, including a read-only review with the **Telemetry UI** chat. Ground-based antenna pointers are the agreed scope; onboard steerable antennas are outside this first design. The version bump does not imply this feature is implemented.
 
 The proposed feature is **Mission Simulation**: run the rocket, flight computer, radio links, receiving stations and antenna pointers as one experiment. **Ground Link** is the part that models reception and pointing. Save the experiment as a **Mission Bundle**, a versioned ZIP containing configuration, flight truth, FC logs, station observations, pointer commands and motion, and reproducibility information.

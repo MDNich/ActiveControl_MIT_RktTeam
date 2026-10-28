@@ -12,7 +12,9 @@ import java.util.function.Function;
 
 /** Java-owned draft revisions and content-addressed flight inputs. No process/device opens on load. */
 public final class MissionStore {
-    public record Resolved(JsonObject mission, Path flightDirectory, String hash) { }
+    public record Resolved(JsonObject mission, Path flightDirectory, String hash, Path recordedSource) {
+        public Resolved(JsonObject mission,Path flightDirectory,String hash){this(mission,flightDirectory,hash,null);}
+    }
     public static final class Conflict extends IllegalArgumentException {
         public Conflict(String message) { super(message); }
     }
@@ -22,7 +24,7 @@ public final class MissionStore {
 
     public MissionStore(Path root, Function<String, Motor> motorLookup) throws IOException {
         this.root = root.toAbsolutePath(); this.motorLookup = motorLookup;
-        Files.createDirectories(this.root.resolve("snapshots")); Files.createDirectories(this.root.resolve("drafts"));
+        Files.createDirectories(this.root.resolve("sources")); Files.createDirectories(this.root.resolve("snapshots")); Files.createDirectories(this.root.resolve("drafts"));
     }
     public Path root() { return root; }
     public synchronized JsonObject create(String title) throws IOException { return load(MissionDefinition.createUrrg(title)); }
@@ -63,6 +65,9 @@ public final class MissionStore {
                     for (var file : inputs.toList()) files.put("assets/" + hash + "/" + file.getFileName(), file);
                 }
             }
+            if(draft.containsKey("recordedFlight")) {
+                String source=draft.getJsonObject("recordedFlight").getString("sourceHash");files.put("sources/"+source+".rktmission",recordedSource(draft));
+            }
             MissionArchive.write(destination, MissionArchive.SETUP, "complete", files);
         } finally { Files.deleteIfExists(mission); }
     }
@@ -73,7 +78,8 @@ public final class MissionStore {
             if (!archive.manifest().getString("format").equals(MissionArchive.SETUP)) throw new IOException("Choose a setup archive; result archives open in replay");
             var mission = new MissionDefinition(MissionJson.parse(archive.read("mission.json", MissionJson.MAX_BYTES)));
             String hash = mission.json().getJsonObject("flight").getString("snapshotHash", "");
-            for (String name : archive.names()) if (!name.equals("mission.json") && !name.startsWith("assets/" + hash + "/"))
+            String source=mission.json().containsKey("recordedFlight")?mission.json().getJsonObject("recordedFlight").getString("sourceHash"):"";
+            for (String name : archive.names()) if (!name.equals("mission.json") && !name.startsWith("assets/" + hash + "/") && !name.equals("sources/"+source+".rktmission"))
                 throw new IOException("Unsupported setup asset group");
             archive.extract(imported);
             if (!hash.isEmpty()) {
@@ -84,6 +90,12 @@ public final class MissionStore {
                 Path existing = root.resolve("snapshots").resolve(hash);
                 if (Files.exists(existing)) MissionFlightSnapshot.restore(snapshot(hash));
                 else Files.move(inputs, existing, StandardCopyOption.ATOMIC_MOVE);
+            }
+            if(!source.isEmpty()) {
+                if(!source.matches("[0-9a-f]{64}"))throw new IOException("Invalid recorded source hash");
+                Path selected=imported.resolve("sources").resolve(source+".rktmission");
+                if(!MissionFlightSnapshot.hash(selected).equals(source))throw new IOException("Recorded source hash mismatch");
+                Files.move(selected,root.resolve("sources").resolve(source+".rktmission"),StandardCopyOption.REPLACE_EXISTING);
             }
             return load(mission);
         } finally {
@@ -101,7 +113,7 @@ public final class MissionStore {
         var assets = Json.createArrayBuilder();
         for (var value : draft.getJsonArray("assets")) if (!value.asJsonObject().getString("id").equals("flight-inputs")) assets.add(value);
         assets.add(Json.createObjectBuilder().add("id", "flight-inputs").add("kind", "rocket").add("reference", "snapshot:" + hash).add("sha256", hash));
-        return update(id, revision, Json.createObjectBuilder(draft).add("flight", flight).add("assets", assets).build());
+        return update(id, revision, Json.createObjectBuilder(draft).remove("recordedFlight").add("flight", flight).add("assets", assets).build());
     }
 
     /** Isolated native simulation for edit actions. A failed edit is discarded, never partly published. */
@@ -142,6 +154,19 @@ public final class MissionStore {
         try {
             var simulation = editableFlight(id);
             MissionJobs.admit(draft);
+            if(draft.containsKey("recordedFlight")) {
+                recordedSource(draft);var recorded=draft.getJsonObject("recordedFlight");
+                if(!Set.of("recorded-tx","standard-generator").contains(recorded.getString("telemetrySource")) || !recorded.getString("member").matches("member-[0-9]{1,5}"))
+                    throw new IllegalArgumentException("Invalid recorded flight selection");
+                if(recorded.getString("telemetrySource").equals("standard-generator") && !draft.getJsonObject("telemetry").getString("mode").equals("standard"))
+                    throw new IllegalArgumentException("This recorded trajectory uses the standard generator; derive another experiment to use original FC packets");
+                if(!hash(draft.getJsonObject("flight").getJsonObject("editor")).equals(recorded.getString("editorHash"))
+                        || !hash(MissionRecordedSource.launch(draft)).equals(recorded.getString("launchHash"))
+                        || !hash(Json.createObjectBuilder().add("bindings",draft.getJsonArray("vehicleBindings")).build()).equals(recorded.getString("bindingsHash")))
+                    throw new IllegalArgumentException("A recorded flight keeps its rocket, flight settings, launch and vehicle bindings fixed; edit the ground stations and links, or start a new flight configuration");
+                if(recorded.getString("telemetrySource").equals("recorded-tx") && !hash(MissionRecordedSource.packetSettings(draft)).equals(recorded.getString("packetSettingsHash")))
+                    throw new IllegalArgumentException("Recorded transmissions keep their original format and observations; derive another experiment with the standard generator to change them");
+            }
             if (simulation.getActiveConfiguration().getActiveStages().isEmpty())
                 issue(issues, "/flight/editor/stages", "no-active-stage", "Enable a rocket stage");
             if (simulation.getActiveConfiguration().getActiveMotors().isEmpty())
@@ -159,7 +184,7 @@ public final class MissionStore {
                 var link = entry.asJsonObject(); MissionLink.validate(link);
                 if (!receiverIds.add(link.getString("receiverId"))) issue(issues, "/telemetry/links", "duplicate-link", "Each receiver has one link profile");
             }
-            if (draft.getJsonObject("telemetry").getString("mode").equals("custom-fc")) {
+            if (!draft.containsKey("recordedFlight") && draft.getJsonObject("telemetry").getString("mode").equals("custom-fc")) {
                 var computers = simulation.getSimulationExtensions().stream().filter(e -> e instanceof ZephyrusFlightComputer fc && fc.isEnabled()).toList();
                 if (computers.size() != 1) issue(issues, "/flight/editor/extensions", "fc-count", "Enable exactly one flight computer for a coupled run");
                 if (simulation.getActiveConfiguration().getActiveStages().size() != 1)
@@ -213,7 +238,54 @@ public final class MissionStore {
         var resolved = Json.createObjectBuilder(draft).add("assets", resolvedAssets).add("sites", sites).add("vehicleBindings", bindings).add("geoid", MissionGeoid.bundled().provenance())
                 .add("flight", Json.createObjectBuilder(draft.getJsonObject("flight")).add("snapshotHash", flightHash)
                         .add("editor", MissionFlightEditor.capture(simulation))).build();
-        return new Resolved(resolved, snapshot(flightHash), hash(resolved));
+        return new Resolved(resolved, snapshot(flightHash), hash(resolved),draft.containsKey("recordedFlight")?recordedSource(draft):null);
+    }
+
+    public synchronized JsonObject deriveResult(Path file,String member,String telemetrySource) throws IOException {
+        if(!member.matches("member-[0-9]{1,5}") || !Set.of("recorded-tx","standard-generator").contains(telemetrySource))throw new IllegalArgumentException("Select a member and an explicit telemetry source");
+        Path temporary=Files.createTempDirectory(root,"derive-");
+        try(var archive=new MissionArchive(file)) {
+            var original=MissionJson.parse(archive.read("mission.json",MissionJson.MAX_BYTES));
+            String flightHash=original.getJsonObject("flight").getString("snapshotHash");
+            if(!flightHash.matches("[0-9a-f]{64}"))throw new IOException("Invalid recorded flight snapshot");
+            String prefix="runs/"+member+"/";var files=new TreeMap<String,Path>();
+            for(String name:archive.names())if(name.equals("mission.json") || name.startsWith("assets/"+flightHash+"/")
+                    || name.startsWith(prefix+"truth/") || name.startsWith(prefix+"transmitters/") || name.startsWith(prefix+"events/") || name.equals(prefix+"run.json")) {
+                Path output=temporary.resolve(name);Files.createDirectories(output.getParent());
+                try(var in=archive.open(name)){Files.copy(in,output);}files.put(name,output);
+            }
+            Path inputs=temporary.resolve("assets").resolve(flightHash);MissionFlightSnapshot.restore(inputs);
+            if(!MissionFlightSnapshot.hash(inputs.resolve("manifest.json")).equals(flightHash))throw new IOException("Recorded flight inventory changed");
+            Path source=temporary.resolve("source.rktmission");MissionArchive.write(source,MissionArchive.RESULT,archive.manifest().getString("status"),files);
+            String sourceHash=MissionFlightSnapshot.hash(source);
+            var definition=Json.createObjectBuilder().add("version",1).add("sourceHash",sourceHash).add("member",member).add("telemetrySource",telemetrySource).build();
+            try(var check=new MissionRecordedSource(source,definition,()->{})){ /* Validate before publishing a new draft. */ }
+            Path snapshot=root.resolve("snapshots").resolve(flightHash);if(!Files.exists(snapshot))Files.move(inputs,snapshot);
+            Files.move(source,root.resolve("sources").resolve(sourceHash+".rktmission"),StandardCopyOption.REPLACE_EXISTING);
+            var editor=original.getJsonObject("flight").getJsonObject("editor");
+            editor=Json.createObjectBuilder(editor).add("options",Json.createObjectBuilder(editor.getJsonObject("options"))
+                    .add("ensemble",Json.createObjectBuilder(editor.getJsonObject("options").getJsonObject("ensemble")).add("enabled","false"))).build();
+            var stations=Json.createArrayBuilder();for(var value:original.getJsonArray("stationBindings"))if(value.asJsonObject().getString("role").equals("telem"))stations.add(Json.createObjectBuilder(value.asJsonObject()).add("owner","headless-policy"));
+            var telemetry=Json.createObjectBuilder(original.getJsonObject("telemetry"));if(telemetrySource.equals("standard-generator"))telemetry.add("mode","standard");
+            var mission=Json.createObjectBuilder(original).remove("recordedFlight")
+                    .add("identity",Json.createObjectBuilder(original.getJsonObject("identity")).add("missionId",UUID.randomUUID().toString()).add("revision",0)
+                            .add("title",original.getJsonObject("identity").getString("title").substring(0,Math.min(170,original.getJsonObject("identity").getString("title").length()))+" · ground-link experiment"))
+                    .add("flight",Json.createObjectBuilder(original.getJsonObject("flight")).add("editor",editor))
+                    .add("execution",Json.createObjectBuilder(original.getJsonObject("execution")).add("mode","ground-link").add("clockMode","lockstep").add("applicationMember",0).add("actions",JsonValue.EMPTY_JSON_ARRAY))
+                    .add("stationBindings",stations).add("telemetry",telemetry)
+                    .add("outputs",Json.createObjectBuilder(original.getJsonObject("outputs")).add("filename","ground-link.rktmission").add("recordEncodedVideo",false)).build();
+            definition=Json.createObjectBuilder(definition).add("editorHash",hash(editor)).add("launchHash",hash(MissionRecordedSource.launch(mission)))
+                    .add("bindingsHash",hash(Json.createObjectBuilder().add("bindings",mission.getJsonArray("vehicleBindings")).build()))
+                    .add("packetSettingsHash",hash(MissionRecordedSource.packetSettings(mission))).build();
+            return load(new MissionDefinition(Json.createObjectBuilder(mission).add("recordedFlight",definition).build()));
+        }finally{try(var paths=Files.walk(temporary)){for(var path:paths.sorted(Comparator.reverseOrder()).toList())Files.delete(path);}}
+    }
+    private Path recordedSource(JsonObject mission) throws IOException {
+        String hash=mission.getJsonObject("recordedFlight").getString("sourceHash");
+        if(!hash.matches("[0-9a-f]{64}"))throw new IOException("Invalid recorded source identity");
+        Path path=root.resolve("sources").resolve(hash+".rktmission");
+        if(Files.isSymbolicLink(path) || !Files.isRegularFile(path) || !MissionFlightSnapshot.hash(path).equals(hash))throw new IOException("Recorded source is unavailable or changed; import its portable setup");
+        return path;
     }
 
     public Path snapshot(String hash) throws IOException {

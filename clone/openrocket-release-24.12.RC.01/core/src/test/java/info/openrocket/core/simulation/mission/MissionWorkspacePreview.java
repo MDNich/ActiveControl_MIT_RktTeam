@@ -20,7 +20,10 @@ public final class MissionWorkspacePreview {
         var api = new MissionApi(store, new MissionApi.Host() {
             public Path choose(String purpose, boolean save) throws Exception {
                 Path selection = root.resolve("chooser-next-path");
-                return Files.exists(selection) ? Path.of(Files.readString(selection).strip()) : null;
+                if(!Files.exists(selection))return null;
+                String value=Files.readString(selection).strip();
+                if(value.startsWith("{"))value=MissionJson.parse(value.getBytes(java.nio.charset.StandardCharsets.UTF_8)).getString(purpose);
+                return Path.of(value);
             }
             public OpenRocketDocument currentDocument() { return document.copy(); }
         }, new MissionJobs(root));

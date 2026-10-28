@@ -30,10 +30,12 @@ public final class MissionPackageProbe {
             draft=store.bindFlight(MissionStore.id(draft),0,flight,"qualification.ork");
             var sites=Json.createArrayBuilder();draft.getJsonArray("sites").forEach(v->sites.add(Json.createObjectBuilder(v.asJsonObject()).add("heightM",250)));
             draft=store.update(MissionStore.id(draft),1,Json.createObjectBuilder(draft).add("sites",sites)
-                    .add("telemetry",Json.createObjectBuilder(draft.getJsonObject("telemetry")).add("mode",mode)).build());
+                    .add("telemetry",Json.createObjectBuilder(draft.getJsonObject("telemetry")).add("mode",mode))
+                    .add("execution",Json.createObjectBuilder(draft.getJsonObject("execution")).add("mode",mode.equals("custom-fc")?"coupled":"ground-link")).build());
             var resolved=store.resolve(MissionStore.id(draft),2);Path archive=folder.resolve("qualification.rktmission");
             JsonObject metrics;
             try(var recorder=new MissionRecorder(folder.resolve("staging"),resolved.mission())) {
+                try(var inputs=Files.list(resolved.flightDirectory())){for(var input:inputs.toList())recorder.asset("assets/"+resolved.mission().getJsonObject("flight").getString("snapshotHash")+"/"+input.getFileName(),input);}
                 metrics=new MissionRun(resolved,recorder,"member-0",0,new MissionRun.Control(){public void check(){}public void progress(long t,long end,String phase){}}).execute(folder.resolve("private"));
                 if(metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames")<20)throw new AssertionError("Station did not receive the packaged fixture");
                 MissionResults.index(recorder,folder.resolve("utilities"));recorder.finish(archive,"complete");
@@ -41,7 +43,14 @@ public final class MissionPackageProbe {
             try(var result=new MissionArchive(archive)){result.verifyAll();if(result.names().stream().noneMatch(n->n.endsWith(".png")))throw new AssertionError("No video slate");}
             var summary=MissionResults.query(archive,folder.resolve("utilities"),JsonValue.EMPTY_JSON_OBJECT);
             if(summary.getJsonArray("streams").isEmpty())throw new AssertionError("No indexed result channels");
-            reports.add(Json.createObjectBuilder().add("mode",mode).add("accepted",metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames")));
+            var recordedDraft=store.deriveResult(archive,"member-0","recorded-tx");
+            var recorded=store.resolve(MissionStore.id(recordedDraft),0);int replayAccepted;
+            try(var recorder=new MissionRecorder(folder.resolve("recorded-staging"),recorded.mission())) {
+                var result=new MissionRun(recorded,recorder,"member-0",0,new MissionRun.Control(){public void check(){}public void progress(long t,long end,String phase){}}).execute(folder.resolve("recorded-private"));
+                replayAccepted=result.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames");
+                if(replayAccepted!=metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames"))throw new AssertionError("Saved packet experiment changed unmodified reception");
+            }
+            reports.add(Json.createObjectBuilder().add("recordedAccepted",replayAccepted).add("mode",mode).add("accepted",metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames")));
         }
         MissionJson.writeAtomic(root.resolve("report.json"),Json.createObjectBuilder().add("passed",true).add("os",System.getProperty("os.name"))
                 .add("architecture",System.getProperty("os.arch")).add("javaHome",System.getProperty("java.home")).add("python",MissionWorker.interpreter().toString()).add("fixtures",reports).build());

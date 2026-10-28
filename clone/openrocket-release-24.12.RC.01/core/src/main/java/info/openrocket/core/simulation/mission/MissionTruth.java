@@ -27,6 +27,41 @@ public final class MissionTruth extends AbstractSimulationListener {
     private final List<Branch> branches = new ArrayList<>();
     private final Runnable checkpoint;
     public MissionTruth(Runnable checkpoint) { this.checkpoint = checkpoint; }
+    public static MissionTruth read(MissionArchive archive, String prefix, Runnable checkpoint) throws IOException {
+        var truth=new MissionTruth(checkpoint);var branches=new LinkedHashMap<String,Branch>();long count=0;
+        for(String name:archive.names().stream().filter(n->n.startsWith(prefix+"truth/chunk-") && n.endsWith(".csv")).sorted().toList()) {
+            try(var reader=new BufferedReader(new InputStreamReader(new ByteArrayInputStream(archive.read(name,(int)MissionRecorder.CHUNK_BYTES)),java.nio.charset.StandardCharsets.UTF_8))) {
+                String line;
+                while((line=reader.readLine())!=null) {
+                    if(++count>1_000_000)throw new IOException("Recorded flight exceeds one million accepted truth samples");
+                    if(count%1000==0)checkpoint.run();
+                    String[] fields=line.split(",",-1);if(fields.length!=12 || !fields[1].matches("stage-[0-9a-f-]{36}"))throw new IOException("Unsupported recorded truth row");
+                    long time=Long.parseLong(fields[0]);if(time<0 || time>86_400_000_000L)throw new IOException("Recorded flight time is outside mission bounds");
+                    double[] numbers=new double[9];for(int i=0;i<9;i++){numbers[i]=Double.parseDouble(fields[i+2]);if(!Double.isFinite(numbers[i]))throw new IOException("Nonfinite recorded truth");}
+                    var branch=branches.computeIfAbsent(fields[1],id->new Branch(id.substring(6)));
+                    if(branches.size()>100 || (!branch.samples.isEmpty() && time<branch.end()))throw new IOException("Recorded branches are out of order or exceed limits");
+                    double[] quaternion=Arrays.copyOfRange(numbers,5,9);double norm=Arrays.stream(quaternion).map(x->x*x).sum();
+                    if(Math.abs(norm-1)>1e-6)throw new IOException("Invalid recorded orientation");
+                    Set<String> stages=new HashSet<>(List.of(fields[11].split(";")));
+                    if(stages.stream().anyMatch(id->!id.matches("[0-9a-f-]{36}")))throw new IOException("Invalid recorded stage identity");
+                    branch.samples.add(new Sample(time,Arrays.copyOf(numbers,3),numbers[3],numbers[4],quaternion,stages));
+                }
+            }
+        }
+        if(branches.isEmpty())throw new IOException("Selected member has no recorded trajectory");
+        truth.branches.addAll(branches.values());
+        for(String name:archive.names().stream().filter(n->n.startsWith(prefix+"events/chunk-") && n.endsWith(".jsonl")).sorted().toList()) {
+            try(var reader=new BufferedReader(new InputStreamReader(new ByteArrayInputStream(archive.read(name,(int)MissionRecorder.CHUNK_BYTES)),java.nio.charset.StandardCharsets.UTF_8))) {
+                String line;while((line=reader.readLine())!=null) {
+                    var event=MissionJson.parse(line.getBytes(java.nio.charset.StandardCharsets.UTF_8));var branch=branches.get(event.getString("branchId",""));
+                    if(branch==null)continue;
+                    if(event.getString("kind").equals("branch-summary")){branch.landed=event.getBoolean("landed");branch.aborted=event.getBoolean("aborted");}
+                    else branch.events.add(event);
+                }
+            }
+        }
+        return truth;
+    }
     public static MissionTruth compute(Simulation flight, Runnable checkpoint, info.openrocket.core.simulation.listeners.SimulationListener... extra) throws SimulationException {
         for (var extension : flight.getSimulationExtensions()) if (extension instanceof ZephyrusFlightComputer fc) { var config = fc.getConfig(); config.put("enabled", false); fc.setConfig(config); }
         var truth = new MissionTruth(checkpoint);

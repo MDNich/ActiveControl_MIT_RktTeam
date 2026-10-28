@@ -1,5 +1,7 @@
 # Mission Simulation: implementation contracts and final review
 
+Implementation status (28 October 2026): this document retains the reviewed plan and contracts. See [the implementation ledger](18-mission-implementation-progress.md) for completed increments and evidence, and [the user guide](19-mission-simulation-user-guide.md) for the implemented workflow and limits.
+
 Reviewed 28 October 2026 against the OpenRocket MIT and RT Telemetry UI working trees. **This is the implementation handoff, not an implementation report.** OpenRocket's application version is now 6.5; that version bump does not mean Mission Simulation is implemented.
 
 Implementation evidence is maintained in [18 — progress and qualification](18-mission-implementation-progress.md).
@@ -248,3 +250,29 @@ This review inspected the following additional boundaries directly, beyond the r
 - [Decoder reboot/rollover heuristic and LIVE label](../../../RT_Telemetry_UI/src/rocket_gnc_monitor/protocol.py), [tracking/freshness](../../../RT_Telemetry_UI/src/rocket_gnc_monitor/controller.py), [pointer model](../../../RT_Telemetry_UI/src/rocket_gnc_monitor/virtual_pointer.py), [archive limits](../../../RT_Telemetry_UI/src/rocket_gnc_monitor/flight.py).
 
 No simulator, telemetry transport or media integration was implemented during this review. The next step is package A: turn the frozen decisions into executable schemas, migrations and independent fixtures, then proceed through the configuration and first headless mission.
+
+
+## Recorded-flight implementation addendum (28 October 2026)
+
+A derived ground-link experiment has a fresh mission ID and a `recordedFlight` v1
+selection: source SHA-256, member ID, explicit `recorded-tx` or `standard-generator`,
+and hashes of its fixed flight editor, launch, vehicle bindings and packet settings.
+The shared schema validates this optional object. `sources/<hash>.rktmission` is a
+minimal immutable archive of the selected truth, transmitter and event history plus
+frozen flight inputs; portable setups and derived results carry it. It does not copy
+other members' recordings or live application preferences. No transport is opened
+when deriving or reading it.
+
+Recorded packets preserve bytes, packet identities, acquisition/reference metadata
+and transmit times. Original FC code is not executed and new uplinks cannot alter
+that flight. Selecting the standard generator explicitly allows new sampling/noise
+settings against the recorded trajectory. Fixed launch/flight changes are rejected
+in validation and disabled in the workspace; selecting a new rocket clears the saved
+source. TX records are verified lazily by chunk and record hash, bounds, channel, time
+and identity. Recorded truth is limited to one million accepted samples.
+
+The initial directional model is the explicitly illustrative beam-width gate shown
+in the workspace. It makes no claim to implement terrain, calibrated gain tables or
+a qualified physical RF link budget. Independent scriptable loss, corruption, UART
+pacing, delay, jitter and outages are effective. Measured RF/mount profiles remain
+separate model qualification work as described in the user guide.

@@ -443,6 +443,56 @@
     },
     "outputs": {
       "type": "object"
+    },
+    "recordedFlight": {
+      "type": "object",
+      "properties": {
+        "sourceHash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "editorHash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "launchHash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "bindingsHash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "packetSettingsHash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "version": {
+          "type": "integer",
+          "const": 1
+        },
+        "member": {
+          "type": "string",
+          "pattern": "^member-[0-9]{1,5}$(?![\\s\\S])"
+        },
+        "telemetrySource": {
+          "type": "string",
+          "enum": [
+            "recorded-tx",
+            "standard-generator"
+          ]
+        }
+      },
+      "required": [
+        "sourceHash",
+        "editorHash",
+        "launchHash",
+        "bindingsHash",
+        "packetSettingsHash",
+        "version",
+        "member",
+        "telemetrySource"
+      ]
     }
   },
   "required": [

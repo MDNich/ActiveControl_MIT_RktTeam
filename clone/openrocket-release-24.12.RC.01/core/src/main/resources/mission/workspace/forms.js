@@ -68,6 +68,7 @@ export function renderFlight() {
   document.querySelectorAll('[data-remove-wind]').forEach(b=>b.onclick=()=>{editor.options.windLevels.splice(Number(b.dataset.removeWind),1);changed();renderFlight();});
   $('choose-fc').onclick=()=>action(async()=>{const result=await draftAction('fc');if(!result.cancelled){useMission(result);status('Flight computer frozen with this draft. Choose Custom FC in Telemetry to execute it.');}});
   document.querySelectorAll('[data-motor]').forEach(b=>b.onclick=()=>motorDialog(Number(b.dataset.motor)));
+  if(state.mission.recordedFlight){$('flight-fields').insertAdjacentHTML('afterbegin','<p class=information>Recorded trajectory: flight settings and vehicle bindings are fixed. Choosing a new rocket starts a new flight configuration.</p>');$('flight-fields').querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);}
 }
 function motorDialog(index) {
   let dialog=document.getElementById('motor-dialog');if(dialog)dialog.remove();dialog=document.createElement('dialog');dialog.id='motor-dialog';
@@ -76,6 +77,7 @@ function motorDialog(index) {
   $('motor-search').onclick=async()=>{try{const data=await request('motors',{query:$('motor-query').value});$('motor-results').innerHTML=data.motors.map((m,i)=>`<button data-choice="${i}">${esc(m.name)} · ${(m.diameterM*1000).toFixed(1)} × ${(m.lengthM*1000).toFixed(1)} mm</button>`).join('');$('motor-results').querySelectorAll('button').forEach(b=>b.onclick=()=>{const m=data.motors[Number(b.dataset.choice)];set(`flight.editor.motors.${index}.motorDigest`,m.digest);set(`flight.editor.motors.${index}.motorName`,m.name);dialog.close();renderFlight();});}catch(e){status(e.message);}};
 }
 export function renderEnsemble() {
+  if(state.mission.recordedFlight)return '<p class=information>This experiment uses one selected recorded member. Derive another experiment to select a different ensemble member.</p>';
   if(!get('flight.editor'))return '<div class="information">Choose a rocket and flight before configuring an ensemble.</div>';
   const p='flight.editor.options.ensemble.';state.mission.execution.applicationMember??=0;
   const fields=[field(p+'enabled','Flight ensemble',{choices:[['false','Single flight'],['true','Ensemble']]}),field(p+'runs','Flight members',{type:'number',stringNumber:true,min:2,max:10000,step:1}),field(p+'threads','Parallel workers',{type:'number',stringNumber:true,min:1,max:256,step:1}),field(p+'seed','Ensemble seed',{type:'number',stringNumber:true,step:1}),field(p+'motorsigma','Thrust noise σ · N',{type:'number',stringNumber:true,min:0}),field(p+'noiseinterval','Thrust noise interval · s',{type:'number',stringNumber:true,min:.005,max:10}),field(p+'temperaturesigma','Temperature σ · K',{type:'number',stringNumber:true,min:0,max:50}),field(p+'pressuresigma','Pressure σ · %',{type:'number',stringNumber:true,scale:100,min:0,max:30}),field(p+'windsigma','Wind σ · m/s',{type:'number',stringNumber:true,min:0}),field(p+'winddirectionsigma','Wind direction σ · °',{type:'number',stringNumber:true,scale:deg,min:0,max:180})];

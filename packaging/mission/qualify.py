@@ -2,6 +2,7 @@
 """Build a native application image and verify Mission with its bundled Java/Python."""
 from __future__ import annotations
 import argparse
+from datetime import datetime, timezone
 import importlib.util
 import os
 from pathlib import Path
@@ -72,8 +73,8 @@ def main():
     run([java_home / ('bin/javac' + suffix), '-encoding', 'UTF-8', '-cp', app_jar, '-d', classes,
          ROOT / 'packaging/verification/MissionPackageProbe.java',
          SOURCE / 'core/src/test/java/edu/mit/rocket_team/RTFCVerificationRocket.java'], env=environment)
-    report = work / 'report'
-    report.mkdir(exist_ok=True)
+    report = work / 'report' / datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ')
+    report.mkdir(parents=True)
     run([bundled_java, '-Djava.awt.headless=true', '-Duser.home=' + str(report / 'home'),
          '-Djava.util.prefs.userRoot=' + str(report / 'preferences'), '-cp', str(app_jar) + os.pathsep + str(classes),
          'MissionPackageProbe', report], env=environment)

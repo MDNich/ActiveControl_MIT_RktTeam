@@ -303,3 +303,29 @@ fixture exercises actual ENOSPC; other hosts skip that OS-specific fixture. Inde
 queries reject hash-valid indexes whose channel, record boundary or time disagrees
 with the canonical stream. The final saved-flight experiment workflow and updated
 final qualification are the remaining closure work.
+
+## F4 / G3 — saved-flight experiments and final workspace (2026-10-28)
+
+Saved-result experiments now use a new mission identity and a versioned, hash-pinned
+selected-member source. The immutable source includes truth/TX/events and original
+flight/codec inputs. Users explicitly choose original transmissions or new standard
+packets; neither path runs an FC. Portable setups retain the source, fixed launch and
+flight inputs are protected, and receiver/link/video settings remain editable. Packet
+identity, time, channel, bounds and hashes are checked during incremental replay.
+
+All 70 Java mission checks passed (the Linux-only ENOSPC fixture is skipped on this
+Mac). Tests cover standard and custom packet replay, exact original TX bytes, standard
+regeneration, portable-source import and flight-edit rejection. The browser acceptance
+passed offline setup, normal run, pause/browser reconnect, complete and recovered
+station export and creation/execution of a new recorded-flight experiment. It found
+and fixed a result time-window field interfering with configuration validation.
+
+The native macOS ARM image passed standard/custom-FC missions and both recorded-packet
+experiments using its bundled runtimes. Report:
+`build/mission-package/macos-arm64/report/20261028T191709.945923Z/report.json`.
+The preceding recovery revision passed all four platforms in Actions run 40749647820;
+the final source revision will receive the same matrix before completion. Sixty-two
+Python contract/codec/station/result/application checks passed. A combined desktop
+video run exposed an intermittent PySide native object-construction crash; final
+video stability investigation is still in progress. This entry does not count that
+failed run as a pass.
