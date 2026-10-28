@@ -1,7 +1,7 @@
 {
   "format": "openrocket.mission-worker",
   "version": 1,
-  "sha256": "a39d43b4e5f851ebc3f6f20600aacd64dbb997cb63879b850857ddc8e08d563e",
+  "sha256": "bbc7881b8aa4bd1e6b1407d24488f214752a4d1a8abe9260611e31c100a70839",
   "files": [
     "__init__.py",
     "domain.py",

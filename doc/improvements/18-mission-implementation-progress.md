@@ -93,6 +93,18 @@ Java link models implement routing/outage/directional qualification, event-addre
 
 Verification: 24 Python station/controller/protocol tests and three Java worker/link/mount tests passed. The Java test launches the bundled Python ZIP and exchanges actual legacy packets and pointer bytes over a socket. Complete flights, recording and job controls are C2 work, next.
 
+## C2 — complete standard flights, station replay and committed result streams
+
+The Java runner now computes the complete ordinary flight before station playback, identifies branches by stage UUID, preserves accepted solver samples/events and uses ECEF/continuous-value interpolation with quaternion slerp. Attached vehicles use the parent trajectory until separation, then their own stage trajectory. Explicit body offsets and active intervals are supported by the binding model. Invalid/missing multistage bindings are findings; a single active stage can be resolved automatically.
+
+The standard source acquires held GPS/barometric observations at independent cadences, uses event-addressed noise, sends exact legacy packets, records acquisition/height-reference metadata and marks unmodeled hardware unavailable. Base plus four Away receivers run independently through the shared worker. The mission clock includes pad warmup, plant advance, transmissions, ordered link deliveries, policy, pointer commands and a bounded delivery tail. Large same-time delivery batches are drained without evaluating policy before the final batch. Truth is used for analysis/beam qualification, never as a policy input.
+
+Canonical recording now rotates raw/index/event/truth chunks at 16 MiB, forces raw data before index checkpoints, and publishes committed-prefix manifests at least once per active host second. Results carry their resolved configuration and frozen flight assets; failed/cancelled jobs preserve a verified partial bundle or readable staging. The desktop runner supports pause/resume/cancel, persisted status and browser reconnection. The browser retains an uncertain start's idempotency key and shows receiver counters/results instead of raw job JSON.
+
+Verification: 54 mission Java tests passed, followed by four full-run/branch/lifecycle tests. The full mission uses the packaged Python worker, receives at five stations, completely drops only GS2, generates no Base pointer commands and reopens its verified ZIP. A real multistage rocket retains shared pre-separation positions and divergent separated trajectories. A paced job freezes mission time while paused and cancellation produces a hash-verified partial result. Python's 24 station/controller/protocol regressions pass.
+
+This increment admits standard headless missions with zero video and one flight member. Other configured modes are rejected explicitly at start pending D–F; the workspace retains their settings. SQLite/recovery/replay views and broader crash/packaged qualification remain F–G work.
+
 ## Remaining work
 
 **C–G:** deterministic station worker/scheduler and actual simulation, FC/software-station integration, media transmission, ensembles/bundles and packaged qualification remain as specified. No installer or GitHub release should describe Mission Simulation as delivered on the basis of A1 alone.

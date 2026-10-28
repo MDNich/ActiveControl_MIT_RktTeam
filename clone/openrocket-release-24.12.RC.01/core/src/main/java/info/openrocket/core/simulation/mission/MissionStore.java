@@ -132,6 +132,19 @@ public final class MissionStore {
                 issue(issues, "/flight/editor/stages", "no-active-stage", "Enable a rocket stage");
             if (simulation.getActiveConfiguration().getActiveMotors().isEmpty())
                 issue(issues, "/flight/editor/motors", "no-active-motor", "Select a motor on an active stage");
+            var active = simulation.getActiveConfiguration().getActiveStages();
+            for (var entry : draft.getJsonArray("vehicleBindings")) {
+                var binding = entry.asJsonObject(); String component = binding.getString("componentId", "");
+                if (component.isEmpty() && active.size() != 1)
+                    issue(issues, "/vehicleBindings", "stage-binding-required", "Bind each vehicle to an active rocket stage by component identity");
+                else if (!component.isEmpty() && active.stream().noneMatch(stage -> stage.getID().toString().equals(component)))
+                    issue(issues, "/vehicleBindings", "stage-binding-invalid", "The selected stage is missing or inactive");
+            }
+            var receiverIds = new HashSet<String>();
+            for (var entry : draft.getJsonObject("telemetry").getJsonArray("links")) {
+                var link = entry.asJsonObject(); MissionLink.validate(link);
+                if (!receiverIds.add(link.getString("receiverId"))) issue(issues, "/telemetry/links", "duplicate-link", "Each receiver has one link profile");
+            }
             if (draft.getJsonObject("telemetry").getString("mode").equals("custom-fc")) {
                 var computers = simulation.getSimulationExtensions().stream().filter(e -> e instanceof ZephyrusFlightComputer fc && fc.isEnabled()).toList();
                 if (computers.size() != 1) issue(issues, "/flight/editor/extensions", "fc-count", "Enable exactly one flight computer for a coupled run");
@@ -168,8 +181,16 @@ public final class MissionStore {
         simulation.getOptions().setLaunchLatitude(launch.getJsonNumber("latitudeDeg").doubleValue());
         simulation.getOptions().setLaunchLongitude(launch.getJsonNumber("longitudeDeg").doubleValue());
         simulation.getOptions().setLaunchAltitude(launch.getJsonNumber("mslHeightM").doubleValue());
+        var bindings = Json.createArrayBuilder();
+        for (var entry : draft.getJsonArray("vehicleBindings")) {
+            var binding = entry.asJsonObject();
+            String component = binding.getString("componentId", "");
+            if (component.isEmpty()) component = simulation.getActiveConfiguration().getActiveStages().get(0).getID().toString();
+            bindings.add(Json.createObjectBuilder(binding).add("componentId", component)
+                    .add("flightConfigurationId", simulation.getId().toString()).add("rocketAssetId", "flight-inputs"));
+        }
         String flightHash = freeze(simulation);
-        var resolved = Json.createObjectBuilder(draft).add("sites", sites).add("geoid", MissionGeoid.bundled().provenance())
+        var resolved = Json.createObjectBuilder(draft).add("sites", sites).add("vehicleBindings", bindings).add("geoid", MissionGeoid.bundled().provenance())
                 .add("flight", Json.createObjectBuilder(draft.getJsonObject("flight")).add("snapshotHash", flightHash)
                         .add("editor", MissionFlightEditor.capture(simulation))).build();
         return new Resolved(resolved, snapshot(flightHash), hash(resolved));

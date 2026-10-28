@@ -60,7 +60,23 @@ async function validate(){
   status(result.configurationValid?'Configuration checked.':'Correct the listed fields before starting.');
 }
 let pollTimer;
-async function poll(){if(!state.job)return;try{const job=await request('jobs/'+state.job.id);state.job=job;$('job').hidden=false;$('job').textContent=JSON.stringify(job,null,2);$('pause').disabled=job.status!=='running';$('resume').disabled=job.status!=='paused';$('cancel').disabled=!['starting','running','paused'].includes(job.status);if(!['complete','complete-with-failures','cancelled','failed'].includes(job.status))pollTimer=setTimeout(poll,1000);}catch(error){status('Run status unavailable: '+error.message);pollTimer=setTimeout(poll,3000);}}
+function renderJob(job){
+  $('job').hidden=false;
+  const duration=Number(job.endUs)/1e6,current=Number(job.timeUs)/1e6;
+  let html=`<h2>${esc(job.phase||job.status)}</h2><p>${esc(job.status)}${duration>0?` · ${current.toFixed(2)} / ${duration.toFixed(2)} seconds`:''}</p>`;
+  if(duration>0)html+=`<progress max="${duration+1}" value="${current+1}"></progress>`;
+  if(job.failure)html+=`<p class="error">${esc(job.failure)}</p>`;
+  if(job.metrics?.receivers)html+='<div class="table-scroll"><table><thead><tr><th>Receiver</th><th>Packets accepted / eligible</th><th>Pointer commands</th></tr></thead><tbody>'+Object.entries(job.metrics.receivers).map(([id,m])=>`<tr><td>${esc(id==='launch'?'Base':id.toUpperCase())}</td><td>${m.acceptedFrames} / ${m.eligibleTransmissions}</td><td>${m.pointerCommands}</td></tr>`).join('')+'</tbody></table></div>';
+  if(job.result)html+=`<p>Saved result bundle</p><div class="path-value">${esc(job.result)}</div>`;
+  else if(['failed','cancelled','incomplete'].includes(job.status))html+=`<p>Recoverable run files</p><div class="path-value">${esc(job.staging)}</div>`;
+  $('job').innerHTML=html;
+}
+async function poll(){if(!state.job)return;try{
+  const job=await request('jobs/'+state.job.id);state.job=job;sessionStorage.setItem('mission-job',job.id);renderJob(job);
+  $('pause').disabled=job.status!=='running';$('resume').disabled=job.status!=='paused';$('cancel').disabled=!['starting','running','paused'].includes(job.status);
+  if(!['complete','complete-with-failures','cancelled','failed','incomplete'].includes(job.status))pollTimer=setTimeout(poll,1000);
+  else {sessionStorage.removeItem('mission-start-pending');$('start').textContent='Start another run';$('start').disabled=!state.resolved;}
+}catch(error){status('Run status unavailable: '+error.message);pollTimer=setTimeout(poll,3000);}}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.page));
 $('title').onchange=()=>{set('identity.title',$('title').value);};
 $('apply').onclick=()=>action(commit);
@@ -70,11 +86,17 @@ $('load').onclick=()=>action(async()=>{await commit();const mission=await reques
 for(const [id,current] of [['current-rocket',true],['choose-rocket',false]])$(id).onclick=()=>action(async()=>{const result=await draftAction('rocket',{current});if(result.cancelled)return;$('simulation-choice').innerHTML=result.simulations.map(s=>`<option value="${s.index}">${esc(s.name)}</option>`).join('');$('simulation-choice').hidden=false;$('select-flight').hidden=false;status('Choose the saved flight settings to load.');});
 $('select-flight').onclick=()=>action(async()=>{const result=await draftAction('flight',{simulation:Number($('simulation-choice').value)});useMission(result);status('Rocket, motor curves and flight settings frozen with this draft.');});
 $('validate').onclick=()=>action(validate);
-$('start').onclick=()=>action(async()=>{await commit();if(!state.resolved)await validate();if(!state.resolved||$('start').disabled)return;const job=await request('jobs',{draftId:state.mission.identity.missionId,expectedRevision:state.mission.identity.revision,resolvedHash:state.resolved,idempotencyKey:crypto.randomUUID()});state.job=job;clearTimeout(pollTimer);await poll();});
+$('start').onclick=()=>action(async()=>{
+  await commit();if(!state.resolved)await validate();if(!state.resolved||$('start').disabled)return;
+  let pending=JSON.parse(sessionStorage.getItem('mission-start-pending')||'null');
+  if(!pending||pending.hash!==state.resolved){pending={hash:state.resolved,key:crypto.randomUUID()};sessionStorage.setItem('mission-start-pending',JSON.stringify(pending));}
+  const job=await request('jobs',{draftId:state.mission.identity.missionId,expectedRevision:state.mission.identity.revision,resolvedHash:state.resolved,idempotencyKey:pending.key});
+  state.job=job;sessionStorage.setItem('mission-job',job.id);$('start').disabled=true;clearTimeout(pollTimer);await poll();
+});
 for(const name of ['pause','resume','cancel'])$(name).onclick=()=>action(async()=>{await request('jobs/'+state.job.id+'/'+name,{});clearTimeout(pollTimer);await poll();});
 document.addEventListener('mission-loaded',render);document.addEventListener('mission-render',render);
 document.addEventListener('field-changed',event=>{
   if(event.detail==='telemetry.mode'){state.mission.execution.mode=get('telemetry.mode')==='custom-fc'?'coupled':'ground-link';renderTelemetry();renderRun();}
   if(event.detail==='execution.mode'&&get('execution.mode')==='interactive'){state.mission.execution.clockMode='paced';renderRun();}
 });
-action(async()=>{await initialize();status('Mission workspace connected.');});
+action(async()=>{await initialize();status('Mission workspace connected.');const job=sessionStorage.getItem('mission-job');if(job){state.job={id:job};await poll();}});

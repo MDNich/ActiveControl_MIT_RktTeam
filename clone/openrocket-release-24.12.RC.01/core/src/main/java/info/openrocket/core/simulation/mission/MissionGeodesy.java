@@ -23,4 +23,32 @@ public final class MissionGeodesy {
                 (n + ellipsoidalHeightM) * cos * Math.sin(lon),
                 (n * (1 - e2) + ellipsoidalHeightM) * sin};
     }
+
+    /** Inverse ECEF, including poles; height is WGS84 ellipsoidal metres. */
+    public static double[] geodetic(double[] point) {
+        double x = point[0], y = point[1], z = point[2], p = Math.hypot(x, y), e2 = F * (2 - F);
+        if (p < 1e-9) return new double[] {Math.copySign(90, z), 0, Math.abs(z) - A * (1 - F)};
+        double lat = Math.atan2(z, p * (1 - e2));
+        for (int i = 0; i < 12; i++) {
+            double n = A / Math.sqrt(1 - e2 * Math.sin(lat) * Math.sin(lat));
+            double next = Math.atan2(z + e2 * n * Math.sin(lat), p);
+            if (Math.abs(next - lat) < 1e-14) { lat = next; break; }
+            lat = next;
+        }
+        double n = A / Math.sqrt(1 - e2 * Math.sin(lat) * Math.sin(lat));
+        return new double[] {Math.toDegrees(lat), Math.toDegrees(Math.atan2(y, x)), p / Math.cos(lat) - n};
+    }
+    public static double[] enu(double[] target, double latitude, double longitude, double height) {
+        double[] origin = ecef(latitude, longitude, height);
+        double x = target[0] - origin[0], y = target[1] - origin[1], z = target[2] - origin[2];
+        double lat = Math.toRadians(latitude), lon = Math.toRadians(longitude);
+        return new double[] {-Math.sin(lon) * x + Math.cos(lon) * y,
+                -Math.sin(lat) * Math.cos(lon) * x - Math.sin(lat) * Math.sin(lon) * y + Math.cos(lat) * z,
+                Math.cos(lat) * Math.cos(lon) * x + Math.cos(lat) * Math.sin(lon) * y + Math.sin(lat) * z};
+    }
+    public static double[] pointing(double[] target, double latitude, double longitude, double height) {
+        double[] local = enu(target, latitude, longitude, height); double horizontal = Math.hypot(local[0], local[1]);
+        if (Math.hypot(horizontal, local[2]) < 10 || horizontal < 1) return null;
+        return new double[] {(Math.toDegrees(Math.atan2(local[0], local[1])) + 360) % 360, Math.toDegrees(Math.atan2(local[2], horizontal))};
+    }
 }

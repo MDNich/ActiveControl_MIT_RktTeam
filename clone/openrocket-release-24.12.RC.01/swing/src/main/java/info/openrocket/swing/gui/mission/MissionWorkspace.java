@@ -45,7 +45,7 @@ public final class MissionWorkspace {
                             var copy = document.copy(); copy.setFile(document.getFile()); return copy;
                         });
                     }
-                }, null);
+                }, new MissionJobs(root));
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> api.close(), "mission-shutdown"));
             }
             var draft = store.create("URRG mission");
