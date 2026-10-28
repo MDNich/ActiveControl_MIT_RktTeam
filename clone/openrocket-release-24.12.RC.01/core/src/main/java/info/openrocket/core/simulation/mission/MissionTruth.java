@@ -27,9 +27,11 @@ public final class MissionTruth extends AbstractSimulationListener {
     private final List<Branch> branches = new ArrayList<>();
     private final Runnable checkpoint;
     public MissionTruth(Runnable checkpoint) { this.checkpoint = checkpoint; }
-    public static MissionTruth compute(Simulation flight, Runnable checkpoint) throws SimulationException {
+    public static MissionTruth compute(Simulation flight, Runnable checkpoint, info.openrocket.core.simulation.listeners.SimulationListener... extra) throws SimulationException {
         for (var extension : flight.getSimulationExtensions()) if (extension instanceof ZephyrusFlightComputer fc) { var config = fc.getConfig(); config.put("enabled", false); fc.setConfig(config); }
-        var truth = new MissionTruth(checkpoint); flight.simulate(truth); return truth;
+        var truth = new MissionTruth(checkpoint);
+        var listeners = new ArrayList<info.openrocket.core.simulation.listeners.SimulationListener>(Arrays.asList(extra));
+        listeners.add(truth);flight.simulate(listeners.toArray(info.openrocket.core.simulation.listeners.SimulationListener[]::new));return truth;
     }
     @Override public boolean isSystemListener() { return true; }
     @Override public void startSimulation(SimulationStatus status) { capture(status); }

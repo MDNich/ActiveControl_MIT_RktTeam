@@ -26,13 +26,8 @@ public final class EnsembleRunner {
                         + "'. Choose 1 thread or remove that extension.");
         }
         var accumulator = new EnsembleAccumulator(settings);
-        var random = new Random(settings.seed());
-        // Separate streams retain historical motor, atmosphere and coefficient draws.
-        var coefficientRandom = new Random(((long) settings.seed()) ^ 0x6a09e667f3bcc909L);
-        var directionRandom = new Random(((long) settings.seed()) ^ 0xbb67ae8584caa73bL);
+        var sampler = new EnsembleSampler(parent);
         String batch = UUID.randomUUID().toString().substring(0, 8);
-        var base = parent.getOptions().toSimulationConditions().getAtmosphericModel()
-                .getConditions(parent.getOptions().getLaunchAltitude());
         AtomicInteger threadNumber = new AtomicInteger();
         var executor = Executors.newFixedThreadPool(count, job -> {
             var thread = new Thread(job, "ensemble-" + batch + "-" + threadNumber.incrementAndGet());
@@ -49,19 +44,9 @@ public final class EnsembleRunner {
                 while (pending.size() < count && next < settings.runs()) {
                     if (Thread.currentThread().isInterrupted()) throw new SimulationCancelledException();
                     int number = ++next;
-                    long motorSeed = random.nextLong();
-                    double temperature = base.getTemperature() + settings.temperatureSigma() * random.nextGaussian();
-                    double pressure = base.getPressure() * (1 + settings.pressureSigma() * random.nextGaussian());
-                    double east = settings.windSigma() * random.nextGaussian();
-                    double north = settings.windSigma() * random.nextGaussian();
                     EnsembleRunParameters inputs;
                     try {
-                        inputs = new EnsembleRunParameters(number, motorSeed, temperature, pressure, east, north,
-                                1 + settings.massSigma() * coefficientRandom.nextGaussian(),
-                                1 + settings.dragSigma() * coefficientRandom.nextGaussian(),
-                                1 + settings.rollForceSigma() * coefficientRandom.nextGaussian(),
-                                1 + settings.rollDampingSigma() * coefficientRandom.nextGaussian(),
-                                settings.windDirectionSigma() * directionRandom.nextGaussian());
+                        inputs = sampler.next();
                     } catch (IllegalArgumentException e) {
                         throw new SimulationException("Run " + number
                                 + ": nonphysical atmosphere or nonpositive mass or coefficient multiplier drawn; "
@@ -73,13 +58,7 @@ public final class EnsembleRunner {
                     var child = parent.duplicateSimulation(document, rocket);
                     document.addSimulation(child);
                     child.setEnsembleRunTag("ensemble-" + batch + "-run-" + number);
-                    child.getOptions().setEnsembleSettings(settings.disabled());
-                    child.getOptions().setRandomSeed(settings.seed());
-                    if (settings.temperatureSigma() > 0 || settings.pressureSigma() > 0) {
-                        child.getOptions().setISAAtmosphere(false);
-                        child.getOptions().setLaunchTemperature(temperature);
-                        child.getOptions().setLaunchPressure(pressure);
-                    }
+                    EnsembleSampler.apply(child, settings, inputs);
                     List<SimulationListener> extra = new ArrayList<>();
                     for (var listener : listeners) extra.add(listener.clone());
                     extra.add(new EnsembleRunListener(settings, inputs));

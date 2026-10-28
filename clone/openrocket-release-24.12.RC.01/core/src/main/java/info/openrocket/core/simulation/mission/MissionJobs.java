@@ -14,7 +14,7 @@ public final class MissionJobs implements MissionApi.Jobs {
     public MissionJobs(Path root) throws IOException { this.root = root; Files.createDirectories(root.resolve("jobs")); }
     @Override public JsonObject capabilities() {
         try { MissionWorker.interpreter(); return Json.createObjectBuilder().add("available", true).add("standard", true).add("coupled", true)
-                .add("video", true).add("ensemble", false).add("workerProtocol", "rt-mission.v1").build(); }
+                .add("video", true).add("ensemble", true).add("workerProtocol", "rt-mission.v1").build(); }
         catch (IOException e) { return Json.createObjectBuilder().add("available", false).add("reason", e.getMessage()).build(); }
     }
     @Override public JsonObject start(MissionStore.Resolved resolved) throws IOException {
@@ -33,7 +33,9 @@ public final class MissionJobs implements MissionApi.Jobs {
             }
         }
         var ensemble = mission.getJsonObject("flight").getJsonObject("editor").getJsonObject("options").getJsonObject("ensemble");
-        if (ensemble.getString("enabled", "false").equals("true")) throw new IllegalArgumentException("Mission ensembles are being integrated; choose a single flight in this increment");
+        if (ensemble.getString("enabled", "false").equals("true") && mission.getJsonArray("stationBindings").stream().anyMatch(v -> !v.asJsonObject().getString("owner").equals("headless-policy"))
+                && !mission.getJsonObject("execution").getString("clockMode", "lockstep").equals("paced"))
+            throw new IllegalArgumentException("Application-connected ensembles require paced serial execution");
         boolean interactive = mission.getJsonArray("stationBindings").stream().anyMatch(v -> v.asJsonObject().getString("owner").equals("interactive-ui"));
         if (interactive && !mission.getJsonObject("execution").getString("clockMode", "lockstep").equals("paced"))
             throw new IllegalArgumentException("Interactive station control requires paced execution");
@@ -83,6 +85,7 @@ public final class MissionJobs implements MissionApi.Jobs {
         String status = "starting", phase = "Preparing mission", failure = "";
         boolean paused, cancelled;
         volatile MissionParticipants participants;
+        @Override public synchronized void beginMember(int member) { wallStart = 0; pausedNanos = 0; participants = null; }
         @Override public void participants(MissionParticipants value) { participants = value; }
         JsonObject metrics = JsonValue.EMPTY_JSON_OBJECT;
         Job(MissionStore.Resolved resolved) throws IOException {
@@ -128,10 +131,11 @@ public final class MissionJobs implements MissionApi.Jobs {
                 try (var files = Files.list(resolved.flightDirectory())) { for (var file : files.toList()) recorder.asset("assets/" + hash + "/" + file.getFileName(), file); }
                 JsonObject preferences = JsonValue.EMPTY_JSON_OBJECT;
                 if (Files.isRegularFile(root.resolve("machine-preferences.json"))) try (var in = Files.newInputStream(root.resolve("machine-preferences.json"))) { preferences = MissionJson.read(in); }
-                metrics = new MissionRun(resolved, recorder, "member-0", 0, this).applicationPreferences(preferences).execute(directory.resolve("private-worker"));
+                var result = MissionEnsemble.execute(resolved, recorder, directory.resolve("private-worker"), this, preferences);
+                metrics = result.metrics();
                 synchronized (this) { status = "finalizing"; phase = "Verifying and saving the result bundle"; persist(); }
-                recorder.finish(archive, "complete");
-                synchronized (this) { status = "complete"; phase = "Mission complete"; }
+                recorder.finish(archive, result.status());
+                synchronized (this) { status = result.status(); phase = "Mission complete"; }
             } catch (Exception e) {
                 synchronized (this) { status = e instanceof CancellationException ? "cancelled" : "failed"; failure = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage(); phase = "Committed results preserved"; }
                 if (recorder != null) try { recorder.json("failure.json", Json.createObjectBuilder().add("status", status).add("reason", failure).build()); recorder.finish(archive, status); }

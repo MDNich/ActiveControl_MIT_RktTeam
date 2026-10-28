@@ -10,6 +10,7 @@ public final class MissionRun {
     public interface Control {
         void check();
         void progress(long timeUs, long endUs, String phase);
+        default void beginMember(int member) { }
         default void participants(MissionParticipants value) { }
         default JsonArray drainActions(int maximum) { return JsonValue.EMPTY_JSON_ARRAY; }
     }
@@ -22,6 +23,7 @@ public final class MissionRun {
     private final Map<String, JsonObject> sites = new TreeMap<>(), pointers = new TreeMap<>(), bindings = new TreeMap<>(), stations = new TreeMap<>();
     private final Map<String, MissionPointer> mounts = new TreeMap<>();
     private final Map<String, MissionLink> links = new TreeMap<>();
+    private final Map<String, MissionReceptionMetrics> reception = new TreeMap<>();
     private final Map<String, long[]> counts = new TreeMap<>();
     private final PriorityQueue<Delivery> deliveries = new PriorityQueue<>(Comparator.comparingLong(Delivery::timeUs).thenComparing(Delivery::site).thenComparing(d -> d.metadata.getString("transmitterId")).thenComparingLong(Delivery::ordinal));
     private long timeUs = -1_000_000;
@@ -34,6 +36,8 @@ public final class MissionRun {
     public MissionRun(MissionStore.Resolved resolved, MissionRecorder recorder, String runId, long member, Control control) {
         this.resolved = resolved; this.recorder = recorder; this.runId = runId; this.member = member; this.control = control;
     }
+    private info.openrocket.core.simulation.ensemble.EnsembleRunParameters ensembleInputs;
+    public MissionRun ensembleMember(info.openrocket.core.simulation.ensemble.EnsembleRunParameters inputs) { ensembleInputs = inputs; return this; }
     private MissionParticipants worker;
     private MissionVideo video;
     private JsonObject preferences = JsonValue.EMPTY_JSON_OBJECT;
@@ -47,7 +51,15 @@ public final class MissionRun {
     public JsonObject execute(Path privateDirectory) throws Exception {
         JsonObject mission = resolved.mission(), execution = mission.getJsonObject("execution");
         var simulation = MissionFlightSnapshot.restore(resolved.flightDirectory());
-        if (simulation.getOptions().getEnsembleSettings().enabled()) throw new IllegalArgumentException("Mission ensemble runner is not installed in this increment");
+        var ensembleSettings = simulation.getOptions().getEnsembleSettings();
+        var extra = new ArrayList<info.openrocket.core.simulation.listeners.SimulationListener>();
+        if (ensembleSettings.enabled()) {
+            if (ensembleInputs == null) throw new IllegalArgumentException("An ensemble member requires frozen sampled inputs");
+            info.openrocket.core.simulation.ensemble.EnsembleSampler.apply(simulation, ensembleSettings, ensembleInputs);
+            extra.add(new info.openrocket.core.simulation.ensemble.EnsembleRunListener(ensembleSettings, ensembleInputs));
+            var inputs = Json.createObjectBuilder(); new TreeMap<>(ensembleInputs.attributes()).forEach(inputs::add);
+            recorder.json("runs/" + runId + "/ensemble-inputs.json", inputs.build());
+        }
         boolean coupled = mission.getJsonObject("telemetry").getString("mode").equals("custom-fc");
         prepare();
         video = new MissionVideo(mission, recorder, runId, member);
@@ -58,7 +70,7 @@ public final class MissionRun {
             codec = fc.getMissionDesign().design().telemetryCodec();
         } else {
             control.progress(0, 0, "Calculating complete flight branches");
-            truth = MissionTruth.compute(simulation, this::checkpoint);
+            truth = MissionTruth.compute(simulation, this::checkpoint, extra.toArray(info.openrocket.core.simulation.listeners.SimulationListener[]::new));
         }
         try (var stationWorker = new MissionParticipants(privateDirectory, mission, runId, "member-" + member, preferences, recorder, video.applicationStreams())) {
             worker = stationWorker; control.participants(worker); worker.configure(stationConfiguration());
@@ -66,13 +78,16 @@ public final class MissionRun {
                 truth = new MissionTruth(this::checkpoint);
                 stop = Math.round(simulation.getOptions().getMaxSimulationTime() * 1e6);
                 fc.setMissionHook(hook(privateDirectory.resolve("fc")));
-                try { simulation.simulate(truth); }
-                finally { if (computer != null) computer.telemetry.finishAt(false, computer.trace.bootUs()); }
-                truth.record(recorder, runId);
+                extra.add(truth);
+                try { simulation.simulate(extra.toArray(info.openrocket.core.simulation.listeners.SimulationListener[]::new)); }
+                finally {
+                if (computer != null) computer.telemetry.finishAt(false, computer.trace.bootUs());
+                if (!truth.branches().isEmpty()) truth.record(recorder, runId);
                 if (computer != null && computer.telemetry.getLogPath() != null) {
                     try (var files = Files.list(computer.telemetry.getLogPath().getParent())) {
                         for (Path file : files.toList()) recorder.asset("runs/" + runId + "/fc/" + bindings.keySet().iterator().next() + "/" + file.getFileName(), file);
                     }
+                }
                 }
             } else {
                 truth.record(recorder, runId);
@@ -193,7 +208,7 @@ public final class MissionRun {
         var receivers = Json.createObjectBuilder();
         for (var entry : counts.entrySet()) { long[] c = entry.getValue(); receivers.add(entry.getKey(), Json.createObjectBuilder().add("eligibleTransmissions", c[0])
                 .add("rfDelivered", c[1]).add("acceptedFrames", c[2]).add("rejectedFrames", c[3]).add("pointerCommands", c[4])
-                .add("acceptedFraction", c[0] == 0 ? JsonValue.NULL : Json.createValue((double) c[2] / c[0]))); }
+                .add("analysis", reception.get(entry.getKey()).json(stop)).add("acceptedFraction", c[0] == 0 ? JsonValue.NULL : Json.createValue((double) c[2] / c[0]))); }
         var result = metrics.add("receivers", receivers).build(); recorder.json("runs/" + runId + "/metrics.json", result);
         recorder.json("runs/" + runId + "/validation.json", Json.createObjectBuilder().add("status", "complete").add("truthLeakToPolicy", false)
                 .add("unavailableHardwareChannels", true).add("pointerModel", "illustrative-rate-limited.v1").build());
@@ -264,7 +279,7 @@ public final class MissionRun {
         }
         for (var entry : mission.getJsonArray("stationBindings")) {
             var station = entry.asJsonObject(); if (!station.getString("role").equals("telem") || !sites.containsKey(station.getString("siteId"))) continue;
-            stations.put(station.getString("siteId"), station); counts.put(station.getString("siteId"), new long[5]);
+            stations.put(station.getString("siteId"), station); counts.put(station.getString("siteId"), new long[5]); reception.put(station.getString("siteId"), new MissionReceptionMetrics());
         }
         for (String id : stations.keySet()) {
             JsonObject profile = mission.getJsonObject("telemetry").getJsonArray("links").stream().map(JsonValue::asJsonObject)
@@ -298,6 +313,9 @@ public final class MissionRun {
         for (var action : result.getJsonArray("operatorActions")) tape.add(Json.createObjectBuilder(action.asJsonObject()).add("timeUs", Long.toString(timeUs + 1)).build());
         for (var entry : result.getJsonArray("stations")) {
             var station = entry.asJsonObject(); String id = station.getString("id");
+            var mountState = mounts.get(id);
+            reception.get(id).advance(timeUs, station.getBoolean("tracking"), trackingError(id, truth), mountState != null && mountState.state().getBoolean("saturated"));
+            for (var sample : station.getJsonArray("samples")) reception.get(id).sample(sample.asJsonObject(), timeUs, beamQualified(id, truth));
             counts.get(id)[2] += station.getJsonArray("samples").size(); counts.get(id)[3] += station.getInt("rejected");
             for (var sample : station.getJsonArray("samples")) recorder.jsonLine("runs/" + runId + "/stations/" + id + "/receiver/decoded",
                     Json.createObjectBuilder(sample.asJsonObject()).add("timeUs", Long.toString(timeUs)).build());

@@ -181,3 +181,24 @@ archive containing only one PNG per stream. Full Java mission regression is reco
 with the stage commit. A visual review caught and removed a residual LIVE label on
 Mission wall tiles. Receiver RNG addressing now includes transmitter identity, and
 same-time delivery ordering includes it as well.
+
+## F1 — ensembles and receiver analysis (2026-10-28)
+
+Mission ensembles share the native EnsembleSampler and EnsembleRunListener, retaining
+the existing atmosphere, wind, thrust, mass and aerodynamic coefficient distributions
+and historical draw order. Each member owns its flight, FC, receiver process, links,
+video timeline and output directory. Work is bounded to eight members and the host's
+available processors; paced application ensembles run serially. Independent member
+failures are recorded while other members continue, unless fail-fast is selected.
+Cancellation waits for member workers to stop. Paced clocks restart for each member.
+
+Receiver metrics now separately record RF/frame counts, freshness coverage, acquisition
+age, first usable acquisition, outage duration, tracking time, saturation time, and
+time-weighted pointing error with explicit observation intervals and denominators.
+Cancelled/failed coupled runs retain the accepted truth prefix and native FC files.
+
+Validation: all 26 native ensemble and Mission ensemble tests passed. The new parity
+test compares every canonical per-member stream from serial and parallel execution
+byte for byte. A separate analytic test verifies information-age and freshness
+normalization. Result indexing, committed-prefix recovery and replay/export interfaces
+remain the next increment.
