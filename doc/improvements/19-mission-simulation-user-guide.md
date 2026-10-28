@@ -76,7 +76,11 @@ Recorded command outcomes are simulator diagnostics, not wire acknowledgments.
 
 Headless policies require no separate Telemetry UI installation. OpenRocket packages
 its pinned Python worker and runtime. For visible stations, use a Mission-capable
-Telemetry UI checkout/package with the matching shared contracts.
+Telemetry UI checkout/package with the matching shared contracts. The desktop
+requires PySide/Qt 6.12 or newer; the qualified dependency is 6.12.0. For an existing
+source environment, run `make setup` or `uv sync --locked` in the Telemetry UI project.
+Older bindings are rejected before connecting because repeated workspace rebuilds
+can leave stale native objects and crash the application.
 
 In **Connections**, choose either the Telemetry UI source project plus its Python
 interpreter, or its packaged executable. Selecting one launch method clears the
@@ -179,6 +183,8 @@ encoded video bytes, UTC, GUI repaint timing or arbitrary floating-point solver 
 
 The package qualification builds native application images and runs standard and custom
 FC fixtures with the image's Java and pinned Python on Windows x86_64, Linux x86_64,
-macOS ARM and macOS Intel. Desktop/attachment/video acceptance additionally runs the
-actual Telemetry UI locally. See [the ledger](18-mission-implementation-progress.md)
+macOS ARM and macOS Intel. A separate Telemetry UI matrix exercises actual desktop
+software connections and repeated window rebuilds on those four platforms; native
+SRT/video-wall, outage and encoded-recording acceptance additionally runs locally.
+See [the ledger](18-mission-implementation-progress.md)
 for run IDs and the final validation record. Publishing a release is a separate step.

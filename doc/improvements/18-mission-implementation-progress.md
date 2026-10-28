@@ -1,6 +1,12 @@
 # Mission Simulation implementation progress
 
-28 October 2026. Implementation follows the A–G packages in [the configuration specification](16-mission-configuration-ui.md) and the [final contracts](17-mission-simulation-contracts.md). Each tested increment is committed and pushed separately. This ledger distinguishes working code from remaining package work.
+28 October 2026. Implementation follows the A–G packages in [the configuration specification](16-mission-configuration-ui.md) and the [final contracts](17-mission-simulation-contracts.md). Tested increments are committed and pushed in batches. This ledger distinguishes working code from remaining package work.
+
+**Current delivery:** configuration, standard/custom-FC execution, ground pointers,
+Telemetry UI connections, video, ensembles, portable results, recovery and saved-flight
+experiments are implemented. Use [the user guide](19-mission-simulation-user-guide.md)
+for current behavior and limits. Earlier sections below are dated checkpoints;
+their unfinished-work statements are superseded by the later acceptance entries.
 
 ## A1 — shared contract foundation
 
@@ -117,9 +123,9 @@ Verification: 72 Java mission/FC timing/output/telemetry/flight checks passed, i
 
 D2 still needs the actual Telemetry UI process/manifest adapter and application handshake. Video, ensembles, full recovery/replay and installer qualification remain E–G. The build continues to reject those unfinished execution paths rather than silently skipping configured features.
 
-## Remaining work
+## Work remaining at the D1 checkpoint (historical)
 
-**C–G:** deterministic station worker/scheduler and actual simulation, FC/software-station integration, media transmission, ensembles/bundles and packaged qualification remain as specified. No installer or GitHub release should describe Mission Simulation as delivered on the basis of A1 alone.
+At this checkpoint, **C–G** still required deterministic station execution, FC/software-station integration, media transmission, ensembles/bundles and packaged qualification. The later entries below record their implementation and acceptance; this is not the current outstanding-work list.
 
 ## D2 — real Telemetry UI participants (2026-10-28)
 
@@ -329,3 +335,59 @@ Python contract/codec/station/result/application checks passed. A combined deskt
 video run exposed an intermittent PySide native object-construction crash; final
 video stability investigation is still in progress. This entry does not count that
 failed run as a pass.
+
+## G4 — desktop runtime stability and final qualification (2026-10-28)
+
+The final OpenRocket implementation at `f7041648` passed all four native image jobs
+in [Actions run 40753227393](https://github.com/MDNich/ActiveControl_MIT_RktTeam/actions/runs/40753227393):
+Linux x86_64, Windows x86_64, Mac ARM and Mac Intel. Those jobs exercise bundled
+Java/Python execution, standard and custom-FC missions and both recorded-TX experiments.
+The recovery revision and the final revision both passed the matrix.
+
+The desktop crash was narrowed to stale native layout wrappers: a repeated station
+rebuild returned `QWidgetItem` from `menuBar()` on PySide 6.11.2; 6.11.3 crashed in
+the same rebuild workload. Qt 6.12 includes the relevant layout-ownership fix
+([PYSIDE-3469](https://github.com/pyside/pyside-setup/commit/72a3b4d7802203d53d2989fa61db39322b852864)).
+Telemetry UI `5b737ce` pins PySide/Shiboken 6.12.0 in both lockfiles, checks the desktop
+runtime before Mission connection/launch, and reports an actionable update instruction
+for older environments. Its bundled headless worker remains Qt-free.
+
+The qualified runtime passed 98 Mission/station/media checks and 59 additional
+existing desktop-control/layout checks. These runs used a source copy excluding the
+unrelated local table-cell and recorder edits. The regression rebuilds Base and Away
+workspaces 30 times in a separate process, destroys their layouts and allocates new
+Qt objects to exercise address reuse. The video fixture uses actual H.264/SRT delivery to the Base wall,
+outage/recovery and an encoded recording. Three OpenRocket integration cases also
+passed against that source/runtime: fresh launch, existing-app attachment and observer
+operation, including ownership transfers and mandatory-participant reconnect.
+
+The separate [Telemetry UI desktop matrix](https://github.com/MIT-Rocket-Team/RT_Telemetry_UI/actions/runs/40759027040)
+passed on all four operating-system/architecture targets at `9797bfe`: **65 checks
+per platform**, including real software application connections, offline attachment
+startup, native window rebuilds and recorder shutdown. Both the OpenRocket native-image
+matrix and the Telemetry UI desktop matrix are green for the delivered implementations.
+Its first passes exposed platform test issues: native MGRS differs in the last floating
+bit, a large unnamed JSON fixture exceeded Windows' environment-variable limit, and
+the Intel runner needed more time for all 30 rebuild cycles. Stored defaults remain
+exact; the independent converter comparison now allows 0.1 mm and malformed fixtures
+have short explicit names. Telemetry UI `0216841` also removes HTTPServer's unnecessary
+reverse DNS lookup from the private loopback attachment listener. A DNS-disabled
+regression fails before that fix and passes afterward. Fresh launch, attachment and
+the entire rebuild workload passed locally again, as did the three Java/application
+integration cases using the final runtime and listener.
+
+The final rebuild test explicitly checks that every native recorder thread has
+stopped, has no error and has completed its manifest. It retains scratch recordings
+until pytest cleanup so Windows file-sharing locks do not interrupt the Qt-lifetime
+test itself. CI retains child logs, including partial logs from timeouts. This test
+adjustment changes no application behavior.
+
+The browser acceptance already passed configuration/save/load, offline coordinates,
+paced execution, pause/browser reconnect, complete and recovered result export, and
+creation/execution of a new saved-flight experiment. Both exported `.rktflight` files
+opened in the existing Telemetry UI reader.
+
+The main working environment has been updated to the pinned desktop runtime. Release
+publication remains a separate operation; these commits do not publish an installer
+or claim hardware/RF qualification. Ground-only pointers, one-stage/one-FC coupled
+execution and the illustrative beam-width model retain the limits in the user guide.
