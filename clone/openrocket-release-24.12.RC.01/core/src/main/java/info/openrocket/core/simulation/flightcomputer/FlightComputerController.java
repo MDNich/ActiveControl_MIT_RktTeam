@@ -254,7 +254,7 @@ public record FlightComputerController(JsonObject json) {
         }
         return new FlightComputerDesign(
                 Json.createObjectBuilder(d.json())
-                        .add("version", 2)
+                        .add("version", Math.max(2, d.json().getInt("version")))
                         .add("controllers", b)
                         .add("legacyInputs", legacy)
                         .build());

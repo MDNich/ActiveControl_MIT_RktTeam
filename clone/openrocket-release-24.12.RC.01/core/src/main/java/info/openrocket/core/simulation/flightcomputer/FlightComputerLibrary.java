@@ -179,7 +179,8 @@ public final class FlightComputerLibrary {
                                     "fileHash",
                                     exactHash,
                                     "reference",
-                                    reference(path)));
+                                    path.toAbsolutePath().normalize().startsWith(directory())
+                                            ? reference(path) : "mission:sha256/" + exactHash + "/" + path.getFileName()));
             data.putAll(FlightComputerData.stateNames(design));
             return Map.copyOf(data);
         }

@@ -1,0 +1,12 @@
+{
+  "id": "egm96-15.bilinear.v1",
+  "model": "EGM96",
+  "interpolation": "bilinear",
+  "gridMinutes": 15,
+  "sha256": "2a12f13b6df65cdea52432c7fa1b43f34b007148eb817bf032af5af710905caa",
+  "source": "https://downloads.sourceforge.net/project/geographiclib/geoids-distrib/egm96-15.tar.bz2",
+  "documentation": "https://geographiclib.sourceforge.io/C++/doc/geoid.html",
+  "maxInterpolationErrorM": 1.152,
+  "rmsInterpolationErrorM": 0.04,
+  "description": "NGA/NASA EGM96, GeographicLib 15-minute grid. Geoid separation only; does not supply terrain or station height."
+}

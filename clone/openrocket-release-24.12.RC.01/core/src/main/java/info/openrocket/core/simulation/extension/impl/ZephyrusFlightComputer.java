@@ -20,6 +20,15 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
     }
 
     private transient FlightComputerLibrary.Resolved preparedDesign;
+    private transient FlightComputerLibrary.Resolved missionDesign;
+
+    /** Bind verified immutable mission input without importing into or mutating the user's library. */
+    public void setMissionDesign(FlightComputerLibrary.Resolved design) {
+        missionDesign = java.util.Objects.requireNonNull(design);
+        preparedDesign = null;
+    }
+
+    public FlightComputerLibrary.Resolved getMissionDesign() { return missionDesign; }
 
     /**
      * Returns the external .fc path and fingerprint saved in the simulation options.
@@ -60,7 +69,7 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
     public boolean prepareDesign() throws SimulationException {
         if (!isEnabled() || !hasDesignFile() || preparedDesign != null) return false;
         try {
-            var loaded = FlightComputerLibrary.load(getDesignReference());
+            var loaded = missionDesign != null ? missionDesign : FlightComputerLibrary.load(getDesignReference());
             if (!config.getString("designId", loaded.design().id()).equals(loaded.design().id()))
                 throw new IllegalArgumentException(
                         "The referenced FC file was replaced with a different design. Select it again explicitly.");
@@ -84,6 +93,7 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
      */
     public String currentFingerprint() {
         try {
+            if (missionDesign != null) return missionDesign.design().fingerprint();
             return hasDesignFile()
                     ? FlightComputerDesign.read(FlightComputerLibrary.resolve(getDesignReference()))
                             .fingerprint()
@@ -99,6 +109,7 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
      * @param reference reference
      */
     public void setDesignReference(String reference) {
+        missionDesign = null;
         Config old = getConfig(), c = new Config();
         for (String key : old.keySet())
             if (!java.util.Set.of(
@@ -206,6 +217,7 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
      */
     public FlightComputerTimingSettings getTimingSettings() {
         if (preparedDesign != null) return preparedDesign.design().timing();
+        if (missionDesign != null) return missionDesign.design().timing();
         if (hasDesignFile())
             try {
                 return FlightComputerDesign.read(

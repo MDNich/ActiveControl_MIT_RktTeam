@@ -2,7 +2,11 @@
   "format": "openrocket.mission-contracts",
   "version": 1,
   "files": {
+    "codec-vectors.json": "19b4b8c88ed374de40e4ed667b4ea6179910bbcf8fec7b3f5c5b09d4ed5c543c",
+    "codec.schema.json": "2858c329db78140680e4def5e792e6683cec23842914cebf6e7638789eab6796",
     "configuration-cases.json": "d02be954b4a41458bd5c59716696f16031c19b6a16e39712ac4ee4553b700693",
+    "fc-command-capabilities.json": "064fd1e8fd0f390681fed81c27664367d337d809ce369a4d0ad2ffc253a6dac2",
+    "flight-settings-inventory.json": "cb4d8463d63a9ed7afe4c4ea79b09373a7c57285b4ea9b502b1c2f3c07b7b3bb",
     "geodesy-vectors.json": "91d5f5f0eeee16d95b40b5336f96df2ec5d29678d61910663a41d9c270219641",
     "ipc-vector.json": "8110d5234b7ee4d69ac1248f6fd0407c6e422fb50c2852112ff9ddc15eaa6dad",
     "ipc.schema.json": "11cfed20627b74c687d8da8f95cac7c2181117095fd202b5ea4fc86f2db0cd37",

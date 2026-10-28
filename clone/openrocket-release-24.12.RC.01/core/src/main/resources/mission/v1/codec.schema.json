@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openrocket.telemetry-codec.v1",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "id",
+    "payloadBytes",
+    "byteOrder",
+    "syncHex",
+    "receiverTrailer",
+    "fields",
+    "checksum"
+  ],
+  "properties": {
+    "format": {
+      "const": "openrocket.telemetry-codec"
+    },
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$"
+    },
+    "payloadBytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4096
+    },
+    "byteOrder": {
+      "type": "string",
+      "enum": [
+        "little",
+        "big"
+      ]
+    },
+    "syncHex": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-fA-F]{2}){0,16}$"
+    },
+    "receiverTrailer": {
+      "type": "string",
+      "enum": [
+        "none",
+        "legacy-v1"
+      ]
+    },
+    "fields": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "source",
+          "type",
+          "byteOffset",
+          "scale",
+          "offset",
+          "unit"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "uptime_ms",
+              "packet_sequence",
+              "gps.fix",
+              "gps.latitude_deg",
+              "gps.longitude_deg",
+              "gps.height_m",
+              "barometer.height_m",
+              "velocity.up_ms",
+              "state.code",
+              "gyro.roll_rate_deg_s",
+              "gyro.pitch_rate_deg_s",
+              "gyro.yaw_rate_deg_s",
+              "acceleration.x_ms2",
+              "acceleration.y_ms2",
+              "acceleration.z_ms2",
+              "battery.voltage_v"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "i8",
+              "u8",
+              "i16",
+              "u16",
+              "i32",
+              "u32",
+              "f32",
+              "f64"
+            ]
+          },
+          "byteOffset": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4095
+          },
+          "scale": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "optional": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "checksum": {
+      "type": "object",
+      "required": [
+        "algorithm"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "none",
+            "sum8",
+            "crc16"
+          ]
+        },
+        "byteOffset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4095
+        },
+        "endExclusive": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        },
+        "polynomial": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "initial": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "xorOut": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "reflectInput": {
+          "type": "boolean"
+        },
+        "reflectOutput": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

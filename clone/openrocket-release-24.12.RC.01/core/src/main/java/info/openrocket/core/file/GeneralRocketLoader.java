@@ -57,9 +57,14 @@ public class GeneralRocketLoader {
 	private final OpenRocketDocument doc = OpenRocketDocumentFactory.createEmptyRocket();
 
 	public GeneralRocketLoader(File file) {
+		this(file, new DatabaseMotorFinder());
+	}
+
+    /** Load a frozen mission using its exact embedded motors instead of the local database. */
+    public GeneralRocketLoader(File file, MotorFinder motorFinder) {
 		this.baseFile = file;
 		this.jarURL = null;
-		this.motorFinder = new DatabaseMotorFinder();
+		this.motorFinder = java.util.Objects.requireNonNull(motorFinder);
 	}
 
 	public GeneralRocketLoader(URL jarURL) {

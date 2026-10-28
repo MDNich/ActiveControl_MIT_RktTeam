@@ -159,6 +159,9 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		return launchRodDirection;
 	}
 
+    /** Stored manual bearing, without evaluating into-wind mode or modifying the options. */
+    public double getLaunchRodDirectionSetting() { return launchRodDirection; }
+
 	public void setLaunchRodDirection(double launchRodDirection) {
 		launchRodDirection = MathUtil.reduce2Pi(launchRodDirection);
 		if (MathUtil.equals(this.launchRodDirection, launchRodDirection))

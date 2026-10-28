@@ -1,0 +1,49 @@
+{
+  "format": "openrocket.mission-settings-inventory",
+  "version": 1,
+  "units": "SI, angles in radians, launch altitude MSL",
+  "options": [
+    "guideLengthM",
+    "guideAngleRad",
+    "manualBearingRad",
+    "intoWind",
+    "initialRollRateRadS",
+    "launchLatitudeDeg",
+    "launchLongitudeDeg",
+    "launchMslM",
+    "geodeticMethod",
+    "isa",
+    "temperatureK",
+    "pressurePa",
+    "timeStepS",
+    "maximumTimeS",
+    "maximumStepAngleRad",
+    "randomSeed",
+    "windModel",
+    "averageWind",
+    "windAltitudeReference",
+    "windLevels",
+    "ensemble"
+  ],
+  "nativeRocket": [
+    "component UUIDs and geometry",
+    "flight configurations and active stages",
+    "motor mount assignments, ignition events/delays and ejection delays",
+    "separation events/delays",
+    "recovery device settings",
+    "extension order and complete typed configuration"
+  ],
+  "frozenAssets": [
+    "native rocket XML without results",
+    "exact thrust/mass/CG curves",
+    "FC definitions including behavior/board source",
+    "complete explicit option companion"
+  ],
+  "notCopiedFromNativeSave": [
+    "manual bearing before into-wind evaluation",
+    "launchIntoWind flag",
+    "maximumStepAngle",
+    "randomSeed",
+    "inactive atmosphere values"
+  ]
+}

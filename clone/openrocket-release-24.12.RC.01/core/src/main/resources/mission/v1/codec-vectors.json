@@ -1,0 +1,90 @@
+{
+  "codec": {
+    "format": "openrocket.telemetry-codec",
+    "version": 1,
+    "id": "mission-fixture.v1",
+    "payloadBytes": 14,
+    "byteOrder": "little",
+    "syncHex": "aabb",
+    "receiverTrailer": "legacy-v1",
+    "fields": [
+      {
+        "name": "lat",
+        "source": "gps.latitude_deg",
+        "type": "i32",
+        "byteOffset": 0,
+        "scale": 1e-07,
+        "offset": 0,
+        "unit": "deg"
+      },
+      {
+        "name": "height",
+        "source": "gps.height_m",
+        "type": "f32",
+        "byteOffset": 4,
+        "scale": 1,
+        "offset": 0,
+        "unit": "m"
+      },
+      {
+        "name": "clock",
+        "source": "uptime_ms",
+        "type": "u32",
+        "byteOffset": 8,
+        "scale": 1,
+        "offset": 0,
+        "unit": "ms"
+      },
+      {
+        "name": "state",
+        "source": "state.code",
+        "type": "u8",
+        "byteOffset": 12,
+        "scale": 1,
+        "offset": 0,
+        "unit": "code",
+        "optional": true
+      }
+    ],
+    "checksum": {
+      "algorithm": "sum8",
+      "byteOffset": 13,
+      "start": 0,
+      "endExclusive": 13
+    }
+  },
+  "values": {
+    "gps.latitude_deg": 42.7,
+    "gps.height_m": 123.25,
+    "uptime_ms": 4294967295
+  },
+  "payloadHex": "c08073190080f642ffffffff0080",
+  "decoded": {
+    "lat": 42.7,
+    "height": 123.25,
+    "clock": 4294967295,
+    "state": 0
+  },
+  "unavailable": [
+    "state"
+  ],
+  "crcChecks": [
+    {
+      "polynomial": 4129,
+      "initial": 65535,
+      "xorOut": 0,
+      "reflectInput": false,
+      "reflectOutput": false,
+      "expected": 10673
+    },
+    {
+      "polynomial": 32773,
+      "initial": 0,
+      "xorOut": 0,
+      "reflectInput": true,
+      "reflectOutput": true,
+      "expected": 47933
+    }
+  ],
+  "provenance": "Struct-packed independent layout; CRC check input ASCII 123456789, CCITT-FALSE=29b1 and ARC=bb3d. Runtime tests do not generate expected bytes."
+}

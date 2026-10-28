@@ -1,0 +1,102 @@
+{
+  "format": "openrocket.fc-command-capabilities",
+  "version": 1,
+  "runtime": "mit-rtfc",
+  "packetBytes": 16,
+  "maxPacketsPerLoop": 1,
+  "wireAcknowledgments": false,
+  "commands": [
+    {
+      "opcodeHex": "01",
+      "name": "arm",
+      "groundOnly": false
+    },
+    {
+      "opcodeHex": "02",
+      "name": "request-state",
+      "groundOnly": false
+    },
+    {
+      "opcodeHex": "03",
+      "name": "manual-airbrake",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "04",
+      "name": "enable-roll-control",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "05",
+      "name": "manual-roll",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "06",
+      "name": "fire",
+      "groundOnly": false
+    },
+    {
+      "opcodeHex": "08",
+      "name": "reset-controllers",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "09",
+      "name": "zero-gyro",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "0a",
+      "name": "zero-height",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "0b",
+      "name": "zero-velocity",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "10",
+      "name": "emergency-channels-0-1",
+      "groundOnly": false
+    },
+    {
+      "opcodeHex": "11",
+      "name": "emergency-channels-3-4",
+      "groundOnly": false
+    },
+    {
+      "opcodeHex": "12",
+      "name": "emergency-channel-2",
+      "groundOnly": false
+    },
+    {
+      "opcodeHex": "13",
+      "name": "emergency-channels-0-4",
+      "groundOnly": false
+    },
+    {
+      "opcodeHex": "14",
+      "name": "vtx-power",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "15",
+      "name": "converter-mask",
+      "groundOnly": true
+    },
+    {
+      "opcodeHex": "16",
+      "name": "protections",
+      "groundOnly": true
+    }
+  ],
+  "unsupported": [
+    {
+      "opcodeHex": "07",
+      "name": "disarm",
+      "reason": "Not implemented by RTFC.readTelem"
+    }
+  ]
+}

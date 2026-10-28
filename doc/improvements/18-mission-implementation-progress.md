@@ -49,9 +49,19 @@ From the Telemetry UI repository:
 
 The sync tool requires an explicit source directory and verifies the source inventory before copying. Run without `--check` only when deliberately updating the reviewed shared contract bundle. Recompute the authoritative inventory when a contract changes; never regenerate expected vectors automatically as part of a runtime test.
 
-## Remaining work
+## A2 — immutable flight inputs, codecs and coordinates
 
-**A2:** complete flight-setting inventory and snapshot round trips, preview migration with field-level unresolved findings, `.fc` v3 codec declaration/migration and independent custom-codec vectors, production coordinate conversion/geoid asset handling, and supported-command capability declarations. The current `.fc` v1/v2 reader remains unchanged in A1; it does not yet claim v3 execution support.
+Implemented complete simulation-option companions, native rocket/extension snapshots, frozen motor curves and exact FC file copies with an inventory. Restoring a snapshot uses its own motor data and FC files even after the original library file is deleted. All flight, inactive wind, manual bearing, FC extension and ensemble settings remain distinct. Loading does not run an FC; existing Java-board approval checks still apply when execution begins.
+
+The FC reader now accepts v3 with an optional declarative telemetry format. The Java/Python codecs share a bounded schema, fixed numeric layouts, explicit scaling, optional-field availability and checksum parameters. Independent byte-layout, sum8 and published CRC check-string fixtures pass. A custom-format design is explicitly rejected by the legacy standalone runner until Mission Simulation supplies its receiver path; existing v1/v2 behavior remains available. A shared command capability declaration excludes unsupported opcode `07`.
+
+Production MGRS conversion uses NGA MGRS Java 2.1.3, with explicit grid-point/cell-center conventions and unchanged-notation preservation. All six URRG defaults are retained exactly; fresh conversions agree with the independent Telemetry UI library within 3 cm. UTM MGRS is supported; polar locations use latitude/longitude. The offline, hash-pinned GeographicLib EGM96 15-minute grid uses bilinear interpolation; its published interpolation error is 1.152 m maximum / 0.040 m RMS, not surveyed ground accuracy. Seven independent PyGeodesy/Karney values cover URRG, poles, the longitude seam and mountains. Terrain/station heights remain user inputs.
+
+Preview import preserves all original fields and exact stored coordinates, with field-level review findings for placeholder settings and machine paths. It cannot be made runnable just by changing its format identifier. The service in B will enforce those findings.
+
+Verification: 77 Java mission/FC/controller/ensemble checks passed before the additional full-flight snapshot comparison; the six snapshot checks then passed, including ordinary-flight solver samples matching within `1e-5` in SI units (native XML numeric serialization tolerance). Python passed 69 contract, codec, protocol and coordinate checks, plus lint. Fourteen shared contract files are identical between repositories. Packaged execution remains package G work.
+
+## Remaining work
 
 **B:** Java-owned configuration service, full setting editors, menu/workspace integration and revision/idempotency behavior. The browser in `mission-ui/` is still the design prototype, not a connected mission runner.
 

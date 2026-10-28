@@ -314,6 +314,14 @@ public class RTFC {
      */
     public void configure(
             info.openrocket.core.simulation.flightcomputer.FlightComputerDesign value) {
+        if (value.telemetryCodec() != null)
+            throw new IllegalArgumentException("Custom telemetry codecs require Mission Simulation");
+        configureMission(value);
+    }
+
+    /** Configure a mission whose router owns declared codec encoding at the FC transmit boundary. */
+    public void configureMission(
+            info.openrocket.core.simulation.flightcomputer.FlightComputerDesign value) {
         if (initialized) throw new IllegalStateException("Configure before FC setup");
         value.requireRunnable();
         design = value;

@@ -27,7 +27,7 @@ public final class FlightComputerDesign {
     public FlightComputerDesign(JsonObject json) {
         this.json = Objects.requireNonNull(json);
         if (!"openrocket.flight-computer".equals(json.getString("format", ""))
-                || !Set.of(1, 2).contains(json.getInt("version", -1)))
+                || !Set.of(1, 2, 3).contains(json.getInt("version", -1)))
             throw new IllegalArgumentException("Unsupported .fc format/version");
         if (json.getString("id", "").isBlank() || json.getString("name", "").isBlank())
             throw new IllegalArgumentException("A flight computer needs an ID and name");
@@ -35,6 +35,16 @@ public final class FlightComputerDesign {
         connections();
         rules();
         parameters(); // Require structural sections even for drafts.
+        if (json.containsKey("telemetryFormat")) {
+            if (json.getInt("version") < 3) throw new IllegalArgumentException("Telemetry declarations require .fc version 3");
+            telemetryCodec();
+        }
+    }
+
+    /** Declarative mission codec, or null for the explicitly selected legacy fallback. */
+    public info.openrocket.core.simulation.mission.TelemetryCodec telemetryCodec() {
+        return json.containsKey("telemetryFormat")
+                ? new info.openrocket.core.simulation.mission.TelemetryCodec(json.getJsonObject("telemetryFormat")) : null;
     }
 
     /**
@@ -406,7 +416,8 @@ public final class FlightComputerDesign {
                                 "layout",
                                 "stateMachine",
                                 "controllers",
-                                "legacyInputs")
+                                "legacyInputs",
+                                "telemetryFormat")
                         .contains(key))
                     issues.add(new Diagnostic("", "Unsupported design field: " + key, true));
             timing();
@@ -509,8 +520,8 @@ public final class FlightComputerDesign {
                                     true));
             }
             if (hasStateMachine()) FlightComputerStateMachine.validate(stateMachine());
-            if (json.containsKey("controllers") && json.getInt("version") != 2)
-                throw new IllegalArgumentException("Controller blocks require .fc version 2");
+            if (json.containsKey("controllers") && json.getInt("version") < 2)
+                throw new IllegalArgumentException("Controller blocks require .fc version 2 or later");
             var controllerIds = new HashSet<String>();
             if (controllers().size() > 128)
                 throw new IllegalArgumentException("At most 128 controller blocks are supported");

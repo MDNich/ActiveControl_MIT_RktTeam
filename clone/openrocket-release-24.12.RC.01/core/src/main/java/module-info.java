@@ -9,6 +9,9 @@ open module info.openrocket.core {
 	// Libraries
 	requires com.google.guice;
 	requires java.desktop;
+    requires mgrs;
+    requires grid;
+    requires sf;
 	requires java.scripting;
     requires org.codehaus.janino;
     requires org.codehaus.commons.compiler;
