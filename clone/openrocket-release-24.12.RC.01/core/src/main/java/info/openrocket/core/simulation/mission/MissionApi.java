@@ -109,6 +109,21 @@ public final class MissionApi implements AutoCloseable {
         if (path.equals("preferences") && method.equals("GET")) return preferences;
         if (path.equals("preferences") && method.equals("POST")) {
             String kind = body.getString("kind");
+            if(kind.equals("checkApplication"))return MissionWorker.applicationCapabilities(preferences);
+            if(kind.equals("attachment") || kind.equals("detach") || kind.equals("checkAttachment")) {
+                String binding=body.getString("bindingId");
+                if(!binding.matches("[A-Za-z0-9][A-Za-z0-9._-]{0,63}"))throw new IllegalArgumentException("Invalid station binding");
+                var saved=preferences.getJsonObject("attachments");if(saved==null)saved=JsonValue.EMPTY_JSON_OBJECT;
+                if(kind.equals("checkAttachment"))return MissionAttachment.check(Path.of(saved.getString(binding)));
+                var attachments=Json.createObjectBuilder(saved);
+                if(kind.equals("detach"))attachments.remove(binding);
+                else {
+                    Path ticket=host.choose("Choose running Telemetry UI connection file",false);if(ticket==null)return cancelled();
+                    MissionAttachment.check(ticket);attachments.add(binding,ticket.toAbsolutePath().toString());
+                }
+                preferences=Json.createObjectBuilder(preferences).add("attachments",attachments).build();
+                MissionJson.writeAtomic(store.root().resolve("machine-preferences.json"),preferences);return preferences;
+            }
             if (!Set.of("sourceProject", "pythonExecutable", "packagedApp").contains(kind)) throw new IllegalArgumentException("Unknown application location");
             String purpose = kind.equals("sourceProject") ? "Choose Telemetry UI project folder" : kind.equals("pythonExecutable") ? "Choose Python executable" : "Choose Telemetry UI application";
             Path file = host.choose(purpose, false); if (file == null) return cancelled();

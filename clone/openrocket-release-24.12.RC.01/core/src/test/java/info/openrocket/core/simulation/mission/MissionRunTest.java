@@ -46,7 +46,9 @@ class MissionRunTest extends BaseTestCase {
             assertTrue(result.names().stream().anyMatch(n -> n.contains("/pointer/tx/")));
         }
     }
-    @Test void actualTelemetryApplicationOwnsOneReceiverAndArchivesItsNativeSession() throws Exception {
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans={false,true})
+    void actualTelemetryApplicationOwnsOneReceiverAndArchivesItsNativeSession(boolean attach) throws Exception {
         String python = System.getenv("MISSION_TEST_PYTHON"), source = System.getenv("MISSION_TEST_UI");
         Assumptions.assumeTrue(python != null && source != null);
         System.setProperty("openrocket.mission.python", python);
@@ -58,11 +60,34 @@ class MissionRunTest extends BaseTestCase {
                 Json.createObjectBuilder(original.mission().getJsonObject("execution")).add("actions", Json.createArrayBuilder().add(Json.createObjectBuilder()
                         .add("id", "start-ui-policy").add("timeUs", "0").add("siteId", "gs1").add("kind", "start-tracking")))).build();
         var resolved = new MissionStore.Resolved(mission, original.flightDirectory(), MissionStore.hash(mission));
+        var preferences=Json.createObjectBuilder().add("sourceProject",source).add("pythonExecutable",python).build();
+        assertTrue(MissionWorker.applicationCapabilities(preferences).getJsonArray("capabilities").contains(Json.createValue("ownership-transfer.v1")));
+        Process waiting=null;
+        if(attach) {
+            Path ticket=temp.resolve("waiting.json");
+            waiting=new ProcessBuilder(python,"-I","-c","import sys,runpy;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('rocket_gnc_monitor',run_name='__main__')",Path.of(source).resolve("src").toString(),"--mission-listen",ticket.toString())
+                    .redirectOutput(temp.resolve("attach.stdout").toFile()).redirectError(temp.resolve("attach.stderr").toFile()).start();
+            long deadline=System.nanoTime()+15_000_000_000L;while(!Files.exists(ticket) && System.nanoTime()<deadline)Thread.sleep(50);
+            assertTrue(MissionAttachment.check(ticket).getBoolean("ready"));
+            String binding=mission.getJsonArray("stationBindings").stream().map(JsonValue::asJsonObject).filter(b->b.getString("siteId").equals("gs1")).findFirst().orElseThrow().getString("id");
+            preferences=Json.createObjectBuilder(preferences).add("attachments",Json.createObjectBuilder().add(binding,ticket.toString())).build();
+        }
         try (var recorder = new MissionRecorder(temp.resolve("app-staging"), mission)) {
             var metrics = new MissionRun(resolved, recorder, "member-0", 0, new MissionRun.Control() {
                 public void check() { }
-                public void progress(long t, long end, String phase) { }
-            }).applicationPreferences(Json.createObjectBuilder().add("sourceProject", source).add("pythonExecutable", python).build()).execute(temp.resolve("app-private"));
+                MissionParticipants participants; boolean transferred;
+                public void participants(MissionParticipants p){participants=p;}
+                public void progress(long t, long end, String phase) {
+                    if(participants!=null && t>=1_000_000 && !transferred) {
+                        try {
+                            participants.pause(true,t);
+                            assertEquals("headless-policy",participants.transfer("gs1","headless-policy",t).getString("owner"));
+                            assertEquals("interactive-ui",participants.transfer("gs1","interactive-ui",t).getString("owner"));
+                            participants.pause(false,t);transferred=true;
+                        } catch(java.io.IOException e){throw new java.io.UncheckedIOException(e);}
+                    }
+                }
+            }).applicationPreferences(preferences).execute(temp.resolve("app-private"));
             assertTrue(metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("pointerCommands") > 0);
             Path archive = temp.resolve("application.rktmission"); recorder.finish(archive, "complete");
             try (var result = new MissionArchive(archive)) {
@@ -70,8 +95,9 @@ class MissionRunTest extends BaseTestCase {
                 assertTrue(result.names().stream().anyMatch(n -> n.endsWith("session.sqlite")));
                 assertTrue(result.names().stream().anyMatch(n -> n.endsWith("mission-clock.jsonl")));
                 assertFalse(result.names().stream().anyMatch(n -> n.contains("private.json")));
+                assertTrue(result.names().stream().anyMatch(n -> n.contains("ownership/events/")));
             }
-        } finally { System.clearProperty("openrocket.mission.python"); }
+        } finally { if(waiting!=null){assertTrue(waiting.isAlive());waiting.destroy();waiting.waitFor();}System.clearProperty("openrocket.mission.python"); }
     }
     @Test void separatedStagesKeepStableIdentitiesAndIndependentTrajectories() throws Exception {
         var rocket = info.openrocket.core.util.TestRockets.makeMultiStageEventTestRocket();

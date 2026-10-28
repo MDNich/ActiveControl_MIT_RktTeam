@@ -2,6 +2,18 @@
 
 Reviewed 28 October 2026 against the OpenRocket MIT and RT Telemetry UI working trees. **This is the implementation handoff, not an implementation report.** OpenRocket's application version is now 6.5; that version bump does not mean Mission Simulation is implemented.
 
+Implementation evidence is maintained in [18 — progress and qualification](18-mission-implementation-progress.md).
+The delivered connection mechanism uses a private, locally selected connection file
+from Telemetry UI's **Mission Simulation → Prepare OpenRocket connection** command.
+It opens an isolated simulation workspace in the existing process, checks its boot
+identity and exact contract hash, and never converts an existing LIVE workspace.
+Ownership transfer is available between a headless controller and an already
+connected observer/interactive application while paused. A failed ownership handshake
+leaves the member paused for cancellation/restart, without granting a second owner.
+An ensemble opens applications only for its explicitly selected member; all others
+record a headless ownership override. Optional encoded recordings cover each selected
+Away video receiver's delivered frames and retain host-clock/mission-clock sidecars.
+
 Read [15 — architecture](15-mission-simulation-plan.md) for the system, [16 — configuration specification](16-mission-configuration-ui.md) for the user interface and work packages, and this document for the resolved cross-application contracts. These contracts take precedence over illustrative values in the browser prototype. Changes during implementation must update the affected contract and its shared fixture together.
 
 The final review resolves runtime ownership, single-stage FC limitations, packet identity and height semantics, deterministic timing, station startup, video pause behavior and recoverable storage. Hardware measurements remain inputs to qualified profiles; they are not prerequisites for the explicitly illustrative software models.

@@ -41,6 +41,8 @@ public final class MissionRun {
     private MissionParticipants worker;
     private MissionVideo video;
     private JsonObject preferences = JsonValue.EMPTY_JSON_OBJECT;
+    private boolean headlessParticipants;
+    public MissionRun headlessParticipants(boolean value) { headlessParticipants=value;return this; }
     public MissionRun applicationPreferences(JsonObject value) { preferences = value; return this; }
     private MissionTruth truth;
     private TelemetryCodec codec;
@@ -62,6 +64,16 @@ public final class MissionRun {
         }
         boolean coupled = mission.getJsonObject("telemetry").getString("mode").equals("custom-fc");
         prepare();
+        JsonObject participantMission=mission;
+        if(headlessParticipants) {
+            var roles=Json.createArrayBuilder();
+            for(var value:mission.getJsonArray("stationBindings"))if(value.asJsonObject().getString("role").equals("telem"))
+                roles.add(Json.createObjectBuilder(value.asJsonObject()).add("owner","headless-policy"));
+            participantMission=Json.createObjectBuilder(mission).add("stationBindings",roles).build();
+            stations.replaceAll((id,binding)->Json.createObjectBuilder(binding).add("owner","headless-policy").build());
+        }
+        recorder.json("runs/"+runId+"/participant-mode.json",Json.createObjectBuilder().add("headlessOverride",headlessParticipants)
+                .add("stationBindings",participantMission.getJsonArray("stationBindings")).build());
         video = new MissionVideo(mission, recorder, runId, member);
         var fc = info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer.read(simulation);
         if (coupled) {
@@ -72,7 +84,7 @@ public final class MissionRun {
             control.progress(0, 0, "Calculating complete flight branches");
             truth = MissionTruth.compute(simulation, this::checkpoint, extra.toArray(info.openrocket.core.simulation.listeners.SimulationListener[]::new));
         }
-        try (var stationWorker = new MissionParticipants(privateDirectory, mission, runId, "member-" + member, preferences, recorder, video.applicationStreams())) {
+        try (var stationWorker = new MissionParticipants(privateDirectory, participantMission, runId, "member-" + member, preferences, recorder, video.applicationStreams())) {
             worker = stationWorker; control.participants(worker); worker.configure(stationConfiguration());
             if (coupled) {
                 truth = new MissionTruth(this::checkpoint);
@@ -161,6 +173,9 @@ public final class MissionRun {
         for (var action : pendingActions) {
             MissionActions.validate(action); String site = action.getString("siteId");
             event("scenario-action", timeUs, action);
+            if(action.containsKey("expiresUs") && timeUs>Long.parseLong(action.getString("expiresUs"))) {
+                event("action-rejected",timeUs,Json.createObjectBuilder(action).add("reason","Operator command expired before admission").build());continue;
+            }
             if (!stations.containsKey(site)) { event("action-rejected", timeUs, Json.createObjectBuilder(action).add("reason", "Station is disabled").build()); continue; }
             if (action.getString("kind").equals("uplink")) {
                 if (computer == null) { event("action-rejected", timeUs, Json.createObjectBuilder(action).add("reason", "A precomputed flight cannot receive FC commands").build()); continue; }

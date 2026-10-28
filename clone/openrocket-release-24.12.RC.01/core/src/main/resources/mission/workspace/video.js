@@ -1,5 +1,5 @@
 import {state,$,esc,changed} from './api.js';
-import {field,attachFields,section} from './forms.js';
+import {field,attachFields,section,outages,bindOutages} from './forms.js';
 let selected='';
 export function renderVideo(){
   const video=state.mission.video;video.frameRateHz??=30;video.width??=960;video.height??=540;video.lossFraction??=0;video.delayMs??=0;video.analogNoiseFraction??=0;video.outages??=[];
@@ -9,7 +9,8 @@ export function renderVideo(){
     `<label>Analog streams<input id="analog-count" type="number" min="0" max="32" step="1" value="${video.streams.filter(s=>s.kind==='analog').length}"></label>`,
     field('video.frameRateHz','Frames per second',{type:'number',min:1,max:60}),field('video.lossFraction','Delivery loss · %',{type:'number',scale:100,min:0,max:100}),field('video.delayMs','Delivery delay · ms',{type:'number',min:0}),field('video.analogNoiseFraction','Illustrative analog noise · %',{type:'number',scale:100,min:0,max:100})
   ],'Headless missions record logical frames and slate assets. Paced connections use the application video path; publisher capacity is checked before start.');
-  attachFields($('video-fields'));
+  $('video-fields').innerHTML+=section('Video outages',[outages('video.outages',video.outages)],'No new video frames are delivered during these windows. Match the telemetry windows to model a common outage.');
+  attachFields($('video-fields'));bindOutages($('video-fields'));
   for(const kind of ['digital','analog'])$(kind+'-count').onchange=()=>{
     const input=$(kind+'-count');if(!input.checkValidity()){input.reportValidity();return;}
     const count=Number(input.value),existing=video.streams.filter(s=>s.kind===kind),other=video.streams.filter(s=>s.kind!==kind);

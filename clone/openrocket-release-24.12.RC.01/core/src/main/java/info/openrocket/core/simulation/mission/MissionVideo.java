@@ -19,9 +19,11 @@ public final class MissionVideo {
     private final PriorityQueue<JsonObject> pending = new PriorityQueue<>(Comparator.comparingLong((JsonObject o) -> Long.parseLong(o.getString("timeUs"))).thenComparing(o -> o.getString("streamId")).thenComparing(o -> o.getString("siteId")));
     private long ordinal, next = -1_000_000, end = Long.MAX_VALUE;
     private final double fps;
+    private final Set<String> enabledSites = new HashSet<>();
     public MissionVideo(JsonObject mission, MissionRecorder recorder, String run, long member) throws IOException {
         this.mission = mission; this.recorder = recorder; this.run = run; this.member = member; config = mission.getJsonObject("video");
         validate(config); fps = number(config,"frameRateHz",30);
+        mission.getJsonArray("sites").forEach(s -> { if(s.asJsonObject().getBoolean("enabled")) enabledSites.add(s.asJsonObject().getString("id")); });
         int digital=0, analog=0;
         for (var value : config.getJsonArray("streams")) {
             var stream=value.asJsonObject(); String id=stream.getString("id"); streams.put(id,stream);
@@ -39,10 +41,15 @@ public final class MissionVideo {
         // The transport contract fixes dimensions; keep imported alternatives explicit.
         if(number(config,"width",960)!=960 || number(config,"height",540)!=540) throw new IllegalArgumentException("Mission video slates are 960 x 540 pixels");
         var ids=new HashSet<String>();
+        long copies=0;
         for(var value:config.getJsonArray("streams")) {
             var stream=value.asJsonObject(); String id=stream.getString("id");
             if(!id.matches("[A-Za-z0-9][A-Za-z0-9._-]{0,63}") || !ids.add(id)) throw new IllegalArgumentException("Invalid or duplicate stream ID");
+            var receivers=stream.getJsonArray("receivers");
+            if(receivers.size()>4 || new HashSet<>(receivers).size()!=receivers.size()) throw new IllegalArgumentException("Video routes must contain up to four distinct Away receivers");
+            copies+=receivers.size();
         }
+        if(copies * fps * (delay / 1000 + 1) > 100_000) throw new IllegalArgumentException("Video rate, routes and delay exceed the 100,000 pending-frame limit; reduce one of these settings");
         MissionLink.validate(Json.createObjectBuilder().add("receiverId","video").add("outages",config.getJsonArray("outages")==null?JsonValue.EMPTY_JSON_ARRAY:config.getJsonArray("outages")).build());
     }
     private JsonObject slate(JsonObject stream,int number) throws IOException {
@@ -79,6 +86,7 @@ public final class MissionVideo {
         if(!streams.isEmpty() && time==next && time<=end) {
             for(var stream:streams.values()) for(var receiver:stream.getJsonArray("receivers")) {
                 String site=((JsonString)receiver).getString(),id=stream.getString("id");
+                if(!enabledSites.contains(site))continue;
                 boolean outage=false;for(var value:config.getJsonArray("outages")==null?JsonValue.EMPTY_JSON_ARRAY:config.getJsonArray("outages")) {
                     var interval=value.asJsonObject();outage|=time>=Long.parseLong(interval.getString("startUs")) && time<Long.parseLong(interval.getString("endUs"));
                 }

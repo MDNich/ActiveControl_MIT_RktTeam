@@ -18,6 +18,7 @@ public final class MissionWorker implements AutoCloseable {
     private OutputStream output;
     private long sequence, replySequence = -1;
     private JsonObject provenance;
+    private boolean protocolClosed;
 
     public MissionWorker(Path privateDirectory, String missionId, String runId, String memberId) throws IOException {
         this(privateDirectory, missionId, runId, memberId, null, null);
@@ -49,17 +50,23 @@ public final class MissionWorker implements AutoCloseable {
                     .addAll(Json.createObjectBuilder(application == null ? JsonValue.EMPTY_JSON_OBJECT : application)).build());
             try { Files.setPosixFilePermissions(manifest, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")); }
             catch (UnsupportedOperationException ignored) { }
-            var builder = application == null ? new ProcessBuilder(python.toString(), "-I", "-c",
+            boolean attached=application!=null && preferences.containsKey("attachmentTicket");
+            var builder = attached ? null : application == null ? new ProcessBuilder(python.toString(), "-I", "-c",
                     "import sys,runpy;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('rocket_gnc_monitor.mission_worker',run_name='__main__')",
                     zip.toString(), manifest.toString()) : applicationProcess(preferences, manifest);
-            builder.redirectOutput(privateDirectory.resolve("worker.stdout.log").toFile());
-            builder.redirectError(privateDirectory.resolve("worker.stderr.log").toFile());
-            process = builder.start(); socket = server.accept(); socket.setSoTimeout(10_000); socket.setTcpNoDelay(true);
+            if(attached)try(var in=Files.newInputStream(manifest)){MissionAttachment.attach(Path.of(preferences.getString("attachmentTicket")),MissionJson.read(in));}
+            else {
+                builder.redirectOutput(privateDirectory.resolve("worker.stdout.log").toFile());
+                builder.redirectError(privateDirectory.resolve("worker.stderr.log").toFile());
+                process = builder.start();
+            }
+            socket = server.accept(); socket.setSoTimeout(10_000); socket.setTcpNoDelay(true);
             input = new BufferedInputStream(socket.getInputStream()); output = new BufferedOutputStream(socket.getOutputStream());
             var hello = request("hello", -1_000_000, Json.createObjectBuilder().add("credential", credential).build());
             if (!hello.getJsonArray("capabilities").contains(Json.createValue("mission-clock.v1")))
                 throw new IOException("Worker lacks the mission clock capability");
-            provenance = Json.createObjectBuilder(metadata).add("runtime", hello).add("developmentInterpreter",
+            verifyCapabilities(hello);
+            provenance = Json.createObjectBuilder(metadata).add("runtime", hello).add("attached",attached).add("developmentInterpreter",
                     System.getProperty("openrocket.mission.python") != null).build();
             Files.deleteIfExists(manifest); // Process has read the credential; it never enters a result archive.
         } catch (IOException | RuntimeException e) { close(); throw e; }
@@ -87,6 +94,24 @@ public final class MissionWorker implements AutoCloseable {
             if (Files.isExecutable(app)) return new ProcessBuilder(app.toString(), "--mission-manifest", manifest.toString());
         }
         throw new IOException("Select a Mission-capable Telemetry UI application or source project and Python in Connections");
+    }
+    public static void verifyCapabilities(JsonObject info) throws IOException {
+        try(var in=MissionWorker.class.getResourceAsStream("/mission/v1/manifest.json")) {
+            if(!digest(in.readAllBytes()).equals(info.getString("contractManifestSha256","")))throw new IOException("Telemetry UI and OpenRocket Mission contracts differ; update the selected application");
+        }
+        for(String capability:List.of("mission-clock.v1","declarative-codec.v1","ownership-transfer.v1"))
+            if(!info.getJsonArray("capabilities").contains(Json.createValue(capability)))throw new IOException("Telemetry UI lacks "+capability);
+    }
+    public static JsonObject applicationCapabilities(JsonObject preferences) throws IOException {
+        Path output=Files.createTempFile("mission-app-check-",".json");Process process=null;
+        try {
+            var builder=applicationProcess(preferences,Path.of("unused"));
+            var args=new ArrayList<>(builder.command());args.remove(args.size()-1);args.set(args.size()-1,"--mission-capabilities");builder.command(args);
+            builder.redirectOutput(output.toFile()).redirectError(ProcessBuilder.Redirect.DISCARD);process=builder.start();
+            if(!process.waitFor(10,java.util.concurrent.TimeUnit.SECONDS) || process.exitValue()!=0)throw new IOException("Application did not report Mission capabilities");
+            JsonObject info;try(var in=Files.newInputStream(output)){info=MissionJson.read(in);}verifyCapabilities(info);return info;
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException("Connection check interrupted",e);}
+        finally {if(process!=null && process.isAlive())process.destroyForcibly();Files.deleteIfExists(output);}
     }
     public static Path interpreter() throws IOException {
         String override = System.getProperty("openrocket.mission.python");
@@ -138,6 +163,7 @@ public final class MissionWorker implements AutoCloseable {
         String expected = switch (type) { case "hello" -> "capabilities"; case "configure" -> "ready";
             case "advance" -> "advanced"; case "close" -> "closed"; default -> "result"; };
         if (!response.getString("type").equals(expected)) throw new IOException("Unexpected worker response");
+        if(type.equals("close"))protocolClosed=true;
         return response.getJsonObject("body");
     }
     private JsonObject envelope(String type, long timeUs, JsonObject body) {
@@ -150,8 +176,17 @@ public final class MissionWorker implements AutoCloseable {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)); }
         catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
     }
+    public void finish() throws IOException {
+        try {
+            var result=request("close",0,JsonValue.EMPTY_JSON_OBJECT);
+            if(!result.getString("failure","").isEmpty())throw new IOException(result.getString("failure"));
+            if(process!=null && (!process.waitFor(5,java.util.concurrent.TimeUnit.SECONDS) || process.exitValue()!=0))
+                throw new IOException("Mission participant did not finish successfully");
+        }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException("Participant shutdown interrupted",e);}
+        finally {close();}
+    }
     @Override public void close() {
-        try { if (socket != null && !socket.isClosed() && input != null) {
+        try { if (socket != null && !socket.isClosed() && input != null && !protocolClosed) {
             request("close", 0, JsonValue.EMPTY_JSON_OBJECT);
             if (process != null) process.waitFor(5, java.util.concurrent.TimeUnit.SECONDS);
         } } catch (IOException | RuntimeException ignored) { }

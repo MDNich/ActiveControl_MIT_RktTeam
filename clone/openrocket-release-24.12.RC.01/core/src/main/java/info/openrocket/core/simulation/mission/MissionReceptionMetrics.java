@@ -10,6 +10,7 @@ public final class MissionReceptionMetrics {
     private boolean previousTracking, previousSaturated;
     public void sample(JsonObject sample,long now,boolean beam) {
         var details=sample.getJsonObject("details");if(details.getBoolean("outOfOrder",false))return;
+        if(gapStart!=Long.MIN_VALUE){longestGap=Math.max(longestGap,now-gapStart);if(now>gapStart)gaps++;gapStart=Long.MIN_VALUE;}
         received=now;acquisition=Long.parseLong(details.getString("acquisitionTimeUs",Long.toString(now)));
         if(first<0 && now>=0 && beam && sample.getInt("gps_fix",0)>0 && !sample.isNull("latitude") && !sample.isNull("longitude"))first=now;
     }
@@ -22,7 +23,7 @@ public final class MissionReceptionMetrics {
             double start=Math.max(0,last-acquisition)/1e6,end=Math.max(0,now-acquisition)/1e6;
             ageSecondsIntegral+=(start+end)*.5*dt/1e6;ageObservedUs+=dt;maximumAgeSeconds=Math.max(maximumAgeSeconds,end);
         }
-        if(fresh<dt){if(gapStart==Long.MIN_VALUE)gapStart=last+fresh;}else if(dt>0 && gapStart!=Long.MIN_VALUE){longestGap=Math.max(longestGap,now-gapStart);gaps++;gapStart=Long.MIN_VALUE;}
+        if(fresh<dt && gapStart==Long.MIN_VALUE)gapStart=last+fresh;
         if(previousError>=0){observedUs+=dt;errorIntegral+=previousError*dt/1e6;}
         if(previousTracking)trackedUs+=dt;if(previousSaturated)saturatedUs+=dt;
         previousTracking=tracking;previousSaturated=saturated;previousError=error;last=now;

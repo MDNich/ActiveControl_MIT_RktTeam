@@ -242,3 +242,34 @@ The native macOS ARM image passed: 61 standard frames and 50 custom-FC frames
 accepted at GS1. Other platforms require the CI evidence; adding a matrix is not
 itself a passing platform qualification. The final integration increment is still
 closing attachment, ownership transfer and recording controls.
+
+## D3 / E2 / F3 — integration closure (2026-10-28)
+
+An already-open Telemetry UI can explicitly prepare a private Mission connection.
+OpenRocket selects its connection file per role, checks authenticated loopback
+readiness and matching contract hashes, then opens a separate simulation workspace
+inside that process. Completing a mission closes its session without terminating
+the existing application. Fresh launches also have a capability check.
+
+Paused ownership transfer revokes both controllers before granting one, advances
+ownership/receiver epochs, clears pending operator actions and requires an explicit
+tracking restart. The browser exposes the actual owner. Paused commands are rejected;
+active commands carry a 500 ms mission-time expiry. Native session closure completes
+before its acknowledgment, and participant/recording shutdown errors fail the result.
+
+Requested encoded video now records delivered frames into native session segments,
+with bounded queues and surfaced errors. Pause carriers are excluded. Video outage
+editing, queue admission, disabled-site filtering and portable result filenames are
+effective. Ensembles connect applications only to the selected member; other members
+use recorded headless ownership overrides. Results verify index channel/time/record
+boundaries, and receiver outage intervals end at reacquisition rather than the next
+policy tick.
+
+Validation: 64 Java mission tests passed, including fresh and existing-process GUI
+connections and two ownership transfers. Eleven Python station/application/result
+tests passed; native SRT delivery, outage recovery and optional encoded recording
+passed in the video tests. The selected application and pinned worker now exchange
+the exact shared-contract inventory hash. Windows checkout byte preservation and
+explicit SQLite closure address the next platform failures. All other matrix
+platforms passed the preceding qualification revision; final Windows and updated
+revision qualification remain pending.

@@ -10,6 +10,7 @@ open module info.openrocket.core {
 	requires com.google.guice;
 	requires java.desktop;
     requires jdk.httpserver;
+    requires java.net.http;
     requires org.apache.commons.compress;
     requires mgrs;
     requires grid;

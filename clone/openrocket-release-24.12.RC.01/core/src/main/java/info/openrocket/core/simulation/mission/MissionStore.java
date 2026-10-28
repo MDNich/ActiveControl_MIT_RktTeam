@@ -140,6 +140,7 @@ public final class MissionStore {
         }
         try {
             var simulation = editableFlight(id);
+            MissionJobs.admit(draft);
             if (simulation.getActiveConfiguration().getActiveStages().isEmpty())
                 issue(issues, "/flight/editor/stages", "no-active-stage", "Enable a rocket stage");
             if (simulation.getActiveConfiguration().getActiveMotors().isEmpty())

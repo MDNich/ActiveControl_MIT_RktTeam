@@ -1,0 +1,3 @@
+# Hash-pinned Mission inputs must retain their exact bytes on Windows checkouts.
+clone/openrocket-release-24.12.RC.01/core/src/main/resources/mission/** -text
+packaging/mission/*.py text eol=lf

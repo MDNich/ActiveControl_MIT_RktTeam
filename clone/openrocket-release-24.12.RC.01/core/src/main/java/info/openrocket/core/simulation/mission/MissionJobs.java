@@ -23,8 +23,18 @@ public final class MissionJobs implements MissionApi.Jobs {
         admit(resolved.mission());
         var job = new Job(resolved); jobs.put(job.id, job); job.persist(); executor.submit(job::run); return job.snapshot();
     }
-    private static void admit(JsonObject mission) {
+    public static void admit(JsonObject mission) {
         MissionVideo.validate(mission.getJsonObject("video"));
+        outputName(mission);
+        if (mission.getJsonObject("outputs").getBoolean("recordEncodedVideo", false)) {
+            if (!mission.getJsonObject("execution").getString("clockMode", "lockstep").equals("paced"))
+                throw new IllegalArgumentException("Encoded recordings require paced video application connections");
+            for (var stream : mission.getJsonObject("video").getJsonArray("streams"))
+                for (var receiver : stream.asJsonObject().getJsonArray("receivers"))
+                    if (mission.getJsonArray("sites").stream().anyMatch(s -> s.asJsonObject().getString("id").equals(((JsonString)receiver).getString()) && s.asJsonObject().getBoolean("enabled"))
+                            && mission.getJsonArray("stationBindings").stream().noneMatch(b -> b.asJsonObject().getString("siteId").equals(((JsonString)receiver).getString()) && b.asJsonObject().getString("role").equals("video")))
+                        throw new IllegalArgumentException("Enable a video application for every enabled video receiver before requesting encoded recordings");
+        }
         for (var value : mission.getJsonArray("stationBindings")) {
             var station = value.asJsonObject();
             if (station.getString("role").equals("video")) {
@@ -44,6 +54,12 @@ public final class MissionJobs implements MissionApi.Jobs {
         for (var entry : mission.getJsonArray("pointers")) if (entry.asJsonObject().getString("trackingPolicy").equals("truth-benchmark.v1"))
             throw new IllegalArgumentException("Truth benchmark is an analysis-only mode; choose a receiver tracking policy");
     }
+    private static String outputName(JsonObject mission) {
+        String name = mission.getJsonObject("outputs").getString("filename", "mission.rktmission");
+        if (!name.matches("[A-Za-z0-9][A-Za-z0-9._ -]{0,110}\\.rktmission") || name.matches("(?i)(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])\\..*"))
+            throw new IllegalArgumentException("Use a portable result filename ending in .rktmission, without folders");
+        return name;
+    }
     @Override public JsonObject request(String id, String action, JsonObject body) throws IOException {
         if (!id.matches("[0-9a-f-]{36}")) throw new IllegalArgumentException("Invalid job ID");
         Job job = jobs.get(id);
@@ -61,15 +77,24 @@ public final class MissionJobs implements MissionApi.Jobs {
         synchronized (job) {
             switch (action) {
                 case "status": case "results": return job.snapshot();
-                case "pause": if (job.status.equals("running")) { if (job.participants != null) job.participants.pause(true, job.timeUs); job.paused = true; job.status = "paused"; } break;
+                case "pause": if (job.status.equals("running")) { job.paused = true; job.status = "paused"; job.actions.clear(); if (job.participants != null) job.participants.pause(true, job.timeUs); } break;
                 case "resume": if (job.paused) { if (job.participants != null) job.participants.pause(false, job.timeUs); job.paused = false; job.status = "running"; job.notifyAll(); } break;
-                case "cancel": if (!job.terminal()) { job.cancelled = true; job.paused = false; job.notifyAll(); } break;
+                case "cancel": if (!job.terminal()) { job.cancelled = true; job.paused = false; if(job.participants!=null)job.participants.cancel(); job.notifyAll(); } break;
                 case "action": {
+                    if (job.paused) throw new IllegalArgumentException("Resume the mission before issuing a fresh command");
                     if (job.terminal() || job.status.equals("finalizing")) throw new IllegalArgumentException("Run no longer accepts actions");
                     MissionActions.validate(body);
-                    var queuedAction = Json.createObjectBuilder(body).add("id", "operator-" + UUID.randomUUID()).build();
+                    if (job.participants != null && job.participants.ownership().getJsonArray("stations").stream().anyMatch(v -> v.asJsonObject().getString("siteId").equals(body.getString("siteId")) && v.asJsonObject().getString("owner").equals("interactive-ui")))
+                        throw new IllegalArgumentException("This station is controlled by its Telemetry UI; use that window or transfer control while paused");
+                    var queuedAction = Json.createObjectBuilder(body).add("id", "operator-" + UUID.randomUUID())
+                            .add("createdUs",Long.toString(job.timeUs)).add("expiresUs",Long.toString(job.timeUs+500_000)).add("hostArrivalNanos",Long.toString(System.nanoTime())).build();
                     if (!job.actions.offer(queuedAction)) throw new IllegalArgumentException("Mission command queue is full; pause and let it drain before adding commands");
                     return Json.createObjectBuilder().add("accepted", true).add("id", queuedAction.getString("id")).build();
+                }
+                case "ownership": {
+                    if(!job.paused || job.participants==null)throw new IllegalArgumentException("Pause an active station application before transferring control");
+                    job.actions.removeIf(a -> a.getString("siteId").equals(body.getString("siteId")));
+                    return job.participants.transfer(body.getString("siteId"),body.getString("owner"),job.timeUs);
                 }
                 case "events": return Json.createObjectBuilder().add("events", Json.createArrayBuilder(job.notifications)).add("sequence", job.notificationSequence).build();
                 default: throw new IllegalArgumentException("Unknown mission job operation");
@@ -92,11 +117,13 @@ public final class MissionJobs implements MissionApi.Jobs {
         JsonObject metrics = JsonValue.EMPTY_JSON_OBJECT;
         Job(MissionStore.Resolved resolved) throws IOException {
             this.resolved = resolved; directory = root.resolve("jobs").resolve(id); Files.createDirectory(directory);
-            staging = directory.resolve("staging"); archive = directory.resolve("mission.rktmission");
+            staging = directory.resolve("staging"); archive = directory.resolve(outputName(resolved.mission()));
         }
         synchronized boolean terminal() { return Set.of("complete", "complete-with-failures", "failed", "cancelled").contains(status); }
         synchronized JsonObject snapshot() { return Json.createObjectBuilder().add("id", id).add("missionId", MissionStore.id(resolved.mission()))
                 .add("status", status).add("phase", phase).add("timeUs", Long.toString(timeUs)).add("endUs", Long.toString(endUs))
+                .add("progressUnit", phase.startsWith("Completed ensemble member") ? "members" : "microseconds")
+                .add("ownership", participants==null?JsonValue.EMPTY_JSON_ARRAY:participants.ownership().getJsonArray("stations"))
                 .add("failure", failure).add("metrics", metrics).add("staging", staging.toString())
                 .add("result", Files.isRegularFile(archive) ? archive.toString() : "").add("notificationSequence", notificationSequence).build(); }
         synchronized void persist() throws IOException { MissionJson.writeAtomic(directory.resolve("status.json"), snapshot()); lastPersist = System.nanoTime(); }
@@ -117,7 +144,7 @@ public final class MissionJobs implements MissionApi.Jobs {
                 timeUs = time; endUs = end;
                 if (!phase.equals(description)) { phase = description; notifications.add(Json.createObjectBuilder().add("sequence", notificationSequence++).add("message", description).build()); if (notifications.size() > 256) notifications.removeFirst(); }
             }
-            if (end > 0 && resolved.mission().getJsonObject("execution").getString("clockMode", "lockstep").equals("paced")) {
+            if (end > 0 && !description.startsWith("Completed ensemble member") && resolved.mission().getJsonObject("execution").getString("clockMode", "lockstep").equals("paced")) {
                 if (wallStart == 0) wallStart = System.nanoTime() - (time + 1_000_000) * 1000;
                 while (true) { check(); long remaining = wallStart + pausedNanos + (time + 1_000_000) * 1000 - System.nanoTime(); if (remaining <= 0) break;
                     try { Thread.sleep(Math.min(50, Math.max(1, remaining / 1_000_000))); } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new CancellationException(); } }
@@ -151,5 +178,5 @@ public final class MissionJobs implements MissionApi.Jobs {
             }
         }
     }
-    @Override public void close() { for (var job : jobs.values()) synchronized (job) { job.cancelled = true; job.paused = false; job.notifyAll(); } executor.shutdown(); }
+    @Override public void close() { for (var job : jobs.values()) synchronized (job) { job.cancelled = true; job.paused = false; if(job.participants!=null)job.participants.cancel(); job.notifyAll(); } executor.shutdown(); }
 }

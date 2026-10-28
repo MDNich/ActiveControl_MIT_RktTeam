@@ -17,6 +17,8 @@ public final class MissionEnsemble {
         var settings=baseline.getOptions().getEnsembleSettings();
         if(!settings.enabled()) return new Result("complete",new MissionRun(resolved,recorder,"member-0",0,control).applicationPreferences(preferences).execute(directory.resolve("member-0")));
         int count=settings.runs();
+        int applicationMember=resolved.mission().getJsonObject("execution").getInt("applicationMember",0);
+        if(applicationMember<0 || applicationMember>=count)throw new IllegalArgumentException("Select an application member within the ensemble");
         boolean paced=resolved.mission().getJsonObject("execution").getString("clockMode","lockstep").equals("paced");
         int requested=resolved.mission().getJsonObject("execution").getInt("parallelMembers",settings.threads());
         if(requested<1 || requested>256)throw new IllegalArgumentException("Mission parallel member count must be 1..256");
@@ -40,11 +42,12 @@ public final class MissionEnsemble {
                             if(paced)control.beginMember(member);
                             var child=new MissionRun.Control(){
                                 public void check(){control.check();}
-                                public void progress(long t,long end,String phase){if(paced)control.progress(t,end,"Member "+(member+1)+"/"+count+": "+phase);}
-                                public JsonArray drainActions(int max){return paced?control.drainActions(max):JsonValue.EMPTY_JSON_ARRAY;}
-                                public void participants(MissionParticipants value){if(paced)control.participants(value);}
+                                public void progress(long t,long end,String phase){if(paced && member==applicationMember)control.progress(t,end,"Member "+(member+1)+"/"+count+": "+phase);}
+                                public JsonArray drainActions(int max){return paced && member==applicationMember?control.drainActions(max):JsonValue.EMPTY_JSON_ARRAY;}
+                                public void participants(MissionParticipants value){if(paced && member==applicationMember)control.participants(value);}
                             };
-                            var metrics=new MissionRun(resolved,recorder,id,member,child).ensembleMember(sampled).applicationPreferences(preferences).execute(directory.resolve(id));
+                            var metrics=new MissionRun(resolved,recorder,id,member,child).ensembleMember(sampled).applicationPreferences(preferences)
+                                    .headlessParticipants(member!=applicationMember).execute(directory.resolve(id));
                             return Json.createObjectBuilder().add("member",member).add("status","complete").add("metrics",metrics).build();
                         } catch(CancellationException e){throw e;}
                         catch(Exception e){
@@ -57,7 +60,7 @@ public final class MissionEnsemble {
                 try{result=pending.removeFirst().get();}catch(ExecutionException e){if(e.getCause() instanceof CancellationException c)throw c;throw e;}
                 results.add(Json.createObjectBuilder().add("member",result.getInt("member")).add("status",result.getString("status")));complete++;
                 if(result.getString("status").equals("failed")){failures++;if(failFast)throw new IOException("Ensemble stopped after member failure: "+result.getString("reason"));}
-                if(!paced)control.progress(complete,count,"Completed ensemble member "+complete+"/"+count);
+                control.progress(complete,count,"Completed ensemble member "+complete+"/"+count);
             }
             String status=failures==0?"complete":failures==count?"failed":"complete-with-failures";
             var summary=Json.createObjectBuilder().add("status",status).add("members",count).add("completed",count-failures).add("failed",failures)
