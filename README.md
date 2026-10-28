@@ -39,7 +39,7 @@ Captures from the application and its verification views, using example designs 
 
 ## Get started
 
-Download a macOS or Windows package from [GitHub Releases](https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases/latest), or run the release JAR with Java 17. Packaged installers include their Java runtime. The source tree may contain features newer than the published packages; the current development edition is **6.4**.
+Download a macOS or Windows package from [GitHub Releases](https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases/latest), or run the release JAR with Java 17. Packaged installers include their Java runtime. The source tree may contain features newer than the published packages; the current development edition is **6.5**.
 
 1. Open or create a rocket and configure its motors and launch conditions.
 2. In **Edit simulation → Flight computer**, enable FC simulation, load a `.fc` design, and choose **Edit…** to configure hardware, behavior, Java boards, and controllers.
@@ -56,7 +56,7 @@ Use **JDK 17** and the included Gradle wrapper. Python is optional and is not re
 git clone https://github.com/MDNich/ActiveControl_MIT_RktTeam.git
 cd ActiveControl_MIT_RktTeam/clone/openrocket-release-24.12.RC.01
 ./gradlew shadowJar
-java -jar build/libs/OpenRocket-MIT-v6.4.jar
+java -jar build/libs/OpenRocket-MIT-v6.5.jar
 ```
 
 On Windows, use `gradlew.bat shadowJar`. Run the **root** `shadowJar` task to produce the complete application. The JAR name follows `OpenRocket-MIT-v<version>.jar`; its MIT version comes from [`build.properties`](clone/openrocket-release-24.12.RC.01/core/src/main/resources/build.properties).

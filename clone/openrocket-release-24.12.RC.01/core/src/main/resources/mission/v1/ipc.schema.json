@@ -1,0 +1,85 @@
+{
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "const": "rt-mission.v1"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "hello",
+        "capabilities",
+        "configure",
+        "ready",
+        "advance",
+        "advanced",
+        "rx-bytes",
+        "tx-bytes",
+        "action",
+        "result",
+        "pause",
+        "resume",
+        "close",
+        "closed",
+        "error"
+      ]
+    },
+    "messageId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$(?![\\s\\S])"
+    },
+    "sessionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$(?![\\s\\S])"
+    },
+    "missionId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$(?![\\s\\S])"
+    },
+    "memberId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$(?![\\s\\S])"
+    },
+    "participantId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$(?![\\s\\S])"
+    },
+    "connectionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]{0,63}$(?![\\s\\S])"
+    },
+    "sequence": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,18})$(?![\\s\\S])"
+    },
+    "missionTimeUs": {
+      "type": "string",
+      "pattern": "^(0|-?[1-9][0-9]{0,18})$(?![\\s\\S])"
+    },
+    "body": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "protocol",
+    "type",
+    "messageId",
+    "sessionId",
+    "missionId",
+    "runId",
+    "memberId",
+    "participantId",
+    "connectionId",
+    "sequence",
+    "missionTimeUs",
+    "body"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openrocket:mission:ipc:1",
+  "title": "rt-mission.v1 envelope"
+}

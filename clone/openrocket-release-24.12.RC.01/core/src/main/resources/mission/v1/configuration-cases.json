@@ -1,0 +1,280 @@
+{
+  "cases": [
+    {
+      "name": "unknown optional data survives",
+      "patch": [
+        {
+          "op": "add",
+          "path": "/futureSetting",
+          "value": {
+            "nested": [
+              1,
+              2,
+              "keep"
+            ]
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "latitude bounds",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/sites/0/latitudeDeg",
+          "value": 91
+        }
+      ],
+      "expected": [
+        [
+          "/sites/0/latitudeDeg",
+          "maximum"
+        ]
+      ]
+    },
+    {
+      "name": "unknown version",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/version",
+          "value": 2
+        }
+      ],
+      "expected": [
+        [
+          "/version",
+          "const"
+        ]
+      ]
+    },
+    {
+      "name": "preview is not production",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/format",
+          "value": "openrocket.mission-configuration-preview"
+        }
+      ],
+      "expected": [
+        [
+          "/format",
+          "const"
+        ]
+      ]
+    },
+    {
+      "name": "integer is not boolean",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/identity/revision",
+          "value": true
+        }
+      ],
+      "expected": [
+        [
+          "/identity/revision",
+          "type"
+        ]
+      ]
+    },
+    {
+      "name": "unresolved height is a valid draft",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/sites/0/heightM",
+          "value": null
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "missing coordinate",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/sites/0/latitudeDeg",
+          "value": null
+        }
+      ],
+      "expected": [
+        [
+          "/sites/0/latitudeDeg",
+          "type"
+        ]
+      ]
+    },
+    {
+      "name": "base cannot own a pointer",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/pointers/0/siteId",
+          "value": "launch"
+        }
+      ],
+      "expected": [
+        [
+          "/pointers/0/siteId",
+          "enum"
+        ]
+      ]
+    },
+    {
+      "name": "unknown vehicle",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/pointers/0/targetVehicleId",
+          "value": "missing"
+        }
+      ],
+      "expected": [
+        [
+          "/pointers/0/targetVehicleId",
+          "missing-reference"
+        ]
+      ]
+    },
+    {
+      "name": "duplicate pointer id",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/pointers/1/id",
+          "value": "pointer1"
+        }
+      ],
+      "expected": [
+        [
+          "/pointers/1/id",
+          "duplicate-id"
+        ]
+      ]
+    },
+    {
+      "name": "two mounts at one site",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/pointers/1/siteId",
+          "value": "gs1"
+        }
+      ],
+      "expected": [
+        [
+          "/pointers/1",
+          "pointer-site"
+        ]
+      ]
+    },
+    {
+      "name": "duplicate owner",
+      "patch": [
+        {
+          "op": "add",
+          "path": "/stationBindings/-",
+          "value": {
+            "id": "extra",
+            "siteId": "gs1",
+            "role": "telem",
+            "owner": "interactive-ui"
+          }
+        }
+      ],
+      "expected": [
+        [
+          "/stationBindings/5",
+          "multiple-owners"
+        ]
+      ]
+    },
+    {
+      "name": "independent observer allowed",
+      "patch": [
+        {
+          "op": "add",
+          "path": "/stationBindings/-",
+          "value": {
+            "id": "observer",
+            "siteId": "gs1",
+            "role": "telem",
+            "owner": "observer"
+          }
+        }
+      ],
+      "expected": []
+    },
+    {
+      "name": "seed overflow",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/execution/seed",
+          "value": "18446744073709551616"
+        }
+      ],
+      "expected": [
+        [
+          "/execution/seed",
+          "range"
+        ]
+      ]
+    },
+    {
+      "name": "tail bounded",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/execution/deliveryTailUs",
+          "value": "60000001"
+        }
+      ],
+      "expected": [
+        [
+          "/execution/deliveryTailUs",
+          "range"
+        ]
+      ]
+    },
+    {
+      "name": "route duplication",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/video/streams/0/receivers",
+          "value": [
+            "gs1",
+            "gs1"
+          ]
+        }
+      ],
+      "expected": [
+        [
+          "/video/streams/0/receivers",
+          "duplicate-route"
+        ]
+      ]
+    },
+    {
+      "name": "IDs cannot contain newlines",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/pointers/0/id",
+          "value": "pointer1\n"
+        }
+      ],
+      "expected": [
+        [
+          "/pointers/0/id",
+          "pattern"
+        ]
+      ]
+    }
+  ]
+}

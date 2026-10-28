@@ -71,6 +71,14 @@ The existing Swing/core framework is extended. The installed macOS launcher keep
 
 The architecture report is also available as a [17-page PDF](14-flight-computer-api-and-architecture.pdf) with nine native TikZ figures; the [standalone LaTeX source](14-flight-computer-api-and-architecture.tex) contains the complete report and every figure.
 
+[Mission Simulation integration plan](15-mission-simulation-plan.md), proposed 27 October 2026: ground-based antenna locations and pointing, coupled FC/receiver simulation, Telemetry UI software-serial integration through Base/Away stations, deterministic and interactive execution, and a portable ZIP Mission Bundle containing configuration and participant logs. Includes current-code findings, a staged implementation plan and acceptance tests; this feature is not yet implemented.
+
+[Mission configuration implementation specification](16-mission-configuration-ui.md), finalized 27 October 2026: a new configuration UI with saved presets, URRG launch/Base/four-Away defaults from Telemetry UI, imagery-map/Lat-Lon/MGRS placement, 0–4 pointers, complete flight/ensemble settings, standard or custom-FC telemetry, application connections, and Balius/Iris/custom analog/digital video slates. Includes an [interactive browser prototype](mission-ui/index.html), shared schemas/service contracts, ownership, implementation work packages and completion criteria. Application integration remains to be implemented.
+
+[Mission Simulation final implementation contracts](17-mission-simulation-contracts.md), reviewed 28 October 2026: the authoritative handoff for Java/Python ownership, supported flight branches and FC limits, clocks and pause, telemetry codecs and command capabilities, coordinate/height conventions, noise/random streams, video transport, portable configuration/results and failure recovery. Documents 15 and 16 were reconciled with these decisions. Packages A–G define the next implementation work; application version 6.5 does not imply that work has been completed.
+
+[Mission Simulation implementation progress](18-mission-implementation-progress.md), started 28 October 2026: A1 adds shared Java/Python contract resources, validated draft persistence, URRG defaults, deterministic sampling, geometry and framed IPC primitives. Includes verification, synchronization instructions and the remaining A2–G work. The mission runner and connected UI are not implemented yet.
+
 ## Vanilla OpenRocket 24.12 export (13 October 2026)
 
 Use **File → Export as → Vanilla OpenRocket 24.12 (.ork)…**. The conversion summary is shown before the file selector; the suggested filename ends in `-vanilla-24.12.ork`. The active MIT document, its saved state, source file and full simulation results are preserved. Exporting over that source file (including a symbolic or hard link) is rejected.

@@ -1,0 +1,15 @@
+{
+  "format": "openrocket.mission-contracts",
+  "version": 1,
+  "files": {
+    "configuration-cases.json": "d02be954b4a41458bd5c59716696f16031c19b6a16e39712ac4ee4553b700693",
+    "geodesy-vectors.json": "91d5f5f0eeee16d95b40b5336f96df2ec5d29678d61910663a41d9c270219641",
+    "ipc-vector.json": "8110d5234b7ee4d69ac1248f6fd0407c6e422fb50c2852112ff9ddc15eaa6dad",
+    "ipc.schema.json": "11cfed20627b74c687d8da8f95cac7c2181117095fd202b5ea4fc86f2db0cd37",
+    "legacy-vectors.json": "2ceef7fcce7ddc9fe2479a77b6380f5416c0d42de0363b167a5719b82bc4b3e8",
+    "mission.schema.json": "cff2bfb6e349eca9298c8e3bc02cb9c4f87c5056f0338d42cfeb9e90e79a6e48",
+    "sampler-vectors.json": "34daceaec952e3593013a98f6e223f508a052e9c774541aaec11054f3975c204",
+    "urrg-draft.json": "09fb74c15d51248fce79afd15a1cb2eb2db52af0c390847602d5258a4bd765bf",
+    "urrg-sites.json": "2a1cd6ddae405b1fecce79f9cc768b54c61a10c9a0abf3984570d1514e51bfb9"
+  }
+}

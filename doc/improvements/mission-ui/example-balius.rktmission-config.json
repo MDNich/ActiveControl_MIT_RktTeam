@@ -1,0 +1,300 @@
+{
+  "format": "openrocket.mission-configuration-preview",
+  "version": 1,
+  "title": "URRG mission rehearsal",
+  "runId": "MS-024",
+  "rocket": "20267.demonstrator.iteration4.ork",
+  "pointerCount": 4,
+  "receiverSites": [],
+  "sites": [
+    {
+      "id": "launch-site",
+      "name": "Launch site",
+      "symbol": "L",
+      "lat": 42.70416776971639,
+      "lon": -77.19029501648315,
+      "alt": null,
+      "datum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2061530290",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      }
+    },
+    {
+      "id": "launch",
+      "name": "Base station",
+      "symbol": "B",
+      "lat": 42.7031920173103,
+      "lon": -77.18999209440938,
+      "alt": null,
+      "datum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2063730181",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      }
+    },
+    {
+      "id": "gs1",
+      "name": "Away 1 · Pointer 1",
+      "symbol": "1",
+      "lat": 42.70278230997951,
+      "lon": -77.17605911889694,
+      "alt": null,
+      "datum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2177730106",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      },
+      "height": 2,
+      "azRate": 90,
+      "elRate": 60,
+      "az": 0,
+      "el": 0,
+      "policy": "Geodetic"
+    },
+    {
+      "id": "gs2",
+      "name": "Away 2 · Pointer 2",
+      "symbol": "2",
+      "lat": 42.731221129355355,
+      "lon": -77.16317739743833,
+      "alt": null,
+      "datum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2291333237",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      },
+      "height": 2,
+      "azRate": 90,
+      "elRate": 60,
+      "az": 0,
+      "el": 0,
+      "policy": "Geodetic"
+    },
+    {
+      "id": "gs3",
+      "name": "Away 3 · Pointer 3",
+      "symbol": "3",
+      "lat": 42.71135721362275,
+      "lon": -77.19622600691332,
+      "alt": null,
+      "datum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2015031101",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      },
+      "height": 2,
+      "azRate": 90,
+      "elRate": 60,
+      "az": 0,
+      "el": 0,
+      "policy": "Geodetic"
+    },
+    {
+      "id": "gs4",
+      "name": "Away 4 · Pointer 4",
+      "symbol": "4",
+      "lat": 42.69911925972465,
+      "lon": -77.16598116908455,
+      "alt": null,
+      "datum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2259229678",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      },
+      "height": 2,
+      "azRate": 90,
+      "elRate": 60,
+      "az": 0,
+      "el": 0,
+      "policy": "Geodetic"
+    }
+  ],
+  "flight": {
+    "configuration": "Demonstrator · nominal",
+    "sourceSimulation": "Example settings",
+    "stages": "All active stages",
+    "motors": "Use selected flight configuration",
+    "ignition": "Use saved ignition events and delays",
+    "separation": "Use saved stage events and delays",
+    "recovery": "OpenRocket recovery rules",
+    "recoveryEvents": "Use saved device events, delays and deployment altitudes",
+    "rail": 5,
+    "tilt": 5,
+    "bearing": 0,
+    "intoWind": false,
+    "roll": 0,
+    "windModel": "Average",
+    "windSpeed": 4,
+    "windDirection": 270,
+    "turbulence": 10,
+    "windSigma": 0.4,
+    "windProfile": "0, 4, 270\n1000, 6, 280\n3000, 8, 290",
+    "windAltitude": "MSL",
+    "atmosphere": "ISA",
+    "temperature": 15,
+    "pressure": 1013.25,
+    "geodetic": "Spherical",
+    "timeStep": 0.05,
+    "maxTime": 600,
+    "maxAngle": 3,
+    "seed": 1,
+    "extensions": "Preserve selected simulation extensions"
+  },
+  "telemetry": {
+    "mode": "standard",
+    "rate": 20,
+    "fcPath": "",
+    "definition": "",
+    "fallback": "legacy",
+    "loss": 2,
+    "delay": 30,
+    "jitter": 5,
+    "bitError": 0,
+    "gpsHorizontal": 2,
+    "gpsVertical": 3,
+    "barometer": 0.5,
+    "seed": 101,
+    "outages": "",
+    "overrides": {
+      "launch": {
+        "enabled": false,
+        "loss": 2,
+        "delay": 30
+      },
+      "gs1": {
+        "enabled": false,
+        "loss": 2,
+        "delay": 30
+      },
+      "gs2": {
+        "enabled": false,
+        "loss": 2,
+        "delay": 30
+      },
+      "gs3": {
+        "enabled": false,
+        "loss": 2,
+        "delay": 30
+      },
+      "gs4": {
+        "enabled": false,
+        "loss": 2,
+        "delay": 30
+      }
+    }
+  },
+  "video": {
+    "preset": "Balius",
+    "digital": 1,
+    "analog": 1,
+    "streams": [
+      {
+        "id": "digital-1",
+        "kind": "digital",
+        "number": 1,
+        "vehicle": "Balius",
+        "receivers": [
+          "gs1",
+          "gs2",
+          "gs3",
+          "gs4"
+        ]
+      },
+      {
+        "id": "analog-1",
+        "kind": "analog",
+        "number": 1,
+        "vehicle": "Balius",
+        "receivers": [
+          "gs1",
+          "gs2",
+          "gs3",
+          "gs4"
+        ]
+      }
+    ],
+    "fps": 30,
+    "width": 960,
+    "height": 540,
+    "delay": 100,
+    "loss": 0,
+    "noise": 0,
+    "seed": 201
+  },
+  "connections": {
+    "path": "/Users/mdn/Developer/RT_Telemetry_UI",
+    "launch": "Python project",
+    "python": "/Users/mdn/Developer/RT_Telemetry_UI/.venv/bin/python",
+    "transport": "Software serial",
+    "stations": {
+      "launch": {
+        "telemetry": false,
+        "video": false,
+        "port": 8766
+      },
+      "gs1": {
+        "telemetry": true,
+        "video": false,
+        "port": 8768
+      },
+      "gs2": {
+        "telemetry": false,
+        "video": false,
+        "port": 8770
+      },
+      "gs3": {
+        "telemetry": false,
+        "video": false,
+        "port": 8772
+      },
+      "gs4": {
+        "telemetry": false,
+        "video": false,
+        "port": 8774
+      }
+    }
+  },
+  "run": {
+    "mode": "Deterministic mission",
+    "type": "Single flight",
+    "pace": "As fast as possible",
+    "count": 100,
+    "threads": 4,
+    "seed": 1,
+    "motorSigma": 0,
+    "noiseInterval": 0.05,
+    "temperatureSigma": 0,
+    "pressureSigma": 0,
+    "windSigma": 0,
+    "windDirectionSigma": 0,
+    "massSigma": 0,
+    "dragSigma": 0,
+    "rollForceSigma": 0,
+    "rollDampingSigma": 0,
+    "output": "./mission-results",
+    "filename": "urrg-mission-rehearsal.rktmission",
+    "fcLogs": true,
+    "raw": true,
+    "pointerLogs": true,
+    "video": true
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "provenance": "Analytic WGS84 axis points, a=6378137, f=1/298.257223563; geoid conversion example from GeographicLib GeoidEval manual.",
+  "ecef": [
+    {
+      "lat": 0,
+      "lon": 0,
+      "h": 0,
+      "xyz": [
+        6378137,
+        0,
+        0
+      ]
+    },
+    {
+      "lat": 0,
+      "lon": 90,
+      "h": 100,
+      "xyz": [
+        0,
+        6378237,
+        0
+      ]
+    },
+    {
+      "lat": 90,
+      "lon": 0,
+      "h": 0,
+      "xyz": [
+        0,
+        0,
+        6356752.314245179
+      ]
+    }
+  ],
+  "heights": [
+    {
+      "msl": 23,
+      "separation": -33.842,
+      "ellipsoidal": -10.842
+    }
+  ]
+}

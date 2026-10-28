@@ -1,0 +1,237 @@
+{
+  "format": "openrocket.mission",
+  "version": 1,
+  "identity": {
+    "missionId": "00000000-0000-0000-0000-000000000001",
+    "title": "URRG mission",
+    "revision": 0
+  },
+  "assets": [],
+  "flight": {},
+  "vehicleBindings": [
+    {
+      "id": "balius"
+    }
+  ],
+  "sites": [
+    {
+      "id": "launch-site",
+      "name": "launch-site",
+      "enabled": true,
+      "latitudeDeg": 42.70416776971639,
+      "longitudeDeg": -77.19029501648315,
+      "heightM": null,
+      "heightDatum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2061530290",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      }
+    },
+    {
+      "id": "launch",
+      "name": "launch",
+      "enabled": true,
+      "latitudeDeg": 42.7031920173103,
+      "longitudeDeg": -77.18999209440938,
+      "heightM": null,
+      "heightDatum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2063730181",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      }
+    },
+    {
+      "id": "gs1",
+      "name": "gs1",
+      "enabled": true,
+      "latitudeDeg": 42.70278230997951,
+      "longitudeDeg": -77.17605911889694,
+      "heightM": null,
+      "heightDatum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2177730106",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      }
+    },
+    {
+      "id": "gs2",
+      "name": "gs2",
+      "enabled": true,
+      "latitudeDeg": 42.731221129355355,
+      "longitudeDeg": -77.16317739743833,
+      "heightM": null,
+      "heightDatum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2291333237",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      }
+    },
+    {
+      "id": "gs3",
+      "name": "gs3",
+      "enabled": true,
+      "latitudeDeg": 42.71135721362275,
+      "longitudeDeg": -77.19622600691332,
+      "heightM": null,
+      "heightDatum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2015031101",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      }
+    },
+    {
+      "id": "gs4",
+      "name": "gs4",
+      "enabled": true,
+      "latitudeDeg": 42.69911925972465,
+      "longitudeDeg": -77.16598116908455,
+      "heightM": null,
+      "heightDatum": "MSL",
+      "coordinateInput": {
+        "format": "mgrs",
+        "value": "18TUN2259229678",
+        "reference": "grid-point",
+        "precisionM": 1,
+        "source": "telemetry-ui-urrg"
+      }
+    }
+  ],
+  "pointers": [
+    {
+      "id": "pointer1",
+      "siteId": "gs1",
+      "enabled": true,
+      "targetVehicleId": "balius",
+      "trackingPolicy": "geodetic.v1",
+      "initialAzimuthDeg": 0,
+      "initialElevationDeg": 0,
+      "azimuthRateDegS": 90,
+      "elevationRateDegS": 60,
+      "mountHeightM": 2
+    },
+    {
+      "id": "pointer2",
+      "siteId": "gs2",
+      "enabled": true,
+      "targetVehicleId": "balius",
+      "trackingPolicy": "geodetic.v1",
+      "initialAzimuthDeg": 0,
+      "initialElevationDeg": 0,
+      "azimuthRateDegS": 90,
+      "elevationRateDegS": 60,
+      "mountHeightM": 2
+    },
+    {
+      "id": "pointer3",
+      "siteId": "gs3",
+      "enabled": true,
+      "targetVehicleId": "balius",
+      "trackingPolicy": "geodetic.v1",
+      "initialAzimuthDeg": 0,
+      "initialElevationDeg": 0,
+      "azimuthRateDegS": 90,
+      "elevationRateDegS": 60,
+      "mountHeightM": 2
+    },
+    {
+      "id": "pointer4",
+      "siteId": "gs4",
+      "enabled": true,
+      "targetVehicleId": "balius",
+      "trackingPolicy": "geodetic.v1",
+      "initialAzimuthDeg": 0,
+      "initialElevationDeg": 0,
+      "azimuthRateDegS": 90,
+      "elevationRateDegS": 60,
+      "mountHeightM": 2
+    }
+  ],
+  "telemetry": {
+    "mode": "standard",
+    "formatId": "legacy-zephyrus.v1",
+    "fallback": "legacy",
+    "rateHz": 20,
+    "links": []
+  },
+  "video": {
+    "preset": "Balius",
+    "streams": [
+      {
+        "id": "balius.digital",
+        "vehicleId": "balius",
+        "kind": "digital",
+        "receivers": [
+          "gs1",
+          "gs2",
+          "gs3",
+          "gs4"
+        ]
+      },
+      {
+        "id": "balius.analog",
+        "vehicleId": "balius",
+        "kind": "analog",
+        "receivers": [
+          "gs1",
+          "gs2",
+          "gs3",
+          "gs4"
+        ]
+      }
+    ]
+  },
+  "stationBindings": [
+    {
+      "id": "launch-telem",
+      "siteId": "launch",
+      "role": "telem",
+      "owner": "headless-policy"
+    },
+    {
+      "id": "gs1-telem",
+      "siteId": "gs1",
+      "role": "telem",
+      "owner": "headless-policy"
+    },
+    {
+      "id": "gs2-telem",
+      "siteId": "gs2",
+      "role": "telem",
+      "owner": "headless-policy"
+    },
+    {
+      "id": "gs3-telem",
+      "siteId": "gs3",
+      "role": "telem",
+      "owner": "headless-policy"
+    },
+    {
+      "id": "gs4-telem",
+      "siteId": "gs4",
+      "role": "telem",
+      "owner": "headless-policy"
+    }
+  ],
+  "execution": {
+    "mode": "ground-link",
+    "seed": "1",
+    "deliveryTailUs": "2000000",
+    "ensemble": {}
+  },
+  "outputs": {}
+}

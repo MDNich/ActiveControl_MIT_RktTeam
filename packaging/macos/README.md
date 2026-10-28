@@ -19,7 +19,7 @@ The 6.2 release used these upstream [Temurin 17.0.20.1+1 assets](https://github.
 | `OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.20.1_1.tar.gz` | `196d13ba5f10414bef7f6a05a9b3f00edacb18ebacef2b99485db9e2ee18f0e8` |
 | `OpenJDK17U-jdk_x64_mac_hotspot_17.0.20.1_1.tar.gz` | `c01975da12ed4235250ff891fe8bba73a9e73037d444b269c9d0922b5dbc8e0a` |
 
-Xcode command-line tools, Python 3.11+, and Rosetta (to execute Intel packaging tools on Apple Silicon) are required for this recipe. Output is versioned under `clone/openrocket/build/macos-installer/6.2/output/`. The script refuses to replace an existing app staging directory; preserve outputs before rebuilding in fresh staging.
+Xcode command-line tools, Python 3.11+, and Rosetta (to execute Intel packaging tools on Apple Silicon) are required for this recipe. Output follows `build.mit.version`, currently under `clone/openrocket/build/macos-installer/6.5/output/`. The script refuses to replace an existing app staging directory; preserve outputs before rebuilding in fresh staging.
 
 The DMG offers drag-and-drop installation into Applications. The bundle is self-contained, contains no links into the developer's checkout, and uses an ad-hoc signature. It is **not Developer-ID signed or Apple-notarized**. Packaging does not replace the installed `/Applications/OpenRocket_MIT.app`.
 

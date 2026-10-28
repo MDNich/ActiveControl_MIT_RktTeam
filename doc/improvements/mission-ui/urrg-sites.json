@@ -1,0 +1,65 @@
+{
+  "format": "openrocket.mission-site-preset-fixture",
+  "version": 1,
+  "preset": "URRG",
+  "source": "RT_Telemetry_UI/src/rocket_gnc_monitor/site_presets.py",
+  "decoder": "RT_Telemetry_UI/src/rocket_gnc_monitor/location.py:decode_mgrs",
+  "sourceSha256": "ae16e8902eba4c1421fc182545c6d1316453d2ae74bc57eaa3de74d10d2a566d",
+  "decoderSha256": "87e948e13ee2af6d75ff65870400b908dec6b7961b650cd547f99e03cdd8ba41",
+  "sites": [
+    {
+      "id": "launch-site",
+      "mgrs": "18TUN2061530290",
+      "latitudeDeg": 42.70416776971639,
+      "longitudeDeg": -77.19029501648315,
+      "elevationM": null,
+      "reference": "grid-point",
+      "resolutionM": 1
+    },
+    {
+      "id": "launch",
+      "mgrs": "18TUN2063730181",
+      "latitudeDeg": 42.7031920173103,
+      "longitudeDeg": -77.18999209440938,
+      "elevationM": null,
+      "reference": "grid-point",
+      "resolutionM": 1
+    },
+    {
+      "id": "gs1",
+      "mgrs": "18TUN2177730106",
+      "latitudeDeg": 42.70278230997951,
+      "longitudeDeg": -77.17605911889694,
+      "elevationM": null,
+      "reference": "grid-point",
+      "resolutionM": 1
+    },
+    {
+      "id": "gs2",
+      "mgrs": "18TUN2291333237",
+      "latitudeDeg": 42.731221129355355,
+      "longitudeDeg": -77.16317739743833,
+      "elevationM": null,
+      "reference": "grid-point",
+      "resolutionM": 1
+    },
+    {
+      "id": "gs3",
+      "mgrs": "18TUN2015031101",
+      "latitudeDeg": 42.71135721362275,
+      "longitudeDeg": -77.19622600691332,
+      "elevationM": null,
+      "reference": "grid-point",
+      "resolutionM": 1
+    },
+    {
+      "id": "gs4",
+      "mgrs": "18TUN2259229678",
+      "latitudeDeg": 42.69911925972465,
+      "longitudeDeg": -77.16598116908455,
+      "elevationM": null,
+      "reference": "grid-point",
+      "resolutionM": 1
+    }
+  ]
+}
