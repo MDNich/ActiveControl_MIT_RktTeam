@@ -10,14 +10,16 @@ import java.util.concurrent.*;
 public final class MissionJobs implements MissionApi.Jobs {
     private final Path root;
     private final Map<String, Job> jobs = new ConcurrentHashMap<>();
-    private final ExecutorService executor = Executors.newFixedThreadPool(2, r -> { var t = new Thread(r, "mission-run"); t.setDaemon(true); return t; });
+    private final ExecutorService executor = new ThreadPoolExecutor(2, 2, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(2), r -> { var t = new Thread(r, "mission-run"); t.setDaemon(true); return t; });
     public MissionJobs(Path root) throws IOException { this.root = root; Files.createDirectories(root.resolve("jobs")); }
     @Override public JsonObject capabilities() {
         try { MissionWorker.interpreter(); return Json.createObjectBuilder().add("available", true).add("standard", true).add("coupled", true)
                 .add("video", true).add("ensemble", true).add("workerProtocol", "rt-mission.v1").build(); }
         catch (IOException e) { return Json.createObjectBuilder().add("available", false).add("reason", e.getMessage()).build(); }
     }
-    @Override public JsonObject start(MissionStore.Resolved resolved) throws IOException {
+    @Override public synchronized JsonObject start(MissionStore.Resolved resolved) throws IOException {
+        if (jobs.values().stream().filter(j -> !j.terminal()).count() >= 4) throw new IllegalArgumentException("Four missions are already running or queued; finish or cancel one first");
+        if (jobs.size() > 128) jobs.entrySet().removeIf(e -> e.getValue().terminal());
         admit(resolved.mission());
         var job = new Job(resolved); jobs.put(job.id, job); job.persist(); executor.submit(job::run); return job.snapshot();
     }
@@ -134,12 +136,15 @@ public final class MissionJobs implements MissionApi.Jobs {
                 var result = MissionEnsemble.execute(resolved, recorder, directory.resolve("private-worker"), this, preferences);
                 metrics = result.metrics();
                 synchronized (this) { status = "finalizing"; phase = "Verifying and saving the result bundle"; persist(); }
+                MissionResults.index(recorder, directory.resolve("utilities"));
                 recorder.finish(archive, result.status());
                 synchronized (this) { status = result.status(); phase = "Mission complete"; }
             } catch (Exception e) {
-                synchronized (this) { status = e instanceof CancellationException ? "cancelled" : "failed"; failure = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage(); phase = "Committed results preserved"; }
-                if (recorder != null) try { recorder.json("failure.json", Json.createObjectBuilder().add("status", status).add("reason", failure).build()); recorder.finish(archive, status); }
+                String terminalStatus = e instanceof CancellationException ? "cancelled" : "failed";
+                synchronized (this) { status = "finalizing"; failure = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage(); phase = "Committed results preserved"; }
+                if (recorder != null) try { recorder.json("failure.json", Json.createObjectBuilder().add("status", terminalStatus).add("reason", failure).build()); MissionResults.index(recorder, directory.resolve("utilities")); recorder.finish(archive, terminalStatus); }
                 catch (IOException finalization) { synchronized (this) { failure += "; bundle finalization failed: " + finalization.getMessage(); } }
+                synchronized (this) { status = terminalStatus; }
             } finally {
                 if (recorder != null) try { recorder.close(); } catch (IOException e) { synchronized (this) { status = "failed"; failure += "; checkpoint failed: " + e.getMessage(); } }
                 try { persist(); } catch (IOException ignored) { /* The last durable status and staging remain discoverable. */ }

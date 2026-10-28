@@ -202,3 +202,29 @@ test compares every canonical per-member stream from serial and parallel executi
 byte for byte. A separate analytic test verifies information-age and freshness
 normalization. Result indexing, committed-prefix recovery and replay/export interfaces
 remain the next increment.
+
+## F2 — indexed results, recovery and station export (2026-10-28)
+
+Canonical checkpoints now include incrementally computed SHA-256 prefix hashes and
+support bounded 32 MiB inventories. ZIP/ZIP64 central-directory bounds are inspected
+before entry allocation; non-regular Unix entries are rejected. Recovery copies and
+verifies only committed file prefixes, builds a fresh SQLite index, publishes an
+incomplete bundle atomically and leaves the original staging untouched.
+
+The bundled stdlib utility creates `index.sqlite` through SQLite backup, checks raw
+index bounds and per-record hashes, and supports bounded member/channel/time-window
+queries. The workspace can open a result, recover a staging folder, inspect an event
+or measurement channel, and plot the selected time window without running endpoints.
+Ensemble status summaries and active/queued jobs have explicit bounds.
+
+Selected stations export to existing `.rktflight` schema 1 with an omission report.
+A selected native application session preserves its original clocks and uses SQLite
+backup. A headless station export reconstructs receiver samples and existing RGM1
+raw roles, explicitly labels the synthetic elapsed-time mapping and unavailable UTC,
+and never invents physical pointer feedback or hardware acknowledgments.
+
+Validation: 63 Java mission tests passed and the distribution JAR built. Recovery
+tests reject altered committed bytes, ignore uncommitted tails, preserve the source,
+and reopen/query an archive after deleting its original staging. Cancellation still
+produces an indexed readable prefix. The exported station fixture opens successfully
+with the unmodified Telemetry UI flight reader.

@@ -1,0 +1,25 @@
+import {$,esc,request,action,status} from './api.js';
+let opened;
+for(const [button,operation] of [['open-result','open'],['recover-result','recover']])$(button).onclick=()=>action(async()=>{
+  const result=await request('results/'+operation,{});if(result.cancelled)return;opened=result;render();status('Opened '+result.filename+' · '+result.status+'.');
+});
+function render(){
+  const root=$('result-browser');root.hidden=false;
+  root.innerHTML=`<h3>${esc(opened.filename)}</h3><p>${esc(opened.status)} · Read-only result</p><div class="field-grid"><label>Member<select id="result-member">${opened.members.map(m=>`<option>${esc(m)}</option>`).join('')}</select></label><label>Channel<select id="result-stream"></select></label><label>Start · seconds<input id="result-start" type="number" value="-1" step=".1"></label><label>Window · seconds<input id="result-width" type="number" min=".001" max="86400" value="10" step=".1"></label></div><div class="actions"><button id="result-read">Read time window</button><button id="result-next">Next window</button></div><div class="field-grid"><label>Export station<select id="export-station"><option value="launch">Base</option><option>gs1</option><option>gs2</option><option>gs3</option><option>gs4</option></select></label><label>Session to export<select id="export-session"></select></label></div><button id="export-flight">Export selected station .rktflight</button><p class="hint">Exports the selected session with an omission report. Mission results retain all original data.</p><p id="result-note"></p><canvas id="result-plot" width="960" height="260" style="width:100%;max-width:960px" aria-label="Selected result channel"></canvas><div id="result-records"></div>`;
+  $('result-member').onchange=()=>action(async()=>{const result=await request('results/'+opened.id+'/query',{member:$('result-member').value});opened.streams=result.streams;opened.sessions=result.sessions;channels();sessions();});channels();$('result-stream').onchange=()=>{const s=opened.streams.find(s=>s.stream===$('result-stream').value);$('result-start').value=Number(s.firstUs)/1e6;};
+  $('export-station').onchange=sessions;sessions();$('export-flight').onclick=()=>action(async()=>{const result=await request('results/'+opened.id+'/export',{member:$('result-member').value,station:$('export-station').value,session:$('export-session').value});if(!result.cancelled)status('Exported '+result.saved+' · '+result.samples+' samples.');});
+  $('result-read').onclick=()=>action(read);$('result-next').onclick=()=>action(async()=>{$('result-start').value=Number($('result-start').value)+Number($('result-width').value);await read();});
+}
+function sessions(){const prefix='runs/'+$('result-member').value+'/stations/'+$('export-station').value+'/';$('export-session').innerHTML='<option value="">Canonical receiver and pointer records</option>'+(opened.sessions||[]).filter(s=>s.startsWith(prefix)).map(s=>`<option value="${esc(s)}">${esc(s.slice(prefix.length))}</option>`).join('');}
+function channels(){const member=$('result-member').value;$('result-stream').innerHTML=opened.streams.filter(s=>s.stream.startsWith('runs/'+member+'/')).map(s=>`<option value="${esc(s.stream)}">${esc(s.stream.replace('runs/'+member+'/',''))} · ${s.count} records</option>`).join('');}
+async function read(){
+  const start=Number($('result-start').value),width=Number($('result-width').value);if(!Number.isFinite(start)||!Number.isFinite(width)||width<=0||width>86400)throw Error('Choose a valid time window.');
+  const result=await request('results/'+opened.id+'/query',{stream:$('result-stream').value,startUs:String(Math.round(start*1e6)),endUs:String(Math.round((start+width)*1e6)),limit:250});
+  $('result-note').textContent=`${result.count} records shown (maximum 250 per window). Narrow the interval to inspect dense channels.`;
+  $('result-records').innerHTML=result.records.map(r=>`<details class="row-card"><summary>${(Number(r.timeUs)/1e6).toFixed(3)} s · ${esc(r.kind||r.outcome||r.branchId||r.columns?.[1]||'Sample')}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(JSON.stringify(r,null,2))}</pre></details>`).join('');
+  const points=result.records.map(r=>[Number(r.timeUs)/1e6,r.columns?Number(r.columns[5]):r.altitude??r.trackingErrorDeg??r.azimuthDeg]).filter(p=>Number.isFinite(p[1]));
+  const canvas=$('result-plot'),g=canvas.getContext('2d');g.fillStyle='#10282b';g.fillRect(0,0,960,260);g.fillStyle='#b3cbc5';g.font='16px sans-serif';
+  if(!points.length){g.fillText('Event records · expand an entry below to inspect its fields.',24,40);return;}
+  let low=Math.min(...points.map(p=>p[1])),high=Math.max(...points.map(p=>p[1]));if(low===high){low-=1;high+=1;}
+  g.fillText(`${low.toFixed(2)} – ${high.toFixed(2)} · ${result.stream.includes('/truth')?'height AGL (m)':result.records.some(r=>'altitude' in r)?'barometric height (m)':'angle (degrees)'}`,24,25);g.strokeStyle='#77d3bd';g.lineWidth=2;g.beginPath();points.forEach((p,i)=>{const x=24+(p[0]-start)/width*912,y=230-(p[1]-low)/(high-low)*185;i?g.lineTo(x,y):g.moveTo(x,y);});g.stroke();
+}

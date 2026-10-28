@@ -11,6 +11,7 @@ import java.util.*;
 public final class MissionRecorder implements AutoCloseable {
     public static final long CHUNK_BYTES = 16 * 1024 * 1024;
     private final Path root;
+    private final Map<String, String> hashes = new TreeMap<>();
     private final Map<String, Path> files = new TreeMap<>();
     private final Map<String, Stream> streams = new LinkedHashMap<>();
     private final Map<String, JsonObject> chunks = new TreeMap<>();
@@ -21,24 +22,27 @@ public final class MissionRecorder implements AutoCloseable {
         int ordinal;
         String name;
         FileOutputStream out;
+        java.security.MessageDigest contentDigest;
         long length, firstTime, lastTime, firstSequence, lastSequence;
         Stream(String group, String type) { this.group = group; this.type = type; }
         void open() throws IOException {
             String extension = type.equals("index") ? "jsonl" : type;
             name = group + "/" + (type.equals("index") ? "index-" : "chunk-") + String.format(Locale.ROOT, "%05d", ordinal++) + "." + extension;
             Path file = path(name); Files.createDirectories(file.getParent()); out = new FileOutputStream(file.toFile()); files.put(name, file);
+            try { contentDigest = java.security.MessageDigest.getInstance("SHA-256"); } catch (java.security.NoSuchAlgorithmException e) { throw new IllegalStateException(e); }
             length = 0; firstTime = lastTime = firstSequence = lastSequence = 0;
         }
         JsonObject descriptor() { return Json.createObjectBuilder().add("path", name).add("committedBytes", length)
                 .add("firstTimeUs", Long.toString(firstTime)).add("lastTimeUs", Long.toString(lastTime))
                 .add("firstSequence", Long.toString(firstSequence)).add("lastSequence", Long.toString(lastSequence))
-                .add("schema", 1).build(); }
+                .add("schema", 1).add("sha256", hash()).build(); }
+        String hash() { try { return HexFormat.of().formatHex(((java.security.MessageDigest) contentDigest.clone()).digest()); } catch (CloneNotSupportedException e) { throw new IllegalStateException(e); } }
         long write(long time, byte[] bytes) throws IOException {
             if (bytes.length > CHUNK_BYTES) throw new IOException("Canonical record exceeds chunk limit");
             if (out == null) open();
             if (length + bytes.length > CHUNK_BYTES) { out.getChannel().force(true); out.close(); chunks.put(name, descriptor()); open(); }
             if (length == 0) { firstTime = time; firstSequence = sequence; }
-            long offset = length; out.write(bytes); length += bytes.length; lastTime = time; lastSequence = sequence++;
+            long offset = length; out.write(bytes); contentDigest.update(bytes); length += bytes.length; lastTime = time; lastSequence = sequence++;
             return offset;
         }
     }
@@ -52,11 +56,11 @@ public final class MissionRecorder implements AutoCloseable {
     }
     public synchronized void json(String name, JsonObject value) throws IOException {
         Path file = path(name); Files.createDirectories(file.getParent()); MissionJson.writeAtomic(file, value);
-        try (var channel = FileChannel.open(file, StandardOpenOption.WRITE)) { channel.force(true); } files.put(name, file);
+        try (var channel = FileChannel.open(file, StandardOpenOption.WRITE)) { channel.force(true); } files.put(name, file); hashes.put(name, MissionFlightSnapshot.hash(file));
     }
     public synchronized void asset(String name, Path source) throws IOException {
         Path target = path(name); Files.createDirectories(target.getParent()); Files.copy(source, target);
-        try (var channel = FileChannel.open(target, StandardOpenOption.WRITE)) { channel.force(true); } files.put(name, target);
+        try (var channel = FileChannel.open(target, StandardOpenOption.WRITE)) { channel.force(true); } files.put(name, target); hashes.put(name, MissionFlightSnapshot.hash(target));
     }
     public synchronized void line(String group, String type, long timeUs, String text) throws IOException {
         if (closed) throw new IOException("Recorder is closed");
@@ -82,11 +86,11 @@ public final class MissionRecorder implements AutoCloseable {
         var inventory = Json.createArrayBuilder();
         for (var entry : files.entrySet()) {
             JsonObject chunk = chunks.get(entry.getKey());
-            inventory.add(chunk == null ? Json.createObjectBuilder().add("path", entry.getKey()).add("committedBytes", Files.size(entry.getValue())).build() : chunk);
+            inventory.add(chunk == null ? Json.createObjectBuilder().add("path", entry.getKey()).add("committedBytes", Files.size(entry.getValue())).add("sha256", hashes.get(entry.getKey())).build() : chunk);
         }
         var checkpoint = Json.createObjectBuilder().add("format", "openrocket.mission-checkpoint").add("version", 1)
                 .add("status", status).add("chunkBytes", CHUNK_BYTES).add("sequence", Long.toString(sequence)).add("files", inventory).build();
-        Path file = root.resolve("checkpoint.json"); MissionJson.writeAtomic(file, checkpoint);
+        Path file = root.resolve("checkpoint.json"); MissionJson.writeAtomic(file, checkpoint, MissionArchive.MAX_MANIFEST);
         try (var channel = FileChannel.open(file, StandardOpenOption.WRITE)) { channel.force(true); }
         lastCheckpoint = System.nanoTime();
     }

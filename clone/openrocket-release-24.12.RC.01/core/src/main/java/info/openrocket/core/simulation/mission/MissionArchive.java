@@ -22,13 +22,14 @@ public final class MissionArchive implements AutoCloseable {
     private final Map<String, JsonObject> inventory = new LinkedHashMap<>();
 
     public MissionArchive(Path path) throws IOException {
+        MissionZipPreflight.check(path);
         zip = new ZipFile(path.toFile());
         try {
             long total = 0; var folded = new HashSet<String>();
             var enumeration = zip.getEntries();
             while (enumeration.hasMoreElements()) {
                 var entry = enumeration.nextElement(); String name = entry.getName(); safeName(name);
-                if (entries.size() == MAX_ENTRIES || entry.isDirectory() || entry.isUnixSymlink() || !zip.canReadEntryData(entry)
+                if (entries.size() == MAX_ENTRIES || entry.isDirectory() || entry.isUnixSymlink() || ((entry.getUnixMode() & 0170000) != 0 && (entry.getUnixMode() & 0170000) != 0100000) || !zip.canReadEntryData(entry)
                         || entry.getSize() < 0 || entry.getSize() > MAX_BYTES || entry.getCompressedSize() < 0
                         || !folded.add(name.toLowerCase(Locale.ROOT)) || entries.putIfAbsent(name, entry) != null)
                     throw new IOException("Invalid, duplicate or unsupported archive entry: " + name);
@@ -148,7 +149,7 @@ public final class MissionArchive implements AutoCloseable {
     }
     private static MessageDigest digest() { try { return MessageDigest.getInstance("SHA-256"); } catch (NoSuchAlgorithmException e) { throw new IllegalStateException(e); } }
     private static String type(String name) { int dot = name.lastIndexOf('.'); return dot < 0 ? "bytes" : name.substring(dot + 1).toLowerCase(Locale.ROOT); }
-    private static void safeName(String name) throws IOException {
+    static void safeName(String name) throws IOException {
         if (name.length() > 1024 || !name.matches("[a-zA-Z0-9][a-zA-Z0-9._-]*(?:/[a-zA-Z0-9][a-zA-Z0-9._-]*)*"))
             throw new IOException("Unsafe mission archive path");
         for (String part : name.split("/")) {

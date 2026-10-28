@@ -77,7 +77,11 @@ public final class MissionJson {
     }
 
     public static void writeAtomic(Path destination, JsonObject json) throws IOException {
-        byte[] bytes = bytes(json);
+        writeAtomic(destination, json, MAX_BYTES);
+    }
+    public static void writeAtomic(Path destination, JsonObject json, int maximumBytes) throws IOException {
+        byte[] bytes = (json.toString() + "\n").getBytes(StandardCharsets.UTF_8);
+        parse(bytes, maximumBytes);
         Path target = destination.toAbsolutePath();
         Path temp = Files.createTempFile(target.getParent(), ".mission-", ".tmp");
         try {

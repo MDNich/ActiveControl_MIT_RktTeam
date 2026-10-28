@@ -2,6 +2,7 @@ import {state,$,esc,get,set,changed,status,request,action,commit,draftAction,use
 import {field,section,attachFields,renderFlight,renderEnsemble} from './forms.js';
 import {renderSites} from './sites.js';
 import {renderVideo} from './video.js';
+import './results.js';
 const descriptions={site:'URRG launch and station locations · enter the missing elevations.',flight:'Complete flight configuration, with immutable inputs for each run.',telemetry:'Packets come from the flight computer or the standard Zephyrus source.',video:'One logical camera per stream, with explicit receiver routes.',connections:'Separate station identities and one command owner per receiver.',run:'Resolve inputs, execute a mission, and keep its results together.'};
 function show(page){state.page=page;document.querySelectorAll('.page').forEach(el=>el.hidden=el.id!=='page-'+page);document.querySelectorAll('nav button').forEach(el=>{el.classList.toggle('active',el.dataset.page===page);el.setAttribute('aria-current',el.dataset.page===page?'page':'false');});$('description').textContent=descriptions[page];if(page==='site')renderSites();}
 function defaults(){

@@ -34,6 +34,7 @@ public final class MissionApi implements AutoCloseable {
     private final Host host;
     private final Jobs jobs;
     private final String token, origin;
+    private final Map<String, Path> results = new HashMap<>();
     private final Map<String, OpenRocketDocument> documents = new HashMap<>();
     private record Start(String hash, JsonObject response) { }
     private final Map<String, Start> starts = new LinkedHashMap<>();
@@ -83,6 +84,28 @@ public final class MissionApi implements AutoCloseable {
     private synchronized JsonObject route(String method, String path, JsonObject body) throws Exception {
         if (!path.matches("[a-zA-Z0-9/_-]+")) throw new IllegalArgumentException("Invalid endpoint");
         String[] parts = path.split("/");
+        if ((path.equals("results/open") || path.equals("results/recover")) && method.equals("POST")) {
+            Path file;
+            if(path.endsWith("recover")) {
+                Path staging=host.choose("Choose interrupted mission staging folder",false);if(staging==null)return cancelled();
+                file=host.choose("Save recovered .rktmission",true);if(file==null)return cancelled();
+                Path directory=store.root().resolve("result-utilities");Files.createDirectories(directory);
+                MissionResults.recover(staging,file,directory);
+            } else {file=host.choose("Open .rktmission result",false);if(file==null)return cancelled();}
+            JsonObject summary=MissionResults.query(file,store.root().resolve("result-utilities"),JsonValue.EMPTY_JSON_OBJECT);
+            String id=UUID.randomUUID().toString();results.put(id,file);
+            return Json.createObjectBuilder(summary).add("id",id).add("filename",file.getFileName().toString()).build();
+        }
+        if(parts.length==3 && parts[0].equals("results") && parts[2].equals("export") && method.equals("POST")) {
+            Path file=results.get(parts[1]);if(file==null)throw new IllegalArgumentException("Open a result first");
+            Path destination=host.choose("Export selected station .rktflight",true);if(destination==null)return cancelled();
+            return MissionResults.utility(store.root().resolve("result-utilities"),Json.createObjectBuilder().add("operation","export")
+                    .add("archive",file.toString()).add("destination",destination.toString()).add("selection",body).build());
+        }
+        if(parts.length==3 && parts[0].equals("results") && parts[2].equals("query") && method.equals("POST")) {
+            Path file=results.get(parts[1]);if(file==null)throw new IllegalArgumentException("Open a result first");
+            return MissionResults.query(file,store.root().resolve("result-utilities"),body);
+        }
         if (path.equals("preferences") && method.equals("GET")) return preferences;
         if (path.equals("preferences") && method.equals("POST")) {
             String kind = body.getString("kind");

@@ -55,7 +55,7 @@ public final class MissionEnsemble {
                 }
                 JsonObject result;
                 try{result=pending.removeFirst().get();}catch(ExecutionException e){if(e.getCause() instanceof CancellationException c)throw c;throw e;}
-                results.add(result);complete++;
+                results.add(Json.createObjectBuilder().add("member",result.getInt("member")).add("status",result.getString("status")));complete++;
                 if(result.getString("status").equals("failed")){failures++;if(failFast)throw new IOException("Ensemble stopped after member failure: "+result.getString("reason"));}
                 if(!paced)control.progress(complete,count,"Completed ensemble member "+complete+"/"+count);
             }

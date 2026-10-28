@@ -29,8 +29,8 @@ public final class MissionWorkspace {
                     public Path choose(String purpose, boolean save) throws Exception {
                         return onEdt(() -> {
                             var chooser = new JFileChooser(); chooser.setDialogTitle(purpose);
-                            if (purpose.contains("project folder")) chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                            if (save) chooser.setSelectedFile(new java.io.File(purpose.contains(".rktmission-setup") ? "mission.rktmission-setup" : "mission.rktmission-config.json"));
+                            if (purpose.contains("folder")) chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                            if (save) chooser.setSelectedFile(new java.io.File(purpose.contains(".rktmission-setup") ? "mission.rktmission-setup" : purpose.contains(".rktflight") ? "station.rktflight" : purpose.contains(".rktmission") ? "mission.rktmission" : "mission.rktmission-config.json"));
                             int result = save ? chooser.showSaveDialog(owner) : chooser.showOpenDialog(owner);
                             if (result != JFileChooser.APPROVE_OPTION) return null;
                             Path selected = chooser.getSelectedFile().toPath();
