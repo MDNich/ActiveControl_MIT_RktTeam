@@ -83,6 +83,16 @@ Validation and input resolution are connected. Run controls remain disabled when
 
 Verification: 49 core mission tests pass, and the application JAR builds. Browser checks against the actual Java server passed with all internet requests blocked: six sites, unchanged MGRS, height editing, flight/link changes, Iris GS4 routing, Digital 2, validation, save/load and identity preservation. All six pages fit a 390-pixel viewport in dark mode. Site and video screens were visually inspected. The repeatable host is `MissionWorkspacePreview` in test sources; the browser check is `packaging/verification/mission-workspace-browser.cjs` and requires developer Playwright only for testing.
 
+## C1 — shared station worker and illustrative link/mount models
+
+The Qt-free Python station uses the actual Telemetry UI decoder and a shared receiver-only tracking policy. The desktop controller now calls that policy for its legacy pointing calculation. The worker receives serial bytes plus explicit acquisition/height-reference metadata; it has no trajectory access. It supports bounded custom-codec framing, stale hold with explicit restart, reordered observations without false reboot or target refresh, station connection epochs, exact pointer command bytes and declared command expiry.
+
+OpenRocket bundles a reproducible source ZIP of that worker, verifies its SHA-256, and launches one isolated Python process per member over authenticated loopback IPC. Credentials use a private launch manifest deleted after handshake. The production Python runtime locator is separate from imported setup data; installer distribution remains G work. A developer override is explicit and recorded. Lockstep calls verify identities, sequences, mission time and acknowledgments with a ten-second host watchdog.
+
+Java link models implement routing/outage/directional qualification, event-addressed independent loss/corruption/jitter, FIFO or explicit reordering, and optional 8N1 UART pacing. The illustrative mount uses physical slew limits and encoder reference offsets: ZERO does not teleport the mount, and loss of new commands does not fabricate a firmware STOP.
+
+Verification: 24 Python station/controller/protocol tests and three Java worker/link/mount tests passed. The Java test launches the bundled Python ZIP and exchanges actual legacy packets and pointer bytes over a socket. Complete flights, recording and job controls are C2 work, next.
+
 ## Remaining work
 
 **C–G:** deterministic station worker/scheduler and actual simulation, FC/software-station integration, media transmission, ensembles/bundles and packaged qualification remain as specified. No installer or GitHub release should describe Mission Simulation as delivered on the basis of A1 alone.
