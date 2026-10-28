@@ -244,7 +244,6 @@ public class SwingStartup {
 		if (!handleCommandLine(args)) {
 			BasicFrame startupFrame = BasicFrame.reopen();
 			BasicFrame.setStartupFrame(startupFrame);
-			showWelcomeDialog();
 		}
 		
 		// Check whether update info has been fetched or whether it needs more time

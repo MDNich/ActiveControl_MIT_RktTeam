@@ -441,3 +441,13 @@ test with `JAVA_HOME`, Node and Playwright available. `PLAYWRIGHT_MODULE`, `NODE
 `packaging/mission/qualify.py --output DIRECTORY` builds a separate application image
 so a currently running user copy need not be overwritten. Release publication is
 still separate from this repair.
+
+## G6 — open directly to the main window (2026-10-28)
+
+At the user's request, startup no longer invokes the upstream release-notes welcome
+dialog. This applies to fresh installations and existing preferences alike. The
+native desktop acceptance agent now rejects a welcome dialog and continues from the
+main window, retaining the real Mission menu and browser checks from G5.
+The rebuilt Apple Silicon app passed this full check with fresh preferences, as
+well as the bundled standard/custom-FC probes. Local reports are under
+`build/mission-package/macos-arm64-quiet-startup/report/`.

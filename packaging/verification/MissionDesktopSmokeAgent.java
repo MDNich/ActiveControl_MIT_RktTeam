@@ -12,8 +12,8 @@ import javax.swing.*;
  * No production hooks or replacement Mission host. Never load this in a user's session. */
 public final class MissionDesktopSmokeAgent {
     private static Path root;
-    private static boolean welcomed, exampleRequested, missionRequested, connected;
-    private static long welcomedAt;
+    private static boolean exampleRequested, missionRequested, connected;
+    private static long mainWindowSeenAt;
     private static ClassLoader applicationLoader;
 
     public static void premain(String directory, Instrumentation instrumentation) throws Exception {
@@ -35,7 +35,7 @@ public final class MissionDesktopSmokeAgent {
                     });
                     if (connected && Files.exists(root.resolve("browser-passed"))) {
                         Files.writeString(root.resolve("desktop-passed"),
-                                "Native launcher, welcome, example rocket, Mission menu and browser acceptance passed.\n");
+                                "Native launcher without welcome dialog, example rocket, Mission menu and browser acceptance passed.\n");
                         System.out.println("NATIVE_DESKTOP_MISSION=PASS");
                         System.exit(0);
                     }
@@ -54,12 +54,8 @@ public final class MissionDesktopSmokeAgent {
             String name = window.getClass().getName();
             if (name.contains("BugReport") || name.contains("ExceptionDialog"))
                 throw new AssertionError("Application error dialog: " + name);
-            if (name.endsWith("WelcomeDialog")) {
-                capture(window, "welcome.png");
-                welcomed = true;
-                welcomedAt = System.nanoTime();
-                window.dispose();
-            }
+            if (name.endsWith("WelcomeDialog"))
+                throw new AssertionError("Welcome dialog must not appear on launch");
             if (name.equals("info.openrocket.swing.gui.main.BasicFrame")) main = (JFrame) window;
             JFileChooser chooser = findChooser(window);
             if (chooser != null && Files.exists(root.resolve("chooser-next-path"))) {
@@ -77,7 +73,9 @@ public final class MissionDesktopSmokeAgent {
                 chooser.approveSelection();
             }
         }
-        if (!welcomed || main == null || System.nanoTime() - welcomedAt < 1_000_000_000L) return;
+        if (main == null) return;
+        if (mainWindowSeenAt == 0) mainWindowSeenAt = System.nanoTime();
+        if (System.nanoTime() - mainWindowSeenAt < 1_000_000_000L) return;
         applicationLoader = main.getClass().getClassLoader();
         if (!exampleRequested) {
             exampleRequested = true;
