@@ -1,0 +1,18 @@
+// Keep the upstream module plugin's exact test options, but avoid Windows'
+// CreateProcess command-line limit. Run after its preparation actions and before
+// Gradle's Test action; Java 17 expands this standard argument file itself.
+gradle.taskGraph.whenReady { graph ->
+    if (System.getProperty('os.name').startsWith('Windows')) {
+        graph.allTasks.findAll { it instanceof org.gradle.api.tasks.testing.Test }.each { task ->
+            def actions = new ArrayList(task.actions)
+            actions.add(actions.size() - 1, { current ->
+                def options = current.jvmArgs
+                def argsFile = new File(current.temporaryDir, 'mission-test-jvm.args')
+                argsFile.parentFile.mkdirs()
+                argsFile.setText(options.collect { '"' + it.replace('\\', '\\\\').replace('"', '\\"') + '"' }.join('\n') + '\n', 'UTF-8')
+                current.setJvmArgs(['@' + argsFile.absolutePath])
+            } as org.gradle.api.Action)
+            task.setActions(actions)
+        }
+    }
+}

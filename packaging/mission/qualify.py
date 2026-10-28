@@ -48,7 +48,7 @@ def main():
     python = python_root / ('python.exe' if sys.platform == 'win32' else 'bin/python3')
     # Headless regression runs with the actual pinned runtime, not the runner's Python.
     if not args.skip_build:
-        run(gradle + [':core:test', '--tests', 'info.openrocket.core.simulation.mission.*'], cwd=SOURCE,
+        run(gradle + ['--init-script', ROOT / 'packaging/mission/qualification.init.gradle', ':core:test', '--tests', 'info.openrocket.core.simulation.mission.*'], cwd=SOURCE,
             env={**environment, 'MISSION_TEST_PYTHON': str(python)})
     java_home = Path(os.environ['JAVA_HOME'])
     suffix = '.exe' if sys.platform == 'win32' else ''

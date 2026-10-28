@@ -68,6 +68,7 @@ def install(platform, destination, cache, offline=False):
                 else:
                     raise ValueError('Unsupported runtime archive member')
         for target, link in links:
+            target.parent.mkdir(parents=True, exist_ok=True)
             target.symlink_to(link)
         runtime = root / 'python'
         # Keep the publisher's licenses and native libraries; no user site packages are consulted.
