@@ -26,4 +26,15 @@ class MissionVideoTest {
             try(var result=new MissionArchive(archive)){result.verifyAll();assertEquals(2,result.names().stream().filter(n->n.endsWith(".png")).count());}
         }
     }
+    @Test void individualReceiverLossDoesNotRemoveAnotherStationsFrames() throws Exception {
+        var draft=MissionDefinition.createUrrg("Independent video").json();
+        var config=Json.createObjectBuilder(draft.getJsonObject("video")).add("receiverProfiles",Json.createArrayBuilder()
+                .add(Json.createObjectBuilder().add("receiverId","gs1").add("enabled",true).add("lossFraction",1))).build();
+        var mission=Json.createObjectBuilder(draft).add("video",config).build();
+        try(var recorder=new MissionRecorder(temp.resolve("independent"),mission)) {
+            var video=new MissionVideo(mission,recorder,"member-0",0);video.end(0);
+            while(video.next()<=0)video.advance(video.next());
+            assertTrue(video.state("gs1").isEmpty());assertEquals(2,video.state("gs2").size());
+        }
+    }
 }

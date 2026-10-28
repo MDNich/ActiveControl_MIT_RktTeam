@@ -24,6 +24,7 @@ public final class MissionApi implements AutoCloseable {
     }
     public interface Jobs extends AutoCloseable {
         JsonObject capabilities();
+        default JsonArray validate(JsonObject mission) { return JsonValue.EMPTY_JSON_ARRAY; }
         JsonObject start(MissionStore.Resolved resolved) throws Exception;
         JsonObject request(String id, String action, JsonObject body) throws Exception;
         @Override void close();
@@ -161,7 +162,9 @@ public final class MissionApi implements AutoCloseable {
                         store.save(id, file); return Json.createObjectBuilder().add("saved", file.getFileName().toString()).build();
                     }
                     case "validate": {
-                        var issues = store.validate(id);
+                        var issuesBuilder=Json.createArrayBuilder(store.validate(id));
+                        if(jobs!=null)jobs.validate(store.get(id)).forEach(issuesBuilder::add);
+                        var issues = issuesBuilder.build();
                         return Json.createObjectBuilder().add("issues", issues).add("configurationValid", issues.isEmpty())
                                 .add("runtimeAvailable", jobs != null && jobs.capabilities().getBoolean("available", false)).build();
                     }

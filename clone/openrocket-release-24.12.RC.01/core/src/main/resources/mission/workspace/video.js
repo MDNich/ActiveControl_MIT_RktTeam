@@ -10,6 +10,9 @@ export function renderVideo(){
     field('video.frameRateHz','Frames per second',{type:'number',min:1,max:60}),field('video.lossFraction','Delivery loss · %',{type:'number',scale:100,min:0,max:100}),field('video.delayMs','Delivery delay · ms',{type:'number',min:0}),field('video.analogNoiseFraction','Illustrative analog noise · %',{type:'number',scale:100,min:0,max:100})
   ],'Headless missions record logical frames and slate assets. Paced connections use the application video path; publisher capacity is checked before start.');
   $('video-fields').innerHTML+=section('Video outages',[outages('video.outages',video.outages)],'No new video frames are delivered during these windows. Match the telemetry windows to model a common outage.');
+  video.receiverProfiles??=[];
+  for(const site of ['gs1','gs2','gs3','gs4'])if(!video.receiverProfiles.some(p=>p.receiverId===site))video.receiverProfiles.push({receiverId:site,enabled:false,lossFraction:0,delayMs:0,analogNoiseFraction:0,outages:[]});
+  $('video-fields').innerHTML+=`<details class="form-section"><summary>Individual receiver impairments</summary><p class="hint">Enabled receiver overrides replace the shared delivery settings for that Away station.</p>${video.receiverProfiles.map((profile,i)=>{const p=`video.receiverProfiles.${i}.`;return section('Away '+profile.receiverId.slice(2),[field(p+'enabled','Use receiver override'),field(p+'lossFraction','Frame loss · %',{type:'number',scale:100,min:0,max:100}),field(p+'delayMs','Delay · ms',{type:'number',min:0,max:60000}),field(p+'analogNoiseFraction','Illustrative analog noise · %',{type:'number',scale:100,min:0,max:100}),outages(p+'outages',profile.outages||[])]);}).join('')}</details>`;
   attachFields($('video-fields'));bindOutages($('video-fields'));
   for(const kind of ['digital','analog'])$(kind+'-count').onchange=()=>{
     const input=$(kind+'-count');if(!input.checkValidity()){input.reportValidity();return;}

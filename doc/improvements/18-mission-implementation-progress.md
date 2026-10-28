@@ -273,3 +273,33 @@ the exact shared-contract inventory hash. Windows checkout byte preservation and
 explicit SQLite closure address the next platform failures. All other matrix
 platforms passed the preceding qualification revision; final Windows and updated
 revision qualification remain pending.
+
+## G2 — recovery and acceptance closure (2026-10-28)
+
+The four native package-image jobs all passed at `08e3a988` (Actions run
+40746926431): Windows x86_64, Linux x86_64, macOS ARM and macOS Intel.
+Windows required writable handles for durable file flushes; that fix is in the
+pinned worker. This verifies bundled Java/Python execution and both standard and
+custom-FC probes, rather than merely compiling platform packages.
+
+Mandatory application loss now pauses the mission for an explicit reconnect,
+creates a distinct restart session and preserves the prior session. Commands with
+uncertain outcomes are recorded and never retried. Tracking needs an explicit
+restart after reconnection. Read-only observer loss does not interrupt the member.
+Application readiness, selected ensemble member bounds and unique scenario action
+IDs are checked before execution. Receiver backlogs have explicit memory/count
+limits; an over-capacity member fails with its committed data preserved.
+
+The configuration adds Base video and independent receiver video impairment
+profiles. Native station sessions receive the configured mission/site metadata.
+Mission controllers reject physical camera/serial, replay and unrelated virtual
+trajectory starts. Browser acceptance exercises offline map operation, edited
+flight/link/video settings, save/load, a paced run, pause/browser reconnect/resume,
+result naming, indexed plots and a compatible station export.
+
+Separate-process tests force termination during writes, checkpoint updates and ZIP
+finalization, then verify and query the recovered prefixes. A Linux `/dev/full`
+fixture exercises actual ENOSPC; other hosts skip that OS-specific fixture. Index
+queries reject hash-valid indexes whose channel, record boundary or time disagrees
+with the canonical stream. The final saved-flight experiment workflow and updated
+final qualification are the remaining closure work.

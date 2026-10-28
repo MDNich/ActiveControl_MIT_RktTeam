@@ -41,16 +41,33 @@ public final class MissionVideo {
         // The transport contract fixes dimensions; keep imported alternatives explicit.
         if(number(config,"width",960)!=960 || number(config,"height",540)!=540) throw new IllegalArgumentException("Mission video slates are 960 x 540 pixels");
         var ids=new HashSet<String>();
-        long copies=0;
+
         for(var value:config.getJsonArray("streams")) {
             var stream=value.asJsonObject(); String id=stream.getString("id");
             if(!id.matches("[A-Za-z0-9][A-Za-z0-9._-]{0,63}") || !ids.add(id)) throw new IllegalArgumentException("Invalid or duplicate stream ID");
             var receivers=stream.getJsonArray("receivers");
             if(receivers.size()>4 || new HashSet<>(receivers).size()!=receivers.size()) throw new IllegalArgumentException("Video routes must contain up to four distinct Away receivers");
-            copies+=receivers.size();
         }
-        if(copies * fps * (delay / 1000 + 1) > 100_000) throw new IllegalArgumentException("Video rate, routes and delay exceed the 100,000 pending-frame limit; reduce one of these settings");
+        var receiverIds=new HashSet<String>();
+        var profiles=config.getJsonArray("receiverProfiles");
+        if(profiles!=null)for(var value:profiles){var p=value.asJsonObject();String id=p.getString("receiverId");
+            if(!Set.of("gs1","gs2","gs3","gs4").contains(id) || !receiverIds.add(id))throw new IllegalArgumentException("Video receiver profiles must identify distinct Away stations");
+            for(String key:java.util.List.of("lossFraction","analogNoiseFraction")){double n=number(p,key,0);if(!Double.isFinite(n)||n<0||n>1)throw new IllegalArgumentException("Invalid receiver video "+key);}
+            double d=number(p,"delayMs",0);if(!Double.isFinite(d)||d<0||d>60_000)throw new IllegalArgumentException("Invalid receiver video delay");
+            MissionLink.validate(Json.createObjectBuilder().add("receiverId",id).add("outages",p.getJsonArray("outages")==null?JsonValue.EMPTY_JSON_ARRAY:p.getJsonArray("outages")).build());
+        }
+        double queued=0;
+        for(var value:config.getJsonArray("streams"))for(var site:value.asJsonObject().getJsonArray("receivers"))queued+=fps*(number(profile(config,((JsonString)site).getString()),"delayMs",0)/1000+1);
+        if(queued > 100_000) throw new IllegalArgumentException("Video rate, routes and delay exceed the 100,000 pending-frame limit; reduce one of these settings");
         MissionLink.validate(Json.createObjectBuilder().add("receiverId","video").add("outages",config.getJsonArray("outages")==null?JsonValue.EMPTY_JSON_ARRAY:config.getJsonArray("outages")).build());
+    }
+    private static JsonObject profile(JsonObject config,String site) {
+        if(config.getJsonArray("receiverProfiles")!=null)for(var value:config.getJsonArray("receiverProfiles")){
+            var p=value.asJsonObject();if(p.getString("receiverId").equals(site) && p.getBoolean("enabled",false)){
+                var merged=Json.createObjectBuilder(config);for(String key:java.util.List.of("lossFraction","delayMs","analogNoiseFraction","outages"))if(p.containsKey(key))merged.add(key,p.get(key));return merged.build();
+            }
+        }
+        return config;
     }
     private JsonObject slate(JsonObject stream,int number) throws IOException {
         byte[] fontBytes; try(var in=getClass().getResourceAsStream("/mission/video/DejaVuSans.ttf")){fontBytes=in.readAllBytes();}
@@ -87,14 +104,15 @@ public final class MissionVideo {
             for(var stream:streams.values()) for(var receiver:stream.getJsonArray("receivers")) {
                 String site=((JsonString)receiver).getString(),id=stream.getString("id");
                 if(!enabledSites.contains(site))continue;
-                boolean outage=false;for(var value:config.getJsonArray("outages")==null?JsonValue.EMPTY_JSON_ARRAY:config.getJsonArray("outages")) {
+                var reception=profile(config,site);
+                boolean outage=false;for(var value:reception.getJsonArray("outages")==null?JsonValue.EMPTY_JSON_ARRAY:reception.getJsonArray("outages")) {
                     var interval=value.asJsonObject();outage|=time>=Long.parseLong(interval.getString("startUs")) && time<Long.parseLong(interval.getString("endUs"));
                 }
-                boolean lost=outage || MissionRandom.uniform(mission.getJsonObject("execution").getString("seed"),member,id+":"+site,"video-loss","video.v1",ordinal,0)<number(config,"lossFraction",0);
+                boolean lost=outage || MissionRandom.uniform(mission.getJsonObject("execution").getString("seed"),member,id+":"+site,"video-loss","video.v1",ordinal,0)<number(reception,"lossFraction",0);
                 var event=Json.createObjectBuilder().add("streamId",id).add("siteId",site).add("frame",Long.toString(ordinal)).add("captureTimeUs",Long.toString(time))
-                        .add("timeUs",Long.toString(time)).add("outcome",outage?"outage":lost?"lost":"scheduled").add("illustrativeAnalogNoise",stream.getString("kind").equals("analog")?number(config,"analogNoiseFraction",0):0).build();
+                        .add("timeUs",Long.toString(time)).add("outcome",outage?"outage":lost?"lost":"scheduled").add("illustrativeAnalogNoise",stream.getString("kind").equals("analog")?number(reception,"analogNoiseFraction",0):0).build();
                 recorder.jsonLine("runs/"+run+"/video/events",event);
-                if(!lost) pending.add(Json.createObjectBuilder(event).add("outcome","delivered").add("timeUs",Long.toString(time+Math.round(number(config,"delayMs",0)*1000))).build());
+                if(!lost) pending.add(Json.createObjectBuilder(event).add("outcome","delivered").add("timeUs",Long.toString(time+Math.round(number(reception,"delayMs",0)*1000))).build());
             }
             ordinal++;next=-1_000_000+Math.round(ordinal*1e6/fps);
         }

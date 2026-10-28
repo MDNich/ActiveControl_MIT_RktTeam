@@ -10,6 +10,43 @@ class MissionResultsTest {
     @TempDir Path temp;
     @BeforeEach void python(){String p=System.getenv("MISSION_TEST_PYTHON");Assumptions.assumeTrue(p!=null);System.setProperty("openrocket.mission.python",p);}
     @AfterEach void clean(){System.clearProperty("openrocket.mission.python");}
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(strings={"writes","checkpoint","finalizing"})
+    void killedWriterRecoversOnlyVerifiedPrefixes(String phase) throws Exception {
+        Path root=temp.resolve(phase);Files.createDirectory(root);
+        String separator=java.io.File.pathSeparator;
+        String cp=System.getProperty("java.class.path")+separator+System.getProperty("jdk.module.path","")+separator
+                +Path.of(MissionCrashWriter.class.getProtectionDomain().getCodeSource().getLocation().toURI())+separator
+                +Path.of(MissionRecorder.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        Path arguments=root.resolve("java.args");
+        var args=java.util.List.of("-cp",cp,MissionCrashWriter.class.getName(),root.toString(),phase);
+        Files.writeString(arguments,args.stream().map(a->"\""+a.replace("\\","\\\\").replace("\"","\\\"")+"\"").collect(java.util.stream.Collectors.joining("\n")));
+        String javaBinary=Path.of(System.getProperty("java.home"),"bin",System.getProperty("os.name").startsWith("Windows")?"java.exe":"java").toString();
+        Process child=new ProcessBuilder(javaBinary,"@"+arguments).redirectErrorStream(true).redirectOutput(root.resolve("writer.log").toFile()).start();
+        try {
+            long deadline=System.nanoTime()+30_000_000_000L;boolean ready=false;
+            while(child.isAlive() && System.nanoTime()<deadline) {
+                ready=Files.exists(root.resolve("ready"));
+                if(ready && phase.equals("finalizing"))try(var files=Files.list(root)){ready=files.anyMatch(p->p.getFileName().toString().startsWith(".mission-finalizing-"));}
+                if(ready)break;Thread.sleep(5);
+            }
+            assertTrue(ready,Files.readString(root.resolve("writer.log")));child.destroyForcibly();assertTrue(child.waitFor(10,java.util.concurrent.TimeUnit.SECONDS));
+            Path utilities=root.resolve("utilities");Files.createDirectory(utilities);Path recovered=root.resolve("recovered.rktmission");
+            MissionResults.recover(root.resolve("staging"),recovered,utilities);
+            try(var archive=new MissionArchive(recovered)){archive.verifyAll();assertEquals("incomplete",archive.manifest().getString("status"));}
+            var records=MissionResults.query(recovered,utilities,Json.createObjectBuilder().add("stream","runs/member-0/events").add("startUs","0").add("endUs","99").build());
+            assertEquals(100,records.getInt("count"));
+            if(phase.equals("finalizing"))assertFalse(Files.exists(root.resolve("result.rktmission")));
+        } finally {if(child.isAlive()){child.destroyForcibly();child.waitFor();}}
+    }
+    @Test void filesystemFullFailsWithoutPublishingResult() throws Exception {
+        Assumptions.assumeTrue(Files.exists(Path.of("/dev/full")),"Linux ENOSPC device fixture");
+        Path staging=temp.resolve("full");var recorder=new MissionRecorder(staging,MissionDefinition.createUrrg("Disk full").json());
+        Path stream=staging.resolve("runs/member-0/events");Files.createDirectories(stream);Files.createSymbolicLink(stream.resolve("chunk-00000.jsonl"),Path.of("/dev/full"));
+        assertThrows(java.io.IOException.class,()->recorder.event("member-0",Json.createObjectBuilder().add("timeUs","0").build()));
+        assertFalse(Files.exists(temp.resolve("result.rktmission")));
+        try{recorder.close();}catch(java.io.IOException expected){ /* ENOSPC can also reject fsync. */ }
+    }
     @Test void indexedWindowAndRecoveryIgnoreUncommittedTail() throws Exception {
         Path staging=temp.resolve("staging"),utilities=temp.resolve("utilities");Files.createDirectories(utilities);
         try(var recorder=new MissionRecorder(staging,MissionDefinition.createUrrg("Recovery fixture").json())) {

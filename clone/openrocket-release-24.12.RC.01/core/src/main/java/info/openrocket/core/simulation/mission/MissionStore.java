@@ -123,9 +123,10 @@ public final class MissionStore {
             var execution = draft.getJsonObject("execution");
             if (execution.containsKey("actions")) {
                 if (execution.getJsonArray("actions").size() > 10000) throw new IllegalArgumentException("At most 10,000 scenario actions");
-                var times = new HashMap<String,Integer>();
+                var times = new HashMap<String,Integer>();var actionIds=new HashSet<String>();
                 for (var value : execution.getJsonArray("actions")) {
                     var action = value.asJsonObject(); MissionActions.validate(action);
+                    if(!actionIds.add(action.getString("id")))throw new IllegalArgumentException("Each scenario action needs a unique ID");
                     int count = times.merge(action.getString("timeUs"), 1, Integer::sum);
                     if (count > 200) throw new IllegalArgumentException("At most 200 actions at one mission instant");
                 }

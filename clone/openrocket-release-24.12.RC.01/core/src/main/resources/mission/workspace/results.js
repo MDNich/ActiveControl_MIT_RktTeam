@@ -14,7 +14,7 @@ function sessions(){const prefix='runs/'+$('result-member').value+'/stations/'+$
 function channels(){const member=$('result-member').value;$('result-stream').innerHTML=opened.streams.filter(s=>s.stream.startsWith('runs/'+member+'/')).map(s=>`<option value="${esc(s.stream)}">${esc(s.stream.replace('runs/'+member+'/',''))} · ${s.count} records</option>`).join('');}
 async function read(){
   const start=Number($('result-start').value),width=Number($('result-width').value);if(!Number.isFinite(start)||!Number.isFinite(width)||width<=0||width>86400)throw Error('Choose a valid time window.');
-  const result=await request('results/'+opened.id+'/query',{stream:$('result-stream').value,startUs:String(Math.round(start*1e6)),endUs:String(Math.round((start+width)*1e6)),limit:250});
+  const result=await request('results/'+opened.id+'/query',{member:$('result-member').value,stream:$('result-stream').value,startUs:String(Math.round(start*1e6)),endUs:String(Math.round((start+width)*1e6)),limit:250});
   $('result-note').textContent=`${result.count} records shown (maximum 250 per window). Narrow the interval to inspect dense channels.`;
   $('result-records').innerHTML=result.records.map(r=>`<details class="row-card"><summary>${(Number(r.timeUs)/1e6).toFixed(3)} s · ${esc(r.kind||r.outcome||r.branchId||r.columns?.[1]||'Sample')}</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(JSON.stringify(r,null,2))}</pre></details>`).join('');
   const points=result.records.map(r=>[Number(r.timeUs)/1e6,r.columns?Number(r.columns[5]):r.altitude??r.trackingErrorDeg??r.azimuthDeg]).filter(p=>Number.isFinite(p[1]));

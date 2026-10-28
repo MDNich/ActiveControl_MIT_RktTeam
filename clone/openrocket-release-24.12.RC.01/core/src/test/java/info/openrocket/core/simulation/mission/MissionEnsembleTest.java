@@ -34,6 +34,15 @@ class MissionEnsembleTest extends BaseTestCase {
                     assertArrayEquals(serial.read(name,16*1024*1024),parallel.read(name,16*1024*1024),name);
                 assertNotEquals(new String(serial.read("runs/member-0/ensemble-inputs.json",10000)),new String(serial.read("runs/member-1/ensemble-inputs.json",10000)));
             }
+            var failureMission=Json.createObjectBuilder(resolved.mission()).add("execution",Json.createObjectBuilder(resolved.mission().getJsonObject("execution"))
+                    .add("clockMode","paced").add("applicationMember",1)).build();
+            try(var recorder=new MissionRecorder(temp.resolve("partial"),failureMission)) {
+                var outcome=MissionEnsemble.execute(new MissionStore.Resolved(failureMission,resolved.flightDirectory(),MissionStore.hash(failureMission)),recorder,temp.resolve("failure-private"),
+                        new MissionRun.Control(){public void check(){} public void progress(long t,long end,String phase){if(phase.startsWith("Member 2/"))throw new IllegalStateException("Injected independent member failure");}},JsonValue.EMPTY_JSON_OBJECT);
+                assertEquals("complete-with-failures",outcome.status());assertEquals(2,outcome.metrics().getInt("completed"));
+                assertTrue(Files.exists(recorder.root().resolve("runs/member-1/failure.json")));
+                assertTrue(Files.exists(recorder.root().resolve("runs/member-2/metrics.json")));
+            }
         } finally {System.clearProperty("openrocket.mission.python");}
     }
     @Test void informationAgeAndFreshnessHaveExplicitDifferentDenominators() {

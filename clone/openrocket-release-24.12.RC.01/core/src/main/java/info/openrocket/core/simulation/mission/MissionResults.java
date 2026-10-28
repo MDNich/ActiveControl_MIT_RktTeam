@@ -49,6 +49,7 @@ public final class MissionResults {
         try(var in=Files.newInputStream(staging.resolve("checkpoint.json"))){checkpoint=MissionJson.parse(in.readNBytes(MissionArchive.MAX_MANIFEST+1),MissionArchive.MAX_MANIFEST);}
         if(!checkpoint.getString("format").equals("openrocket.mission-checkpoint") || checkpoint.getInt("version")!=1)throw new IOException("Unsupported checkpoint");
         Path recovered=Files.createTempDirectory(directory,"recovered-");var files=new TreeMap<String,Path>();
+        try {
         long total=0;
         for(var value:checkpoint.getJsonArray("files")) {
             var entry=value.asJsonObject();String name=entry.getString("path");MissionArchive.safeName(name);
@@ -69,7 +70,7 @@ public final class MissionResults {
         Path index=recovered.resolve("index.sqlite");Files.deleteIfExists(index);
         utility(directory,Json.createObjectBuilder().add("operation","index").add("root",recovered.toString()).add("destination",index.toString()).build());files.put("index.sqlite",index);
         MissionArchive.write(destination,MissionArchive.RESULT,"incomplete",files);
-        try(var paths=Files.walk(recovered)){for(var file:paths.sorted(Comparator.reverseOrder()).toList())Files.delete(file);}
+         } finally {try(var paths=Files.walk(recovered)){for(var file:paths.sorted(Comparator.reverseOrder()).toList())Files.delete(file);}}
     }
     private static java.security.MessageDigest sha256(){try{return java.security.MessageDigest.getInstance("SHA-256");}catch(java.security.NoSuchAlgorithmException e){throw new IllegalStateException(e);}}
 }

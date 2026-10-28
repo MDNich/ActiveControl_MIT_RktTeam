@@ -45,6 +45,8 @@ public final class MissionEnsemble {
                                 public void progress(long t,long end,String phase){if(paced && member==applicationMember)control.progress(t,end,"Member "+(member+1)+"/"+count+": "+phase);}
                                 public JsonArray drainActions(int max){return paced && member==applicationMember?control.drainActions(max):JsonValue.EMPTY_JSON_ARRAY;}
                                 public void participants(MissionParticipants value){if(paced && member==applicationMember)control.participants(value);}
+                                public JsonObject reconnectParticipant(JsonObject failure)throws IOException{return control.reconnectParticipant(failure);}
+                                public void participantRestored(){control.participantRestored();}
                             };
                             var metrics=new MissionRun(resolved,recorder,id,member,child).ensembleMember(sampled).applicationPreferences(preferences)
                                     .headlessParticipants(member!=applicationMember).execute(directory.resolve(id));

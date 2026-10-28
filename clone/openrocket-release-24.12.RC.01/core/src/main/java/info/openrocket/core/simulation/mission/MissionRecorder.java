@@ -108,6 +108,6 @@ public final class MissionRecorder implements AutoCloseable {
         if (failure != null) throw failure;
     }
     @Override public synchronized void close() throws IOException {
-        if (!closed) { checkpoint("incomplete"); closeStreams(); closed = true; }
+        if (!closed) { try { checkpoint("incomplete"); } finally { try { closeStreams(); } finally { closed = true; } } }
     }
 }

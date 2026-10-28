@@ -13,6 +13,8 @@ public final class MissionRun {
         default void beginMember(int member) { }
         default void participants(MissionParticipants value) { }
         default JsonArray drainActions(int maximum) { return JsonValue.EMPTY_JSON_ARRAY; }
+        default JsonObject reconnectParticipant(JsonObject failure) throws IOException { throw new IOException("Mandatory participant lost: "+failure.getString("message")); }
+        default void participantRestored() { }
     }
     private record Delivery(long timeUs, String site, long ordinal, byte[] bytes, JsonObject metadata) { }
     private final MissionStore.Resolved resolved;
@@ -26,7 +28,9 @@ public final class MissionRun {
     private final Map<String, MissionReceptionMetrics> reception = new TreeMap<>();
     private final Map<String, long[]> counts = new TreeMap<>();
     private final PriorityQueue<Delivery> deliveries = new PriorityQueue<>(Comparator.comparingLong(Delivery::timeUs).thenComparing(Delivery::site).thenComparing(d -> d.metadata.getString("transmitterId")).thenComparingLong(Delivery::ordinal));
-    private long timeUs = -1_000_000;
+    private long timeUs = -1_000_000, deliveryBytes;
+    private static final int MAX_PENDING = 100_000;
+    private static final long MAX_PENDING_BYTES = 64L * 1024 * 1024;
     private final PriorityQueue<JsonObject> tape = new PriorityQueue<>(Comparator.comparingLong((JsonObject a) -> Long.parseLong(a.getString("timeUs"))).thenComparing(a -> a.getString("id", "")));
     private record Uplink(long timeUs, long ordinal, byte[] bytes, String id) { }
     private final PriorityQueue<Uplink> uplinks = new PriorityQueue<>(Comparator.comparingLong(Uplink::timeUs).thenComparingLong(Uplink::ordinal));
@@ -183,12 +187,15 @@ public final class MissionRun {
                 recorder.raw("runs/" + runId + "/stations/launch/uplink/tx", timeUs, raw, action);
                 var outcome = uplink.transmit(timeUs, ordinal, raw, raw.length, true, true);
                 event("uplink-" + outcome.outcome(), timeUs, Json.createObjectBuilder(action).add("wireAcknowledgment", false).build());
-                if (outcome.payload() != null) uplinks.add(new Uplink(outcome.deliveryUs(), ordinal, outcome.payload(), action.getString("id", "uplink-" + ordinal)));
+                if (outcome.payload() != null) {
+                    if(uplinks.size()>=10_000)throw new IOException("Uplink backlog exceeded 10,000 commands; reduce delay or command rate");
+                    uplinks.add(new Uplink(outcome.deliveryUs(), ordinal, outcome.payload(), action.getString("id", "uplink-" + ordinal)));
+                }
             } else if (action.getString("kind").equals("set-target")) {
                 String target = action.getString("targetVehicleId");
                 if (!bindings.containsKey(target)) throw new IllegalArgumentException("Unknown target vehicle");
                 stations.put(site, Json.createObjectBuilder(stations.get(site)).add("targetVehicleId", target).build());
-                deliveries.removeIf(delivery -> delivery.site.equals(site));
+                deliveries.removeIf(delivery -> { if(!delivery.site.equals(site))return false;deliveryBytes-=delivery.bytes.length;return true; });
                 actions.put(site, Json.createArrayBuilder(actions.get(site)).add(Json.createObjectBuilder().add("kind", "disconnect"))
                         .add(Json.createObjectBuilder().add("kind", "connect")).build());
                 event("target-changed", timeUs, Json.createObjectBuilder(action).add("acknowledgment", "simulator-control-event").build());
@@ -202,7 +209,7 @@ public final class MissionRun {
         var batch = new TreeMap<String, List<JsonObject>>(); stations.keySet().forEach(id -> batch.put(id, new ArrayList<>()));
         int count = 0;
         while (!deliveries.isEmpty() && deliveries.peek().timeUs == timeUs) {
-            Delivery delivery = deliveries.remove();
+            Delivery delivery = deliveries.remove(); deliveryBytes-=delivery.bytes.length;
             var record = Json.createObjectBuilder(delivery.metadata).add("data", Base64.getEncoder().encodeToString(delivery.bytes)).build();
             recorder.raw("runs/" + runId + "/stations/" + delivery.site + "/receiver", timeUs, delivery.bytes, delivery.metadata);
             batch.get(delivery.site).add(record);
@@ -314,7 +321,9 @@ public final class MissionRun {
                 byte[] trailer = MissionTelemetrySource.trailer(sites.get(site));
                 byte[] frame = codec == null ? LegacyTelemetryEnvelope.wrap(outcome.payload(), trailer)
                         : codec.frame(outcome.payload(), codec.definition().getString("receiverTrailer").equals("none") ? new byte[0] : trailer);
-                deliveries.add(new Delivery(outcome.deliveryUs(), site, packet.ordinal(), frame, packet.metadata()));
+                if(deliveries.size()>=MAX_PENDING || deliveryBytes+frame.length>MAX_PENDING_BYTES)
+                    throw new IOException("Receiver backlog exceeded 100,000 frames or 64 MiB; reduce transmission rate or link delay, or increase UART baud");
+                deliveries.add(new Delivery(outcome.deliveryUs(), site, packet.ordinal(), frame, packet.metadata()));deliveryBytes+=frame.length;
             }
         }
     }
@@ -341,6 +350,15 @@ public final class MissionRun {
                 recorder.raw("runs/" + runId + "/stations/" + id + "/pointer/tx", timeUs, raw, Json.createObjectBuilder().add("rawRole", 3).add("source", "simulated-pointer-tx").build());
                 String outcome = mount.command(raw, Long.parseLong(write.getString("createdUs")), Long.parseLong(write.getString("expiresUs")), timeUs);
                 counts.get(id)[4]++; event("pointer-command", timeUs, Json.createObjectBuilder().add("siteId", id).add("outcome", outcome).build());
+            }
+        }
+        for(var value:result.getJsonArray("participantFailures")) {
+            var failure=value.asJsonObject();if(!failure.getBoolean("mandatory"))continue;
+            worker.pause(true,timeUs);
+            while(true) {
+                JsonObject selected=control.reconnectParticipant(failure);
+                try{worker.reconnect(failure.getString("bindingId"),timeUs,selected);control.participantRestored();break;}
+                catch(IOException e){failure=Json.createObjectBuilder(failure).add("message",e.getMessage()==null?"Reconnect failed":e.getMessage()).build();}
             }
         }
     }

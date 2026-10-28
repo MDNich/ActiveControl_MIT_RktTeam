@@ -16,6 +16,11 @@ public final class MissionParticipants implements AutoCloseable {
     private final Map<String, MissionWorker> applications = new LinkedHashMap<>();
     private final Map<String, JsonObject> bindings = new LinkedHashMap<>();
     private final Map<String, JsonObject> identities = new LinkedHashMap<>();
+    private final Map<String, JsonObject> manifests = new HashMap<>();
+    private record Instance(JsonObject binding, Path data, JsonObject identity) { }
+    private final Map<String, Instance> instances = new LinkedHashMap<>();
+    private final Map<String, Integer> restarts = new HashMap<>();
+    private final Set<String> missing = new HashSet<>();
     private final Map<String, String> owners = new TreeMap<>();
     private final Map<String, Long> ownershipEpochs = new TreeMap<>();
     private boolean paused;
@@ -47,21 +52,36 @@ public final class MissionParticipants implements AutoCloseable {
                     .add("mission_id", MissionStore.id(mission)).add("peers", JsonValue.EMPTY_JSON_ARRAY).add("mission_simulation", true).build();
             Path data = directory.resolve(id).resolve("data");
             var manifest = Json.createObjectBuilder().add("station", config).add("role", binding.getString("role"))
+                    .add("title",mission.getJsonObject("identity").getString("title"))
+                    .add("launchSite",mission.getJsonArray("sites").stream().map(JsonValue::asJsonObject).filter(s -> s.getString("id").equals("launch-site")).findFirst().orElseThrow())
                     .add("coupled", mission.getJsonObject("telemetry").getString("mode").equals("custom-fc"))
                     .add("vehicleMode", mission.getJsonArray("vehicleBindings").size() > 1 ? "iris" : "balius")
                     .add("videoStreams", videoStreams).add("dataDirectory", data.toString()).add("network", network).build();
             manifest = Json.createObjectBuilder(manifest).add("recordEncodedVideo", mission.getJsonObject("outputs").getBoolean("recordEncodedVideo", false)).build();
-            var appPreferences=preferences;
-            if(preferences.getJsonObject("attachments")!=null && preferences.getJsonObject("attachments").containsKey(id))
-                appPreferences=Json.createObjectBuilder(preferences).add("attachmentTicket",preferences.getJsonObject("attachments").getString(id)).build();
-            MissionWorker app = new MissionWorker(directory.resolve(id), MissionStore.id(mission), runId, memberId, manifest, appPreferences);
-            applications.put(id, app); bindings.put(id, binding);
-            identities.put(id, app.configure(Json.createArrayBuilder().add(config).build()));
+            bindings.put(id,binding);manifests.put(id,manifest);
+            launch(id,id,preferences);
         }
+        connectPeers(-1_000_000);
+    }
+    private void launch(String id,String instance,JsonObject selected) throws IOException {
+        Path data=directory.resolve(instance).resolve("data");
+        var binding=bindings.get(id);var original=manifests.get(id);
+        var config=Json.createObjectBuilder(original.getJsonObject("station")).add("owner",binding.getString("owner")).build();
+        var manifest=Json.createObjectBuilder(original).add("station",config).add("dataDirectory",data.toString()).build();
+        var appPreferences=selected;
+        if(selected.getJsonObject("attachments")!=null && selected.getJsonObject("attachments").containsKey(id))
+            appPreferences=Json.createObjectBuilder(selected).add("attachmentTicket",selected.getJsonObject("attachments").getString(id)).build();
+        instances.put(instance,new Instance(binding,data,JsonValue.EMPTY_JSON_OBJECT));
+        MissionWorker app=new MissionWorker(directory.resolve(instance),MissionStore.id(mission),runId,memberId,manifest,appPreferences);
+        applications.put(id,app);
+        var identity=app.configure(Json.createArrayBuilder().add(config).build());identities.put(id,identity);
+        instances.put(instance,new Instance(binding,data,identity));
+    }
+    private void connectPeers(long timeUs) throws IOException {
         var peers = Json.createArrayBuilder();
         identities.values().forEach(identity -> { if (identity.containsKey("endpoint")) peers.add(identity.getString("endpoint")); });
         JsonObject body = Json.createObjectBuilder().add("kind", "network-peers").add("endpoints", peers).build();
-        for (var app : applications.values()) app.request("action", -1_000_000, body);
+        for (var app : applications.values()) app.request("action", timeUs, body);
     }
     public synchronized JsonObject advance(long timeUs, JsonArray stations) throws IOException {
         while(paused)try{wait();}catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException("Station wait interrupted",e);}
@@ -82,19 +102,27 @@ public final class MissionParticipants implements AutoCloseable {
         }
         var primary = new TreeMap<String, JsonObject>();
         for (var value : headless.advance(timeUs, passive.build()).getJsonArray("stations")) primary.put(value.asJsonObject().getString("id"), value.asJsonObject());
-        var actions = Json.createArrayBuilder();
-        for (var entry : applications.entrySet()) {
+        var actions = Json.createArrayBuilder();var failures=Json.createArrayBuilder();
+        for (var entry : new ArrayList<>(applications.entrySet())) {
             var binding = bindings.get(entry.getKey()); String site = binding.getString("siteId");
             var batch = stations.stream().map(JsonValue::asJsonObject).filter(b -> b.getString("id").equals(site)).findFirst().orElseThrow();
             if (binding.getString("owner").equals("observer")) batch = Json.createObjectBuilder(batch).add("actions", JsonValue.EMPTY_JSON_ARRAY).build();
-            var result = entry.getValue().advance(timeUs, Json.createArrayBuilder().add(batch).build());
+            JsonObject result;
+            try { result = entry.getValue().advance(timeUs, Json.createArrayBuilder().add(batch).build()); }
+            catch(IOException e) {
+                entry.getValue().close();applications.remove(entry.getKey());identities.remove(entry.getKey());missing.add(entry.getKey());
+                var failure=Json.createObjectBuilder().add("bindingId",entry.getKey()).add("siteId",site).add("message",e.getMessage()==null?"Participant disconnected":e.getMessage())
+                        .add("mandatory",binding.getString("owner").equals("interactive-ui") || (binding.getString("role").equals("video") && mission.getJsonObject("outputs").getBoolean("recordEncodedVideo",false)))
+                        .add("timeUs",Long.toString(timeUs)).add("pendingCommandOutcome","unknown; commands are not replayed").build();
+                recorder.jsonLine("runs/"+runId+"/participant-events",failure);failures.add(failure);continue;
+            }
             if (binding.getString("owner").equals("interactive-ui")) {
                 primary.put(site, result.getJsonArray("stations").getJsonObject(0));
                 result.getJsonArray("operatorActions").forEach(actions::add);
             }
         }
         var responses = Json.createArrayBuilder(); primary.values().forEach(responses::add);
-        return Json.createObjectBuilder().add("stations", responses).add("operatorActions", actions).build();
+        return Json.createObjectBuilder().add("stations", responses).add("operatorActions", actions).add("participantFailures",failures).build();
     }
     public synchronized void pause(boolean paused, long timeUs) throws IOException {
         if(!paused && !ownershipFailure.isEmpty())throw new IOException("Ownership handoff failed; cancel and restart the member: "+ownershipFailure);
@@ -102,6 +130,21 @@ public final class MissionParticipants implements AutoCloseable {
         for (var app : applications.values()) app.request(paused ? "pause" : "resume", timeUs, JsonValue.EMPTY_JSON_OBJECT);
         this.paused = paused;
         notifyAll();
+    }
+    public synchronized void reconnect(String id,long timeUs,JsonObject selected) throws IOException {
+        if(!paused || !missing.contains(id))throw new IllegalArgumentException("Reconnect requires a paused, disconnected participant");
+        String instance=id+".restart-"+restarts.merge(id,1,Integer::sum);
+        try {
+            launch(id,instance,selected);var app=applications.get(id);String site=bindings.get(id).getString("siteId");
+            app.advance(timeUs,Json.createArrayBuilder().add(Json.createObjectBuilder().add("id",site).add("deliveries",JsonValue.EMPTY_JSON_ARRAY)
+                    .add("actions",Json.createArrayBuilder().add(Json.createObjectBuilder().add("kind","connect"))).add("evaluate",false)).build());
+            app.request("pause",timeUs,JsonValue.EMPTY_JSON_OBJECT);
+            long epoch=ownershipEpochs.getOrDefault(site,0L)+1;
+            app.request("action",timeUs,Json.createObjectBuilder().add("kind","ownership").add("siteId",site).add("owner",bindings.get(id).getString("owner")).add("epoch",Long.toString(epoch)).build());
+            ownershipEpochs.put(site,epoch);discardActionsThrough.put(site,timeUs);connectPeers(timeUs);missing.remove(id);
+            recorder.jsonLine("runs/"+runId+"/participant-events",Json.createObjectBuilder().add("timeUs",Long.toString(timeUs)).add("bindingId",id)
+                    .add("kind","reconnected").add("instance",instance).add("epoch",epoch).add("trackingRestartRequired",true).build());
+        }catch(IOException e){var app=applications.remove(id);if(app!=null)app.close();identities.remove(id);throw e;}
     }
     public synchronized JsonObject ownership() {
         var result = Json.createArrayBuilder();
@@ -115,6 +158,7 @@ public final class MissionParticipants implements AutoCloseable {
         if(!owners.containsKey(site) || !Set.of("interactive-ui", "headless-policy").contains(owner))throw new IllegalArgumentException("Unknown station or command owner");
         String id = bindings.entrySet().stream().filter(e -> e.getValue().getString("siteId").equals(site) && e.getValue().getString("role").equals("telem")).map(Map.Entry::getKey).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Start this station with an observer or interactive application to enable ownership transfer"));
+        if(!applications.containsKey(id))throw new IllegalArgumentException("Reconnect this station application before transferring control");
         long epoch=ownershipEpochs.getOrDefault(site,0L)+1;
         var base=Json.createObjectBuilder().add("kind","ownership").add("siteId",site).add("epoch",Long.toString(epoch)).build();
         // Revoke both owners before granting either: a failed second handshake leaves no dual owner.
@@ -141,11 +185,11 @@ public final class MissionParticipants implements AutoCloseable {
         try{headless.finish();}catch(IOException e){failure=e;}
         for(var app:applications.values())try{app.finish();}catch(IOException e){if(failure==null)failure=e;else failure.addSuppressed(e);}
         // Processes have closed their native recorder/WAL before session assets are inventoried.
-        for (String id : applications.keySet()) {
-            Path data = directory.resolve(id).resolve("data"); if (!Files.isDirectory(data)) continue;
-            var binding = bindings.get(id);
-            String prefix = "runs/" + runId + "/stations/" + binding.getString("siteId") + "/sessions/" + binding.getString("role") + "/" + id + "/";
-            recorder.json(prefix + "participant.json", identities.getOrDefault(id,JsonValue.EMPTY_JSON_OBJECT));
+        for (var entry : instances.entrySet()) {
+            String instance=entry.getKey();var saved=entry.getValue();Path data=saved.data();if(!Files.isDirectory(data))continue;
+            var binding=saved.binding();
+            String prefix="runs/"+runId+"/stations/"+binding.getString("siteId")+"/sessions/"+binding.getString("role")+"/"+instance+"/";
+            recorder.json(prefix+"participant.json",saved.identity());
             try (var files = Files.walk(data)) {
                 for (Path file : files.filter(Files::isRegularFile).toList()) {
                     String relative = data.relativize(file).toString().replace('\\', '/');

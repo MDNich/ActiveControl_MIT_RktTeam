@@ -21,7 +21,26 @@ public final class MissionJobs implements MissionApi.Jobs {
         if (jobs.values().stream().filter(j -> !j.terminal()).count() >= 4) throw new IllegalArgumentException("Four missions are already running or queued; finish or cancel one first");
         if (jobs.size() > 128) jobs.entrySet().removeIf(e -> e.getValue().terminal());
         admit(resolved.mission());
+        JsonArray readiness=validate(resolved.mission());if(!readiness.isEmpty())throw new IllegalArgumentException(readiness.getJsonObject(0).getString("message"));
         var job = new Job(resolved); jobs.put(job.id, job); job.persist(); executor.submit(job::run); return job.snapshot();
+    }
+    @Override public JsonArray validate(JsonObject mission) {
+        try {
+            var preferences=JsonValue.EMPTY_JSON_OBJECT;
+            if(Files.isRegularFile(root.resolve("machine-preferences.json")))try(var in=Files.newInputStream(root.resolve("machine-preferences.json"))){preferences=MissionJson.read(in);}
+            var attachments=preferences.getJsonObject("attachments");boolean checkLaunch=false;var boots=new HashSet<String>();
+            var active=new HashSet<String>();mission.getJsonArray("sites").forEach(v->{if(v.asJsonObject().getBoolean("enabled"))active.add(v.asJsonObject().getString("id"));});
+            for(var value:mission.getJsonArray("stationBindings")) {
+                var binding=value.asJsonObject();if(!active.contains(binding.getString("siteId")) || binding.getString("owner").equals("headless-policy"))continue;
+                if(attachments!=null && attachments.containsKey(binding.getString("id"))) {
+                    var info=MissionAttachment.check(Path.of(attachments.getString(binding.getString("id"))));
+                    if(!boots.add(info.getString("bootId")))throw new IOException("Each station role needs its own waiting application connection");
+                } else checkLaunch=true;
+            }
+            if(checkLaunch)MissionWorker.applicationCapabilities(preferences);
+            return JsonValue.EMPTY_JSON_ARRAY;
+        }catch(IOException | RuntimeException e){return Json.createArrayBuilder().add(Json.createObjectBuilder().add("path","/stationBindings")
+                .add("code","application-unavailable").add("severity","error").add("message",e.getMessage()==null?"Check the selected application connections":e.getMessage())).build();}
     }
     public static void admit(JsonObject mission) {
         MissionVideo.validate(mission.getJsonObject("video"));
@@ -45,6 +64,9 @@ public final class MissionJobs implements MissionApi.Jobs {
             }
         }
         var ensemble = mission.getJsonObject("flight").getJsonObject("editor").getJsonObject("options").getJsonObject("ensemble");
+        int members=ensemble.getString("enabled","false").equals("true")?Integer.parseInt(ensemble.getString("runs")):1;
+        int applicationMember=mission.getJsonObject("execution").getInt("applicationMember",0);
+        if(applicationMember<0 || applicationMember>=members)throw new IllegalArgumentException("Select an application member within the ensemble");
         if (ensemble.getString("enabled", "false").equals("true") && mission.getJsonArray("stationBindings").stream().anyMatch(v -> !v.asJsonObject().getString("owner").equals("headless-policy"))
                 && !mission.getJsonObject("execution").getString("clockMode", "lockstep").equals("paced"))
             throw new IllegalArgumentException("Application-connected ensembles require paced serial execution");
@@ -78,7 +100,11 @@ public final class MissionJobs implements MissionApi.Jobs {
             switch (action) {
                 case "status": case "results": return job.snapshot();
                 case "pause": if (job.status.equals("running")) { job.paused = true; job.status = "paused"; job.actions.clear(); if (job.participants != null) job.participants.pause(true, job.timeUs); } break;
-                case "resume": if (job.paused) { if (job.participants != null) job.participants.pause(false, job.timeUs); job.paused = false; job.status = "running"; job.notifyAll(); } break;
+                case "resume": if (job.paused) { if(!job.awaitingParticipant.isEmpty())throw new IllegalArgumentException("Reconnect the lost participant before resuming");if (job.participants != null) job.participants.pause(false, job.timeUs); job.paused = false; job.status = "running"; job.notifyAll(); } break;
+                case "reconnect": {
+                    if(job.awaitingParticipant.isEmpty() || !job.paused)throw new IllegalArgumentException("No paused participant needs reconnection");
+                    job.reconnectRequested=true;job.status="reconnecting";job.notifyAll();break;
+                }
                 case "cancel": if (!job.terminal()) { job.cancelled = true; job.paused = false; if(job.participants!=null)job.participants.cancel(); job.notifyAll(); } break;
                 case "action": {
                     if (job.paused) throw new IllegalArgumentException("Resume the mission before issuing a fresh command");
@@ -93,6 +119,7 @@ public final class MissionJobs implements MissionApi.Jobs {
                 }
                 case "ownership": {
                     if(!job.paused || job.participants==null)throw new IllegalArgumentException("Pause an active station application before transferring control");
+                    if(!job.awaitingParticipant.isEmpty())throw new IllegalArgumentException("Reconnect the lost participant before transferring control");
                     job.actions.removeIf(a -> a.getString("siteId").equals(body.getString("siteId")));
                     return job.participants.transfer(body.getString("siteId"),body.getString("owner"),job.timeUs);
                 }
@@ -111,9 +138,25 @@ public final class MissionJobs implements MissionApi.Jobs {
         long notificationSequence, timeUs = -1_000_000, endUs, lastPersist, wallStart, pausedNanos;
         String status = "starting", phase = "Preparing mission", failure = "";
         boolean paused, cancelled;
+        boolean reconnectRequested;
+        long recoveryStarted;
+        String awaitingParticipant="";
         volatile MissionParticipants participants;
         @Override public synchronized void beginMember(int member) { wallStart = 0; pausedNanos = 0; participants = null; }
         @Override public void participants(MissionParticipants value) { participants = value; }
+        @Override public synchronized JsonObject reconnectParticipant(JsonObject failure) throws IOException {
+            if(recoveryStarted==0)recoveryStarted=System.nanoTime();
+            awaitingParticipant=failure.getString("bindingId");phase="Participant disconnected: "+failure.getString("message");status="paused";paused=true;reconnectRequested=false;actions.clear();persist();
+            while(!reconnectRequested && !cancelled)try{wait(100);}catch(InterruptedException e){Thread.currentThread().interrupt();throw new CancellationException("Reconnect interrupted");}
+            if(cancelled)throw new CancellationException("Mission cancelled");
+            if(Files.isRegularFile(root.resolve("machine-preferences.json")))try(var in=Files.newInputStream(root.resolve("machine-preferences.json"))){return MissionJson.read(in);}
+            return JsonValue.EMPTY_JSON_OBJECT;
+        }
+        @Override public synchronized void participantRestored() {
+            pausedNanos+=System.nanoTime()-recoveryStarted;recoveryStarted=0;
+            awaitingParticipant="";status="paused";phase="Participant reconnected; resume and restart tracking explicitly";
+            try{persist();}catch(IOException e){throw new UncheckedIOException(e);}
+        }
         JsonObject metrics = JsonValue.EMPTY_JSON_OBJECT;
         Job(MissionStore.Resolved resolved) throws IOException {
             this.resolved = resolved; directory = root.resolve("jobs").resolve(id); Files.createDirectory(directory);
@@ -124,6 +167,7 @@ public final class MissionJobs implements MissionApi.Jobs {
                 .add("status", status).add("phase", phase).add("timeUs", Long.toString(timeUs)).add("endUs", Long.toString(endUs))
                 .add("progressUnit", phase.startsWith("Completed ensemble member") ? "members" : "microseconds")
                 .add("ownership", participants==null?JsonValue.EMPTY_JSON_ARRAY:participants.ownership().getJsonArray("stations"))
+                .add("awaitingParticipant",awaitingParticipant)
                 .add("failure", failure).add("metrics", metrics).add("staging", staging.toString())
                 .add("result", Files.isRegularFile(archive) ? archive.toString() : "").add("notificationSequence", notificationSequence).build(); }
         synchronized void persist() throws IOException { MissionJson.writeAtomic(directory.resolve("status.json"), snapshot()); lastPersist = System.nanoTime(); }
