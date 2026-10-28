@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 from zipfile import ZipFile
 
 ARTIFACTS = [
@@ -80,6 +81,9 @@ def main():
     with ZipFile(downloads / ARTIFACTS[2][0]) as archive:
         native = 'natives/windows-amd64/gluegen_rt.dll'
         (payload / 'native/gluegen_rt.dll').write_bytes(archive.read(native))
+    subprocess.run([sys.executable, str(Path(__file__).parents[1] / 'mission/bundle-runtime.py'),
+                    '--platform', 'windows-x86_64', '--destination', str(payload / 'mission-python-windows-x86_64'),
+                    *(['--offline'] if args.offline else [])], check=True)
     metadata = {
         'source_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=source, text=True).strip(),
         'source_status': subprocess.check_output(['git', 'status', '--porcelain', '--', '.'], cwd=source, text=True).strip(),

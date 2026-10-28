@@ -101,6 +101,16 @@ public final class MissionWorker implements AutoCloseable {
             Path path = Path.of(home).resolve(System.getProperty("os.name").startsWith("Windows") ? "python.exe" : "bin/python3");
             if (Files.isExecutable(path)) return path;
         }
+        try {
+            Path location = Path.of(MissionWorker.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            Path parent = Files.isDirectory(location) ? location : location.getParent();
+            String os = System.getProperty("os.name"), arch = System.getProperty("os.arch");
+            String platform = os.startsWith("Mac") ? "macos-" + (arch.equals("aarch64") || arch.equals("arm64") ? "arm64" : "x86_64")
+                    : os.startsWith("Windows") ? "windows-x86_64" : "linux-x86_64";
+            Path runtime = parent.resolve("mission-python-" + platform);
+            Path executable = runtime.resolve(os.startsWith("Windows") ? "python.exe" : "bin/python3");
+            if (Files.isRegularFile(runtime.resolve("mission-runtime.json")) && Files.isExecutable(executable)) return executable;
+        } catch (java.net.URISyntaxException | RuntimeException e) { throw new IOException("Cannot locate the bundled Mission runtime", e); }
         throw new IOException("Bundled Mission Python runtime is unavailable; repair the installation");
     }
 

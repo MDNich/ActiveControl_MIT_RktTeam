@@ -7,6 +7,7 @@ from pathlib import Path
 import plistlib
 import shutil
 import subprocess
+import sys
 
 
 def run(*args):
@@ -40,6 +41,9 @@ def main():
     shutil.copy2(jar, contents / 'app/OpenRocket.jar')
     shutil.copy2(source / 'LICENSE.TXT', contents / 'app/LICENSE.TXT')
     shutil.copy2(source / 'swing/src/main/resources/pix/icon/icon-macos.icns', contents / 'Resources/app.icns')
+    for platform in ('macos-arm64', 'macos-x86_64'):
+        run(sys.executable, Path(__file__).parents[1] / 'mission/bundle-runtime.py', '--platform', platform,
+            '--destination', contents / 'app' / ('mission-python-' + platform))
     runtimes = {}
     for arch, jdk in [('arm64', args.arm_jdk), ('x86_64', args.intel_jdk)]:
         jdk = jdk.resolve()

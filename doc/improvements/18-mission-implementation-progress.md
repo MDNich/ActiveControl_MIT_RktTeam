@@ -228,3 +228,17 @@ tests reject altered committed bytes, ignore uncommitted tails, preserve the sou
 and reopen/query an archive after deleting its original staging. Cancellation still
 produces an indexed readable prefix. The exported station fixture opens successfully
 with the unmodified Telemetry UI flight reader.
+
+## G1 — bundled runtime and package qualification (2026-10-28)
+
+The macOS and Windows packaging recipes now include hash-pinned Python 3.13.18
+runtimes and their upstream license files. Runtime discovery works beside the
+distribution JAR without a developer interpreter. A common application-image
+qualification script and CI matrix cover Linux x86_64, Windows x86_64, and both
+macOS architectures. The probe uses the image's Java and Python, exercises standard
+and custom-FC missions, then verifies slates, archive hashes and indexed queries.
+
+The native macOS ARM image passed: 61 standard frames and 50 custom-FC frames
+accepted at GS1. Other platforms require the CI evidence; adding a matrix is not
+itself a passing platform qualification. The final integration increment is still
+closing attachment, ownership transfer and recording controls.
