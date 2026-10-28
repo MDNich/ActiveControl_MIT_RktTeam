@@ -512,6 +512,11 @@ public class BasicFrame extends JFrame {
 		});
 		fileMenu.add(item);
 
+        JMenuItem missionItem = new JMenuItem("New Mission Simulation...");
+        missionItem.getAccessibleContext().setAccessibleDescription("Configure a mission, ground stations, telemetry, video and ensembles");
+        missionItem.addActionListener(e -> info.openrocket.swing.gui.mission.MissionWorkspace.open(BasicFrame.this, document));
+        fileMenu.add(missionItem);
+
 		//  export sim table...
 		AbstractAction simTableExportAction = simulationPanel.getExportSimulationTableAsCSVAction();
 		JMenuItem exportSimTableToCSVMenuItem = new JMenuItem(simTableExportAction);

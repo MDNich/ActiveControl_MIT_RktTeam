@@ -54,5 +54,8 @@ class MissionCoordinatesTest {
         assertFalse(result.getJsonArray("pointers").getJsonObject(2).getBoolean("enabled"));
         assertTrue(result.getJsonObject("flight").isEmpty());
         assertEquals(9, result.getJsonObject("migration").getJsonArray("issues").size());
+        var withoutNotation = Json.createPatchBuilder().remove("/sites/0/coordinateInput").build().apply(source);
+        var migrated = MissionPreviewImport.migrate(withoutNotation).json();
+        assertEquals("point", migrated.getJsonArray("sites").getJsonObject(0).getJsonObject("coordinateInput").getString("reference"));
     }
 }

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mission Simulation · OpenRocket MIT</title>
+<link rel="stylesheet" href="vendor/leaflet.css"><link rel="stylesheet" href="style.css">
+<script defer src="vendor/leaflet.js"></script><script type="module" src="app.js"></script>
+</head>
+<body>
+<div id="workspace" class="app">
+<header><div class="brand"><span class="brandmark">OR</span><div><div class="eyebrow">OPENROCKET MIT · 6.5</div><strong>Mission Simulation</strong></div></div><div class="header-actions"><button id="load">Load</button><button id="export">Portable setup</button><button id="save" class="primary">Save configuration</button></div></header>
+<div class="shell"><aside class="sidebar"><div class="nav-caption">CONFIGURE MISSION</div><nav aria-label="Mission configuration">
+<button data-page="site"><span>01</span>Site & stations</button><button data-page="flight"><span>02</span>Rocket & flight</button><button data-page="telemetry"><span>03</span>Telemetry</button><button data-page="video"><span>04</span>Video</button><button data-page="connections"><span>05</span>Connections</button><button data-page="run"><span>06</span>Run & results</button></nav><div class="mission-note"><span id="draft-state">Connecting…</span><p>Configuration stays available offline. Imagery needs an internet connection.</p></div></aside>
+<main><div class="mission-heading"><div><label class="eyebrow" for="title">MISSION TITLE</label><input id="title" class="title-input" maxlength="200"><p id="description"></p></div><span id="revision" class="eyebrow"></span></div>
+<div id="error" class="information error" role="alert" hidden></div>
+<section id="page-site" class="page"><div class="section-heading"><div><h1>Place your mission</h1><p>Launch at URRG, with a Base station and up to four antenna pointers.</p></div><label class="compact">Antenna pointers<select id="pointer-count"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label></div>
+<div class="site-layout"><div class="map-panel"><div class="map-toolbar"><label>Map layer<select id="map-layer"><option value="hybrid">Aerial + labels · USGS</option><option value="satellite">Satellite · Esri</option><option value="street">Streets · OpenStreetMap</option><option value="none">Coordinates only · offline</option></select></label><button id="fit-sites">Fit sites</button></div><div id="map" role="region" aria-label="Mission site map"></div><div class="map-caption"><span>Drag markers to place sites. Imagery does not supply ground heights.</span><span id="map-status"></span></div></div>
+<div class="site-inspector"><div id="site-list" class="site-list"></div><div id="site-editor" class="inspector-detail"></div></div></div></section>
+<section id="page-flight" class="page" hidden><h1>Rocket & flight</h1><p>Start with a saved flight, then adjust its complete simulation settings.</p><div class="form-section"><div class="actions"><button id="current-rocket">Use open rocket</button><button id="choose-rocket">Choose .ork</button><select id="simulation-choice" aria-label="Saved flight" hidden></select><button id="select-flight" hidden>Load flight settings</button></div><p id="rocket-name" class="hint">Choose a rocket to begin.</p></div><div id="flight-fields"></div></section>
+<section id="page-telemetry" class="page" hidden><h1>Telemetry & flight computer</h1><p>Configure the packet source, sensor noise, and each receiver's link.</p><div id="telemetry-fields"></div></section>
+<section id="page-video" class="page" hidden><h1>Video streams</h1><p>Each onboard source has one labeled slate and its own receiver assignments.</p><div id="video-fields"></div><div class="video-layout"><div id="stream-list"></div><div class="slate-panel"><canvas id="slate" width="960" height="540" aria-label="Selected video stream slate"></canvas><p class="hint">Preview. Run and member IDs are filled when the mission starts.</p></div></div></section>
+<section id="page-connections" class="page" hidden><h1>Stations & application connections</h1><p>Choose the command owner for each station and locate Telemetry UI on this computer.</p><div id="connection-fields"></div></section>
+<section id="page-run" class="page" hidden><h1>Run & results</h1><p>Validate the configuration, resolve its frozen inputs, then start.</p><div id="run-fields"></div><div class="actions"><button id="validate">Validate configuration</button><button id="start" class="primary" disabled>Start mission</button><button id="pause" disabled>Pause</button><button id="resume" disabled>Resume</button><button id="cancel" disabled>Cancel</button></div><div id="findings" class="form-section"></div><div id="job" class="form-section" hidden></div></section>
+<footer><span id="change-status">Loading configuration…</span><button id="apply">Apply changes</button></footer>
+</main></div></div><div id="status" role="status" aria-live="polite">Connecting to OpenRocket…</div>
+</body></html>

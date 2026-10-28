@@ -73,8 +73,16 @@ The shared Java archive foundation writes ZIP64 with SHA-256 inventory, Deflate 
 
 Verification: 67 Java mission and motor tests passed, including loopback authentication/origin rejection, immutable resolution, repeated-start idempotency, full editor round trips, portable recovery and corrupt-archive rejection. The browser workspace and desktop entry point are B2, next.
 
-## Remaining work
+## B2 — connected configuration workspace
 
-**B2:** bundled workspace, visible setting editors, menu integration and browser verification. The browser in `mission-ui/` remains the design prototype; the production service is implemented in core.
+The File menu now opens **New Mission Simulation** in a browser, backed by the Java service. All six pages are bundled in the application, including Leaflet 1.9.4 (publisher hashes verified, license included). No Node.js or CDN script is required by users. USGS imagery/topographic labels, Esri imagery, OSM streets and a coordinate-only offline view are selectable; imagery failure leaves editing available. Visible attribution and browser caching are retained.
+
+The workspace supports exact saved-MGRS reapply, fresh grid-point conversion, map dragging/placement, explicit ground/mount heights, pointer count and receiver-only sites; native rocket/simulation selection; flight, motor, stage, recovery, extension and ensemble editors; per-receiver impairments and outage windows; standard/custom FC selection; Balius/Iris routes, independent digital/analog counts and labeled slate previews; station command ownership and machine-local application selectors; JSON save/load and portable setup export/import. Choosing a source project or executable records a machine preference, outside portable mission files.
+
+Validation and input resolution are connected. Run controls remain disabled when the runner is unavailable; no simulated progress or dummy completion is shown. C supplies the actual runner and result views. Existing extension configuration values are editable in the advanced section; specialized FC assignment controls can be improved as D wires those paths.
+
+Verification: 49 core mission tests pass, and the application JAR builds. Browser checks against the actual Java server passed with all internet requests blocked: six sites, unchanged MGRS, height editing, flight/link changes, Iris GS4 routing, Digital 2, validation, save/load and identity preservation. All six pages fit a 390-pixel viewport in dark mode. Site and video screens were visually inspected. The repeatable host is `MissionWorkspacePreview` in test sources; the browser check is `packaging/verification/mission-workspace-browser.cjs` and requires developer Playwright only for testing.
+
+## Remaining work
 
 **C–G:** deterministic station worker/scheduler and actual simulation, FC/software-station integration, media transmission, ensembles/bundles and packaged qualification remain as specified. No installer or GitHub release should describe Mission Simulation as delivered on the basis of A1 alone.

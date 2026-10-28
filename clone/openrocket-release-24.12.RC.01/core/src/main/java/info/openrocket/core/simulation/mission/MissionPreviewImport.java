@@ -21,7 +21,7 @@ public final class MissionPreviewImport {
                     .add("latitudeDeg", old.get("lat")).add("longitudeDeg", old.get("lon"))
                     .add("heightM", old.getOrDefault("alt", JsonValue.NULL)).add("heightDatum", old.getString("datum", "MSL"));
             if (old.containsKey("coordinateInput")) b.add("coordinateInput", old.get("coordinateInput"));
-            else b.add("coordinateInput", Json.createObjectBuilder().add("format", "latlon").add("reference", "unquantized").add("source", "preview-import"));
+            else b.add("coordinateInput", Json.createObjectBuilder().add("format", "latlon").add("reference", "point").add("source", "preview-import"));
             sites.add(b);
             if (old.isNull("alt")) issue(issues, "/sites/" + site.getString("id") + "/heightM", "Enter station/launch height and confirm its datum");
         }

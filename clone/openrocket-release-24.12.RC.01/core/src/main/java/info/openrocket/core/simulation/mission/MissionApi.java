@@ -37,9 +37,12 @@ public final class MissionApi implements AutoCloseable {
     private final Map<String, OpenRocketDocument> documents = new HashMap<>();
     private record Start(String hash, JsonObject response) { }
     private final Map<String, Start> starts = new LinkedHashMap<>();
+    private JsonObject preferences = JsonValue.EMPTY_JSON_OBJECT;
 
     public MissionApi(MissionStore store, Host host, Jobs jobs) throws IOException {
         this.store = store; this.host = host; this.jobs = jobs;
+        Path preferencesFile = store.root().resolve("machine-preferences.json");
+        if (Files.isRegularFile(preferencesFile)) try (var input = Files.newInputStream(preferencesFile)) { preferences = MissionJson.read(input); }
         byte[] secret = new byte[32]; new SecureRandom().nextBytes(secret); token = HexFormat.of().formatHex(secret);
         server = HttpServer.create(new InetSocketAddress(InetAddress.getByName("127.0.0.1"), 0), 16);
         origin = "http://127.0.0.1:" + server.getAddress().getPort();
@@ -80,6 +83,15 @@ public final class MissionApi implements AutoCloseable {
     private synchronized JsonObject route(String method, String path, JsonObject body) throws Exception {
         if (!path.matches("[a-zA-Z0-9/_-]+")) throw new IllegalArgumentException("Invalid endpoint");
         String[] parts = path.split("/");
+        if (path.equals("preferences") && method.equals("GET")) return preferences;
+        if (path.equals("preferences") && method.equals("POST")) {
+            String kind = body.getString("kind");
+            if (!Set.of("sourceProject", "pythonExecutable", "packagedApp").contains(kind)) throw new IllegalArgumentException("Unknown application location");
+            String purpose = kind.equals("sourceProject") ? "Choose Telemetry UI project folder" : kind.equals("pythonExecutable") ? "Choose Python executable" : "Choose Telemetry UI application";
+            Path file = host.choose(purpose, false); if (file == null) return cancelled();
+            preferences = Json.createObjectBuilder(preferences).add(kind, file.toAbsolutePath().toString()).build();
+            MissionJson.writeAtomic(store.root().resolve("machine-preferences.json"), preferences); return preferences;
+        }
         if (path.equals("capabilities") && method.equals("GET")) return Json.createObjectBuilder()
                 .add("protocol", "mission-api.v1").add("missionVersion", 1).add("runtime", jobs == null ? Json.createObjectBuilder().add("available", false).build() : jobs.capabilities())
                 .add("geoid", MissionGeoid.bundled().provenance()).add("commands", MissionJson.resource("fc-command-capabilities.json"))
