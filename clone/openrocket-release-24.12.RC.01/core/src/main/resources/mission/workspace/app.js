@@ -11,7 +11,7 @@ function defaults(){
     if(!telemetry.links.some(l=>l.receiverId===site.id))telemetry.links.push({receiverId:site.id,packetLossFraction:0,delayMs:0,jitterMs:0,bitErrorProbability:0,uartBaud:0,outages:[],directional:false,beamWidthDeg:60});
   }
   for(const station of mission.stationBindings)station.targetVehicleId??=mission.vehicleBindings[0].id;
-  mission.execution.clockMode??='lockstep';mission.outputs.filename??='mission.rktmission';mission.outputs.recordEncodedVideo??=false;
+  mission.execution.actions??=[];mission.execution.clockMode??='lockstep';mission.outputs.filename??='mission.rktmission';mission.outputs.recordEncodedVideo??=false;
 }
 function render(){
   defaults();$('title').value=state.mission.identity.title;$('revision').textContent='Revision '+state.mission.identity.revision;$('draft-state').textContent=state.dirty?'Unsaved changes':'Draft saved locally';$('change-status').textContent=state.dirty?'Changes are not yet applied.':'Applied locally. Save or export a portable setup to keep a reusable copy.';
@@ -48,8 +48,21 @@ function renderRun(){
     field('execution.mode','Mission mode',{choices:[['ground-link','Ground Link Analysis · standard flight'],['coupled','Coupled Mission Simulation · custom FC'],['interactive','Paced application rehearsal']]}),field('execution.clockMode','Clock',{choices:[['lockstep','Deterministic · as fast as possible'],['paced','Paced · real time']]}),field('execution.seed','Mission seed',{note:'Unsigned 64-bit integer; independent of the flight seed.'}),field('execution.deliveryTailUs','Final delivery tail · µs',{note:'0–60,000,000 µs; default 2 seconds.'}),field('outputs.filename','Result filename'),field('outputs.recordEncodedVideo','Also save encoded video')
   ]);
   html+=renderEnsemble();
+  html+='<div class="form-section"><h2>Timed station actions</h2><p class="hint">Connections and polling start during pad warmup. Tracking is requested once at launch. Add explicit restarts or commands for an experiment; times are seconds from launch.</p><div class="rows">';
+  state.mission.execution.actions.forEach((a,i)=>{
+    const p=`execution.actions.${i}.`;
+    html+=`<div class="row-card"><div class="field-grid">${field(p+'timeUs','Time · s',{type:'number',scale:1e-6,stringNumber:true,min:-1,max:86400})}${field(p+'siteId','Station',{choices:['launch','gs1','gs2','gs3','gs4']})}${field(p+'kind','Action',{choices:[['start-tracking','Start tracking'],['hold','Hold new commands'],['zero','Set reference zero'],['point','Manual pointing'],['connect','Connect & poll'],['disconnect','Disconnect'],['set-target','Change telemetry target'],['uplink','Flight computer command']]})}`;
+    if(a.kind==='point')html+=field(p+'azimuthDeg','Azimuth · °',{type:'number',min:0,max:360})+field(p+'elevationDeg','Elevation · °',{type:'number',min:0,max:90});
+    if(a.kind==='set-target')html+=field(p+'targetVehicleId','Target vehicle',{choices:state.mission.vehicleBindings.map(v=>[v.id,v.id])});
+    if(a.kind==='uplink')html+=field(p+'opcode','Command',{type:'number',choices:[[1,'Arm selected channels'],[2,'Request state'],[3,'Manual airbrakes'],[4,'Enable roll control'],[5,'Manual roll'],[6,'Fire selected channels'],[8,'Reset controllers'],[9,'Zero barometer'],[10,'Zero GPS'],[11,'Zero gyroscope'],[16,'Emergency group 1'],[17,'Emergency group 2'],[18,'Emergency group 3'],[19,'Emergency group 4'],[20,'VTX setting'],[21,'Converter setting'],[22,'Protection setting']]})+field(p+'value','Argument / channel mask',{type:'number',min:0,max:255,step:1})+field(p+'angleDeg','Manual angle · °',{type:'number',min:-180,max:180});
+    html+=`</div><button data-remove-action="${i}">Remove action</button></div>`;
+  });
+  html+='</div><button id="add-action">Add timed action</button></div>';
+
   if(state.mission.migration)html+=section('Imported preview review',[field('migration.reviewed','I have reviewed and applied the imported preview settings')],`${state.mission.migration.issues?.length||0} source fields need review. The original preview values are preserved in the saved configuration.`)+`<details><summary>Preview findings</summary>${(state.mission.migration.issues||[]).map(i=>`<div class="finding"><strong>${esc(i.path)}</strong><p>${esc(i.message)}</p></div>`).join('')}</details>`;
   $('run-fields').innerHTML=html;attachFields($('run-fields'));
+  $('add-action').onclick=()=>{state.mission.execution.actions.push({id:'action-'+crypto.randomUUID(),timeUs:'1000000',siteId:'gs1',kind:'start-tracking',azimuthDeg:0,elevationDeg:0,opcode:2,value:1,angleDeg:0,targetVehicleId:state.mission.vehicleBindings[0].id});changed();renderRun();};
+  document.querySelectorAll('[data-remove-action]').forEach(button=>button.onclick=()=>{state.mission.execution.actions.splice(Number(button.dataset.removeAction),1);changed();renderRun();});
   if(!state.resolved)$('start').disabled=true;
 }
 async function validate(){
@@ -69,7 +82,9 @@ function renderJob(job){
   if(job.metrics?.receivers)html+='<div class="table-scroll"><table><thead><tr><th>Receiver</th><th>Packets accepted / eligible</th><th>Pointer commands</th></tr></thead><tbody>'+Object.entries(job.metrics.receivers).map(([id,m])=>`<tr><td>${esc(id==='launch'?'Base':id.toUpperCase())}</td><td>${m.acceptedFrames} / ${m.eligibleTransmissions}</td><td>${m.pointerCommands}</td></tr>`).join('')+'</tbody></table></div>';
   if(job.result)html+=`<p>Saved result bundle</p><div class="path-value">${esc(job.result)}</div>`;
   else if(['failed','cancelled','incomplete'].includes(job.status))html+=`<p>Recoverable run files</p><div class="path-value">${esc(job.staging)}</div>`;
+  if(['running','paused'].includes(job.status))html+='<h3>Pointer controls</h3><div class="rows">'+state.mission.pointers.filter(p=>p.enabled).map(p=>`<div class="actions"><strong>${esc(p.siteId.toUpperCase())}</strong><button data-station-action="start-tracking" data-station="${p.siteId}">Start tracking</button><button data-station-action="hold" data-station="${p.siteId}">Hold</button><button data-station-action="zero" data-station="${p.siteId}">Reference zero</button></div>`).join('')+'</div>';
   $('job').innerHTML=html;
+  $('job').querySelectorAll('[data-station-action]').forEach(button=>button.onclick=()=>action(async()=>{await request('jobs/'+state.job.id+'/action',{kind:button.dataset.stationAction,siteId:button.dataset.station});status('Station action queued for the next mission boundary.');}));
 }
 async function poll(){if(!state.job)return;try{
   const job=await request('jobs/'+state.job.id);state.job=job;sessionStorage.setItem('mission-job',job.id);renderJob(job);
@@ -96,6 +111,7 @@ $('start').onclick=()=>action(async()=>{
 for(const name of ['pause','resume','cancel'])$(name).onclick=()=>action(async()=>{await request('jobs/'+state.job.id+'/'+name,{});clearTimeout(pollTimer);await poll();});
 document.addEventListener('mission-loaded',render);document.addEventListener('mission-render',render);
 document.addEventListener('field-changed',event=>{
+  if(event.detail.startsWith('execution.actions.')&&event.detail.endsWith('.kind'))renderRun();
   if(event.detail==='telemetry.mode'){state.mission.execution.mode=get('telemetry.mode')==='custom-fc'?'coupled':'ground-link';renderTelemetry();renderRun();}
   if(event.detail==='execution.mode'&&get('execution.mode')==='interactive'){state.mission.execution.clockMode='paced';renderRun();}
 });

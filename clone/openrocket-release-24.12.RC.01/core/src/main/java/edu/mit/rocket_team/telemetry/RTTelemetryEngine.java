@@ -26,6 +26,13 @@ public class RTTelemetryEngine implements AutoCloseable {
     private final ArrayDeque<Delivery> pending = new ArrayDeque<>();
     private long generated, received, dropped;
     private boolean finished;
+    private java.util.function.Consumer<byte[]> missionTransport;
+
+    /** Mission owns downlink records and receiver outcomes; native OR.log remains unchanged. */
+    public void setMissionTransport(java.util.function.Consumer<byte[]> transport) {
+        if (generated != 0) throw new IllegalStateException("Select transport before first transmission");
+        missionTransport = transport;
+    }
 
     /**
      * Returns the csv path.
@@ -281,6 +288,7 @@ public class RTTelemetryEngine implements AutoCloseable {
                         + "\nrandomSeed="
                         + settings.randomSeed()
                         + "\nrandomAlgorithm=java.util.Random.nextDouble; one draw per generated packet\n"
+                        + "transport=" + (missionTransport == null ? "native-legacy" : "mission-external-canonical-records") + "\n"
                         + "generated="
                         + generated
                         + "\nreceived="
@@ -498,12 +506,15 @@ public class RTTelemetryEngine implements AutoCloseable {
      * Only successful completion drains future arrivals; cancellation keeps them pending in
      * metadata.
      */
-    public void finish(boolean complete) {
+    public void finish(boolean complete) { finishAt(complete, Long.MAX_VALUE); }
+
+    /** Explicit delivery bound for coupled missions; no infinite queue drain. */
+    public void finishAt(boolean complete, long deliveryLimitUs) {
         if (finished) return;
         finished = true;
         RuntimeException error = null;
         try {
-            if (complete) deliverDue(Long.MAX_VALUE);
+            if (complete) deliverDue(deliveryLimitUs);
         } catch (RuntimeException e) {
             error = e;
             complete = false;
@@ -568,7 +579,11 @@ public class RTTelemetryEngine implements AutoCloseable {
     }
 
     private final Trace trace;
-    private final ArrayDeque<byte[]> commands = new ArrayDeque<>();
+    private record Command(byte[] bytes, String id) { }
+    private final ArrayDeque<Command> commands = new ArrayDeque<>();
+    private String currentCommandId = "";
+    public String getCurrentCommandId() { return currentCommandId; }
+    public int getPendingCommandCount() { return commands.size(); }
     private byte[] lastPacket = new byte[128];
 
     /** Creates a RTTelemetryEngine using the supplied settings and defaults for omitted options. */
@@ -617,9 +632,12 @@ public class RTTelemetryEngine implements AutoCloseable {
      *
      * @param packet firmware-format packet bytes
      */
-    public void enqueue(byte[] packet) {
-        commands.add(packet.clone());
-        trace.log("command.queue", "bytes=" + packet.length);
+    public void enqueue(byte[] packet) { enqueue(packet, "internal"); }
+
+    public void enqueue(byte[] packet, String commandId) {
+        if (commands.size() >= 256) throw new IllegalStateException("FC command queue is full");
+        commands.add(new Command(packet.clone(), commandId));
+        trace.log("command.queue", "id=" + commandId + " bytes=" + packet.length);
     }
 
     /**
@@ -628,9 +646,10 @@ public class RTTelemetryEngine implements AutoCloseable {
      * @return the resulting byte[]
      */
     public byte[] receive() {
-        byte[] packet = commands.poll();
-        trace.log("radio.receive", "bytes=" + (packet == null ? 0 : packet.length));
-        return packet;
+        Command packet = commands.poll();
+        currentCommandId = packet == null ? "" : packet.id;
+        trace.log("radio.receive", "id=" + currentCommandId + " bytes=" + (packet == null ? 0 : packet.bytes.length));
+        return packet == null ? null : packet.bytes;
     }
 
     /**
@@ -643,6 +662,12 @@ public class RTTelemetryEngine implements AutoCloseable {
     public void send(byte[] packet) {
         if (finished) throw new IllegalStateException("Telemetry closed");
         lastPacket = packet.clone();
+        if (missionTransport != null) {
+            generated++;
+            trace.log("telemetry.mission_tx", "index=" + generated + " bytes=" + packet.length);
+            missionTransport.accept(lastPacket.clone());
+            return;
+        }
         export(lastPacket, trace.bootUs(), transmittedCsv, transmittedBinary);
         generated++;
         trace.log(

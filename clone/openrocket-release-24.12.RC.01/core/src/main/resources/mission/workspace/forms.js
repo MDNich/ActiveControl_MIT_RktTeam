@@ -19,6 +19,8 @@ export function attachFields(root=document) {
     try {
       el.setCustomValidity('');
       let value=el.type==='checkbox'?el.checked:el.type==='number'?(el.value===''?null:(Number(el.value)-Number(el.dataset.offset))/Number(el.dataset.scale)):el.value;
+      if(el.dataset.field.endsWith('.timeUs')&&value!==null)value=Math.round(value);
+      if(el.tagName==='SELECT'&&el.dataset.field.endsWith('.opcode'))value=Number(value);
       if(el.dataset.stringNumber&&value!==null)value=String(value);
       if(el.dataset.json)value=JSON.parse(value);
       set(el.dataset.field,value); document.dispatchEvent(new CustomEvent('field-changed',{detail:el.dataset.field}));

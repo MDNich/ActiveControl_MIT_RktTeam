@@ -13,7 +13,7 @@ public final class MissionJobs implements MissionApi.Jobs {
     private final ExecutorService executor = Executors.newFixedThreadPool(2, r -> { var t = new Thread(r, "mission-run"); t.setDaemon(true); return t; });
     public MissionJobs(Path root) throws IOException { this.root = root; Files.createDirectories(root.resolve("jobs")); }
     @Override public JsonObject capabilities() {
-        try { MissionWorker.interpreter(); return Json.createObjectBuilder().add("available", true).add("standard", true).add("coupled", false)
+        try { MissionWorker.interpreter(); return Json.createObjectBuilder().add("available", true).add("standard", true).add("coupled", true)
                 .add("video", false).add("ensemble", false).add("workerProtocol", "rt-mission.v1").build(); }
         catch (IOException e) { return Json.createObjectBuilder().add("available", false).add("reason", e.getMessage()).build(); }
     }
@@ -22,7 +22,6 @@ public final class MissionJobs implements MissionApi.Jobs {
         var job = new Job(resolved); jobs.put(job.id, job); job.persist(); executor.submit(job::run); return job.snapshot();
     }
     private static void admit(JsonObject mission) {
-        if (!mission.getJsonObject("telemetry").getString("mode").equals("standard")) throw new IllegalArgumentException("This build has the standard-flight runner; the coupled FC runner is being integrated");
         if (!mission.getJsonObject("video").getJsonArray("streams").isEmpty()) throw new IllegalArgumentException("Video transmission is being integrated; choose zero streams for this headless increment");
         var ensemble = mission.getJsonObject("flight").getJsonObject("editor").getJsonObject("options").getJsonObject("ensemble");
         if (ensemble.getString("enabled", "false").equals("true")) throw new IllegalArgumentException("Mission ensembles are being integrated; choose a single flight in this increment");
@@ -51,6 +50,13 @@ public final class MissionJobs implements MissionApi.Jobs {
                 case "pause": if (job.status.equals("running")) { job.paused = true; job.status = "paused"; } break;
                 case "resume": if (job.paused) { job.paused = false; job.status = "running"; job.notifyAll(); } break;
                 case "cancel": if (!job.terminal()) { job.cancelled = true; job.paused = false; job.notifyAll(); } break;
+                case "action": {
+                    if (job.terminal() || job.status.equals("finalizing")) throw new IllegalArgumentException("Run no longer accepts actions");
+                    MissionActions.validate(body);
+                    var queuedAction = Json.createObjectBuilder(body).add("id", "operator-" + UUID.randomUUID()).build();
+                    if (!job.actions.offer(queuedAction)) throw new IllegalArgumentException("Mission command queue is full; pause and let it drain before adding commands");
+                    return Json.createObjectBuilder().add("accepted", true).add("id", queuedAction.getString("id")).build();
+                }
                 case "events": return Json.createObjectBuilder().add("events", Json.createArrayBuilder(job.notifications)).add("sequence", job.notificationSequence).build();
                 default: throw new IllegalArgumentException("Unknown mission job operation");
             }
@@ -61,6 +67,7 @@ public final class MissionJobs implements MissionApi.Jobs {
         final String id = UUID.randomUUID().toString();
         final MissionStore.Resolved resolved;
         final Path directory, staging, archive;
+        final ArrayBlockingQueue<JsonObject> actions = new ArrayBlockingQueue<>(256);
         final ArrayDeque<JsonObject> notifications = new ArrayDeque<>();
         long notificationSequence, timeUs = -1_000_000, endUs, lastPersist, wallStart, pausedNanos;
         String status = "starting", phase = "Preparing mission", failure = "";
@@ -76,6 +83,12 @@ public final class MissionJobs implements MissionApi.Jobs {
                 .add("failure", failure).add("metrics", metrics).add("staging", staging.toString())
                 .add("result", Files.isRegularFile(archive) ? archive.toString() : "").add("notificationSequence", notificationSequence).build(); }
         synchronized void persist() throws IOException { MissionJson.writeAtomic(directory.resolve("status.json"), snapshot()); lastPersist = System.nanoTime(); }
+        @Override public JsonArray drainActions(int maximum) {
+            var result = Json.createArrayBuilder();
+            // Leave room for warmup/start actions in the same bounded IPC batch.
+            for (int i = 0; i < Math.min(200, maximum); i++) { var action = actions.poll(); if (action == null) break; result.add(action); }
+            return result.build();
+        }
         @Override public synchronized void check() {
             long begin = System.nanoTime(); boolean waited = false;
             while (paused && !cancelled) try { waited = true; wait(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new CancellationException("Mission interrupted"); }

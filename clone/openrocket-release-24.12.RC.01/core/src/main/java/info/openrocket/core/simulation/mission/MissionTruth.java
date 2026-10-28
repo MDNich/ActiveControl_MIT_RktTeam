@@ -133,7 +133,12 @@ public final class MissionTruth extends AbstractSimulationListener {
                 recorder.line("runs/" + run + "/truth", "csv", s.timeUs, line);
             }
             for (var event : b.events) recorder.event(run, Json.createObjectBuilder(event).add("branchId", b.id).build());
-            recorder.event(run, Json.createObjectBuilder().add("kind", "branch-summary").add("timeUs", Long.toString(b.end()))
+            String parent = "";
+            if (b.start() > 0) for (Branch candidate : branches) if (candidate != b && candidate.start() < b.start()) {
+                Sample attached = interpolate(candidate, b.start() - 1);
+                if (attached != null && attached.stages.contains(b.componentId)) parent = candidate.id;
+            }
+            recorder.event(run, Json.createObjectBuilder().add("parentBranchId", parent).add("kind", "branch-summary").add("timeUs", Long.toString(b.end()))
                     .add("branchId", b.id).add("componentId", b.componentId).add("startUs", Long.toString(b.start()))
                     .add("landed", b.landed).add("aborted", b.aborted).add("maxSampleSpacingS", maxSpacing).build());
         }

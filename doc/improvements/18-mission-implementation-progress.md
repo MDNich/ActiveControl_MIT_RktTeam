@@ -105,6 +105,18 @@ Verification: 54 mission Java tests passed, followed by four full-run/branch/lif
 
 This increment admits standard headless missions with zero video and one flight member. Other configured modes are rejected explicitly at start pending D–F; the workspace retains their settings. SQLite/recovery/replay views and broader crash/packaged qualification remain F–G work.
 
+## D1 — coupled flight computer, declared packets and command tape
+
+The existing FC listener now accepts a per-run mission adapter at accepted scheduler boundaries. Mission deadlines participate in physics step limiting; PWM/controller/CPU ordering remains in the existing listener. The same station/link recorder handles custom-FC transmissions, pad warmup and the bounded post-flight delivery tail. Mission runs use an explicit telemetry finalization bound and never drain at `Long.MAX_VALUE`.
+
+Declared codecs encode held measured FC device values. Missing fields remain unavailable at the receiver; a test codec lacking longitude/fix receives successfully but cannot track, confirming that truth does not fill those gaps. GPS reference changes carry their actual baseline and epoch. Variable-length packets exposed the legacy flash logger's fixed 128-byte assumption; custom designs now use a separately identified, bounded illustrative byte-stream page model, while the legacy logger remains unchanged. Native FC diagnostics are retained alongside canonical variable-length TX/index records; native CSV metadata explicitly identifies the external mission transport.
+
+Timed station actions and live pointer controls support connect/disconnect, explicit tracking restart, hold, ZERO, manual pointing and target changes. Base-only uplink supports the actual implemented opcodes, with `07` unavailable in the normal command selector. Explicit raw-byte experiments can still test rejected/unknown packets. Commands pass through a separately modeled uplink and enter the FC queue for its next normal one-packet loop read. Command identities and parsed/ignored diagnostics are recorded as simulator evidence, not wire acknowledgments. Queue admission is bounded; switching targets clears partial framing and old target observations, advances the connection epoch and requires tracking restart.
+
+Verification: 72 Java mission/FC timing/output/telemetry/flight checks passed, including a full coupled v3 flight with 14-byte payloads, GPS-zero command and unsupported raw opcode. Python passed 25 station/controller/protocol checks, including reconnect during a fragmented frame. The application JAR builds. The resolved asset inventory now follows the final frozen flight hash and branch records include parent lineage.
+
+D2 still needs the actual Telemetry UI process/manifest adapter and application handshake. Video, ensembles, full recovery/replay and installer qualification remain E–G. The build continues to reject those unfinished execution paths rather than silently skipping configured features.
+
 ## Remaining work
 
 **C–G:** deterministic station worker/scheduler and actual simulation, FC/software-station integration, media transmission, ensembles/bundles and packaged qualification remain as specified. No installer or GitHub release should describe Mission Simulation as delivered on the basis of A1 alone.

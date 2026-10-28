@@ -45,7 +45,7 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
      * @return true when the condition described above holds
      */
     public boolean hasDesignFile() {
-        return !getDesignReference().isBlank();
+        return missionDesign != null || !getDesignReference().isBlank();
     }
 
     /**
@@ -392,6 +392,10 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
      * @param conditions physical simulation conditions
      * @throws SimulationException if the requested operation cannot be completed
      */
+    private transient info.openrocket.core.simulation.mission.MissionFlightHook missionHook;
+
+    public void setMissionHook(info.openrocket.core.simulation.mission.MissionFlightHook hook) { missionHook = hook; }
+
     @Override
     public void initialize(SimulationConditions conditions) throws SimulationException {
         try {
@@ -405,7 +409,8 @@ public class ZephyrusFlightComputer extends AbstractSimulationExtension {
                                                 link, getOutputSettings(), getTimingSettings())
                                         .withDesign(preparedDesign)
                                         .withRecovery(getRecoverySettings())
-                                        .withControllers(getControllerSettings()));
+                                        .withControllers(getControllerSettings())
+                                        .withMission(missionHook));
             }
         } catch (IllegalArgumentException e) {
             throw new SimulationException(e.getMessage());

@@ -708,7 +708,7 @@ public class RTFC {
         Inputs input = pendingInput;
         if (input.accel() != null) accel.backdoorFudge(input.accel());
         if (input.baro() != null) baro.backdoorFudge(input.baro());
-        if (input.gps() != null) gps.backdoorFudge(input.gps());
+        if (input.gps() != null) { gps.backdoorFudge(input.gps()); lastGpsAcquisitionUs = input.gpsAcquisitionUs(); }
         if (input.gyro() != null) gyro.backdoorFudge(input.gyro());
         trace.log(
                 "sensors.deliver",
@@ -760,7 +760,10 @@ public class RTFC {
             lastTelem = trace.millis();
             byte[] packet = constructTelemetryPacket();
             telemetry.send(packet);
-            if (loggingEnabled) flashDriver.append(packet);
+            if (loggingEnabled) {
+                if (design != null && design.telemetryCodec() != null) flashDriver.appendCustom(packet);
+                else flashDriver.append(packet);
+            }
         }
         readTelem();
         // FC.ino advances the timer before sending; retain its strict >100 ms comparison.
@@ -1399,9 +1402,43 @@ public class RTFC {
         return (int) Math.max(low, Math.min(high, Math.round(value)));
     }
 
+    private java.util.Set<String> missionMissingFields = java.util.Set.of();
+    public java.util.Set<String> getMissionMissingFields() { return missionMissingFields; }
+    private long lastGpsAcquisitionUs;
+    public long getLastGpsAcquisitionUs() { return lastGpsAcquisitionUs; }
+    public long getLastSensorAcquisitionUs() { return lastSensorAcquisitionUs; }
+
+    /** Declarative codec inputs are held measured device values, never physics truth. */
+    public java.util.Map<String, Double> telemetryMeasurements() {
+        var values = new java.util.LinkedHashMap<String, Double>();
+        values.put("uptime_ms", (double) trace.millis()); values.put("packet_sequence", (double) packetNum);
+        values.put("state.code", (double) currentState.ID);
+        if (connected("gps")) {
+            values.put("gps.fix", (double) gps.getFixType()); values.put("gps.latitude_deg", gps.getLatitude());
+            values.put("gps.longitude_deg", gps.getLongitude()); values.put("gps.height_m", (double) gps.getHeight());
+        }
+        if (connected("barometer")) values.put("barometer.height_m", (double) baro.getFilteredAltitude());
+        if (connected("accelerometer")) {
+            values.put("velocity.up_ms", (double) accel.getIntegratedVelo());
+            values.put("acceleration.x_ms2", (double) accel.getAccelX()); values.put("acceleration.y_ms2", (double) accel.getAccelY());
+            values.put("acceleration.z_ms2", (double) accel.getAccelZ());
+        }
+        if (connected("gyro")) {
+            values.put("gyro.roll_rate_deg_s", (double) gyro.getGyroX()); values.put("gyro.pitch_rate_deg_s", (double) gyro.getGyroY());
+            values.put("gyro.yaw_rate_deg_s", (double) gyro.getGyroZ());
+        }
+        if (connected("power")) values.put("battery.voltage_v", (double) (powerBoard.getCellVoltage(0) + powerBoard.getCellVoltage(1) + powerBoard.getCellVoltage(2)));
+        return java.util.Collections.unmodifiableMap(values);
+    }
+
     /** FC constructTelemetryPacket: raw counts synthesized at the declared engineering boundary. */
     private byte[] constructTelemetryPacket() {
         packetNum = (packetNum + 1) & 0xffff;
+        if (design != null && design.telemetryCodec() != null) {
+            var encoded = design.telemetryCodec().encode(telemetryMeasurements());
+            missionMissingFields = encoded.unavailable();
+            return encoded.bytes();
+        }
         byte[] p = new byte[128];
         ByteBuffer out = ByteBuffer.wrap(p).order(ByteOrder.LITTLE_ENDIAN);
         out.putShort(0, (short) pyroController.getPyrosStatus());

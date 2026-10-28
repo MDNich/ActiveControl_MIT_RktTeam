@@ -73,7 +73,12 @@ public class RTGPS extends RTInstrument {
     }
 
     /** Captures the current MSL altitude as the GPS height reference. */
+    private long referenceEpoch;
+    public double getReferenceMslM() { return heightOffset / 1000.0; }
+    public long getReferenceEpoch() { return referenceEpoch; }
+
     public void zeroAlt() {
+        referenceEpoch++;
         heightOffset = heightMm;
         maxAlt = 0;
         trace.log("gps.zero", "offset_mm=" + heightOffset);

@@ -48,4 +48,18 @@ public class RTFlashDriver {
             buffered = 0;
         }
     }
+    private int customBytes;
+
+    /** Mission custom-format log stream: page packing is illustrative, record lengths stay in the trace. */
+    public void appendCustom(byte[] packet) {
+        if (packet.length < 1 || packet.length > 4096) throw new IllegalArgumentException("Custom log record must be 1..4096 bytes");
+        trace.log("flash.custom_record", "bytes=" + packet.length + " model=mission-byte-stream-v1");
+        for (int offset = 0; offset < packet.length;) {
+            int count = Math.min(page.length - customBytes, packet.length - offset);
+            System.arraycopy(packet, offset, page, customBytes, count); customBytes += count; offset += count;
+            if (customBytes == page.length) {
+                trace.log("flash.program", "address=" + writeIndex + " bytes=512"); writeIndex += 512; customBytes = 0;
+            }
+        }
+    }
 }

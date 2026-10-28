@@ -119,6 +119,18 @@ public final class MissionStore {
         }
         if (draft.containsKey("migration") && !draft.getJsonObject("migration").getBoolean("reviewed", false))
             issue(issues, "/migration", "preview-review-required", "Review the imported preview findings and confirm the production settings");
+        try {
+            var execution = draft.getJsonObject("execution");
+            if (execution.containsKey("actions")) {
+                if (execution.getJsonArray("actions").size() > 10000) throw new IllegalArgumentException("At most 10,000 scenario actions");
+                var times = new HashMap<String,Integer>();
+                for (var value : execution.getJsonArray("actions")) {
+                    var action = value.asJsonObject(); MissionActions.validate(action);
+                    int count = times.merge(action.getString("timeUs"), 1, Integer::sum);
+                    if (count > 200) throw new IllegalArgumentException("At most 200 actions at one mission instant");
+                }
+            }
+        } catch (RuntimeException e) { issue(issues,"/execution/actions","invalid-action",safeMessage(e)); }
         int index = 0;
         for (var entry : draft.getJsonArray("sites")) {
             var site = entry.asJsonObject();
@@ -190,7 +202,13 @@ public final class MissionStore {
                     .add("flightConfigurationId", simulation.getId().toString()).add("rocketAssetId", "flight-inputs"));
         }
         String flightHash = freeze(simulation);
-        var resolved = Json.createObjectBuilder(draft).add("sites", sites).add("vehicleBindings", bindings).add("geoid", MissionGeoid.bundled().provenance())
+        var resolvedAssets = Json.createArrayBuilder();
+        for (var entry : draft.getJsonArray("assets")) {
+            var asset = entry.asJsonObject();
+            resolvedAssets.add(asset.getString("id").equals("flight-inputs")
+                    ? Json.createObjectBuilder(asset).add("reference", "snapshot:" + flightHash).add("sha256", flightHash).build() : asset);
+        }
+        var resolved = Json.createObjectBuilder(draft).add("assets", resolvedAssets).add("sites", sites).add("vehicleBindings", bindings).add("geoid", MissionGeoid.bundled().provenance())
                 .add("flight", Json.createObjectBuilder(draft.getJsonObject("flight")).add("snapshotHash", flightHash)
                         .add("editor", MissionFlightEditor.capture(simulation))).build();
         return new Resolved(resolved, snapshot(flightHash), hash(resolved));

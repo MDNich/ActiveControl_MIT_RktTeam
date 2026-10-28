@@ -142,6 +142,18 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         return this;
     }
 
+    private info.openrocket.core.simulation.mission.MissionFlightHook missionHook;
+
+    public FlightControllerSimulatorListener withMission(info.openrocket.core.simulation.mission.MissionFlightHook hook) {
+        missionHook = hook; return this;
+    }
+    private long nextDeadlineUs() {
+        long next = run.nextDeadlineUs();
+        if (missionHook == null) return next;
+        long mission = missionHook.nextMissionDeadlineUs();
+        return Math.min(next, mission == Long.MAX_VALUE ? Long.MAX_VALUE : Math.addExact(mission, WARMUP_US));
+    }
+
     /** Shared only across framework copies belonging to this flight, never across new starts. */
     private static final class Run {
         final RTFC fc;
@@ -443,8 +455,11 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
      */
     @Override
     public void startSimulation(SimulationStatus status) throws SimulationException {
-        run = new Run(console, linkSettings, timing);
-        if (design != null) run.fc.configure(design.design());
+        run = new Run(missionHook == null ? console : line -> { console.accept(line); missionHook.diagnostic(line); }, linkSettings, timing);
+        if (design != null) {
+            if (missionHook == null) run.fc.configure(design.design());
+            else run.fc.configureMission(design.design());
+        }
         if (status.getConfiguration().getActiveStageCount() != 1)
             throw new SimulationException(
                     "The flight computer currently supports one active stage");
@@ -457,8 +472,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
         status.getSimulationConditions().setTimeStep(maxPhysicsStep);
         var simulation = status.getSimulationConditions().getSimulation();
         run.fc.telemetry.open(
-                Path.of(System.getProperty("openrocket.fc.telemetryDir", "fc-telemetry")),
-                outputSettings.forRun(simulation == null ? null : simulation.getRunOutputTag()));
+                missionHook == null ? Path.of(System.getProperty("openrocket.fc.telemetryDir", "fc-telemetry")) : missionHook.outputDirectory(),
+                missionHook == null ? outputSettings.forRun(simulation == null ? null : simulation.getRunOutputTag()) : FlightComputerOutputSettings.DEFAULT);
         if (status.getSimulationConditions().getSimulation() != null) {
             status.getSimulationConditions()
                     .getSimulation()
@@ -512,6 +527,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
                                             design == null ? null : design.design()))
                             .build()
                             .toString());
+            if (missionHook != null) missionHook.start(run.fc, status);
             run.fc.init();
             run.fc.trace.log(
                     "timing.settings",
@@ -526,8 +542,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
                             + " seed="
                             + timing.randomSeed()
                             + " calibration=unmeasured lumped_execution=true sample=held_at_loop_start pwm_tie=interrupt_first servo_travel=ideal");
-            while (run.nextDeadlineUs() <= WARMUP_US) {
-                long us = run.nextDeadlineUs();
+            while (nextDeadlineUs() <= WARMUP_US) {
+                long us = nextDeadlineUs();
                 dispatch(us, sample(status, Coordinate.ZERO, us));
                 run.recovery.drain(status);
             }
@@ -542,6 +558,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
 
     /** Service a real virtual-time boundary; never replay missed loops using future samples. */
     private void dispatch(long bootUs, RTFC.Inputs input) {
+        if (missionHook != null) missionHook.before(bootUs);
         run.fc.trace.time(bootUs);
         if (!run.armed && bootUs >= 500_000) {
             run.armed = true;
@@ -655,6 +672,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
                                     run.fc, design.design(), (bootUs - WARMUP_US) / 1e6)
                             .toString());
         run.fc.telemetry.deliverDue(bootUs);
+        if (missionHook != null) missionHook.after(bootUs);
     }
 
     public record TimingSummary(
@@ -741,6 +759,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     @Override
     public void postStep(SimulationStatus status) throws SimulationException {
         run.intervalOpen = false;
+        if (missionHook != null) missionHook.accepted(status);
         double time = status.getSimulationTime();
         if (time <= run.stepStart) {
             run.fc.trace.log("physics.no_advance", "simulation_s=" + time);
@@ -767,10 +786,10 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
                         + " truth_velocity_mps="
                         + status.getRocketVelocity().z);
         long bootUs = WARMUP_US + us;
-        if (bootUs > run.nextDeadlineUs())
+        if (bootUs > nextDeadlineUs())
             throw new SimulationException(
-                    "FC deadline skipped: expected " + run.nextDeadlineUs() + " us, got " + bootUs);
-        if (bootUs == run.nextDeadlineUs()) {
+                    "FC deadline skipped: expected " + nextDeadlineUs() + " us, got " + bootUs);
+        if (bootUs == nextDeadlineUs()) {
             dispatch(bootUs, run.latest);
             run.recovery.drain(status);
             run.communicator.apply(run.fc.getOutput(), holdAirbrakesClosed);
@@ -879,7 +898,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
     /** Used by the existing engine/steppers only when this listener is active. */
     public double limitStep(SimulationStatus status, double eventLimit) {
         double untilTick =
-                (run.nextDeadlineUs() - WARMUP_US) / 1_000_000.0 - status.getSimulationTime();
+                (nextDeadlineUs() - WARMUP_US) / 1_000_000.0 - status.getSimulationTime();
         if (!(untilTick > 0))
             throw new IllegalStateException(
                     "FC deadline must execute before another physics interval");
@@ -925,6 +944,7 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
                     run.fc.trace.log(
                             "fc.plot_event", FlightComputerData.eventSnapshot(event).toString());
         }
+        if (missionHook != null) missionHook.end(status, complete);
         finish(complete);
     }
 
@@ -949,7 +969,8 @@ public class FlightControllerSimulatorListener extends AbstractSimulationListene
             run.fc.trace.log(
                     "timing.summary", getTimingSummary() + " unfinished_loop=" + (run.phase != 0));
             run.fc.trace.log("simulation.end", "loops=" + run.fc.getLoopCount());
-            run.fc.telemetry.finish(complete);
+            if (missionHook == null) run.fc.telemetry.finish(complete);
+            else run.fc.telemetry.finishAt(complete, run.fc.trace.bootUs());
         }
     }
 
