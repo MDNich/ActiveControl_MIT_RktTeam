@@ -11,6 +11,13 @@ import java.nio.file.*;
 /** Run standard and coupled fixtures against a distribution JAR, bundled Java and bundled Python. */
 public final class MissionPackageProbe {
     public static void main(String[] args) throws Exception {
+        if (MissionPackageProbe.class.getClassLoader().getParent() != ClassLoader.getPlatformClassLoader())
+            throw new AssertionError("Probe must run through the real isolated application loader");
+        Class.forName("com.sun.net.httpserver.HttpServer");
+        Class.forName("java.net.http.HttpClient");
+        if (MissionPackageProbe.class.getResource("/ReleaseNotes.md") == null ||
+                info.openrocket.core.communication.WelcomeInfoRetriever.retrieveWelcomeInfo() == null)
+            throw new AssertionError("Packaged welcome notes are missing");
         Path root=Path.of(args[0]).toAbsolutePath();Files.createDirectories(root);
         if(System.getProperty("openrocket.mission.python")!=null || System.getProperty("openrocket.mission.runtime")!=null)throw new AssertionError("Probe must discover the packaged runtime");
         System.setProperty("openrocket.bypass.motors","true");System.setProperty("openrocket.bypass.presets","true");

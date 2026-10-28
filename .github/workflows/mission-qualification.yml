@@ -6,6 +6,14 @@ on:
       - '.github/workflows/mission-qualification.yml'
       - 'packaging/mission/**'
       - 'packaging/verification/MissionPackageProbe.java'
+      - 'packaging/verification/MissionPackageLauncher.java'
+      - 'packaging/verification/MissionDesktopSmokeAgent.java'
+      - 'packaging/verification/mission-desktop-smoke.py'
+      - 'packaging/verification/mission-workspace-browser.cjs'
+      - 'clone/openrocket-release-24.12.RC.01/swing/src/main/java/info/openrocket/swing/startup/**'
+      - 'clone/openrocket-release-24.12.RC.01/core/build.gradle'
+      - 'clone/openrocket-release-24.12.RC.01/ReleaseNotes.md'
+      - 'clone/openrocket-release-24.12.RC.01/core/src/main/java/info/openrocket/core/communication/WelcomeInfoRetriever.java'
       - 'clone/openrocket-release-24.12.RC.01/core/src/**/mission/**'
       - 'clone/openrocket-release-24.12.RC.01/core/src/main/resources/mission/**'
 permissions:
@@ -31,6 +39,21 @@ jobs:
           python-version: '3.13'
       - name: Build application image and run bundled Mission fixtures
         run: python packaging/mission/qualify.py
+      - uses: actions/setup-node@v4
+        if: startsWith(matrix.os, 'macos-')
+        with:
+          node-version: '22'
+      - name: Install desktop acceptance browser
+        if: startsWith(matrix.os, 'macos-')
+        run: |
+          npm install --prefix "$RUNNER_TEMP/mission-browser" playwright@1.62.1
+          "$RUNNER_TEMP/mission-browser/node_modules/.bin/playwright" install chromium
+      - name: Test actual Mac application startup and Mission workspace
+        if: startsWith(matrix.os, 'macos-')
+        run: |
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/mission-browser/node_modules/playwright" python packaging/verification/mission-desktop-smoke.py \
+            clone/openrocket-release-24.12.RC.01/build/mission-package/*/image/OpenRocket_MIT.app \
+            clone/openrocket-release-24.12.RC.01/build/mission-package/desktop/report/native
       - uses: actions/upload-artifact@v4
         if: always()
         with:

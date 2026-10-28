@@ -139,13 +139,8 @@ tasks.register('serializeEnginesValidate') {
     }
 }
 
-tasks.register('copyReadmeMain', Copy) {
-    doLast {
-        from('../') {
-            include 'ReleaseNotes.md'
-        }
-        into './src/main/resources'
-    }
+tasks.named('processResources') {
+    from(rootProject.file('ReleaseNotes.md'))
 }
 
 def externalComponentsPath = './src/main/resources/datafiles/components/database'
@@ -232,5 +227,4 @@ tasks.register('externalComponentsValidate') {
 clean.dependsOn([externalComponentsDelete])
 //compileJava.dependsOn([externalComponentsCopy])
 processResources.dependsOn([externalComponentsCopy])
-processResources.dependsOn([copyReadmeMain])
 //processResources.dependsOn([serializeEnginesValidate])

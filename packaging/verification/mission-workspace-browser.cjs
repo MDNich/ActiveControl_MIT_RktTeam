@@ -8,6 +8,13 @@ const root=path.resolve(process.argv[2]);
  await page.route('https://**/*',r=>r.abort()); // Numerical editor must work with all imagery unavailable.
  await page.goto(fs.readFileSync(path.join(root,'workspace-url'),'utf8'));
  await page.locator('#status').filter({hasText:'Mission workspace connected.'}).waitFor();
+ if(process.env.MISSION_NATIVE_DESKTOP==='1'){
+  await page.locator('[data-page="flight"]').click();await page.locator('#current-rocket').click();
+  await page.locator('#select-flight').waitFor({state:'visible'});await page.locator('#select-flight').click();
+  await page.locator('#status').filter({hasText:'Rocket, motor curves and flight settings frozen'}).waitFor();
+  await page.locator('[data-field="flight.editor.options.maximumTimeS"]').fill('4');await page.locator('[data-field="flight.editor.options.maximumTimeS"]').press('Tab');
+  await page.locator('[data-page="site"]').click();
+ }
  assert.equal(await page.locator('#site-list button').count(),6);
  await page.selectOption('#map-layer','none');
  await page.locator('#apply-mgrs').click();assert.match(await page.locator('#status').innerText(),/Original saved point retained/);
@@ -65,4 +72,5 @@ const root=path.resolve(process.argv[2]);
  await page.setViewportSize({width:860,height:1000});await page.locator('[data-page="connections"]').click();await page.screenshot({path:path.join(root,'connections-compact.png'),fullPage:true});
  assert.deepEqual(errors,[]);console.log('Browser acceptance passed: offline configuration, coordinates, flight/link/video settings, save/load, paced run, paused reconnect, named bundle, indexed results, complete/recovered compatible exports and a new saved-flight experiment.');
  await browser.close();
+ if(process.env.MISSION_NATIVE_DESKTOP==='1')fs.writeFileSync(path.join(root,'browser-passed'),'passed\n');
 })().catch(e=>{console.error(e);process.exit(1);});

@@ -3,12 +3,28 @@ package info.openrocket.core.communication;
 import info.openrocket.core.util.BaseTestCase;
 import info.openrocket.core.util.BuildProperties;
 import org.junit.jupiter.api.Test;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class WelcomeInfoTest extends BaseTestCase {
+
+    @Test
+    public void releaseNotesArePackaged() throws Exception {
+        try (var stream = WelcomeInfoRetriever.class.getResourceAsStream("/ReleaseNotes.md")) {
+            assertNotNull(stream, "Release notes must be bundled, without relying on the launch directory");
+        }
+    }
+
+    @Test
+    public void missingNotesAtFilesystemRootAreAnIoError() {
+        assertThrows(FileNotFoundException.class, () ->
+                WelcomeInfoRetriever.openProjectReleaseNotes(Path.of("").toAbsolutePath().getRoot()));
+    }
 
     @Test
     public void testWelcomeInfo() throws Exception {

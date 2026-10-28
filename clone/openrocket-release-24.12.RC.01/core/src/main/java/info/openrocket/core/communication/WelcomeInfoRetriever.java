@@ -6,14 +6,14 @@ import info.openrocket.core.util.BuildProperties;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 
 public abstract class WelcomeInfoRetriever {
     private static final String RELEASE_NOTES_FILENAME = "ReleaseNotes.md";
@@ -27,33 +27,15 @@ public abstract class WelcomeInfoRetriever {
      * @throws IOException if the file could not be read
      */
     public static String retrieveWelcomeInfo(String version) throws IOException {
-        InputStream inputStream = null;
-
         // First, try to load from resources (for packaged application)
-        inputStream = WelcomeInfoRetriever.class.getClassLoader().getResourceAsStream(RELEASE_NOTES_FILENAME);
+        InputStream inputStream = WelcomeInfoRetriever.class.getClassLoader().getResourceAsStream(RELEASE_NOTES_FILENAME);
 
         // If not found in resources, try to load from project root directory
         if (inputStream == null) {
-            // Get the current path
-            Path currentPath = Paths.get("").toAbsolutePath();
-            File releaseNotesFile = currentPath.resolve(RELEASE_NOTES_FILENAME).toFile();
-
-            // If file not found, try one level up (for unit tests)
-            if (!releaseNotesFile.exists()) {
-                releaseNotesFile = currentPath.getParent().resolve(RELEASE_NOTES_FILENAME).toFile();
-            }
-
-            if (releaseNotesFile.exists()) {
-                inputStream = new FileInputStream(releaseNotesFile);
-            } else {
-                throw new FileNotFoundException(
-                        String.format("ReleaseNotes.md not found in resources or project root: %s",
-                                releaseNotesFile.getAbsolutePath())
-                );
-            }
+            inputStream = openProjectReleaseNotes(Paths.get("").toAbsolutePath());
         }
 
-        try (InputStreamReader reader = new InputStreamReader(inputStream)) {
+        try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
             InputSource source = new InputSource(reader);
             ReleaseNotesHandler handler = new ReleaseNotesHandler(version);
             WarningSet warnings = new WarningSet();
@@ -62,15 +44,19 @@ public abstract class WelcomeInfoRetriever {
             return handler.getReleaseNotes();
         } catch (SAXException e) {
             throw new IOException("Failed to parse release notes: " + e.getMessage(), e);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // Ignore close errors
-                }
-            }
         }
+    }
+
+    static InputStream openProjectReleaseNotes(Path currentPath) throws IOException {
+        Path file = currentPath.resolve(RELEASE_NOTES_FILENAME);
+        // Finder can start the application at the filesystem root, which has no parent.
+        if (!Files.isRegularFile(file) && currentPath.getParent() != null) {
+            file = currentPath.getParent().resolve(RELEASE_NOTES_FILENAME);
+        }
+        if (!Files.isRegularFile(file)) {
+            throw new FileNotFoundException("ReleaseNotes.md not found in resources or project root: " + file);
+        }
+        return Files.newInputStream(file);
     }
 
     /**

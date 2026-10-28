@@ -30,7 +30,9 @@ public class JarInJarStarter {
 		}
 		
 		URL[] urlArray = urls.toArray(new URL[0]);
-		ClassLoader loader = new URLClassLoader(urlArray, null);
+		// Keep plugin/application isolation while retaining Java platform modules
+		// such as jdk.httpserver and java.net.http, which are not bootstrap classes.
+		ClassLoader loader = new URLClassLoader(urlArray, ClassLoader.getPlatformClassLoader());
 		try {
 			Thread.currentThread().setContextClassLoader(loader);
 			Class<?> c = Class.forName(mainClass, true, loader);

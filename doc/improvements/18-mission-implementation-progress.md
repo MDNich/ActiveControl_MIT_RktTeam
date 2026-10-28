@@ -391,3 +391,53 @@ The main working environment has been updated to the pinned desktop runtime. Rel
 publication remains a separate operation; these commits do not publish an installer
 or claim hardware/RF qualification. Ground-only pointers, one-stage/one-FC coupled
 execution and the illustrative beam-width model retain the limits in the user guide.
+
+## G5 — actual Mac launcher acceptance and packaging repairs (2026-10-28)
+
+User reports exposed a gap in G4: the package fixtures invoked Java on a flat
+classpath, and browser acceptance used a development host. Neither exercised the
+native launcher's isolated class loader or the welcome dialog. The earlier green
+matrix therefore did not establish full desktop startup acceptance.
+
+Three repairs address the reports:
+
+- `processResources` now bundles `ReleaseNotes.md` directly. The previous Copy task
+  configured its source inside `doLast` and left the file out of the distribution.
+  The development fallback handles a filesystem root without a parent and reports
+  missing notes as an ordinary I/O error. Notes are read as UTF-8.
+- The isolated application loader delegates platform classes to Java's platform
+  loader. This exposes `jdk.httpserver` and `java.net.http`, required by Mission,
+  while retaining isolation from the system application classpath. A bootstrap-only
+  parent caused `NoClassDefFoundError` when the File menu created `MissionApi`.
+- Native images explicitly include the existing platform OpenRocket icon. The Mac
+  package verifies that its plist-selected icon matches the source artwork byte for
+  byte. The previous qualification image silently used the generic Java icon.
+
+Local acceptance launched the rebuilt Apple Silicon `.app/Contents/MacOS/OpenRocket_MIT`
+from `/`, with its bundled Java/Python and no shell working-directory dependency.
+The disposable `MissionDesktopSmokeAgent` isolates preferences in memory (macOS does
+not honor `java.util.prefs.userRoot`), observes and closes the real welcome dialog,
+opens the bundled model rocket through the normal example loader, and clicks the
+real **New Mission Simulation** menu item. Production `MissionWorkspace` owns the
+service and native file dialogs; no replacement host is injected.
+
+The browser then binds that current rocket and passes offline coordinate editing,
+flight/link/video configuration, native save/load dialogs, a paced run, pause and
+browser reconnect, named result creation, indexed queries, complete and recovered
+station exports, and a new recorded-flight experiment. It records native-window and
+browser screenshots. The agent exits only its own disposable test process. Local
+results are retained in `build/mission-package/macos-arm64-desktop-fix/report/desktop`.
+
+Three welcome regression tests passed. Standard and custom-FC packaged fixtures,
+including recorded-TX reruns, also passed through `JarInJarStarter` from `/` (61 and
+50 accepted frames respectively). The new launcher probe rejects the prior image.
+The native Mac workflow is now part of package qualification for both Mac targets;
+all four targets run the isolated-loader probe and packaged-resource checks. These
+new CI results must be assessed independently of the earlier G4 green matrix.
+
+`packaging/verification/mission-desktop-smoke.py APP REPORT` reproduces the full Mac
+test with `JAVA_HOME`, Node and Playwright available. `PLAYWRIGHT_MODULE`, `NODE` and
+`BROWSER_EXECUTABLE` can select installed tools; the report directory must be new.
+`packaging/mission/qualify.py --output DIRECTORY` builds a separate application image
+so a currently running user copy need not be overwritten. Release publication is
+still separate from this repair.
