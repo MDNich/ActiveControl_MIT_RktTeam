@@ -7,7 +7,7 @@ export function renderVideo(){
     field('video.preset','Vehicle preset',{choices:[['Balius','Balius'],['Iris','Iris'],['Custom','Custom']]}),
     `<label>Digital streams<input id="digital-count" type="number" min="0" max="32" step="1" value="${video.streams.filter(s=>s.kind==='digital').length}"></label>`,
     `<label>Analog streams<input id="analog-count" type="number" min="0" max="32" step="1" value="${video.streams.filter(s=>s.kind==='analog').length}"></label>`,
-    field('video.frameRateHz','Frames per second',{type:'number',min:1,max:60}),field('video.width','Slate width · px',{type:'number',min:160,max:3840,step:2}),field('video.height','Slate height · px',{type:'number',min:90,max:2160,step:2}),field('video.lossFraction','Delivery loss · %',{type:'number',scale:100,min:0,max:100}),field('video.delayMs','Delivery delay · ms',{type:'number',min:0}),field('video.analogNoiseFraction','Illustrative analog noise · %',{type:'number',scale:100,min:0,max:100})
+    field('video.frameRateHz','Frames per second',{type:'number',min:1,max:60}),field('video.lossFraction','Delivery loss · %',{type:'number',scale:100,min:0,max:100}),field('video.delayMs','Delivery delay · ms',{type:'number',min:0}),field('video.analogNoiseFraction','Illustrative analog noise · %',{type:'number',scale:100,min:0,max:100})
   ],'Headless missions record logical frames and slate assets. Paced connections use the application video path; publisher capacity is checked before start.');
   attachFields($('video-fields'));
   for(const kind of ['digital','analog'])$(kind+'-count').onchange=()=>{

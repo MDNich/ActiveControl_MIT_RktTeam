@@ -9,6 +9,7 @@ import java.util.*;
 public final class MissionParticipants implements AutoCloseable {
     private final Path directory;
     private final JsonObject mission, preferences;
+    private final JsonArray videoStreams;
     private final String runId, memberId;
     private final MissionRecorder recorder;
     private final MissionWorker headless;
@@ -16,9 +17,9 @@ public final class MissionParticipants implements AutoCloseable {
     private final Map<String, JsonObject> bindings = new LinkedHashMap<>();
     private final Map<String, JsonObject> identities = new LinkedHashMap<>();
     public MissionParticipants(Path directory, JsonObject mission, String runId, String memberId,
-                               JsonObject preferences, MissionRecorder recorder) throws IOException {
+                               JsonObject preferences, MissionRecorder recorder, JsonArray videoStreams) throws IOException {
         this.directory = directory; this.mission = mission; this.runId = runId; this.memberId = memberId;
-        this.preferences = preferences; this.recorder = recorder;
+        this.preferences = preferences; this.recorder = recorder; this.videoStreams = videoStreams;
         headless = new MissionWorker(directory.resolve("headless"), MissionStore.id(mission), runId, memberId);
     }
     public void configure(JsonArray stations) throws IOException {
@@ -41,7 +42,7 @@ public final class MissionParticipants implements AutoCloseable {
             var manifest = Json.createObjectBuilder().add("station", config).add("role", binding.getString("role"))
                     .add("coupled", mission.getJsonObject("telemetry").getString("mode").equals("custom-fc"))
                     .add("vehicleMode", mission.getJsonArray("vehicleBindings").size() > 1 ? "iris" : "balius")
-                    .add("dataDirectory", data.toString()).add("network", network).build();
+                    .add("videoStreams", videoStreams).add("dataDirectory", data.toString()).add("network", network).build();
             MissionWorker app = new MissionWorker(directory.resolve(id), MissionStore.id(mission), runId, memberId, manifest, preferences);
             applications.put(id, app); bindings.put(id, binding);
             identities.put(id, app.configure(Json.createArrayBuilder().add(config).build()));
@@ -74,6 +75,9 @@ public final class MissionParticipants implements AutoCloseable {
         var responses = Json.createArrayBuilder(); primary.values().forEach(responses::add);
         return Json.createObjectBuilder().add("stations", responses).add("operatorActions", actions).build();
     }
+    public void pause(boolean paused, long timeUs) throws IOException {
+        for (var app : applications.values()) app.request(paused ? "pause" : "resume", timeUs, JsonValue.EMPTY_JSON_OBJECT);
+    }
     public JsonObject provenance() {
         var apps = Json.createObjectBuilder(); identities.forEach(apps::add);
         return Json.createObjectBuilder(headless.provenance()).add("applications", apps).build();
@@ -89,7 +93,7 @@ public final class MissionParticipants implements AutoCloseable {
             try (var files = Files.walk(data)) {
                 for (Path file : files.filter(Files::isRegularFile).toList()) {
                     String relative = data.relativize(file).toString().replace('\\', '/');
-                    if (relative.startsWith("sessions/") || relative.equals("mission-clock.jsonl")) recorder.asset(prefix + relative, file);
+                    if (relative.startsWith("sessions/") || relative.equals("mission-clock.jsonl") || relative.equals("capture-timing.jsonl") || relative.equals("wall-timing.jsonl")) recorder.asset(prefix + relative, file);
                 }
             }
         }

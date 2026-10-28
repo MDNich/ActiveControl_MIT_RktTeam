@@ -149,3 +149,35 @@ observation regression tests passed. No serial devices were opened.
 Remaining work includes mission video, ensemble execution/result indexing and crash
 recovery, runtime packaging and platform qualification. Existing-process attachment
 and paused ownership transfer still need their integration gates before final completion.
+
+## E — logical video and real station video transport (2026-10-28)
+
+Added deterministic per-stream, per-member 960×540 PNG slates with mission title,
+run/member, vehicle, stream ordinal and rocket filename. The bundled DejaVu font,
+license, template version and hashes make the asset provenance explicit. Logical
+frame capture, delay, independent loss, outages and delivery are recorded separately;
+one static image is stored per stream. Analog interference is an explicitly
+illustrative deterministic static pattern, not an RF demodulation model.
+
+The Telemetry UI MissionProfile now supports arbitrary stream IDs and zero inputs
+without changing normal Balius/Iris profiles. Mission capture feeds the existing
+MediaService → H.264 Baseline/YUV420P MPEG-TS → leased native SRT → Base VideoWall
+path. Mission publishers and viewers accept SIMULATION explicitly. Missing logical
+frames stop the carrier; the existing five-second watchdog detects the outage.
+Pause carriers keep host-time leases alive and are labeled/excluded in the timing
+sidecar. Native capture and remote wall receipt mappings are retained with sessions.
+
+Connected video requires paced execution. A publisher supports two preview and two
+main sessions total; preflight rejects connected routes requiring more than two
+simultaneously displayed channels at a publisher. Headless logical video supports
+up to 64 total streams independently of that real-time encoder capacity.
+
+Validation: actual native SRT delivery to a Base wall, a >5-second outage and recovery
+passed using the Mission capture implementation. Zero/arbitrary registry and pause
+carrier checks passed. Existing video-wall/media regression checks passed after a
+compatibility fix for the test runtime's optional source-mode property. Java tests
+verify logical outage/recovery, two distinct slate hashes, dimensions, and a reopened
+archive containing only one PNG per stream. Full Java mission regression is recorded
+with the stage commit. A visual review caught and removed a residual LIVE label on
+Mission wall tiles. Receiver RNG addressing now includes transmitter identity, and
+same-time delivery ordering includes it as well.

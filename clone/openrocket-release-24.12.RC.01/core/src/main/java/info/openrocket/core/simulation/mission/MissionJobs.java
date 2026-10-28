@@ -14,7 +14,7 @@ public final class MissionJobs implements MissionApi.Jobs {
     public MissionJobs(Path root) throws IOException { this.root = root; Files.createDirectories(root.resolve("jobs")); }
     @Override public JsonObject capabilities() {
         try { MissionWorker.interpreter(); return Json.createObjectBuilder().add("available", true).add("standard", true).add("coupled", true)
-                .add("video", false).add("ensemble", false).add("workerProtocol", "rt-mission.v1").build(); }
+                .add("video", true).add("ensemble", false).add("workerProtocol", "rt-mission.v1").build(); }
         catch (IOException e) { return Json.createObjectBuilder().add("available", false).add("reason", e.getMessage()).build(); }
     }
     @Override public JsonObject start(MissionStore.Resolved resolved) throws IOException {
@@ -22,7 +22,16 @@ public final class MissionJobs implements MissionApi.Jobs {
         var job = new Job(resolved); jobs.put(job.id, job); job.persist(); executor.submit(job::run); return job.snapshot();
     }
     private static void admit(JsonObject mission) {
-        if (!mission.getJsonObject("video").getJsonArray("streams").isEmpty()) throw new IllegalArgumentException("Video transmission is being integrated; choose zero streams for this headless increment");
+        MissionVideo.validate(mission.getJsonObject("video"));
+        for (var value : mission.getJsonArray("stationBindings")) {
+            var station = value.asJsonObject();
+            if (station.getString("role").equals("video")) {
+                if (!mission.getJsonObject("execution").getString("clockMode", "lockstep").equals("paced"))
+                    throw new IllegalArgumentException("Application video requires paced execution; headless logical video supports lockstep");
+                long channels = mission.getJsonObject("video").getJsonArray("streams").stream().filter(v -> v.asJsonObject().getJsonArray("receivers").contains(Json.createValue(station.getString("siteId")))).count();
+                if (channels > 2) throw new IllegalArgumentException("A connected video publisher supports two preview and two main sessions total; route at most two displayed streams to " + station.getString("siteId") + " or use headless video");
+            }
+        }
         var ensemble = mission.getJsonObject("flight").getJsonObject("editor").getJsonObject("options").getJsonObject("ensemble");
         if (ensemble.getString("enabled", "false").equals("true")) throw new IllegalArgumentException("Mission ensembles are being integrated; choose a single flight in this increment");
         boolean interactive = mission.getJsonArray("stationBindings").stream().anyMatch(v -> v.asJsonObject().getString("owner").equals("interactive-ui"));
@@ -48,8 +57,8 @@ public final class MissionJobs implements MissionApi.Jobs {
         synchronized (job) {
             switch (action) {
                 case "status": case "results": return job.snapshot();
-                case "pause": if (job.status.equals("running")) { job.paused = true; job.status = "paused"; } break;
-                case "resume": if (job.paused) { job.paused = false; job.status = "running"; job.notifyAll(); } break;
+                case "pause": if (job.status.equals("running")) { if (job.participants != null) job.participants.pause(true, job.timeUs); job.paused = true; job.status = "paused"; } break;
+                case "resume": if (job.paused) { if (job.participants != null) job.participants.pause(false, job.timeUs); job.paused = false; job.status = "running"; job.notifyAll(); } break;
                 case "cancel": if (!job.terminal()) { job.cancelled = true; job.paused = false; job.notifyAll(); } break;
                 case "action": {
                     if (job.terminal() || job.status.equals("finalizing")) throw new IllegalArgumentException("Run no longer accepts actions");
@@ -73,6 +82,8 @@ public final class MissionJobs implements MissionApi.Jobs {
         long notificationSequence, timeUs = -1_000_000, endUs, lastPersist, wallStart, pausedNanos;
         String status = "starting", phase = "Preparing mission", failure = "";
         boolean paused, cancelled;
+        volatile MissionParticipants participants;
+        @Override public void participants(MissionParticipants value) { participants = value; }
         JsonObject metrics = JsonValue.EMPTY_JSON_OBJECT;
         Job(MissionStore.Resolved resolved) throws IOException {
             this.resolved = resolved; directory = root.resolve("jobs").resolve(id); Files.createDirectory(directory);

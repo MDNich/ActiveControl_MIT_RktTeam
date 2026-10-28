@@ -10,6 +10,7 @@ public final class MissionRun {
     public interface Control {
         void check();
         void progress(long timeUs, long endUs, String phase);
+        default void participants(MissionParticipants value) { }
         default JsonArray drainActions(int maximum) { return JsonValue.EMPTY_JSON_ARRAY; }
     }
     private record Delivery(long timeUs, String site, long ordinal, byte[] bytes, JsonObject metadata) { }
@@ -22,7 +23,7 @@ public final class MissionRun {
     private final Map<String, MissionPointer> mounts = new TreeMap<>();
     private final Map<String, MissionLink> links = new TreeMap<>();
     private final Map<String, long[]> counts = new TreeMap<>();
-    private final PriorityQueue<Delivery> deliveries = new PriorityQueue<>(Comparator.comparingLong(Delivery::timeUs).thenComparing(Delivery::site).thenComparingLong(Delivery::ordinal));
+    private final PriorityQueue<Delivery> deliveries = new PriorityQueue<>(Comparator.comparingLong(Delivery::timeUs).thenComparing(Delivery::site).thenComparing(d -> d.metadata.getString("transmitterId")).thenComparingLong(Delivery::ordinal));
     private long timeUs = -1_000_000;
     private final PriorityQueue<JsonObject> tape = new PriorityQueue<>(Comparator.comparingLong((JsonObject a) -> Long.parseLong(a.getString("timeUs"))).thenComparing(a -> a.getString("id", "")));
     private record Uplink(long timeUs, long ordinal, byte[] bytes, String id) { }
@@ -34,6 +35,7 @@ public final class MissionRun {
         this.resolved = resolved; this.recorder = recorder; this.runId = runId; this.member = member; this.control = control;
     }
     private MissionParticipants worker;
+    private MissionVideo video;
     private JsonObject preferences = JsonValue.EMPTY_JSON_OBJECT;
     public MissionRun applicationPreferences(JsonObject value) { preferences = value; return this; }
     private MissionTruth truth;
@@ -48,6 +50,7 @@ public final class MissionRun {
         if (simulation.getOptions().getEnsembleSettings().enabled()) throw new IllegalArgumentException("Mission ensemble runner is not installed in this increment");
         boolean coupled = mission.getJsonObject("telemetry").getString("mode").equals("custom-fc");
         prepare();
+        video = new MissionVideo(mission, recorder, runId, member);
         var fc = info.openrocket.core.simulation.extension.impl.ZephyrusFlightComputer.read(simulation);
         if (coupled) {
             if (simulation.getActiveConfiguration().getActiveStageCount() != 1 || bindings.size() != 1 || fc.getMissionDesign() == null)
@@ -57,8 +60,8 @@ public final class MissionRun {
             control.progress(0, 0, "Calculating complete flight branches");
             truth = MissionTruth.compute(simulation, this::checkpoint);
         }
-        try (var stationWorker = new MissionParticipants(privateDirectory, mission, runId, "member-" + member, preferences, recorder)) {
-            worker = stationWorker; worker.configure(stationConfiguration());
+        try (var stationWorker = new MissionParticipants(privateDirectory, mission, runId, "member-" + member, preferences, recorder, video.applicationStreams())) {
+            worker = stationWorker; control.participants(worker); worker.configure(stationConfiguration());
             if (coupled) {
                 truth = new MissionTruth(this::checkpoint);
                 stop = Math.round(simulation.getOptions().getMaxSimulationTime() * 1e6);
@@ -74,7 +77,7 @@ public final class MissionRun {
             } else {
                 truth.record(recorder, runId);
                 for (var binding : bindings.values()) if (truth.at(binding, 0) == null) throw new IllegalArgumentException("Vehicle " + binding.getString("id") + " has no launch trajectory");
-                long end = truth.end(); stop = Math.addExact(end, Long.parseLong(execution.getString("deliveryTailUs")));
+                long end = truth.end(); video.end(end); stop = Math.addExact(end, Long.parseLong(execution.getString("deliveryTailUs")));
                 var sources = new TreeMap<String, MissionTelemetrySource>();
                 bindings.forEach((id, binding) -> sources.put(id, new MissionTelemetrySource(mission.getJsonObject("telemetry"), binding, sites.get("launch-site"), execution.getString("seed"), member)));
                 while (true) {
@@ -114,7 +117,7 @@ public final class MissionRun {
     }
     private void checkpoint() { control.check(); try { recorder.checkpointIfDue(); } catch (IOException e) { throw new UncheckedIOException(e); } }
     private long nextStationDeadline() {
-        long next = policyTick;
+        long next = Math.min(policyTick, video.next());
         if (!deliveries.isEmpty()) next = Math.min(next, deliveries.peek().timeUs);
         if (!started) next = Math.min(next, 0);
         if (!tape.isEmpty()) next = Math.min(next, Long.parseLong(tape.peek().getString("timeUs")));
@@ -127,6 +130,7 @@ public final class MissionRun {
         for (var mount : mounts.values()) mount.advance(timeUs);
     }
     private void serviceBoundary() throws IOException {
+        video.advance(timeUs);
         var actions = new HashMap<String, JsonArray>();
         for (String id : stations.keySet()) {
             var array = Json.createArrayBuilder();
@@ -226,6 +230,7 @@ public final class MissionRun {
             public void end(info.openrocket.core.simulation.SimulationStatus status, boolean complete) {
                 truth.postStep(status);
                 stop = Math.round(status.getSimulationTime() * 1e6) + Long.parseLong(resolved.mission().getJsonObject("execution").getString("deliveryTailUs"));
+                video.end(Math.round(status.getSimulationTime() * 1e6));
                 if (!complete) return;
                 try { while (nextStationDeadline() <= stop) { moveClock(nextStationDeadline(), "Completing final deliveries"); serviceBoundary(); } }
                 catch (IOException e) { throw new UncheckedIOException(e); }
@@ -272,7 +277,7 @@ public final class MissionRun {
         for (var entry : stations.entrySet()) {
             String site = entry.getKey(), target = entry.getValue().getString("targetVehicleId", bindings.keySet().iterator().next());
             boolean tuned = target.equals(vehicle); if (tuned) counts.get(site)[0]++;
-            var outcome = links.get(site).transmit(timeUs, packet.ordinal(), packet.payload(), codec == null ? 144 : codec.frameBytes(), tuned, beamQualified(site, truth));
+            var outcome = links.get(site).transmit(vehicle, timeUs, packet.ordinal(), packet.payload(), codec == null ? 144 : codec.frameBytes(), tuned, beamQualified(site, truth));
             event("link-" + outcome.outcome(), timeUs, Json.createObjectBuilder(packet.metadata()).add("siteId", site).add("deliveryUs", Long.toString(outcome.deliveryUs())).build());
             if (outcome.payload() != null) {
                 counts.get(site)[1]++;
@@ -287,6 +292,7 @@ public final class MissionRun {
         var array = Json.createArrayBuilder();
         for (String id : stations.keySet()) { var packets = Json.createArrayBuilder(); batch.get(id).forEach(packets::add);
             array.add(Json.createObjectBuilder().add("id", id).add("deliveries", packets).add("actions", actions.getOrDefault(id, JsonValue.EMPTY_JSON_ARRAY)).add("evaluate", evaluate)
+                    .add("videoState", video.state(id))
                     .add("pointerPose", mounts.containsKey(id) ? mounts.get(id).state() : JsonValue.EMPTY_JSON_OBJECT)); }
         var result = worker.advance(timeUs, array.build());
         for (var action : result.getJsonArray("operatorActions")) tape.add(Json.createObjectBuilder(action.asJsonObject()).add("timeUs", Long.toString(timeUs + 1)).build());
