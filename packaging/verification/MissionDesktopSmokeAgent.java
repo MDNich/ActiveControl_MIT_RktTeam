@@ -15,6 +15,11 @@ public final class MissionDesktopSmokeAgent {
     private static boolean exampleRequested, missionRequested, connected;
     private static long mainWindowSeenAt;
     private static ClassLoader applicationLoader;
+    private static int step, site;
+    private static long stepAt;
+    private static JFrame missionWindow;
+    private static boolean paused;
+
 
     public static void premain(String directory, Instrumentation instrumentation) throws Exception {
         root = Path.of(directory).toAbsolutePath();
@@ -33,12 +38,7 @@ public final class MissionDesktopSmokeAgent {
                     SwingUtilities.invokeAndWait(() -> {
                         try { observe(); } catch (Throwable failure) { fail(failure); }
                     });
-                    if (connected && Files.exists(root.resolve("browser-passed"))) {
-                        Files.writeString(root.resolve("desktop-passed"),
-                                "Native launcher without welcome dialog, example rocket, Mission menu and browser acceptance passed.\n");
-                        System.out.println("NATIVE_DESKTOP_MISSION=PASS");
-                        System.exit(0);
-                    }
+
                 }
                 throw new AssertionError("Desktop acceptance timed out");
             } catch (Throwable failure) { fail(failure); }
@@ -57,6 +57,10 @@ public final class MissionDesktopSmokeAgent {
             if (name.endsWith("WelcomeDialog"))
                 throw new AssertionError("Welcome dialog must not appear on launch");
             if (name.equals("info.openrocket.swing.gui.main.BasicFrame")) main = (JFrame) window;
+            if(window instanceof JDialog dialog && "Mission Simulation".equals(dialog.getTitle())) {
+                capture(window,"mission-error.png");
+                throw new AssertionError("Native Mission error dialog at step "+step+": "+collectText(window));
+            }
             JFileChooser chooser = findChooser(window);
             if (chooser != null && Files.exists(root.resolve("chooser-next-path"))) {
                 String path = Files.readString(root.resolve("chooser-next-path")).strip();
@@ -97,26 +101,115 @@ public final class MissionDesktopSmokeAgent {
             SwingUtilities.invokeLater(item::doClick);
             return;
         }
-        if (missionRequested && !connected) {
-            var workspace = applicationLoader.loadClass("info.openrocket.swing.gui.mission.MissionWorkspace");
-            var field = workspace.getDeclaredField("api"); field.setAccessible(true);
-            Object api = field.get(null);
-            if (api == null) return;
-            Path drafts = root.resolve("missions/drafts");
-            try (var files = Files.list(drafts)) {
-                var draft = files.filter(p -> p.toString().endsWith(".json")).findFirst().orElse(null);
-                if (draft == null) return;
-                String id = draft.getFileName().toString().replace(".json", "");
-                String address = api.getClass().getMethod("uri", String.class).invoke(api, id).toString();
-                Path destination = root.resolve("workspace-url");
-                Files.createFile(destination, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
-                Files.writeString(destination, address);
-            }
-            connected = true;
-            System.out.println("NATIVE_DESKTOP_MISSION=READY");
+        if (missionRequested) nativeMission();
+    }
+
+    private static Object field(Object object, String name) throws Exception {
+        var f=object.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(object);
+    }
+    private static Component named(Container parent,String name) {
+        if(name.equals(parent.getName()))return parent;
+        for(Component child:parent.getComponents()) {
+            if(name.equals(child.getName()))return child;
+            if(child instanceof Container container){Component found=named(container,name);if(found!=null)return found;}
+        }
+        return null;
+    }
+    private static void click(String name) {
+        Component value=named(missionWindow,name);
+        if(!(value instanceof AbstractButton button))throw new AssertionError("Missing native button "+name);
+        SwingUtilities.invokeLater(button::doClick);
+    }
+    private static void text(String name,String value) {
+        Component field=named(missionWindow,name);
+        if(!(field instanceof JTextField input))throw new AssertionError("Missing field "+name);
+        input.setText(value);
+    }
+    private static String jsonString(Object json,String key)throws Exception {
+        return (String)applicationLoader.loadClass("jakarta.json.JsonObject").getMethod("getString",String.class).invoke(json,key);
+    }
+    private static void advance(){step++;stepAt=System.nanoTime();}
+    private static void nativeMission()throws Exception {
+        for(Window w:Window.getWindows())if(w.isShowing()&&"mission-window".equals(w.getName()))missionWindow=(JFrame)w;
+        if(missionWindow==null || Boolean.TRUE.equals(field(missionWindow,"busy")))return;
+        if(stepAt!=0 && System.nanoTime()-stepAt<400_000_000L)return;
+        JTabbedPane tabs=(JTabbedPane)field(missionWindow,"tabs");
+        switch(step){
+            case 0:
+                capture(missionWindow,"mission-sites.png");
+                if(tabs.getTabCount()!=6)throw new AssertionError("Expected six native mission pages");
+                // All locations remain explicit; test heights are never application defaults.
+                text("/sites/0/heightM","250");
+                site=1;advance();break;
+            case 1:
+                if(site<6){
+                    JComboBox<?> selector=(JComboBox<?>)named(missionWindow,"mission-site");
+                    selector.setSelectedIndex(site);
+                    text("/sites/"+site+"/heightM","250");site++;
+                }else {tabs.setSelectedIndex(1);click("mission-current-rocket");advance();}
+                break;
+            case 2:
+                if(((JComboBox<?>)named(missionWindow,"mission-simulation-choice")).getItemCount()==0)return;
+                click("mission-select-flight");advance();break;
+            case 3:
+                if(named(missionWindow,"/flight/editor/options/maximumTimeS")==null)return;
+                text("/flight/editor/options/maximumTimeS","6");
+                capture(missionWindow,"mission-flight.png");tabs.setSelectedIndex(2);advance();break;
+            case 4:
+                capture(missionWindow,"mission-telemetry.png");tabs.setSelectedIndex(3);advance();break;
+            case 5:
+                ((JCheckBox)named(missionWindow,"/outputs/recordEncodedVideo")).setSelected(true);capture(missionWindow,"mission-video.png");tabs.setSelectedIndex(4);click("mission-network-start");advance();break;
+            case 6:
+                capture(missionWindow,"mission-network.png");
+                Files.writeString(root.resolve("network-services.txt"),((JTextArea)named(missionWindow,"mission-network-endpoints")).getText());
+                tabs.setSelectedIndex(5);click("mission-validate");advance();break;
+            case 7:
+                String findings=((JTextArea)named(missionWindow,"mission-findings")).getText();
+                if(!findings.startsWith("Configuration valid"))throw new AssertionError("Native validation failed: "+findings);
+                click("mission-start");advance();break;
+            case 8:
+                Object job=field(missionWindow,"job");if(job==null)return;
+                String state=jsonString(job,"status");
+                if(state.equals("failed"))throw new AssertionError("Mission failed: "+job);
+                if(!paused && state.equals("running")){click("mission-pause");paused=true;advance();}
+                break;
+            case 9:
+                Object p=field(missionWindow,"job");if(!jsonString(p,"status").equals("paused"))return;
+                capture(missionWindow,"mission-paused.png");click("mission-resume");advance();break;
+            case 10:
+                Object result=field(missionWindow,"job");String terminal=jsonString(result,"status");
+                if(terminal.equals("failed"))throw new AssertionError("Mission failed: "+result);
+                if(!terminal.equals("complete"))return;
+                Path archive=Path.of(jsonString(result,"result"));if(!Files.isRegularFile(archive))throw new AssertionError("Missing result bundle");
+                try(var zip=new java.util.zip.ZipFile(archive.toFile())){if(zip.stream().noneMatch(e->e.getName().contains("/video/encoded/")&&e.getName().endsWith(".mkv")))throw new AssertionError("No encoded video in mission bundle");}
+                Files.writeString(root.resolve("job.json"),result.toString());capture(missionWindow,"mission-complete.png");
+                // Use the application's real save chooser.
+                Files.writeString(root.resolve("chooser-next-path"),root.resolve("saved.mission.json").toString());click("mission-save");advance();break;
+            case 11:
+                if(!Files.isRegularFile(root.resolve("saved.mission.json")))return;
+                Files.deleteIfExists(root.resolve("chooser-next-path"));
+                tabs.setSelectedIndex(4);click("mission-network-stop");advance();break;
+            case 12:
+                tabs.setSelectedIndex(5);click("mission-result-current");advance();break;
+            case 13:
+                if(field(missionWindow,"opened")==null)return;
+                click("mission-result-read");advance();break;
+            case 14:
+                JTable records=(JTable)named(missionWindow,"mission-result-records");
+                if(records==null||records.getRowCount()==0)throw new AssertionError("No indexed result rows");
+                capture(missionWindow,"mission-results.png");click("mission-result-derive");advance();break;
+            case 15:
+                if(!field(missionWindow,"mission").toString().contains("recordedFlight"))throw new AssertionError("Recorded experiment was not created");
+                tabs.setSelectedIndex(0);advance();break;
+            case 16:
+                capture(missionWindow,"mission-map-loaded.png");
+                Files.writeString(root.resolve("desktop-passed"),"Native launcher, six Swing mission pages, location/flight editing, network advertising, validation, paced run, pause/resume, result bundle and native Save chooser passed.\n");
+                System.out.println("NATIVE_DESKTOP_MISSION=PASS");System.exit(0);break;
+            default:throw new AssertionError("Unexpected step");
         }
     }
 
+    private static String collectText(Container parent){StringBuilder text=new StringBuilder();for(Component c:parent.getComponents()){if(c instanceof JLabel label)text.append(label.getText()).append(" ");if(c instanceof Container container)text.append(collectText(container));}return text.toString();}
     private static JFileChooser findChooser(Container parent) {
         if (parent instanceof JFileChooser chooser) return chooser;
         for (Component child : parent.getComponents()) if (child instanceof Container container) {

@@ -1,0 +1,26 @@
+{
+  "format": "openrocket.mission-network",
+  "version": 1,
+  "sha256": "be89f2fe49fb236936273174593775e62c0c7adff2596a362b03443056cddbef",
+  "files": [
+    "__init__.py",
+    "balius_states.py",
+    "domain.py",
+    "media.py",
+    "mission_network.py",
+    "mission_recording.py",
+    "network/__init__.py",
+    "network/configuration.py",
+    "network/journal.py",
+    "network/media.py",
+    "network/media_srt.py",
+    "network/observation.py",
+    "network/protocol.py",
+    "network/runtime.py",
+    "protocol.py",
+    "recording.py",
+    "rocket_protocol.py",
+    "station_profile.py"
+  ],
+  "python": ">=3.12,<3.15"
+}

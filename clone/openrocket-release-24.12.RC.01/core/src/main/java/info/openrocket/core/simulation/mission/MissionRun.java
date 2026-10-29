@@ -12,6 +12,8 @@ public final class MissionRun {
         void progress(long timeUs, long endUs, String phase);
         default void beginMember(int member) { }
         default void participants(MissionParticipants value) { }
+        default void networkBegin(JsonArray streams) throws IOException { }
+        default void networkAdvance(long timeUs, JsonArray batches, JsonArray stations) throws IOException { }
         default JsonArray drainActions(int maximum) { return JsonValue.EMPTY_JSON_ARRAY; }
         default JsonObject reconnectParticipant(JsonObject failure) throws IOException { throw new IOException("Mandatory participant lost: "+failure.getString("message")); }
         default void participantRestored() { }
@@ -104,6 +106,7 @@ public final class MissionRun {
         }
         try (var stationWorker = new MissionParticipants(privateDirectory, participantMission, runId, "member-" + member, preferences, recorder, video.applicationStreams())) {
             worker = stationWorker; control.participants(worker); worker.configure(stationConfiguration());
+            if (!headlessParticipants) control.networkBegin(video.applicationStreams());
             if (coupled) {
                 truth = new MissionTruth(this::checkpoint);
                 stop = Math.round(simulation.getOptions().getMaxSimulationTime() * 1e6);
@@ -352,7 +355,9 @@ public final class MissionRun {
             array.add(Json.createObjectBuilder().add("id", id).add("deliveries", packets).add("actions", actions.getOrDefault(id, JsonValue.EMPTY_JSON_ARRAY)).add("evaluate", evaluate)
                     .add("videoState", video.state(id))
                     .add("pointerPose", mounts.containsKey(id) ? mounts.get(id).state() : JsonValue.EMPTY_JSON_OBJECT)); }
-        var result = worker.advance(timeUs, array.build());
+        var networkBatch = array.build();
+        var result = worker.advance(timeUs, networkBatch);
+        if (!headlessParticipants) control.networkAdvance(timeUs, networkBatch, result.getJsonArray("stations"));
         for (var action : result.getJsonArray("operatorActions")) tape.add(Json.createObjectBuilder(action.asJsonObject()).add("timeUs", Long.toString(timeUs + 1)).build());
         for (var entry : result.getJsonArray("stations")) {
             var station = entry.asJsonObject(); String id = station.getString("id");

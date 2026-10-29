@@ -48,6 +48,10 @@ def main():
     spec.loader.exec_module(runtime)
     python_root = runtime.install(target, inputs / ('mission-python-' + target), SOURCE / 'build/mission-runtime-downloads', args.offline)
     python = python_root / ('python.exe' if sys.platform == 'win32' else 'bin/python3')
+    network_spec = importlib.util.spec_from_file_location('mission_network_runtime', Path(__file__).with_name('network-runtime.py'))
+    network_runtime = importlib.util.module_from_spec(network_spec)
+    network_spec.loader.exec_module(network_runtime)
+    network_runtime.install(python, python_root, SOURCE / 'build/mission-runtime-downloads', args.offline)
     # Headless regression runs with the actual pinned runtime, not the runner's Python.
     if not args.skip_build:
         run(gradle + ['--init-script', ROOT / 'packaging/mission/qualification.init.gradle', ':core:test', '--tests', 'info.openrocket.core.simulation.mission.*',
@@ -74,7 +78,13 @@ def main():
         import plistlib
         contents = image / 'OpenRocket_MIT.app/Contents'
         with (contents / 'Info.plist').open('rb') as stream:
-            icon_name = plistlib.load(stream)['CFBundleIconFile']
+            info = plistlib.load(stream)
+        icon_name = info['CFBundleIconFile']
+        info['NSLocalNetworkUsageDescription'] = 'Share simulated ground-station telemetry and video with Telemetry UI on the local network.'
+        info['NSBonjourServices'] = ['_rt-gs._tcp']
+        with (contents / 'Info.plist').open('wb') as stream:
+            plistlib.dump(info, stream)
+        run(['codesign', '--force', '--deep', '--sign', '-', contents.parent])
         if (contents / 'Resources' / icon_name).read_bytes() != icon.read_bytes():
             raise RuntimeError('The packaged application icon does not match the OpenRocket icon')
     app_jar = next(image.rglob('OpenRocket.jar'))

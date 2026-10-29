@@ -1,25 +1,24 @@
 # Mission Simulation in OpenRocket MIT 6.5
 
 Mission Simulation combines an OpenRocket flight, simulated telemetry receivers,
-up to four ground antenna pointers, video slates and optional real Telemetry UI
-workspaces. The result is one portable `.rktmission` ZIP bundle. This guide describes
+up to four ground antenna pointers, video slates and discoverable network stations
+for the Telemetry UI. The result is one portable `.rktmission` ZIP bundle. This guide describes
 the implemented software workflow; [the implementation ledger](18-mission-implementation-progress.md)
 records the verification revisions. A development version number does not publish
 an installer or a GitHub release.
 
 ## Start and save a configuration
 
-Open **File → New Mission Simulation…** in OpenRocket. A local browser workspace
-opens with six pages. OpenRocket owns the running jobs; refreshing the browser does
-not restart them. Keep OpenRocket running while a mission executes.
+Open **File → New Mission Simulation…** in OpenRocket. A native Java window opens
+with six tabs. Closing that window leaves its run active; reopen it from the same
+menu. Keep OpenRocket running while a mission executes. No browser is involved.
 
-**Load** opens a saved configuration or `.rktmission-setup`. **Save configuration**
+**Load** opens a saved configuration or `.rktmission-setup`. **Save…**
 saves editable JSON, including unresolved draft fields. **Portable setup** includes
 the frozen rocket, selected motor curves and FC files, and any recorded-flight source.
-Use a portable setup when moving between computers. Application locations and private
-connection tickets remain preferences on the current computer.
+Use a portable setup when moving between computers. No Telemetry UI application path, Python path or connection ticket is needed.
 
-1. **Site & stations:** the launch defaults to `18TUN2061530290` near URRG. Base and
+1. **Site & pointers:** the launch defaults to `18TUN2061530290` near URRG. Base and
    Away 1–4 use the Telemetry UI defaults. Enter a height and its MSL/ellipsoid datum
    for each enabled site. Heights are deliberately not guessed from imagery. Choose
    zero to four pointers; an Away receiver can also operate without a pointer.
@@ -34,7 +33,7 @@ connection tickets remain preferences on the current computer.
 4. Bind each logical vehicle to its stage for multistage missions. Before separation,
    attached vehicles follow the parent branch; after separation they use their own
    recorded branch. A single active stage can be bound automatically.
-5. **Run & results → Validate configuration** reports missing or incompatible inputs.
+5. **Run & results → Validate** reports missing or incompatible inputs.
    Start uses the validated snapshot; later edits belong to a later run.
 
 ## Flight, packets and ground links
@@ -43,7 +42,7 @@ connection tickets remain preferences on the current computer.
 | --- | --- |
 | Ground Link Analysis, standard source | The ordinary complete OpenRocket flight runs first. Its branches drive standard legacy Zephyrus telemetry and the ground simulation. Ground commands cannot alter that completed flight. |
 | Coupled Mission Simulation, custom FC | The existing FC listener runs with accepted physics steps, sensor acquisitions, controllers, PWM and FC recovery. The FC owns its transmission cadence. |
-| Paced application rehearsal | The chosen source advances in real time and can connect Telemetry UI workspaces. Pause freezes mission time and simulated freshness while host services remain available. |
+| Real-time network rehearsal | The chosen source advances in real time and publishes simulated Away stations. Pause freezes mission time; network heartbeats and video leases remain available. |
 | New experiment from saved results | A selected member's recorded trajectory is reused, with either its original transmissions or an explicitly selected standard generator. No FC is rerun. |
 
 Custom FC designs can declare a bounded telemetry format in `.fc` version 3.
@@ -74,42 +73,43 @@ Recorded command outcomes are simulator diagnostics, not wire acknowledgments.
 
 ## Connect the Telemetry UI
 
-Headless policies require no separate Telemetry UI installation. OpenRocket packages
-its pinned Python worker and runtime. For visible stations, use a Mission-capable
-Telemetry UI checkout/package with the matching shared contracts. The desktop
-requires PySide/Qt 6.12 or newer; the qualified dependency is 6.12.0. For an existing
-source environment, run `make setup` or `uv sync --locked` in the Telemetry UI project.
-Older bindings are rejected before connecting because repeated workspace rebuilds
-can leave stale native objects and crash the application.
+OpenRocket includes the station decoder, HTTP/WebSocket publisher, mDNS discovery,
+FFmpeg and SRT runtime. It does not launch or locate a Telemetry UI desktop.
 
-In **Connections**, choose either the Telemetry UI source project plus its Python
-interpreter, or its packaged executable. Selecting one launch method clears the
-other. **Check selected application** checks capabilities and contract compatibility.
-Choose **Interactive Telemetry UI** for the station that should issue pointer commands,
-or **Observer UI only** for a read-only view. An observer leaves pointer control with
-the headless policy. Base and each Away site can have a separate video application.
+1. In **Network**, enable sharing and choose **Local network** or **This computer
+   only**. **Advertise now** lets Base join before the flight starts. Starting a
+   shared run also starts its stations automatically. The panel lists addresses for
+   networks where multicast discovery is unavailable.
+2. Open the updated Telemetry UI normally in **Base** mode, choosing the same
+   Balius/Iris vehicle layout. Open **Station network**, select an Away entry marked
+   **SIMULATION**, and choose **Join selected station's mission**.
+3. In the telemetry role, joining a telemetry publisher selects it as the display
+   source. Other simulated receivers can be selected from the display-source list.
+   In the video role, the Base video wall adopts the advertised stream layout and
+   receives the slates using its ordinary leased SRT connections.
+4. Start the mission in OpenRocket. Use OpenRocket's timed actions or **Pointer / FC
+   command…** controls for simulated commands. Base receives observations and video;
+   it does not send hardware commands to the simulator.
 
-To use an application already open, choose **Mission Simulation → Prepare OpenRocket
-connection** in that Telemetry UI, then choose its connection file for the desired
-station role in OpenRocket. Each role needs its own waiting connection. The existing
-application opens a separate SIMULATION workspace; its normal workspace is preserved.
-Mission completion closes the simulated session without exiting the existing app.
+Each enabled Away site advertises a telemetry service and, when routed video exists,
+a video service using `_rt-gs._tcp.local.`. Every service has a persistent node ID, a
+fresh boot ID when restarted, a distinct HTTP port, and the mission UUID. Only the
+selected ensemble member is published. Packet data is the actual post-link receiver
+output, with the original received bytes; it is not copied from trajectory truth.
 
-All mission applications use isolated data directories, loopback network identities
-and SIMULATION labels. Physical serial/camera connections and switching into a separate
-replay or virtual trajectory are rejected in that workspace. Imported configurations
-cannot choose executables or attach applications automatically.
+Joining a simulation is explicit and never relabels it as live. Normal live stations
+can remain discoverable on the same LAN; station-slot conflict detection is scoped
+by mission, vehicle and source mode. Simulation acceptance is not restored silently
+on application restart. **Stop sharing** withdraws the services after a run ends.
+An active run must first finish or be cancelled before changing its publishers.
 
-Interactive ownership requires a paced clock. While paused, **Transfer to…** revokes
-the old controller before granting the new one, clears pending actions and advances
-the ownership epoch. Resume and explicitly restart tracking. Commands queued before
-that transfer are not replayed.
-
-A lost mandatory owner pauses the mission and offers **Reconnect**. Restore its waiting
-application or choose a replacement, reconnect, then resume and restart tracking.
-A new session instance preserves the original session alongside it. Uncertain commands
-are not resent. A detached read-only observer does not stop the mission. A failure of
-the canonical headless worker fails the member and preserves the committed prefix.
+The runtime uses HTTP/WebSocket control, mDNS discovery and leased H.264/MPEG-TS over
+SRT. These are trusted-LAN services; do not expose their ports directly to the public
+internet. SRT session tokens bind the requested media stream. No file chooser or
+application-launch endpoint is exposed on the LAN. The old private application
+attachment protocol remains available for compatibility tools, but it is no longer
+the native configuration workflow. Imported application bindings are retained as
+migration provenance while native station control moves to OpenRocket.
 
 ## Video and ensembles
 
@@ -119,7 +119,7 @@ its analog/digital ordinal, mission, run/member, vehicle and `.ork` filename. Lo
 frames refer to that stored image rather than copying it into every frame record.
 
 Configure overall or per-Away-receiver loss, delay and outage windows. Analog visual
-interference is an illustrative image effect. In paced connected missions, delivered
+interference is an illustrative image effect. In shared real-time missions, delivered
 slates pass through real H.264/MPEG-TS/SRT services into the Base video wall. A logical
 outage longer than the wall's watchdog interval produces an actual stale tile and
 recovery. Pause carriers keep host-time leases alive and are excluded from mission
@@ -127,9 +127,10 @@ frame counts and optional recordings.
 
 Headless logical video supports up to 64 streams. A connected publisher is limited
 to two preview and two main sessions total, so route at most two simultaneously
-shown streams to each connected video publisher. Enable **Also save encoded video**
-to include delivered video segments in native sessions; all selected enabled video
-receivers then need their video applications. Recording failures are surfaced.
+shown streams to each network video publisher. Enable **Also include encoded video
+in the result bundle** to save delivered video segments under the selected member
+without opening video applications. Network sharing and video feeds must be enabled.
+Recording failures are surfaced and committed simulation data is retained.
 
 Flight ensembles use OpenRocket's existing sampling order and distributions for
 motors, atmosphere, wind, mass and aerodynamic coefficients. Each member has separate
@@ -147,13 +148,13 @@ records, FC diagnostics when applicable, video assets/timelines, native station 
 metrics and an SQLite index. Every inventory entry has a length and SHA-256 hash.
 Private credentials and application-launch preferences are excluded.
 
-**Open result bundle** is read-only and starts no applications. Select a member and
-channel, then read a bounded time window. Plots show recorded measurements or truth
-with their stated units. Export a selected station or native session to `.rktflight`
+**Open this run’s result** or **Open result…** is read-only and starts no applications. Select a member and
+channel, then read a bounded time window. The record table and detail view show the saved values; native time-series plots can
+also be opened from a station export in Telemetry UI. Export a selected station or native session to `.rktflight`
 for the Telemetry UI's existing paused replay. The export includes an omission report;
 it does not fabricate UTC, physical pointer feedback or hardware acknowledgments.
 
-**Create experiment from selected member** makes a new configuration with a new
+**New experiment** makes a new configuration with a new
 mission identity. Choose original recorded transmissions or fresh standard Zephyrus
 packets explicitly. The launch, flight settings and vehicle bindings remain fixed;
 ground-site positions, links, pointers and video can change. Portable setups include
@@ -161,7 +162,7 @@ the selected source history, so the original result file is not needed afterward
 Choose a new rocket to return to a new physics/FC simulation. Recorded-source loading
 has a one-million accepted-truth-sample limit and reads TX chunks incrementally.
 
-**Recover interrupted run** opens its staging folder and writes a separate incomplete
+**Recover interrupted run…** opens its staging folder and writes a separate incomplete
 bundle using only hash-verified committed prefixes. It ignores uncommitted tails and
 leaves the original staging intact. Recovery does not resume an FC or reopen transports.
 The bundle can be inspected and exported through the same results controls.

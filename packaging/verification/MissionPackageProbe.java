@@ -22,6 +22,7 @@ public final class MissionPackageProbe {
         if(System.getProperty("openrocket.mission.python")!=null || System.getProperty("openrocket.mission.runtime")!=null)throw new AssertionError("Probe must discover the packaged runtime");
         System.setProperty("openrocket.bypass.motors","true");System.setProperty("openrocket.bypass.presets","true");
         var module=new GuiModule();Application.setInjector(com.google.inject.Guice.createInjector(module,new PluginModule()));module.startLoader();
+        System.setProperty("openrocket.mission.noDiscovery","true");
         var reports=Json.createArrayBuilder();
         for(String mode:new String[]{"standard","custom-fc"}) {
             Path folder=root.resolve(mode);Files.createDirectories(folder);
@@ -41,10 +42,26 @@ public final class MissionPackageProbe {
                     .add("execution",Json.createObjectBuilder(draft.getJsonObject("execution")).add("mode",mode.equals("custom-fc")?"coupled":"ground-link")).build());
             var resolved=store.resolve(MissionStore.id(draft),2);Path archive=folder.resolve("qualification.rktmission");
             JsonObject metrics;
-            try(var recorder=new MissionRecorder(folder.resolve("staging"),resolved.mission())) {
+            try(var recorder=new MissionRecorder(folder.resolve("staging"),resolved.mission());
+                var network=new MissionNetwork(folder.resolve("network"))) {
+                var networkMission=Json.createObjectBuilder(resolved.mission()).add("network",Json.createObjectBuilder()
+                    .add("enabled",true).add("video",true).add("bindHost","127.0.0.1").add("vehicleMode","balius")).build();
+                var advertised=network.start(networkMission);
+                if(advertised.getJsonArray("services").size()!=8)throw new AssertionError("Expected eight native Away services");
                 try(var inputs=Files.list(resolved.flightDirectory())){for(var input:inputs.toList())recorder.asset("assets/"+resolved.mission().getJsonObject("flight").getString("snapshotHash")+"/"+input.getFileName(),input);}
-                metrics=new MissionRun(resolved,recorder,"member-0",0,new MissionRun.Control(){public void check(){}public void progress(long t,long end,String phase){}}).execute(folder.resolve("private"));
+                metrics=new MissionRun(resolved,recorder,"member-0",0,new MissionRun.Control(){public void check(){}public void progress(long t,long end,String phase){}
+                    public void networkBegin(JsonArray streams)throws java.io.IOException{network.begin(streams);}
+                    public void networkAdvance(long t,JsonArray batches,JsonArray stations)throws java.io.IOException{network.advance(t,batches,stations);}
+                }).execute(folder.resolve("private"));
                 if(metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames")<20)throw new AssertionError("Station did not receive the packaged fixture");
+                network.phase("paused");
+                for(var entry:network.status().getJsonArray("services")) {
+                    var service=entry.asJsonObject();
+                    var connection=java.net.URI.create(service.getString("endpoint")+"/api/v1/info").toURL().openConnection();
+                    connection.setConnectTimeout(3000);connection.setReadTimeout(3000);
+                    try(var input=connection.getInputStream()){if(!MissionJson.read(input).getString("source_mode").equals("simulation"))throw new AssertionError("Wrong advertised source mode");}
+                }
+                network.phase("complete");recorder.json("network-publication.json",network.status());
                 MissionResults.index(recorder,folder.resolve("utilities"));recorder.finish(archive,"complete");
             }
             try(var result=new MissionArchive(archive)){result.verifyAll();if(result.names().stream().noneMatch(n->n.endsWith(".png")))throw new AssertionError("No video slate");}

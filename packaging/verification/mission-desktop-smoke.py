@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Test the actual macOS app launcher and production Mission UI in a disposable session.
-Requires a local desktop, Java 17, Node, Playwright and Chromium (or BROWSER_EXECUTABLE).
+Requires a local desktop and Java 17. Exercises the native Swing interface.
 No production settings are changed. Report directory must not exist.
 """
 import argparse
@@ -32,15 +32,13 @@ def main():
     with (root / 'launcher.log').open('w') as log:
         process = subprocess.Popen([launcher], cwd='/', env=environment, stdout=log, stderr=subprocess.STDOUT)
         try:
-            deadline = time.monotonic() + 120
-            while not (root / 'workspace-url').exists():
+            deadline = time.monotonic() + 240
+            while not (root / 'desktop-passed').exists():
                 if process.poll() is not None:
                     raise RuntimeError(f'Native launcher exited with {process.returncode}; see {root / "launcher.log"}')
                 if time.monotonic() > deadline:
                     raise RuntimeError(f'No Mission workspace appeared; see {root / "launcher.log"}')
                 time.sleep(.5)
-            subprocess.run([os.environ.get('NODE', 'node'), here / 'mission-workspace-browser.cjs', root],
-                           env={**os.environ, 'MISSION_NATIVE_DESKTOP': '1'}, check=True, timeout=360)
             if process.wait(timeout=30) != 0 or not (root / 'desktop-passed').exists():
                 raise RuntimeError('Native desktop acceptance did not pass')
         finally:

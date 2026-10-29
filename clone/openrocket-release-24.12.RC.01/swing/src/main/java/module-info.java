@@ -11,6 +11,7 @@ open module info.openrocket.swing {
 	// Libraries
 	requires org.slf4j;
 	requires java.desktop;
+    requires java.net.http;
 	requires com.miglayout.core;
 	requires com.miglayout.swing;
 	requires com.google.guice;

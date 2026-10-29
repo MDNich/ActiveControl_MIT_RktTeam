@@ -451,3 +451,48 @@ main window, retaining the real Mission menu and browser checks from G5.
 The rebuilt Apple Silicon app passed this full check with fresh preferences, as
 well as the bundled standard/custom-FC probes. Local reports are under
 `build/mission-package/macos-arm64-quiet-startup/report/`.
+
+
+## H1 — native Java configuration and ordinary network Away services (2026-10-29)
+
+The mission menu now opens a Swing window. MissionService owns the same in-process
+actions used by the retained compatibility HTTP adapter. The native tabs cover the
+map and MGRS locations, ground pointers, complete flight/motor/recovery/ensemble
+settings, packet/link settings, video routing and impairments, network publication,
+execution and indexed results. No browser, executable path or attachment ticket is
+part of the normal workflow. Legacy imported bindings remain in migration metadata.
+
+MissionNetwork owns a bundled headless publisher over bounded private process pipes.
+The publisher reuses Telemetry UI's actual rt-gs.v1 runtime and leased SRT transport,
+advertises GS1–GS4 telemetry/video through mDNS, and publishes only post-link accepted
+station observations with original bytes. Standard and custom FC sources take the
+same path. Only the selected ensemble member is shared. Pause retains boot/media
+identities and transport carriers without adding canonical samples or recordings.
+Optional encoded segments are included in the selected member's result inventory.
+
+Ordinary Telemetry UI Base mode can explicitly join discovered SIMULATION stations,
+select a telemetry receiver, and adopt their video stream registry. Display remains
+read-only; commands stay in OpenRocket. Conflict detection now distinguishes mission,
+vehicle and source mode. Leaving restores the ordinary video wall. No simulation
+acceptance is persisted implicitly.
+
+The Mac package includes pinned network wheels and a source-digest-verified SRT 1.5.4
+build (without encryption), plus the existing isolated Python/Java runtimes. Bonjour
+usage metadata is included in the app bundle. The four-platform package probe now
+starts all eight publishers and passes actual standard/custom-FC observations through
+them. The Mac agent drives the real native launcher and Swing controls, including
+validation, pause/resume, encoded recording and native saving.
+
+Local verification: 70 Java mission tests executed (4 existing skips); 47 network,
+video and receiver tests passed before the final recording extension; 32 targeted
+network, recorder and application tests passed including real SRT and local-LAN
+mDNS discovery without manual endpoints. Packaged standard/custom-FC and native Mac
+acceptance passed, including indexed result queries and deriving a new experiment.
+The matching packaged Telemetry UI passed Base telemetry startup and an input-isolated
+Base video startup check; 26 network/Base tests also passed against its qualified
+source snapshot. Evidence and the current OpenRocket app are under
+`clone/openrocket/build/mission-package/macos-arm64-native-network/`.
+
+`mission-desktop-smoke.py APP REPORT` now requires Java 17 and a desktop, without
+Node/Playwright. CI remains the authority for the other packaged architectures;
+local Mac success does not assert their outcome. A GitHub release remains separate.

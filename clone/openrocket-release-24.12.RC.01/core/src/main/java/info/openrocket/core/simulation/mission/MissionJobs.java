@@ -7,11 +7,19 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /** Java-owned jobs survive browser reconnects. Restarted processes recover prefixes, never resume an FC. */
-public final class MissionJobs implements MissionApi.Jobs {
+public final class MissionJobs implements MissionService.Jobs {
     private final Path root;
+    private final MissionNetwork network;
+    private volatile String networkOwner;
     private final Map<String, Job> jobs = new ConcurrentHashMap<>();
     private final ExecutorService executor = new ThreadPoolExecutor(2, 2, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(2), r -> { var t = new Thread(r, "mission-run"); t.setDaemon(true); return t; });
-    public MissionJobs(Path root) throws IOException { this.root = root; Files.createDirectories(root.resolve("jobs")); }
+    public MissionJobs(Path root) throws IOException { this.root = root; network = new MissionNetwork(root.resolve("network")); Files.createDirectories(root.resolve("jobs")); }
+    @Override public synchronized JsonObject network(String action, JsonObject mission) throws IOException {
+        if (!action.equals("status") && networkOwner != null) throw new IllegalArgumentException("Finish or cancel the shared mission before changing station services");
+        if (action.equals("start")) return network.start(mission);
+        if (action.equals("stop")) network.close();
+        return network.status();
+    }
     @Override public JsonObject capabilities() {
         try { MissionWorker.interpreter(); return Json.createObjectBuilder().add("available", true).add("standard", true).add("coupled", true)
                 .add("video", true).add("ensemble", true).add("workerProtocol", "rt-mission.v1").build(); }
@@ -22,10 +30,14 @@ public final class MissionJobs implements MissionApi.Jobs {
         if (jobs.size() > 128) jobs.entrySet().removeIf(e -> e.getValue().terminal());
         admit(resolved.mission());
         JsonArray readiness=validate(resolved.mission());if(!readiness.isEmpty())throw new IllegalArgumentException(readiness.getJsonObject(0).getString("message"));
-        var job = new Job(resolved); jobs.put(job.id, job); job.persist(); executor.submit(job::run); return job.snapshot();
+        if (MissionNetwork.enabled(resolved.mission()) && networkOwner != null) throw new IllegalArgumentException("A mission is already using the advertised stations");
+        var job = new Job(resolved);
+        if (MissionNetwork.enabled(resolved.mission())) { network.start(resolved.mission()); networkOwner = job.id; }
+        jobs.put(job.id, job); job.persist(); executor.submit(job::run); return job.snapshot();
     }
     @Override public JsonArray validate(JsonObject mission) {
         try {
+            if (mission.getJsonObject("flight").containsKey("editor")) admit(mission);
             var preferences=JsonValue.EMPTY_JSON_OBJECT;
             if(Files.isRegularFile(root.resolve("machine-preferences.json")))try(var in=Files.newInputStream(root.resolve("machine-preferences.json"))){preferences=MissionJson.read(in);}
             var attachments=preferences.getJsonObject("attachments");boolean checkLaunch=false;var boots=new HashSet<String>();
@@ -49,8 +61,17 @@ public final class MissionJobs implements MissionApi.Jobs {
             throw new IllegalArgumentException("Choose Coupled Mission Simulation for a custom FC, or Ground Link Analysis for the standard source");
         if(mode.equals("interactive") && !clock.equals("paced"))throw new IllegalArgumentException("Application rehearsal uses a paced clock");
         MissionVideo.validate(mission.getJsonObject("video"));
+        if (mission.containsKey("network")) {
+            var n = mission.getJsonObject("network");
+            n.getBoolean("enabled"); n.getBoolean("video");
+            if (!Set.of("balius", "iris").contains(n.getString("vehicleMode")) || !Set.of("0.0.0.0", "127.0.0.1").contains(n.getString("bindHost")))
+                throw new IllegalArgumentException("Select a supported network interface and Base vehicle layout");
+            if (mission.getJsonObject("outputs").getBoolean("recordEncodedVideo", false) && (!n.getBoolean("enabled") || !n.getBoolean("video")))
+                throw new IllegalArgumentException("Encoded video recording requires network sharing and video feeds");
+        }
+        if (MissionNetwork.enabled(mission) && !clock.equals("paced")) throw new IllegalArgumentException("Network sharing requires a real-time paced clock");
         outputName(mission);
-        if (mission.getJsonObject("outputs").getBoolean("recordEncodedVideo", false)) {
+        if (mission.getJsonObject("outputs").getBoolean("recordEncodedVideo", false) && !MissionNetwork.enabled(mission)) {
             if (!mission.getJsonObject("execution").getString("clockMode", "lockstep").equals("paced"))
                 throw new IllegalArgumentException("Encoded recordings require paced video application connections");
             for (var stream : mission.getJsonObject("video").getJsonArray("streams"))
@@ -104,8 +125,8 @@ public final class MissionJobs implements MissionApi.Jobs {
         synchronized (job) {
             switch (action) {
                 case "status": case "results": return job.snapshot();
-                case "pause": if (job.status.equals("running")) { job.paused = true; job.status = "paused"; job.actions.clear(); if (job.participants != null) job.participants.pause(true, job.timeUs); } break;
-                case "resume": if (job.paused) { if(!job.awaitingParticipant.isEmpty())throw new IllegalArgumentException("Reconnect the lost participant before resuming");if (job.participants != null) job.participants.pause(false, job.timeUs); job.paused = false; job.status = "running"; job.notifyAll(); } break;
+                case "pause": if (job.status.equals("running")) { job.paused = true; job.status = "paused"; job.actions.clear(); if (job.participants != null) job.participants.pause(true, job.timeUs); if (job.id.equals(networkOwner)) network.phase("paused"); } break;
+                case "resume": if (job.paused) { if(!job.awaitingParticipant.isEmpty())throw new IllegalArgumentException("Reconnect the lost participant before resuming");if (job.participants != null) job.participants.pause(false, job.timeUs); if (job.id.equals(networkOwner)) network.phase("running"); job.paused = false; job.status = "running"; job.notifyAll(); } break;
                 case "reconnect": {
                     if(job.awaitingParticipant.isEmpty() || !job.paused)throw new IllegalArgumentException("No paused participant needs reconnection");
                     job.reconnectRequested=true;job.status="reconnecting";job.notifyAll();break;
@@ -142,12 +163,14 @@ public final class MissionJobs implements MissionApi.Jobs {
         final ArrayDeque<JsonObject> notifications = new ArrayDeque<>();
         long notificationSequence, timeUs = -1_000_000, endUs, lastPersist, wallStart, pausedNanos;
         String status = "starting", phase = "Preparing mission", failure = "";
-        boolean paused, cancelled;
+        boolean paused, cancelled, networkFinished;
         boolean reconnectRequested;
         long recoveryStarted;
         String awaitingParticipant="";
         volatile MissionParticipants participants;
         @Override public synchronized void beginMember(int member) { wallStart = 0; pausedNanos = 0; participants = null; }
+        @Override public void networkBegin(JsonArray streams) throws IOException { if (id.equals(networkOwner)) network.begin(streams); }
+        @Override public void networkAdvance(long time, JsonArray batches, JsonArray stations) throws IOException { if (id.equals(networkOwner)) network.advance(time, batches, stations); }
         @Override public void participants(MissionParticipants value) { participants = value; }
         @Override public synchronized JsonObject reconnectParticipant(JsonObject failure) throws IOException {
             if(recoveryStarted==0)recoveryStarted=System.nanoTime();
@@ -200,6 +223,22 @@ public final class MissionJobs implements MissionApi.Jobs {
             }
             if (System.nanoTime() - lastPersist > 1_000_000_000L) try { persist(); } catch (IOException e) { throw new UncheckedIOException(e); }
         }
+        private void finishNetwork(MissionRecorder recorder, String phase) throws IOException {
+            if (!id.equals(networkOwner) || networkFinished) return;
+            var finished = network.finish();
+            var files = finished.getJsonArray("files");
+            network.phase(phase);
+            int member = resolved.mission().getJsonObject("execution").getInt("applicationMember", 0);
+            for (var entry : files) {
+                var file = entry.asJsonObject();
+                Path path = Path.of(file.getString("path")).toAbsolutePath().normalize();
+                if (!path.startsWith(root.resolve("network").toAbsolutePath().normalize())) throw new IOException("Video recording escaped the private publisher directory");
+                recorder.asset("runs/member-" + member + "/video/encoded/" + file.getString("name"), path);
+            }
+            recorder.json("network-publication.json", network.status());
+            networkFinished = true;
+            if (!finished.getString("error", "").isEmpty()) throw new IOException(finished.getString("error"));
+        }
         void run() {
             MissionRecorder recorder = null;
             try {
@@ -212,6 +251,7 @@ public final class MissionJobs implements MissionApi.Jobs {
                 if (Files.isRegularFile(root.resolve("machine-preferences.json"))) try (var in = Files.newInputStream(root.resolve("machine-preferences.json"))) { preferences = MissionJson.read(in); }
                 var result = MissionEnsemble.execute(resolved, recorder, directory.resolve("private-worker"), this, preferences);
                 metrics = result.metrics();
+                finishNetwork(recorder, result.status().startsWith("complete") ? "complete" : "failed");
                 synchronized (this) { status = "finalizing"; phase = "Verifying and saving the result bundle"; persist(); }
                 MissionResults.index(recorder, directory.resolve("utilities"));
                 recorder.finish(archive, result.status());
@@ -219,14 +259,21 @@ public final class MissionJobs implements MissionApi.Jobs {
             } catch (Exception e) {
                 String terminalStatus = e instanceof CancellationException ? "cancelled" : "failed";
                 synchronized (this) { status = "finalizing"; failure = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage(); phase = "Committed results preserved"; }
-                if (recorder != null) try { recorder.json("failure.json", Json.createObjectBuilder().add("status", terminalStatus).add("reason", failure).build()); MissionResults.index(recorder, directory.resolve("utilities")); recorder.finish(archive, terminalStatus); }
+                if (recorder != null) try {
+                    try { finishNetwork(recorder, terminalStatus); } catch (IOException networkFailure) { failure += "; network recording: " + networkFailure.getMessage(); }
+                    recorder.json("failure.json", Json.createObjectBuilder().add("status", terminalStatus).add("reason", failure).build()); MissionResults.index(recorder, directory.resolve("utilities")); recorder.finish(archive, terminalStatus); }
                 catch (IOException finalization) { synchronized (this) { failure += "; bundle finalization failed: " + finalization.getMessage(); } }
                 synchronized (this) { status = terminalStatus; }
             } finally {
+                if (id.equals(networkOwner)) {
+                    try { network.phase(status.startsWith("complete") ? "complete" : status.equals("cancelled") ? "cancelled" : "failed"); }
+                    catch (IOException e) { failure += "; network: " + e.getMessage(); }
+                    networkOwner = null;
+                }
                 if (recorder != null) try { recorder.close(); } catch (IOException e) { synchronized (this) { status = "failed"; failure += "; checkpoint failed: " + e.getMessage(); } }
                 try { persist(); } catch (IOException ignored) { /* The last durable status and staging remain discoverable. */ }
             }
         }
     }
-    @Override public void close() { for (var job : jobs.values()) synchronized (job) { job.cancelled = true; job.paused = false; if(job.participants!=null)job.participants.cancel(); job.notifyAll(); } executor.shutdown(); }
+    @Override public void close() { for (var job : jobs.values()) synchronized (job) { job.cancelled = true; job.paused = false; if(job.participants!=null)job.participants.cancel(); job.notifyAll(); } executor.shutdown(); network.close(); }
 }

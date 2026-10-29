@@ -1,0 +1,13 @@
+# Pinned headless network/media runtime. No desktop UI or camera dependencies.
+aiohttp==3.14.5
+aiohappyeyeballs==2.7.1
+aiosignal==1.4.0
+attrs==26.1.0
+frozenlist==1.8.0
+multidict==7.2.1
+propcache==0.5.4
+yarl==1.25.1
+idna==3.20
+ifaddr==0.2.0
+zeroconf==0.151.5
+imageio-ffmpeg==0.6.0
