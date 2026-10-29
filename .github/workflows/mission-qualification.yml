@@ -39,19 +39,21 @@ jobs:
         with:
           python-version: '3.13'
       - name: Build application image and run bundled Mission fixtures
-        run: python packaging/mission/qualify.py
+        # Windows' native DLL loader rejects deeply nested extension paths even
+        # when Python can read them. Use an installation-like, short image path.
+        run: python packaging/mission/qualify.py --output "${{ runner.temp }}/mission-package/${{ matrix.os }}"
       - name: Test actual Mac application startup and Mission workspace
         if: startsWith(matrix.os, 'macos-')
         run: |
           python packaging/verification/mission-desktop-smoke.py \
-            clone/openrocket-release-24.12.RC.01/build/mission-package/*/image/OpenRocket_MIT.app \
-            clone/openrocket-release-24.12.RC.01/build/mission-package/desktop/report/native
+            "${{ runner.temp }}/mission-package/${{ matrix.os }}/image/OpenRocket_MIT.app" \
+            "${{ runner.temp }}/mission-package/${{ matrix.os }}/report/native"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: mission-qualification-${{ matrix.os }}
           path: |
-            clone/openrocket-release-24.12.RC.01/build/mission-package/*/report
+            ${{ runner.temp }}/mission-package/*/report
             clone/openrocket-release-24.12.RC.01/core/build/test-results/test
             clone/openrocket-release-24.12.RC.01/core/build/reports/tests/test
           retention-days: 14

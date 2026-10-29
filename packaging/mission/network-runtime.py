@@ -27,8 +27,10 @@ def install(python, runtime, cache, offline=False):
     wheels = cache / ('network-wheels-' + platform.system() + '-' + platform.machine())
     wheels.mkdir(parents=True, exist_ok=True)
     if not offline:
-        run([python, '-I', '-m', 'pip', 'download', '--only-binary=:all:', '--no-deps',
-             '-r', requirements, '-d', wheels])
+        # Some pinned packages no longer publish Intel Mac wheels. Build a wheel
+        # from the pinned source when necessary, then install only this cache.
+        run([python, '-I', '-m', 'pip', 'wheel', '--no-deps',
+             '-r', requirements, '--wheel-dir', wheels])
     run([python, '-I', '-m', 'pip', 'install', '--no-index', '--no-deps', '--find-links', wheels,
          '-r', requirements, '--disable-pip-version-check'])
     native = build_srt(cache, offline)
