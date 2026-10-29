@@ -496,3 +496,37 @@ source snapshot. Evidence and the current OpenRocket app are under
 `mission-desktop-smoke.py APP REPORT` now requires Java 17 and a desktop, without
 Node/Playwright. CI remains the authority for the other packaged architectures;
 local Mac success does not assert their outcome. A GitHub release remains separate.
+
+
+## H2 — preserve network sessions and qualify platform media (2026-10-29)
+
+Advertising before a run now keeps the same station endpoints and boot identities
+when the draft is resolved into a flight. The publisher signature includes only
+its actual configuration; added geoid heights and frozen rocket metadata no longer
+restart a service that Base has already joined. Both packaged flight fixtures
+assert this continuity.
+
+An additional end-to-end check ran the actual Mac OpenRocket launcher with normal
+Telemetry UI Base telemetry and video windows. It received 336 observations and
+952 decoded frames, and both the digital and analog primary tiles displayed the
+mission slate. Native startup, pause/resume, result queries and deriving another
+experiment also passed. Evidence is under
+`clone/openrocket/build/mission-package/macos-arm64-native-network/integration-final/`.
+
+The four-platform OpenRocket qualification passed at `babd6e50`. Packaging builds
+pinned dependency wheels when Intel Mac binaries are unavailable and uses a short
+CI installation path to stay within the Windows native DLL loader's path limit.
+
+Telemetry UI now retains the initial encoded headers while an SRT socket connects.
+Linux qualification additionally exposed a crash in imageio-ffmpeg's bundled 7.0.2
+MPEG-TS decoder: the received transport file decoded on Mac but crashed the Linux
+binary even without networking. Linux reception therefore bundles a separately
+pinned, SHA-256-verified FFmpeg 8.1 build and performs a real MPEG-TS decode during
+runtime preparation. The same socket test passed in the Ubuntu test VM with that
+decoder. Analog and digital wall labels now count separately to match the slates.
+
+Final platform qualification: all four targets passed for
+[OpenRocket `babd6e50`](https://github.com/MDNich/ActiveControl_MIT_RktTeam/actions/runs/40922094930)
+and [Telemetry UI `c733d37`](https://github.com/MIT-Rocket-Team/RT_Telemetry_UI/actions/runs/40924377011).
+The rebuilt Telemetry Mac package also passed both Base role startup checks, and
+18 packaging regression tests passed after the build-helper import correction.
