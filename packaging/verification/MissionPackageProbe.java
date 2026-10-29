@@ -46,7 +46,16 @@ public final class MissionPackageProbe {
                 var network=new MissionNetwork(folder.resolve("network"))) {
                 var networkMission=Json.createObjectBuilder(resolved.mission()).add("network",Json.createObjectBuilder()
                     .add("enabled",true).add("video",true).add("bindHost","127.0.0.1").add("vehicleMode","balius")).build();
+                var draftNetwork=Json.createObjectBuilder(draft).add("network",networkMission.getJsonObject("network")).build();
+                var waiting=network.start(draftNetwork);
                 var advertised=network.start(networkMission);
+                for(int index=0;index<waiting.getJsonArray("services").size();index++) {
+                    var before=waiting.getJsonArray("services").getJsonObject(index);
+                    var after=advertised.getJsonArray("services").getJsonObject(index);
+                    if(!before.getString("endpoint").equals(after.getString("endpoint")) ||
+                            !before.getJsonObject("info").getString("boot_id").equals(after.getJsonObject("info").getString("boot_id")))
+                        throw new AssertionError("Resolving a flight restarted its advertised station endpoints");
+                }
                 if(advertised.getJsonArray("services").size()!=8)throw new AssertionError("Expected eight native Away services");
                 try(var inputs=Files.list(resolved.flightDirectory())){for(var input:inputs.toList())recorder.asset("assets/"+resolved.mission().getJsonObject("flight").getString("snapshotHash")+"/"+input.getFileName(),input);}
                 metrics=new MissionRun(resolved,recorder,"member-0",0,new MissionRun.Control(){public void check(){}public void progress(long t,long end,String phase){}

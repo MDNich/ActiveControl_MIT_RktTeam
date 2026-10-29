@@ -41,8 +41,33 @@ public final class MissionNetwork implements AutoCloseable {
     value.add(
         "recordEncodedVideo",
         mission.getJsonObject("outputs").getBoolean("recordEncodedVideo", false));
-    for (String key : List.of("sites", "video", "network", "vehicleBindings", "pointers"))
-      value.add(key, mission.get(key));
+    // Only publisher configuration belongs in this identity. Resolving a draft
+    // adds geoid heights and frozen rocket bindings; those must not restart the
+    // already advertised endpoints just as a Base client joins the flight.
+    var sites = Json.createArrayBuilder();
+    for (var entry : mission.getJsonArray("sites")) {
+      var site = entry.asJsonObject();
+      String id = site.getString("id");
+      if (!Set.of("gs1", "gs2", "gs3", "gs4").contains(id)) continue;
+      boolean pointer =
+          mission.getJsonArray("pointers").stream()
+              .map(JsonValue::asJsonObject)
+              .anyMatch(p -> p.getBoolean("enabled") && p.getString("siteId").equals(id));
+      sites.add(
+          Json.createObjectBuilder()
+              .add("id", id)
+              .add("enabled", site.getBoolean("enabled"))
+              .add("pointerEnabled", pointer));
+    }
+    var streams = Json.createArrayBuilder();
+    for (var entry : mission.getJsonObject("video").getJsonArray("streams")) {
+      var stream = entry.asJsonObject();
+      var selected = Json.createObjectBuilder();
+      for (String key : List.of("id", "kind", "vehicleId", "receivers"))
+        selected.add(key, stream.get(key));
+      streams.add(selected);
+    }
+    value.add("sites", sites).add("streams", streams).add("network", mission.get("network"));
     return value.build();
   }
 
