@@ -275,7 +275,7 @@ final class MissionMapPanel extends JPanel implements AutoCloseable {
             var response =
                 http.send(
                     HttpRequest.newBuilder(URI.create(url))
-                        .header("User-Agent", "OpenRocket-MIT/6.5 Mission map")
+                        .header("User-Agent", "OpenRocket-MIT/6.6 Mission map")
                         .timeout(Duration.ofSeconds(8))
                         .build(),
                     HttpResponse.BodyHandlers.ofByteArray());
