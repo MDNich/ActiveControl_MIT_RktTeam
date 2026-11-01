@@ -37,7 +37,7 @@ public final class MissionWindow extends JFrame {
   private String resolvedHash;
 
   public MissionWindow(MissionService service, OpenRocketDocument document, JsonObject draft) {
-    super("Mission Simulation — OpenRocket MIT");
+    super("Mission Simulation (Beta) — OpenRocket MIT");
     this.service = service;
     currentDocument = document;
     mission = defaults(draft);
@@ -123,7 +123,7 @@ public final class MissionWindow extends JFrame {
     title.addActionListener(
         e -> {
           set("/identity/title", Json.createValue(title.getText().trim()));
-          setTitle(title.getText() + " — Mission Simulation");
+          setTitle(title.getText() + " — Mission Simulation (Beta)");
         });
     add(toolbar, BorderLayout.NORTH);
     add(tabs, BorderLayout.CENTER);

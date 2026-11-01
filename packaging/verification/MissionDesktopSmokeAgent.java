@@ -225,7 +225,7 @@ public final class MissionDesktopSmokeAgent {
         return null;
     }
     private static JMenuItem findMenu(MenuElement parent) {
-        if (parent instanceof JMenuItem item && "New Mission Simulation...".equals(item.getText())) return item;
+        if (parent instanceof JMenuItem item && "New Mission Simulation (Beta)...".equals(item.getText())) return item;
         for (MenuElement child : parent.getSubElements()) {
             JMenuItem found = findMenu(child); if (found != null) return found;
         }

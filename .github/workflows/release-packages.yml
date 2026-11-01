@@ -1,0 +1,52 @@
+name: Release packages
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022, macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+          cache-dependency-path: 'clone/openrocket-release-24.12.RC.01/**/*.gradle'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Build and qualify bundled application
+        run: python packaging/mission/qualify.py --output "${{ runner.temp }}/mission-release"
+      - name: Verify actual Mac launcher and Mission window
+        if: startsWith(matrix.os, 'macos-')
+        run: >-
+          python packaging/verification/mission-desktop-smoke.py
+          "${{ runner.temp }}/mission-release/image/OpenRocket_MIT.app"
+          "${{ runner.temp }}/mission-release/report/native"
+      - name: Package verified application
+        run: >-
+          python packaging/mission/release-packages.py
+          --work "${{ runner.temp }}/mission-release"
+          --output "${{ runner.temp }}/release-artifacts"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.os }}
+          path: ${{ runner.temp }}/release-artifacts
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-checks-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/mission-release/report
+            clone/openrocket-release-24.12.RC.01/core/build/test-results/test
+          retention-days: 14

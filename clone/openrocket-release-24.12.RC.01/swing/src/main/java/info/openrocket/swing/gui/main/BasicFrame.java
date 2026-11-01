@@ -512,7 +512,7 @@ public class BasicFrame extends JFrame {
 		});
 		fileMenu.add(item);
 
-        JMenuItem missionItem = new JMenuItem("New Mission Simulation...");
+        JMenuItem missionItem = new JMenuItem("New Mission Simulation (Beta)...");
         missionItem.getAccessibleContext().setAccessibleDescription("Configure a mission, ground stations, telemetry, video and ensembles");
         missionItem.addActionListener(e -> info.openrocket.swing.gui.mission.MissionWorkspace.open(BasicFrame.this, document));
         fileMenu.add(missionItem);

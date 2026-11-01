@@ -25,7 +25,7 @@ class MissionArchiveTest extends BaseTestCase {
         var second = new MissionStore(temp.resolve("machine-b"), digest -> null);
         var loaded = second.importSetup(setup); assertEquals(draft, loaded);
         assertEquals(MissionFlightEditor.capture(simulation), MissionFlightEditor.capture(second.editableFlight(id)));
-        assertEquals(6, second.validate(id).size()); // Unresolved heights remain unresolved after transport.
+        assertTrue(second.validate(id).isEmpty()); // Editable zero-height defaults survive transport.
     }
 
     @Test void verifiedReadsAreLazyAndCorruptionCannotReplaceAnExistingResult() throws Exception {

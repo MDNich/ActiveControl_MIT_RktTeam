@@ -1,15 +1,15 @@
-# Mission Simulation in OpenRocket MIT 6.5
+# Mission Simulation (Beta) in OpenRocket MIT 6.5
 
 Mission Simulation combines an OpenRocket flight, simulated telemetry receivers,
 up to four ground antenna pointers, video slates and discoverable network stations
 for the Telemetry UI. The result is one portable `.rktmission` ZIP bundle. This guide describes
 the implemented software workflow; [the implementation ledger](18-mission-implementation-progress.md)
-records the verification revisions. A development version number does not publish
-an installer or a GitHub release.
+records the verification revisions. Mission Simulation is a beta feature: use it
+for software integration and repeatable experiments, not flight-hardware qualification.
 
 ## Start and save a configuration
 
-Open **File → New Mission Simulation…** in OpenRocket. A native Java window opens
+Open **File → New Mission Simulation (Beta)…** in OpenRocket. A native Java window opens
 with six tabs. Closing that window leaves its run active; reopen it from the same
 menu. Keep OpenRocket running while a mission executes. No browser is involved.
 
