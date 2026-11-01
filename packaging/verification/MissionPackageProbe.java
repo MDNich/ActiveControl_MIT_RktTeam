@@ -85,6 +85,16 @@ public final class MissionPackageProbe {
                                     .decode(java.util.Arrays.copyOfRange(raw,2,16)).get("state").intValue();
                             if(code!=wireState || mode.equals("standard") && code!=2)
                                 throw new AssertionError("Published state differs from the received flight packet");
+                            var display=observation.getJsonObject("values").getJsonObject("simulation_display");
+                            var nativeDetails=observation.getJsonObject("values").getJsonObject("native").getJsonObject("details");
+                            if(display==null || !display.getString("schema").equals("openrocket.received-display.v1") ||
+                                    !display.getString("packet_id").equals(nativeDetails.getString("packetId")) ||
+                                    !display.getString("tx_time_us").equals(nativeDetails.getString("txTimeUs")))
+                                throw new AssertionError("Missing packet-associated simulation illustration");
+                            double norm=display.getJsonArray("quaternion_wxyz").stream()
+                                    .mapToDouble(v->((JsonNumber)v).doubleValue()).map(v->v*v).sum();
+                            if(Math.abs(norm-1)>.001 || !display.getString("body_axis").equals("+Z"))
+                                throw new AssertionError("Invalid displayed simulation orientation");
                             publishedStates.add(state);
                         }
                     }

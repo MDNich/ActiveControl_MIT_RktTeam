@@ -342,6 +342,13 @@ public final class MissionRun {
         }
     }
     private void transmit(String vehicle, MissionTelemetrySource.Packet packet, MissionTruth truth) throws IOException {
+        // Preserve recorded TX metadata on replay. For a new packet, attach a
+        // separately labelled illustration before the RF delivery/loss pipeline.
+        if (!packet.metadata().containsKey("simulationDisplay")) {
+            var display = truth.displayAt(bindings.get(vehicle), packet.timeUs(), packet.metadata().getString("packetId"));
+            if (display != null) packet = new MissionTelemetrySource.Packet(packet.timeUs(), packet.ordinal(), packet.payload(),
+                    Json.createObjectBuilder(packet.metadata()).add("simulationDisplay", display).build());
+        }
         recorder.raw("runs/" + runId + "/transmitters/" + vehicle + "/tx", timeUs, packet.payload(), packet.metadata());
         for (var entry : stations.entrySet()) {
             String site = entry.getKey(), target = entry.getValue().getString("targetVehicleId", bindings.keySet().iterator().next());

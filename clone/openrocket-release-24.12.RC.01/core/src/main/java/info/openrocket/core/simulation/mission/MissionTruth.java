@@ -114,6 +114,48 @@ public final class MissionTruth extends AbstractSimulationListener {
     }
     public List<Branch> branches() { return Collections.unmodifiableList(branches); }
     public long end() { return branches.stream().mapToLong(Branch::end).max().orElseThrow(); }
+    /** Display-only illustration sampled at TX, delivered with that packet's loss/delay.
+     * This is not an FC measurement and must never enter station pointing policy.
+     */
+    public JsonObject displayAt(JsonObject binding, long timeUs, String packetId) {
+        Sample state = at(binding, timeUs);
+        // Coupled FC transmission can precede the next accepted solver sample.
+        // Use only a recent past sample, never peek at a future integration step.
+        if (state == null) {
+            for (Branch branch : branches) {
+                Sample previous = branch.samples.get(branch.samples.size() - 1);
+                if (previous.timeUs <= timeUs && timeUs - previous.timeUs <= 200_000
+                        && previous.stages.contains(binding.getString("componentId"))
+                        && (state == null || previous.timeUs > state.timeUs)) state = previous;
+            }
+        }
+        if (state == null) return null;
+        String component = binding.getString("componentId");
+        Map<String, Long> ignitions = new HashMap<>(), burnouts = new HashMap<>();
+        boolean parachute = false;
+        for (Branch branch : branches) for (JsonObject event : branch.events) {
+            long stamp = Long.parseLong(event.getString("timeUs"));
+            if (stamp > timeUs) continue;
+            Sample eventState = interpolate(branch, stamp);
+            if (eventState == null || !eventState.stages.contains(component)) continue;
+            String id = event.getString("componentId", "");
+            switch (event.getString("kind")) {
+                case "IGNITION" -> ignitions.merge(id, stamp, Math::max);
+                case "BURNOUT" -> burnouts.merge(id, stamp, Math::max);
+                case "RECOVERY_DEVICE_DEPLOYMENT" -> parachute = true;
+                default -> { }
+            }
+        }
+        boolean burning = ignitions.entrySet().stream().anyMatch(e -> e.getValue() > burnouts.getOrDefault(e.getKey(), Long.MIN_VALUE));
+        var q = Json.createArrayBuilder();
+        for (double value : state.quaternion) q.add(value);
+        return Json.createObjectBuilder().add("schema", "openrocket.received-display.v1")
+                .add("packet_id", packetId).add("tx_time_us", Long.toString(timeUs))
+                .add("solver_time_us", Long.toString(state.timeUs))
+                .add("frame", "body_to_ENU").add("body_axis", "+Z").add("quaternion_wxyz", q)
+                .add("motor_ignited", !ignitions.isEmpty()).add("motor_burning", burning)
+                .add("parachute_deployed", parachute).build();
+    }
     /** Nominal standard-telemetry phases. Coupled FC runs publish the FC's own state instead.
      * An altitude-triggered recovery deployment identifies MAIN; an apogee/drogue
      * deployment does not. Stopping/aborting a solver is not evidence of landing.

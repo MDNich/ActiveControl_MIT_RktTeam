@@ -52,6 +52,20 @@ class MissionTelemetryStateTest extends BaseTestCase {
         assertEquals(altitudeRecovery ? RTRocketState.MAIN : RTRocketState.APOGEE,
                 truth.phaseAt(binding, event(truth, "RECOVERY_DEVICE_DEPLOYMENT")));
         assertEquals(RTRocketState.END, truth.phaseAt(binding, landed));
+        var preflightDisplay = truth.displayAt(binding, -1_000_000, "preflight");
+        assertFalse(preflightDisplay.getBoolean("motor_burning"));
+        assertFalse(preflightDisplay.getBoolean("parachute_deployed"));
+        var burningDisplay = truth.displayAt(binding, launch, "burning");
+        assertTrue(burningDisplay.getBoolean("motor_burning"));
+        assertEquals("body_to_ENU", burningDisplay.getString("frame"));
+        assertEquals("+Z", burningDisplay.getString("body_axis"));
+        var landedDisplay = truth.displayAt(binding, landed, "landed");
+        assertFalse(landedDisplay.getBoolean("motor_burning"));
+        assertTrue(landedDisplay.getBoolean("motor_ignited"));
+        assertTrue(landedDisplay.getBoolean("parachute_deployed"));
+        double[] expectedQuaternion = truth.at(binding, landed).quaternion();
+        for (int i = 0; i < 4; i++) assertEquals(expectedQuaternion[i],
+                landedDisplay.getJsonArray("quaternion_wxyz").getJsonNumber(i).doubleValue());
 
         var source = source(binding);
         var codes = new ArrayList<Integer>();

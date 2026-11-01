@@ -1,7 +1,7 @@
 {
   "format": "openrocket.mission-network",
   "version": 1,
-  "sha256": "73f87ea97edb1842cc672fda82d035013472f0839c601cf7e31ce91ecb947181",
+  "sha256": "e775c4e7d8ef86e2337b962cc36513bf400e43ad9ebf4f1d4a138e142495995f",
   "files": [
     "__init__.py",
     "balius_states.py",
@@ -20,6 +20,7 @@
     "protocol.py",
     "recording.py",
     "rocket_protocol.py",
+    "simulation_display.py",
     "station_profile.py",
     "zephyrus_states.py"
   ],
