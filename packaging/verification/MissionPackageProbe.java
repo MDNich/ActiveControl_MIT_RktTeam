@@ -42,6 +42,7 @@ public final class MissionPackageProbe {
                     .add("execution",Json.createObjectBuilder(draft.getJsonObject("execution")).add("mode",mode.equals("custom-fc")?"coupled":"ground-link")).build());
             var resolved=store.resolve(MissionStore.id(draft),2);Path archive=folder.resolve("qualification.rktmission");
             JsonObject metrics;
+            var publishedStates = Json.createArrayBuilder();
             try(var recorder=new MissionRecorder(folder.resolve("staging"),resolved.mission());
                 var network=new MissionNetwork(folder.resolve("network"))) {
                 var networkMission=Json.createObjectBuilder(resolved.mission()).add("network",Json.createObjectBuilder()
@@ -69,6 +70,24 @@ public final class MissionPackageProbe {
                     var connection=java.net.URI.create(service.getString("endpoint")+"/api/v1/info").toURL().openConnection();
                     connection.setConnectTimeout(3000);connection.setReadTimeout(3000);
                     try(var input=connection.getInputStream()){if(!MissionJson.read(input).getString("source_mode").equals("simulation"))throw new AssertionError("Wrong advertised source mode");}
+                    if (service.getJsonObject("info").getString("role").equals("telem")) {
+                        var latest = java.net.URI.create(service.getString("endpoint")+"/api/v1/telemetry/latest").toURL().openConnection();
+                        latest.setConnectTimeout(3000);latest.setReadTimeout(3000);
+                        try(var input=latest.getInputStream()) {
+                            var observation=MissionJson.read(input).getJsonArray("observations").getJsonObject(0);
+                            var state=observation.getJsonObject("values").getJsonObject("state");
+                            int code=state.getInt("code");
+                            if(!state.getString("schema").equals("zephyrus-v1") || code<0 || code>5 ||
+                                    !state.getString("name").equals(edu.mit.rocket_team.util.RTRocketState.values()[code].name()))
+                                throw new AssertionError("Published state does not use the Zephyrus enum");
+                            byte[] raw=java.util.Base64.getDecoder().decode(observation.getJsonObject("packet").getString("raw_b64"));
+                            int wireState=mode.equals("standard") ? raw[65]&255 : new TelemetryCodec(MissionJson.resource("codec-vectors.json").getJsonObject("codec"))
+                                    .decode(java.util.Arrays.copyOfRange(raw,2,16)).get("state").intValue();
+                            if(code!=wireState || mode.equals("standard") && code!=2)
+                                throw new AssertionError("Published state differs from the received flight packet");
+                            publishedStates.add(state);
+                        }
+                    }
                 }
                 network.phase("complete");recorder.json("network-publication.json",network.status());
                 MissionResults.index(recorder,folder.resolve("utilities"));recorder.finish(archive,"complete");
@@ -83,7 +102,8 @@ public final class MissionPackageProbe {
                 replayAccepted=result.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames");
                 if(replayAccepted!=metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames"))throw new AssertionError("Saved packet experiment changed unmodified reception");
             }
-            reports.add(Json.createObjectBuilder().add("recordedAccepted",replayAccepted).add("mode",mode).add("accepted",metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames")));
+            reports.add(Json.createObjectBuilder().add("recordedAccepted",replayAccepted).add("mode",mode).add("publishedStates",publishedStates)
+                    .add("accepted",metrics.getJsonObject("receivers").getJsonObject("gs1").getInt("acceptedFrames")));
         }
         MissionJson.writeAtomic(root.resolve("report.json"),Json.createObjectBuilder().add("passed",true).add("os",System.getProperty("os.name"))
                 .add("architecture",System.getProperty("os.arch")).add("javaHome",System.getProperty("java.home")).add("python",MissionWorker.interpreter().toString()).add("fixtures",reports).build());

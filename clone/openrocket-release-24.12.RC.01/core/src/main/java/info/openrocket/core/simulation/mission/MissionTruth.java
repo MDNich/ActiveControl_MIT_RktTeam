@@ -1,6 +1,8 @@
 package info.openrocket.core.simulation.mission;
 
+import edu.mit.rocket_team.util.RTRocketState;
 import info.openrocket.core.document.Simulation;
+import info.openrocket.core.rocketcomponent.RecoveryDevice;
 import info.openrocket.core.simulation.*;
 import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
 import info.openrocket.core.simulation.exception.SimulationException;
@@ -77,6 +79,8 @@ public final class MissionTruth extends AbstractSimulationListener {
         if (event.getType() != FlightEvent.Type.ALTITUDE) {
             var json = Json.createObjectBuilder().add("timeUs", Long.toString(Math.round(event.getTime() * 1e6)))
                     .add("kind", event.getType().name()).add("componentId", event.getSource() == null ? "" : event.getSource().getID().toString());
+            if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT && event.getSource() instanceof RecoveryDevice recovery)
+                json.add("deploymentTrigger", recovery.getDeploymentConfigurations().get(status.getConfiguration().getFlightConfigurationID()).getDeployEvent().name());
             branch.events.add(json.build());
         }
         if (event.getType() == FlightEvent.Type.GROUND_HIT) branch.landed = true;
@@ -110,6 +114,31 @@ public final class MissionTruth extends AbstractSimulationListener {
     }
     public List<Branch> branches() { return Collections.unmodifiableList(branches); }
     public long end() { return branches.stream().mapToLong(Branch::end).max().orElseThrow(); }
+    /** Nominal standard-telemetry phases. Coupled FC runs publish the FC's own state instead.
+     * An altitude-triggered recovery deployment identifies MAIN; an apogee/drogue
+     * deployment does not. Stopping/aborting a solver is not evidence of landing.
+     */
+    public RTRocketState phaseAt(JsonObject binding, long timeUs) {
+        if (timeUs < 0) return RTRocketState.PRE_FLIGHT;
+        String component = binding.getString("componentId");
+        RTRocketState phase = RTRocketState.PRE_FLIGHT;
+        for (Branch branch : branches) for (JsonObject event : branch.events) {
+            long eventTime = Long.parseLong(event.getString("timeUs"));
+            if (eventTime > timeUs) continue;
+            Sample sample = interpolate(branch, eventTime);
+            if (sample == null || !sample.stages.contains(component)) continue;
+            RTRocketState next = switch (event.getString("kind")) {
+                case "LIFTOFF" -> RTRocketState.FLIGHT;
+                case "APOGEE" -> RTRocketState.APOGEE;
+                case "RECOVERY_DEVICE_DEPLOYMENT" -> event.getString("deploymentTrigger", "").equals("ALTITUDE")
+                        ? RTRocketState.MAIN : null;
+                case "GROUND_HIT" -> RTRocketState.END;
+                default -> null;
+            };
+            if (next != null && next.ID > phase.ID) phase = next;
+        }
+        return phase;
+    }
     public Sample at(JsonObject binding, long timeUs) {
         String component = binding.getString("componentId");
         long t = Math.max(0, timeUs);

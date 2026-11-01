@@ -1,7 +1,7 @@
 {
   "format": "openrocket.mission-worker",
   "version": 1,
-  "sha256": "dbf468532e0f128b50bc460ab626357bb5881c19a56b0146dbf0d225d215f663",
+  "sha256": "f06f3db338de26e5ade9ccda69a0846caf95707c02a45f6b3e3f62d0e5d3c2ef",
   "files": [
     "__init__.py",
     "domain.py",
@@ -30,7 +30,8 @@
     "mission_station.py",
     "mission_worker.py",
     "protocol.py",
-    "tracking_policy.py"
+    "tracking_policy.py",
+    "zephyrus_states.py"
   ],
   "python": ">=3.12,<3.15"
 }

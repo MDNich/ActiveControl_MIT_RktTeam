@@ -583,3 +583,26 @@ without pressing Use current rocket. The rebuilt Mac app passed the full check,
 including flight editing, network publication, run/pause/resume, result inspection
 and saving a configuration. The signed app is under
 `clone/openrocket/build/mission-package/macos-arm64-current-rocket/image/OpenRocket_MIT.app`.
+
+## H6 — Zephyrus states on the telemetry stream (2026-11-01)
+
+Standard telemetry now encodes the `RTRocketState` phase at payload byte 63,
+replacing the previous unavailable value 255. Accepted flight events supply nominal
+PRE_FLIGHT, FLIGHT, APOGEE, altitude-triggered MAIN and landed END; a terminal packet
+preserves END when landing falls between TX ticks. A truncated flight is not END.
+Executed flight computers keep their own transmitted phase and timing. Custom-codec
+decoding now preserves `state.code`, with missing optional fields left unknown.
+
+The publisher carries the original decoded number, exact enum name and explicit
+`zephyrus-v1` schema through the normal station network. Base uses that schema so
+MAIN is not relabelled as provisional Balius LOW_BATTERY. Provenance distinguishes
+nominal `flight-events` from an executed `flight-computer`.
+
+Validation: 65 combined Python checks passed (one opt-in multicast check skipped),
+including all six enum values published by four independent station HTTP services
+and displayed by an ordinary Base window. Four Java flight/state/replay integration
+checks passed. The packaged Mac runtime also verified matching decoded and raw-wire
+FLIGHT states from all four stations for both standard and custom-FC runs, plus
+archive integrity and recorded-packet replay. Both embedded bundle digests and the
+app signature verify. The OpenRocket app is under
+`clone/openrocket/build/mission-package/macos-arm64-zephyrus-states/image/OpenRocket_MIT.app`.

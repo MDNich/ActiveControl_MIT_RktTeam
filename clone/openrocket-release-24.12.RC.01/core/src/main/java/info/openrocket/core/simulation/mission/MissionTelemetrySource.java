@@ -1,5 +1,6 @@
 package info.openrocket.core.simulation.mission;
 
+import edu.mit.rocket_team.util.RTRocketState;
 import jakarta.json.*;
 import java.nio.*;
 
@@ -11,6 +12,7 @@ public final class MissionTelemetrySource {
     private final long member;
     private final double gpsRate, baroRate, txRate;
     private long gpsOrdinal, baroOrdinal, txOrdinal, gpsTime = -1_000_000, baroTime = -1_000_000;
+    private long lastTxTime = Long.MIN_VALUE;
     private double latitude, longitude, gpsHeight, baroHeight, velocity;
     private boolean hasGps, hasBaro;
     public MissionTelemetrySource(JsonObject config, JsonObject binding, JsonObject launch, String seed, long member) {
@@ -21,6 +23,14 @@ public final class MissionTelemetrySource {
     private static long deadline(long ordinal, double hz) { return -1_000_000 + Math.round(ordinal * 1e6 / hz); }
     public long next() { return Math.min(deadline(txOrdinal, txRate), Math.min(deadline(gpsOrdinal, gpsRate), deadline(baroOrdinal, baroRate))); }
     public Packet advance(long time, MissionTruth truth) {
+        return advance(time, truth, false);
+    }
+    /** Emit the final landing state even when touchdown falls between transmit ticks. */
+    public Packet finish(long time, MissionTruth truth) {
+        if (lastTxTime >= time || truth.phaseAt(binding, time) != RTRocketState.END) return null;
+        return advance(time, truth, true);
+    }
+    private Packet advance(long time, MissionTruth truth, boolean terminal) {
         MissionTruth.Sample state = truth.at(binding, time);
         var noise = config.getJsonObject("noise"); if (noise == null) noise = JsonValue.EMPTY_JSON_OBJECT;
         if (deadline(gpsOrdinal, gpsRate) == time) {
@@ -41,13 +51,15 @@ public final class MissionTelemetrySource {
             else hasBaro = false;
             baroOrdinal++;
         }
-        if (deadline(txOrdinal, txRate) != time) return null;
+        if (!terminal && deadline(txOrdinal, txRate) != time) return null;
         long packetOrdinal = txOrdinal++;
         if (state == null) return null;
+        lastTxTime = time;
         byte[] bytes = new byte[128]; var payload = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         bytes[31] = (byte) (hasGps ? 3 : 0); payload.putInt(32, (int) Math.rint(latitude * 1e7)).putInt(36, (int) Math.rint(longitude * 1e7));
         payload.putFloat(40, hasGps ? (float) gpsHeight : Float.NaN).putFloat(59, hasBaro ? (float) baroHeight : Float.NaN);
-        bytes[63] = (byte) 255; payload.putInt(80, (int) ((time + 1_000_000) / 1000)).putShort(84, (short) packetOrdinal);
+        bytes[63] = (byte) truth.phaseAt(binding, time).ID;
+        payload.putInt(80, (int) ((time + 1_000_000) / 1000)).putShort(84, (short) packetOrdinal);
         payload.putFloat(122, hasBaro ? (float) velocity : Float.NaN);
         int sum = 0; for (int i = 0; i < 127; i++) sum += bytes[i] & 255; bytes[127] = (byte) sum;
         var reference = Json.createObjectBuilder().add("convention", "relative-msl").add("baselineMslM", number(launch, "mslHeightM", 0))
@@ -55,7 +67,9 @@ public final class MissionTelemetrySource {
         var metadata = Json.createObjectBuilder().add("packetId", id + "-" + packetOrdinal).add("transmitterId", id)
                 .add("txTimeUs", Long.toString(time)).add("bootTimeUs", Long.toString(time + 1_000_000))
                 .add("acquisitionTimeUs", Long.toString(gpsTime)).add("barometerTimeUs", Long.toString(baroTime)).add("heightReference", reference)
-                .add("unavailable", Json.createArrayBuilder().add("hardware").add("attitude").add("rates").add("acceleration").add("state")).build();
+                .add("stateSchema", "zephyrus-v1").add("stateBasis", "flight-events")
+                .add("terminalState", terminal)
+                .add("unavailable", Json.createArrayBuilder().add("hardware").add("attitude").add("rates").add("acceleration")).build();
         return new Packet(time, packetOrdinal, bytes, metadata);
     }
     public static byte[] trailer(JsonObject receiver) {

@@ -129,14 +129,23 @@ public final class MissionRun {
                 var sources = new TreeMap<String, MissionTelemetrySource>();
                 boolean savedPackets=recorded!=null && mission.getJsonObject("recordedFlight").getString("telemetrySource").equals("recorded-tx");
                 if(!savedPackets)bindings.forEach((id, binding) -> sources.put(id, new MissionTelemetrySource(mission.getJsonObject("telemetry"), binding, sites.get("launch-site"), execution.getString("seed"), member)));
+                boolean finalStatesPending = !savedPackets;
                 while (true) {
                     long next = nextStationDeadline();
+                    if (finalStatesPending) next = Math.min(next, end);
                     if(savedPackets && recorded.next()<=end)next=Math.min(next,recorded.next());
                     for (var source : sources.values()) if (source.next() <= end) next = Math.min(next, source.next());
                     if (next > stop) break;
                     moveClock(next, "Replaying telemetry and tracking stations");
                     for (var entry : sources.entrySet()) if (entry.getValue().next() == timeUs && timeUs <= end) {
                         var packet = entry.getValue().advance(timeUs, truth); if (packet != null) transmit(entry.getKey(), packet, truth);
+                    }
+                    if (finalStatesPending && timeUs == end) {
+                        for (var entry : sources.entrySet()) {
+                            var packet = entry.getValue().finish(timeUs, truth);
+                            if (packet != null) transmit(entry.getKey(), packet, truth);
+                        }
+                        finalStatesPending = false;
                     }
                     if(savedPackets)while(recorded.next()==timeUs && timeUs<=end) {
                         var packet=recorded.take();transmit(packet.vehicle(),packet.packet(),truth);
@@ -304,6 +313,7 @@ public final class MissionRun {
                 .add("txTimeUs", Long.toString(boot - 1_000_000)).add("bootTimeUs", Long.toString(boot))
                 .add("acquisitionTimeUs", Long.toString(computer.getLastGpsAcquisitionUs() - 1_000_000))
                 .add("barometerTimeUs", Long.toString(computer.getLastSensorAcquisitionUs() - 1_000_000)).add("missingFields", missing)
+                .add("stateSchema", "zephyrus-v1").add("stateBasis", "flight-computer")
                 .add("heightReference", Json.createObjectBuilder().add("convention", "relative-msl").add("baselineMslM", computer.gps.getReferenceMslM())
                         .add("epoch", computer.gps.getReferenceEpoch()).add("geoidSeparationM", MissionGeoid.bundled().separation(computer.gps.getLatitude(), computer.gps.getLongitude()))).build();
         try { transmit(vehicle, new MissionTelemetrySource.Packet(boot - 1_000_000, transmitted++, payload, metadata), truth); }
