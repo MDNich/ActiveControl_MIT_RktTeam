@@ -163,6 +163,7 @@ public final class MissionWindow extends JFrame {
   }
 
   private JsonObject defaults(JsonObject value) {
+    value = MissionDefinition.withDefaultGroundHeights(value);
     var v = Json.createObjectBuilder(value.getJsonObject("video"));
     for (var entry :
         Map.of(
@@ -540,7 +541,9 @@ public final class MissionWindow extends JFrame {
         "ellipsoidal",
         "WGS84 ellipsoid");
     f.addRow("", button("Place selected site on map", "mission-place-site", map::place));
-    f.note("Enter measured or chosen ground heights. Map imagery does not determine elevation.");
+    f.note(
+        "Ground heights default to 0 m. Enter local elevations here when needed; map imagery does"
+            + " not supply elevation.");
     for (int j = 0; j < mission.getJsonArray("pointers").size(); j++) {
       var pointer = mission.getJsonArray("pointers").getJsonObject(j);
       if (!pointer.getString("siteId").equals(selectedSite)) continue;

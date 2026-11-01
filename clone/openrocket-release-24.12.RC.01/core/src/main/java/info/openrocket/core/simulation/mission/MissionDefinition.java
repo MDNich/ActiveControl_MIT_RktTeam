@@ -24,7 +24,17 @@ public final class MissionDefinition {
         JsonObject defaults = MissionJson.resource("urrg-draft.json");
         JsonObject identity = Json.createObjectBuilder(defaults.getJsonObject("identity"))
                 .add("missionId", UUID.randomUUID().toString()).add("title", title).build();
-        return new MissionDefinition(Json.createObjectBuilder(defaults).add("identity", identity).build());
+        return new MissionDefinition(withDefaultGroundHeights(Json.createObjectBuilder(defaults).add("identity", identity).build()));
+    }
+
+    /** Supply editable ground heights for new or previously incomplete setups. */
+    public static JsonObject withDefaultGroundHeights(JsonObject draft) {
+        var sites = Json.createArrayBuilder();
+        for (var value : draft.getJsonArray("sites")) {
+            var site = value.asJsonObject();
+            sites.add(site.isNull("heightM") ? Json.createObjectBuilder(site).add("heightM", 0).build() : site);
+        }
+        return Json.createObjectBuilder(draft).add("sites", sites).build();
     }
 
     public static MissionDefinition read(Path path) throws IOException {

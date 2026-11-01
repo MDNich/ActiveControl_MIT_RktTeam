@@ -33,14 +33,23 @@ class MissionContractsTest {
     }
 
     @Test
-    void draftRoundTripPreservesUnknownFieldsAndUnsetHeights() throws Exception {
+    void draftRoundTripPreservesUnknownFieldsAndChosenHeights() throws Exception {
         var first = MissionDefinition.createUrrg("My mission");
+        for (var site : first.json().getJsonArray("sites")) {
+            assertEquals(0, site.asJsonObject().getJsonNumber("heightM").doubleValue());
+            assertEquals("MSL", site.asJsonObject().getString("heightDatum"));
+        }
         var unknown = Json.createObjectBuilder().add("custom", Json.createArrayBuilder().add(1).add("preserve")).build();
-        var draft = new MissionDefinition(Json.createObjectBuilder(first.json()).add("future", unknown).build());
+        var edited = Json.createPatchBuilder().replace("/sites/0/heightM", Json.createValue(250))
+                .replace("/sites/1/heightM", JsonValue.NULL).build().apply(first.json());
+        var draft = new MissionDefinition(Json.createObjectBuilder(edited).add("future", unknown).build());
         var path = temporary.resolve("mission.json");
         draft.write(path);
         assertEquals(draft.json(), MissionDefinition.read(path).json());
-        for (var site : draft.json().getJsonArray("sites")) assertTrue(site.asJsonObject().isNull("heightM"));
+        var reopened = MissionDefinition.withDefaultGroundHeights(MissionDefinition.read(path).json());
+        assertEquals(250, reopened.getJsonArray("sites").getJsonObject(0).getInt("heightM"));
+        assertEquals(0, reopened.getJsonArray("sites").getJsonObject(1).getInt("heightM"));
+        assertEquals(unknown, reopened.getJsonObject("future"));
         var second = MissionDefinition.createUrrg("My mission");
         assertNotEquals(first.json().getJsonObject("identity").getString("missionId"),
                 second.json().getJsonObject("identity").getString("missionId"));

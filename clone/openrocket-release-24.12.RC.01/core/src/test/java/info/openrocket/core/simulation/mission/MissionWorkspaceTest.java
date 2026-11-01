@@ -44,7 +44,7 @@ class MissionWorkspaceTest extends BaseTestCase {
 
     @Test void revisionsAndAtomicDraftSavesDoNotOverwriteNewerEdits() throws Exception {
         var store = new MissionStore(temp, digest -> null); var first = store.create("First"); String id = MissionStore.id(first);
-        assertEquals(7, store.validate(id).size());
+        assertEquals(1, store.validate(id).size());
         var second = store.update(id, 0, first);
         assertEquals(1, second.getJsonObject("identity").getInt("revision"));
         assertThrows(MissionStore.Conflict.class, () -> store.update(id, 0, first));

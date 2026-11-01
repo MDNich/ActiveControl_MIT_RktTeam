@@ -530,3 +530,20 @@ Final platform qualification: all four targets passed for
 and [Telemetry UI `c733d37`](https://github.com/MIT-Rocket-Team/RT_Telemetry_UI/actions/runs/40924377011).
 The rebuilt Telemetry Mac package also passed both Base role startup checks, and
 18 packaging regression tests passed after the build-helper import correction.
+
+
+## H3 — editable zero ground-height defaults (2026-11-01)
+
+New Mission setups now initialize the launch site, Base and four Away sites at
+0 m MSL. Opening an older setup in the native Mission window fills null heights
+with 0 m while preserving all numeric elevations and their selected reference.
+The UI describes the default explicitly; map imagery remains independent of
+numerical elevation. Canonical file parsing and archived data retain their
+original values, including an explicitly unresolved height.
+
+Validation: 32 Mission contract/workspace checks passed, including persistence of
+chosen elevations and defaults for previously blank values. The rebuilt native
+Mac app was opened through its actual launcher and a new Mission displayed
+0.0 m with the updated explanatory text. Its JAR matches the source build and
+the bundle signature verifies. The Apple Silicon app is under
+`clone/openrocket/build/mission-package/macos-arm64-ground-height/image/OpenRocket_MIT.app`.
