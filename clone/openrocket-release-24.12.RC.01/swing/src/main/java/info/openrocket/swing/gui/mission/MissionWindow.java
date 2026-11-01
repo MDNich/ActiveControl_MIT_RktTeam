@@ -76,7 +76,10 @@ public final class MissionWindow extends JFrame {
                           "drafts",
                           Json.createObjectBuilder().add("title", "URRG mission").build());
                     },
-                    this::use)));
+                    v -> {
+                      use(v);
+                      chooseCurrentRocketByDefault();
+                    })));
     toolbar.add(
         button(
             "Load…",
@@ -149,11 +152,20 @@ public final class MissionWindow extends JFrame {
     timer.start();
     render();
     setLocationByPlatform(true);
-    SwingUtilities.invokeLater(map::fit);
+    SwingUtilities.invokeLater(
+        () -> {
+          map.fit();
+          chooseCurrentRocketByDefault();
+        });
   }
 
   public void currentDocument(OpenRocketDocument value) {
     currentDocument = value;
+  }
+
+  private void chooseCurrentRocketByDefault() {
+    if (currentDocument != null && !mission.getJsonObject("flight").containsKey("snapshotHash"))
+      chooseRocket(true);
   }
 
   public OpenRocketDocument documentCopy() {
@@ -625,8 +637,8 @@ public final class MissionWindow extends JFrame {
     var f = form();
     f.section("Rocket and flight configuration");
     f.note(
-        "Use the current design or load a rocket. Mission edits use a frozen copy of its flight"
-            + " configuration.");
+        "New missions select the current rocket by default. Choose a saved simulation below or"
+            + " load another .ork file. Mission edits use a frozen copy of its flight configuration.");
     f.addRow(
         "",
         row(

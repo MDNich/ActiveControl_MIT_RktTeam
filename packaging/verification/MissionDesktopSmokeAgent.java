@@ -136,6 +136,13 @@ public final class MissionDesktopSmokeAgent {
         JTabbedPane tabs=(JTabbedPane)field(missionWindow,"tabs");
         switch(step){
             case 0:
+                // Initial rocket selection is queued after the window is shown.
+                if(((JComboBox<?>)named(missionWindow,"mission-simulation-choice")).getItemCount()==0) {
+                    if(stepAt==0)stepAt=System.nanoTime();
+                    if(System.nanoTime()-stepAt>10_000_000_000L)
+                        throw new AssertionError("New mission must select the current rocket automatically");
+                    return;
+                }
                 capture(missionWindow,"mission-sites.png");
                 if(tabs.getTabCount()!=6)throw new AssertionError("Expected six native mission pages");
                 // All locations remain explicit; test heights are never application defaults.
@@ -146,7 +153,7 @@ public final class MissionDesktopSmokeAgent {
                     JComboBox<?> selector=(JComboBox<?>)named(missionWindow,"mission-site");
                     selector.setSelectedIndex(site);
                     text("/sites/"+site+"/heightM","250");site++;
-                }else {tabs.setSelectedIndex(1);click("mission-current-rocket");advance();}
+                }else {tabs.setSelectedIndex(1);advance();}
                 break;
             case 2:
                 if(((JComboBox<?>)named(missionWindow,"mission-simulation-choice")).getItemCount()==0)return;

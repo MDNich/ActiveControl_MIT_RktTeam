@@ -570,3 +570,16 @@ The reported empty Base telemetry display was separately verified against all fo
 running station endpoints: each contained decoded values and original packet bytes.
 The Telemetry UI chat is correcting source selection after a video-station join and
 when reapplying network settings; this is independent of OpenRocket publication.
+
+## H5 — select the current rocket by default (2026-11-01)
+
+Opening a new Mission workspace or using its New button now selects the current
+OpenRocket document and populates its saved simulations automatically. The user
+still chooses which saved simulation to bind, or uses Choose .ork to select another
+rocket. Loaded configurations and existing flight snapshots retain their selection.
+
+The native desktop acceptance check now opens Mission and selects a saved simulation
+without pressing Use current rocket. The rebuilt Mac app passed the full check,
+including flight editing, network publication, run/pause/resume, result inspection
+and saving a configuration. The signed app is under
+`clone/openrocket/build/mission-package/macos-arm64-current-rocket/image/OpenRocket_MIT.app`.
