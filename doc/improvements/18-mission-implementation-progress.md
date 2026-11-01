@@ -547,3 +547,26 @@ Mac app was opened through its actual launcher and a new Mission displayed
 0.0 m with the updated explanatory text. Its JAR matches the source build and
 the bundle signature verifies. The Apple Silicon app is under
 `clone/openrocket/build/mission-package/macos-arm64-ground-height/image/OpenRocket_MIT.app`.
+
+## H4 — simultaneous Base video viewers (2026-11-01)
+
+Two Base video applications exhausted the former station-wide allowance of two
+preview sessions: digital and analog feeds competed for those slots, producing
+HTTP 429 `media_capacity` on some stations. The embedded simulated publisher now
+allows four viewers per stream and rendition, bounded by 32 sessions per station.
+Encoders remain shared and each viewer has a bounded output queue. Physical Away
+station limits are unchanged. GNC now reports a viewer-limit error explicitly.
+
+Validation: 13 network/media checks passed (one opt-in multicast check skipped),
+including two ordinary Base video windows decoding both generated streams through
+native SRT, independent analog/digital capacity and lease cleanup. The rebuilt Mac
+application passed packaged standard and custom-FC simulations, all eight station
+service identity checks, archive verification and packet replay checks using its
+bundled Java/Python runtimes. Its signature and embedded publisher digest verify;
+the actual Mac launcher also opened a rocket document normally. The app is under
+`clone/openrocket/build/mission-package/macos-arm64-multi-viewer/image/OpenRocket_MIT.app`.
+
+The reported empty Base telemetry display was separately verified against all four
+running station endpoints: each contained decoded values and original packet bytes.
+The Telemetry UI chat is correcting source selection after a video-station join and
+when reapplying network settings; this is independent of OpenRocket publication.

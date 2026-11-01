@@ -1,7 +1,7 @@
 {
   "format": "openrocket.mission-network",
   "version": 1,
-  "sha256": "2641fa07282c6f35aea95b6012f47e8377256051183907cb81056dd0a2697123",
+  "sha256": "c5d9516f048c41bba29e1b1e1851ac6d7c510c613a0e1e04f1b8cfd87b160777",
   "files": [
     "__init__.py",
     "balius_states.py",
