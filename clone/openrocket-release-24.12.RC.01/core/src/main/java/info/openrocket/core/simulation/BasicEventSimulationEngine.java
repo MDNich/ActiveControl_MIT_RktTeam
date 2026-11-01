@@ -768,7 +768,9 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 	private FlightData computeCoastTime() throws SimulationException {
 		try {
 			SimulationConditions conds = currentStatus.getSimulationConditions().clone();
-			conds.getSimulationListenerList().removeIf(listener -> listener instanceof FlightControllerSimulatorListener);
+			// The optimum-delay prediction is a counterfactual flight, not mission truth.
+			conds.getSimulationListenerList().removeIf(listener -> listener instanceof FlightControllerSimulatorListener
+                    || listener instanceof info.openrocket.core.simulation.mission.MissionTruth);
             conds.getSimulationListenerList().add(OptimumCoastListener.INSTANCE);
 			BasicEventSimulationEngine coastEngine = new BasicEventSimulationEngine();
 		

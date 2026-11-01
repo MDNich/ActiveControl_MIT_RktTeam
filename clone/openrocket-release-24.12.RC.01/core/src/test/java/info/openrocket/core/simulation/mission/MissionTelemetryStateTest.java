@@ -3,6 +3,8 @@ package info.openrocket.core.simulation.mission;
 import edu.mit.rocket_team.RTFCVerificationRocket;
 import edu.mit.rocket_team.util.RTRocketState;
 import info.openrocket.core.rocketcomponent.*;
+import info.openrocket.core.simulation.SimulationStatus;
+import info.openrocket.core.simulation.listeners.AbstractSimulationListener;
 import info.openrocket.core.util.BaseTestCase;
 import jakarta.json.*;
 import java.nio.file.Path;
@@ -10,7 +12,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MissionTelemetryStateTest extends BaseTestCase {
@@ -31,13 +33,18 @@ class MissionTelemetryStateTest extends BaseTestCase {
                 .mapToLong(e -> Long.parseLong(e.getString("timeUs"))).findFirst().orElseThrow();
     }
 
-    @ParameterizedTest @ValueSource(booleans = {false, true})
-    void standardWireStatesFollowLiftoffApogeeRecoveryAndLanding(boolean altitudeRecovery) throws Exception {
+    @ParameterizedTest @EnumSource(value = DeploymentConfiguration.DeployEvent.class, names = {"APOGEE", "ALTITUDE", "EJECTION"})
+    void standardWireStatesFollowLiftoffApogeeRecoveryAndLanding(DeploymentConfiguration.DeployEvent trigger) throws Exception {
         var rocket = RTFCVerificationRocket.rocket();
-        if (altitudeRecovery) for (var component : rocket) if (component instanceof Parachute chute) {
-            var deploy = chute.getDeploymentConfigurations().getDefault();
-            deploy.setDeployEvent(DeploymentConfiguration.DeployEvent.ALTITUDE);
-            deploy.setDeployAltitude(100);
+        for (var component : rocket) {
+            if (component instanceof Parachute chute) {
+                var deploy = chute.getDeploymentConfigurations().getDefault();
+                deploy.setDeployEvent(trigger);
+                deploy.setDeployAltitude(300);
+                deploy.setDeployDelay(1);
+            }
+            if (component instanceof MotorMount mount && mount.isMotorMount())
+                mount.getMotorConfig(rocket.getSelectedConfiguration().getFlightConfigurationID()).setEjectionDelay(15);
         }
         var flight = RTFCVerificationRocket.simulation(rocket);
         flight.getOptions().setTimeStep(.05); flight.getOptions().setMaxSimulationTime(600);
@@ -49,8 +56,11 @@ class MissionTelemetryStateTest extends BaseTestCase {
         assertEquals(RTRocketState.FLIGHT, truth.phaseAt(binding, launch));
         assertEquals(RTRocketState.FLIGHT, truth.phaseAt(binding, apogee - 1));
         assertEquals(RTRocketState.APOGEE, truth.phaseAt(binding, apogee));
-        assertEquals(altitudeRecovery ? RTRocketState.MAIN : RTRocketState.APOGEE,
-                truth.phaseAt(binding, event(truth, "RECOVERY_DEVICE_DEPLOYMENT")));
+        long deployed = event(truth, "RECOVERY_DEVICE_DEPLOYMENT");
+        assertEquals(RTRocketState.APOGEE, truth.phaseAt(binding, deployed - 1));
+        assertEquals(RTRocketState.MAIN, truth.phaseAt(binding, deployed));
+        assertFalse(truth.displayAt(binding, deployed - 1, "before-deployment").getBoolean("parachute_deployed"));
+        assertTrue(truth.displayAt(binding, deployed, "deployment").getBoolean("parachute_deployed"));
         assertEquals(RTRocketState.END, truth.phaseAt(binding, landed));
         var preflightDisplay = truth.displayAt(binding, -1_000_000, "preflight");
         assertFalse(preflightDisplay.getBoolean("motor_burning"));
@@ -82,8 +92,7 @@ class MissionTelemetryStateTest extends BaseTestCase {
         var finalPacket = source.finish(truth.end(), truth);
         if (finalPacket != null) codes.add(finalPacket.payload()[63] & 255);
         assertEquals(1, codes.get(0));
-        assertTrue(codes.containsAll(List.of(1, 2, 3, 5)));
-        assertEquals(altitudeRecovery, codes.contains(4));
+        assertTrue(codes.containsAll(List.of(1, 2, 3, 4, 5)));
         assertEquals(5, codes.get(codes.size() - 1));
         assertNull(source.finish(truth.end(), truth));
 
@@ -93,8 +102,30 @@ class MissionTelemetryStateTest extends BaseTestCase {
         }
         try (var result = new MissionArchive(archive)) {
             var replay = MissionTruth.read(result, "runs/member-0/", () -> {});
-            for (long time : new long[]{-1_000_000, launch, apogee, landed - 1, landed})
+            for (long time : new long[]{-1_000_000, launch, apogee, deployed - 1, deployed, landed - 1, landed}) {
                 assertEquals(truth.phaseAt(binding, time), replay.phaseAt(binding, time));
+                assertEquals(truth.displayAt(binding, time, "replay").getBoolean("parachute_deployed"),
+                        replay.displayAt(binding, time, "replay").getBoolean("parachute_deployed"));
+            }
+        }
+    }
+
+    @Test void vetoedDeploymentNeverPublishesADeployedParachute() throws Exception {
+        var flight = RTFCVerificationRocket.simulation(RTFCVerificationRocket.rocket());
+        flight.getOptions().setMaxSimulationTime(600);
+        var truth = MissionTruth.compute(flight, () -> {}, new AbstractSimulationListener() {
+            @Override public boolean recoveryDeviceDeployment(SimulationStatus status, RecoveryDevice device) { return false; }
+        });
+        var binding = binding(truth);
+        assertTrue(truth.branches().stream().flatMap(b -> b.events.stream())
+                .noneMatch(e -> e.getString("kind").equals("RECOVERY_DEVICE_DEPLOYMENT")));
+        long apogee = event(truth, "APOGEE");
+        assertEquals(RTRocketState.APOGEE, truth.phaseAt(binding, apogee));
+        assertFalse(truth.displayAt(binding, truth.end(), "no-deployment").getBoolean("parachute_deployed"));
+        var source = source(binding);
+        while (source.next() <= truth.end()) {
+            var packet = source.advance(source.next(), truth);
+            if (packet != null) assertNotEquals(4, packet.payload()[63] & 255);
         }
     }
 

@@ -24,9 +24,20 @@ public final class MissionPackageProbe {
         var module=new GuiModule();Application.setInjector(com.google.inject.Guice.createInjector(module,new PluginModule()));module.startLoader();
         System.setProperty("openrocket.mission.noDiscovery","true");
         var reports=Json.createArrayBuilder();
-        for(String mode:new String[]{"standard","custom-fc"}) {
+        for(String mode:new String[]{"standard","custom-fc","standard-recovery"}) {
             Path folder=root.resolve(mode);Files.createDirectories(folder);
             var flight=RTFCVerificationRocket.simulation(RTFCVerificationRocket.rocket());flight.getOptions().setTimeStep(.05);flight.getOptions().setMaxSimulationTime(2);
+            boolean recoveryFixture = mode.equals("standard-recovery");
+            if (recoveryFixture) {
+                // Deploy after burnout, while still ascending: recovery must not
+                // depend on reaching apogee or an altitude-triggered deployment.
+                for (var component : flight.getRocket()) if (component instanceof info.openrocket.core.rocketcomponent.Parachute chute) {
+                    var deploy = chute.getDeploymentConfigurations().getDefault();
+                    deploy.setDeployEvent(info.openrocket.core.rocketcomponent.DeploymentConfiguration.DeployEvent.LAUNCH);
+                    deploy.setDeployDelay(5);
+                }
+                flight.getOptions().setMaxSimulationTime(6);
+            }
             if(mode.equals("custom-fc")) {
                 var design=new FlightComputerDesign(Json.createObjectBuilder(FlightComputerDesign.zephyrus().json()).add("version",3)
                         .add("telemetryFormat",MissionJson.resource("codec-vectors.json").getJsonObject("codec")).build());
@@ -38,7 +49,7 @@ public final class MissionPackageProbe {
             draft=store.bindFlight(MissionStore.id(draft),0,flight,"qualification.ork");
             var sites=Json.createArrayBuilder();draft.getJsonArray("sites").forEach(v->sites.add(Json.createObjectBuilder(v.asJsonObject()).add("heightM",250)));
             draft=store.update(MissionStore.id(draft),1,Json.createObjectBuilder(draft).add("sites",sites)
-                    .add("telemetry",Json.createObjectBuilder(draft.getJsonObject("telemetry")).add("mode",mode))
+                    .add("telemetry",Json.createObjectBuilder(draft.getJsonObject("telemetry")).add("mode",mode.equals("custom-fc") ? mode : "standard"))
                     .add("execution",Json.createObjectBuilder(draft.getJsonObject("execution")).add("mode",mode.equals("custom-fc")?"coupled":"ground-link")).build());
             var resolved=store.resolve(MissionStore.id(draft),2);Path archive=folder.resolve("qualification.rktmission");
             JsonObject metrics;
@@ -81,9 +92,9 @@ public final class MissionPackageProbe {
                                     !state.getString("name").equals(edu.mit.rocket_team.util.RTRocketState.values()[code].name()))
                                 throw new AssertionError("Published state does not use the Zephyrus enum");
                             byte[] raw=java.util.Base64.getDecoder().decode(observation.getJsonObject("packet").getString("raw_b64"));
-                            int wireState=mode.equals("standard") ? raw[65]&255 : new TelemetryCodec(MissionJson.resource("codec-vectors.json").getJsonObject("codec"))
-                                    .decode(java.util.Arrays.copyOfRange(raw,2,16)).get("state").intValue();
-                            if(code!=wireState || mode.equals("standard") && code!=2)
+                            int wireState=mode.equals("custom-fc") ? new TelemetryCodec(MissionJson.resource("codec-vectors.json").getJsonObject("codec"))
+                                    .decode(java.util.Arrays.copyOfRange(raw,2,16)).get("state").intValue() : raw[65]&255;
+                            if(code!=wireState || !mode.equals("custom-fc") && code!=(recoveryFixture ? 4 : 2))
                                 throw new AssertionError("Published state differs from the received flight packet");
                             var display=observation.getJsonObject("values").getJsonObject("simulation_display");
                             var nativeDetails=observation.getJsonObject("values").getJsonObject("native").getJsonObject("details");
@@ -95,6 +106,8 @@ public final class MissionPackageProbe {
                                     .mapToDouble(v->((JsonNumber)v).doubleValue()).map(v->v*v).sum();
                             if(Math.abs(norm-1)>.001 || !display.getString("body_axis").equals("+Z"))
                                 throw new AssertionError("Invalid displayed simulation orientation");
+                            if (display.getBoolean("parachute_deployed") != recoveryFixture)
+                                throw new AssertionError("Published parachute status differs from the actual solver deployment");
                             publishedStates.add(state);
                         }
                     }

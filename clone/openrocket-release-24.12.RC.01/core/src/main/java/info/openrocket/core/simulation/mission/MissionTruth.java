@@ -18,6 +18,7 @@ public final class MissionTruth extends AbstractSimulationListener {
         public final String id, componentId;
         public final List<Sample> samples = new ArrayList<>();
         public final List<JsonObject> events = new ArrayList<>();
+        private final Set<FlightEvent> acceptedDeployments = Collections.newSetFromMap(new IdentityHashMap<>());
         private boolean landed, aborted;
         private Branch(String component) { componentId = component; id = "stage-" + component; }
         public long start() { return samples.get(0).timeUs; }
@@ -74,13 +75,14 @@ public final class MissionTruth extends AbstractSimulationListener {
     @Override public void startSimulation(SimulationStatus status) { capture(status); }
     @Override public boolean preStep(SimulationStatus status) { checkpoint.run(); capture(status); return true; }
     @Override public void postStep(SimulationStatus status) { capture(status); }
+    @Override public void endSimulation(SimulationStatus status, SimulationException exception) { capture(status); }
     @Override public boolean handleFlightEvent(SimulationStatus status, FlightEvent event) {
         Branch branch = branch(status); capture(status);
-        if (event.getType() != FlightEvent.Type.ALTITUDE) {
+        // Recovery callbacks run before listener vetoes and stage checks. Only
+        // the solver's accepted event log can confirm an actual deployment.
+        if (event.getType() != FlightEvent.Type.ALTITUDE && event.getType() != FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT) {
             var json = Json.createObjectBuilder().add("timeUs", Long.toString(Math.round(event.getTime() * 1e6)))
                     .add("kind", event.getType().name()).add("componentId", event.getSource() == null ? "" : event.getSource().getID().toString());
-            if (event.getType() == FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT && event.getSource() instanceof RecoveryDevice recovery)
-                json.add("deploymentTrigger", recovery.getDeploymentConfigurations().get(status.getConfiguration().getFlightConfigurationID()).getDeployEvent().name());
             branch.events.add(json.build());
         }
         if (event.getType() == FlightEvent.Type.GROUND_HIT) branch.landed = true;
@@ -103,6 +105,15 @@ public final class MissionTruth extends AbstractSimulationListener {
         var sample = new Sample(Math.round(status.getSimulationTime() * 1e6), MissionGeodesy.ecef(lat, lon, h),
                 status.getRocketPosition().z, status.getRocketVelocity().z, new double[] {q.getW(), q.getX(), q.getY(), q.getZ()}, Set.copyOf(stages));
         Branch branch = branch(status);
+        for (FlightEvent event : status.getFlightDataBranch().getEvents()) {
+            if (event.getType() != FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT || !branch.acceptedDeployments.add(event)) continue;
+            var recovery = (RecoveryDevice) event.getSource();
+            branch.events.add(Json.createObjectBuilder()
+                    .add("timeUs", Long.toString(Math.round(event.getTime() * 1e6)))
+                    .add("kind", event.getType().name()).add("componentId", recovery.getID().toString())
+                    .add("deploymentTrigger", recovery.getDeploymentConfigurations().get(status.getConfiguration().getFlightConfigurationID()).getDeployEvent().name())
+                    .build());
+        }
         // Keep both sides of discontinuities; exact duplicates add no information.
         if (!branch.samples.isEmpty()) {
             Sample previous = branch.samples.get(branch.samples.size() - 1);
@@ -157,8 +168,8 @@ public final class MissionTruth extends AbstractSimulationListener {
                 .add("parachute_deployed", parachute).build();
     }
     /** Nominal standard-telemetry phases. Coupled FC runs publish the FC's own state instead.
-     * An altitude-triggered recovery deployment identifies MAIN; an apogee/drogue
-     * deployment does not. Stopping/aborting a solver is not evidence of landing.
+     * Any accepted recovery deployment identifies the nominal MAIN/recovery
+     * phase, regardless of its trigger. Stopping/aborting is not landing.
      */
     public RTRocketState phaseAt(JsonObject binding, long timeUs) {
         if (timeUs < 0) return RTRocketState.PRE_FLIGHT;
@@ -172,8 +183,7 @@ public final class MissionTruth extends AbstractSimulationListener {
             RTRocketState next = switch (event.getString("kind")) {
                 case "LIFTOFF" -> RTRocketState.FLIGHT;
                 case "APOGEE" -> RTRocketState.APOGEE;
-                case "RECOVERY_DEVICE_DEPLOYMENT" -> event.getString("deploymentTrigger", "").equals("ALTITUDE")
-                        ? RTRocketState.MAIN : null;
+                case "RECOVERY_DEVICE_DEPLOYMENT" -> RTRocketState.MAIN;
                 case "GROUND_HIT" -> RTRocketState.END;
                 default -> null;
             };

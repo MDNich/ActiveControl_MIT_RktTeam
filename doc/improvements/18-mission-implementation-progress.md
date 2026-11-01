@@ -606,3 +606,26 @@ FLIGHT states from all four stations for both standard and custom-FC runs, plus
 archive integrity and recorded-packet replay. Both embedded bundle digests and the
 app signature verify. The OpenRocket app is under
 `clone/openrocket/build/mission-package/macos-arm64-zephyrus-states/image/OpenRocket_MIT.app`.
+
+
+## H7 — publish actual parachute deployment (2026-11-01)
+
+Standard-source telemetry now enters Zephyrus MAIN (code 4) for every accepted
+OpenRocket recovery deployment, including apogee, ejection, altitude and delayed
+launch triggers. It honors deployment delays; rejected events do not set the
+phase or the packet-associated `parachute_deployed` display flag. MAIN is the
+nominal source's recovery phase, not an inference about main-versus-drogue hardware.
+Custom flight computers retain their own transmitted state.
+
+Recovery confirmation now comes from the solver's accepted event log instead of
+the pre-deployment callback. The auxiliary optimum-coast calculation is excluded
+from mission capture, preventing duplicate trajectories and broken saved replay
+when a chute deploys before apogee.
+
+Validation: six targeted Java checks passed, covering delayed apogee/ejection/
+altitude deployment, rejected deployment, interrupted flight, and separated stages.
+The actual bundled Mac runtime passed standard, custom-FC and pre-apogee recovery
+fixtures, including all four HTTP station feeds, original wire state, the deployed
+flag, archive integrity and exact recorded-packet replay. The signed build is
+`clone/openrocket/build/mission-package/macos-arm64-parachute-state/image/OpenRocket_MIT.app`;
+qualification is recorded in the adjacent `report-recovery/report.json`.
