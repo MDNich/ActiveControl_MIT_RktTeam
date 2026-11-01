@@ -19,7 +19,7 @@ public final class MissionResults {
             try(var in=MissionResults.class.getResourceAsStream("/mission/worker/worker.json")){metadata=MissionJson.read(in);}
             if(!MissionWorker.digest(bytes).equals(metadata.getString("sha256")))throw new IOException("Bundled results utility hash mismatch");
             Files.write(bundle,bytes);MissionJson.writeAtomic(input,request);
-            var process=new ProcessBuilder(MissionWorker.interpreter().toString(),"-I","-c",
+            var process=new ProcessBuilder(MissionWorker.interpreter().toString(),"-I","-B","-c",
                     "import sys,runpy;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('rocket_gnc_monitor.mission_results',run_name='__main__')",
                     bundle.toString(),input.toString(),output.toString()).redirectOutput(ProcessBuilder.Redirect.DISCARD).redirectError(error.toFile()).start();
             try {

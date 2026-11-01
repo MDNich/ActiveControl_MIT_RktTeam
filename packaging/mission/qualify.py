@@ -100,6 +100,9 @@ def main():
     run([bundled_java, '-Djava.awt.headless=true', '-Duser.home=' + str(report / 'home'),
          '-Djava.util.prefs.userRoot=' + str(report / 'preferences'), '-cp', str(app_jar) + os.pathsep + str(classes),
          'MissionPackageLauncher', report], cwd=Path(work.anchor), env=environment)
+    if sys.platform == 'darwin':
+        # Running Mission must not modify the signed bundle (e.g. Python caches).
+        run(['codesign', '--verify', '--deep', '--strict', image / 'OpenRocket_MIT.app'])
     print('Packaged Mission qualification passed: ' + str(report / 'report.json'))
 
 

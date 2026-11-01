@@ -51,7 +51,7 @@ public final class MissionWorker implements AutoCloseable {
             try { Files.setPosixFilePermissions(manifest, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------")); }
             catch (UnsupportedOperationException ignored) { }
             boolean attached=application!=null && preferences.containsKey("attachmentTicket");
-            var builder = attached ? null : application == null ? new ProcessBuilder(python.toString(), "-I", "-c",
+            var builder = attached ? null : application == null ? new ProcessBuilder(python.toString(), "-I", "-B", "-c",
                     "import sys,runpy;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('rocket_gnc_monitor.mission_worker',run_name='__main__')",
                     zip.toString(), manifest.toString()) : applicationProcess(preferences, manifest);
             if(attached)try(var in=Files.newInputStream(manifest)){MissionAttachment.attach(Path.of(preferences.getString("attachmentTicket")),MissionJson.read(in));}
@@ -78,7 +78,7 @@ public final class MissionWorker implements AutoCloseable {
             Path python = Path.of(preferences.getString("pythonExecutable"));
             if (!Files.isRegularFile(source.resolve("rocket_gnc_monitor/mission_application.py")) || !Files.isExecutable(python))
                 throw new IOException("Selected Telemetry UI source/interpreter does not support Mission Simulation");
-            return new ProcessBuilder(python.toString(), "-I", "-c",
+            return new ProcessBuilder(python.toString(), "-I", "-B", "-c",
                     "import sys,runpy;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('rocket_gnc_monitor',run_name='__main__')",
                     source.toString(), "--mission-manifest", manifest.toString());
         }

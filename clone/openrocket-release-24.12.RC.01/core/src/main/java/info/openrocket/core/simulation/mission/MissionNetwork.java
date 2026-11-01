@@ -101,6 +101,7 @@ public final class MissionNetwork implements AutoCloseable {
         new ProcessBuilder(
             python.toString(),
             "-I",
+            "-B",
             "-u",
             "-c",
             "import"
