@@ -7,3 +7,7 @@ README.out
 
 # Temporary files created while OpenRocket saves a document.
 ORSave*.tmp
+
+# Local release downloads, verification output, and previous application bundles.
+# Distributable binaries belong in GitHub Releases, not source history.
+/build/

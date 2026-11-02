@@ -1,0 +1,50 @@
+\chapter{Source navigation and document provenance}\label{app:source}
+\section{Where to begin by question}
+Paths below are relative to \code{clone/openrocket}. Class names in the chapter source-entry lines link to the inspected commit. The table is a navigation index rather than an exhaustive inventory of every class.
+
+\begin{longtable}{@{}L{3.4cm}L{7.0cm}L{5.4cm}@{}}
+\toprule Question or subsystem & Start with & Then follow\\\midrule\endfirsthead
+\toprule Question or subsystem & Start with & Then follow\\\midrule\endhead
+Application startup & \code{swing/.../startup/OpenRocket.java}, \code{SwingStartup.java} & Application services, Guice modules, preferences, plugin discovery\\
+Open design ownership & \code{core/.../document/OpenRocketDocument.java} & Rocket tree, simulations, expressions, undo, attachments\\
+Component geometry & \code{core/.../rocketcomponent/RocketComponent.java} & Component subclasses, positioning, instances, change events\\
+Motor/stage selection & \code{core/.../rocketcomponent/FlightConfiguration.java} & Configuration IDs, motor mounts, deployment and separation parameters\\
+Mass and inertia & \code{core/.../masscalc/MassCalculator.java} & \code{MassCalculation}, \code{RigidBody}, component and motor mass\\
+Aerodynamic coefficients & \code{core/.../aerodynamics/BarrowmanCalculator.java} & \code{barrowman/*Calc.java}, \code{FlightConditions}, \code{AerodynamicForces}\\
+Motor curves and state & \code{core/.../motor/ThrustCurveMotor.java} & \code{MotorConfiguration}, \code{MotorClusterState}\\
+Environment & \code{core/.../models/} & Atmosphere, gravity, wind; simulation geodetic computation\\
+Saved experiment & \code{core/.../document/Simulation.java} & \code{SimulationOptions}, \code{SimulationConditions}, extension initialization\\
+Event loop & \code{core/.../simulation/ModifiedEventSimulationEngine.java} & \code{BasicEventSimulationEngine}, event dispatch, branch changes\\
+Ascent integration & \code{core/.../simulation/RK6SimulationStepper.java} & \code{RK4SimulationStepper}, \code{AbstractSimulationStepper}, listener helpers\\
+Recovery descent & \code{core/.../simulation/BasicLandingStepper.java} & \code{AbstractEulerStepper}, \code{BasicTumbleStepper}, recovery events\\
+FC host integration & \code{core/.../simulation/flightcomputer/} & Listener, sensor adapter, controllers, Java runtime, recovery and actuator bridges\\
+Translated firmware & \code{core/src/main/java/edu/mit/rocket_team/} & Per-run RTFC, drivers, state machine, timing, telemetry; Chapter~\ref{ch:fc} class index\\
+Repeated random trials & \code{core/.../simulation/ensemble/} & Runner, settings, perturbation listener, accumulator, archive\\
+Motor comparisons & \code{core/.../simulation/motorbatch/} & Candidate/clearance rules, runner, metrics, reports, CSV and IO\\
+Design optimization & \code{core/.../optimization/} & Rocket objective adapter, modifiers, constraints, search services\\
+Desktop document UI & \code{swing/.../gui/main/} & \code{BasicFrame}, design/simulation/configuration panels\\
+Component editing & \code{swing/.../gui/configdialog/} & Property adaptors, units, model setters, dialog disposal\\
+Design figures & \code{swing/.../gui/rocketfigure/}, \code{figure3d/} & Shape helpers, renderers, selected-component overlays\\
+Simulation dialogs & \code{swing/.../gui/simulation/}, \code{flightcomputer/} & Configuration, worker, motor-batch and FC editors\\
+Plots and flight playback & \code{swing/.../gui/plot/} & Plot configuration, \code{TrajectoryData}, \code{Trajectory3DPanel}\\
+Native persistence & \code{core/.../file/openrocket/} & Saver classes, \code{importt/} handlers, general loader/saver\\
+Vanilla conversion & \code{VanillaOpenRocketExporter.java} in that package & \code{VanillaComponentSaver}, supported-expression filtering\\
+Printing & \code{swing/.../gui/print/} & Print controller, printable components, visitor strategies\\
+Updates & \code{core/.../communication/MitUpdateInfoRetriever.java} & Swing MIT update dialog, installer, Windows helper\\
+Packaging & Parent-repository \code{packaging/macos/} and \code{packaging/windows/} & Runtime inputs, launchers, staging, checksums, verification reports\\
+API documentation & \code{gradle/mit-documentation.gradle} & Source manifests, method audit tool, Javadoc and PlantUML tasks\\\bottomrule
+\end{longtable}
+
+In this table, \code{core/.../} abbreviates \code{core/src/main/java/info/openrocket/core/}; \code{swing/.../} abbreviates \code{swing/src/main/java/info/openrocket/swing/}. The firmware namespace is written in full because it does not use the OpenRocket package prefix.
+
+\section{Reference hierarchy}
+The primary authority for behavior in this guide is the inspected source commit. Current API comments, tests, and the FC architecture report supply contracts and examples. Release notes describe published artifacts at their tags. Older design proposals and implementation reports supply history, but some describe states that predate current recovery coupling, actuator coupling, namespaces, or parallel workflows.
+
+The preserved FC inputs are:
+\begin{itemize}
+\item \code{reference/14-flight-computer-api-and-architecture.tex}: unchanged source copy of the original report.
+\item \code{reference/14-flight-computer-api-and-architecture.pdf}: unchanged rendered copy supplied with that report.
+\item \code{sections/08-flight-computer.tex}: integrated chapter, with current-source clarifications and shared document formatting.
+\end{itemize}
+
+The original report remains independently attributable to its source snapshot and verification statements. The integrated chapter's clarifications include the modified-engine/RK6 default, the actual FC step-limiting hook, and the distinction between controller-block epoch invalidation and Java-board task behavior. This guide does not treat instructions embedded in older reports as authorization to change or publish application code.

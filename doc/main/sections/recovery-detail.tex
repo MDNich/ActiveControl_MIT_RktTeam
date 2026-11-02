@@ -1,0 +1,19 @@
+\section{Inherited parachute and streamer force laws}
+A parachute's deployed area is $A=\pi d^2/4$ for the configured canopy diameter. Its baseline drag coefficient is 0.8 unless a preset or explicit setting supplies another value. The current component method returns its coefficient without a Mach-dependent canopy model. Structural mass is canopy area times surface density, plus line count times line length times line density. Canopy porosity, spill holes, inflation history, and suspension-line geometry are not separately resolved in this coefficient.
+
+A streamer's area is strip length times width, and its material mass uses surface density. With automatic CD, the implementation estimates
+\begin{equation}
+C_{D,\rm streamer}=\min\left[0.4,\ 0.034\frac{\sigma+0.025}{0.105}\frac{\ell+1}{\ell}\right],
+\end{equation}
+using the source's SI-valued strip length $\ell$ and surface density $\sigma$. The numerical constants belong to this empirical relation. A manual coefficient bypasses the automatic estimate through \class{RecoveryDevice}'s coefficient-selection path. Width still changes drag through area even though it does not appear explicitly in this CD formula.
+
+Once deployed, each device contributes $C_D A$ to the landing stepper. Increasing canopy diameter therefore changes both drag area and material mass; entering an explicit mass override can separate those effects. Multiple deployed devices add their effective drag areas. There is no canopy-shadowing or entanglement calculation between a drogue and main.
+
+For intuition only, balancing weight against drag in still air at fixed density gives $V_t\approx\sqrt{2mg/(\rho\sum C_DA)}$. The simulation integrates acceleration instead of instantly assigning this terminal speed, and wind and altitude-dependent density change the trajectory. This estimate is a useful interpretation of the implemented area sum, not an additional algorithm in the code.
+
+\section{Ordinary staging and two-device recovery}
+Independent deployment configurations let a drogue activate at apogee and a main activate on a descending-altitude crossing with its own delay. They share the stage's evolving status but retain separate device identity. A never-deploy rule leaves a device as packed mass unless another authorized path deploys it. The configured deployment threshold is evaluated through altitude events, so it should not be confused with geographic MSL altitude or the FC's zeroed barometric height.
+
+Stage separation has its own event selector: launch; current-stage ignition, burnout, or ejection; upper-stage ignition; ascending altitude; apogee; descending altitude; or never. A separate delay applies after activation. A separation trigger does not itself prescribe a parachute opening, and a motor ejection event does not necessarily separate a stage unless the stage rule says so. After a split, active-component filtering determines the motors and recovery devices available to each branch.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/rocketcomponent/Parachute.java}{Parachute}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/Streamer.java}{Streamer}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/RecoveryDevice.java}{RecoveryDevice coefficient selection}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/StageSeparationConfiguration.java}{StageSeparationConfiguration}.}

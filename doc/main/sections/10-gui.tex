@@ -1,0 +1,57 @@
+\chapter{Desktop GUI and editing workflows}\label{ch:gui}
+\section{Windows, panels, and model ownership}
+The desktop is a Swing application. A \class{BasicFrame} presents an \class{OpenRocketDocument}; panels and dialogs edit or display that document and its simulations. The core module owns vehicle, configuration, numerical, and persistence concepts. Swing owns widgets, selection, layout, dialogs, rendering, progress, and user interaction. The separation lets a simulation run without a visible editor and keeps unit conversion and display preferences out of physical equations.
+
+\diagram{fig:gui}{The GUI edits durable models and launches workers; it reads results after execution.}{
+\begin{tikzpicture}
+\simple{frame}{0,0}{BasicFrame\\document window}{4cm}
+\simple{doc}{6,0}{OpenRocketDocument\\rocket + simulations + history}{4cm}
+\simple{edit}{0,-2.2}{Design / configuration UI\\actions + property adaptors}{4cm}
+\simple{worker}{6,-2.2}{SimulationWorker\\background execution}{4cm}
+\simple{view}{0,-4.4}{RocketPanel and result views\\2D / 3D / plots / tables}{4cm}
+\simple{data}{6,-4.4}{FlightData\\immutable completed histories}{4cm}
+\draw[use] (frame)--(doc); \draw[use] (frame)--(edit);
+\draw[use] (edit)--(doc); \draw[use] (doc)--(worker);
+\draw[use] (worker)--(data); \draw[use] (data)--(view);
+\draw[use] (doc.south west) -- (3,-1.2) -- (3,-3.4) -| (view.north);
+\end{tikzpicture}}
+
+The design area combines a component hierarchy, component actions, configuration controls, and a rendered rocket. Tree selection and figure selection identify the same underlying components. The flight-configuration panel changes the selected motor/stage arrangement. The simulation panel manages named experiments and their statuses; it does not itself integrate the equations of motion.
+
+Component dialogs are specialized because a transition, motor mount, fin set, parachute, and airbrake expose different physical parameters. Common controls reuse adaptors such as \class{DoubleModel} and \class{BooleanModel}. An adaptor connects a property getter/setter to a spinner, slider, checkbox, units, limits, and change notifications. The setter remains responsible for model invariants and change events. A widget displaying millimeters must ultimately set the corresponding SI-valued model property.
+
+\sourceline{\source{swing/src/main/java/info/openrocket/swing/gui/main/BasicFrame.java}{BasicFrame}; \source{swing/src/main/java/info/openrocket/swing/gui/main/SimulationPanel.java}{SimulationPanel}; \source{swing/src/main/java/info/openrocket/swing/gui/scalefigure/RocketPanel.java}{RocketPanel}; \source{swing/src/main/java/info/openrocket/swing/gui/adaptors/DoubleModel.java}{DoubleModel}.}
+
+\section{Changes, undo, and listener lifetimes}
+A typical edit flows from a UI action through a model setter, a component-change event, document bookkeeping, recalculation, and a repaint or status update. Different changes invalidate different derived data: renaming a component does not have the same aerodynamic consequences as moving a fin. Cache keys and modification IDs in the core cooperate with this event flow.
+
+Undo belongs to the document workflow. Multi-field edits should have a coherent undo boundary and should not leave half of a component operation recorded as a separate user action. Simulation freshness is another consequence of model changes: a result can remain displayed while the application correctly marks it as out of date.
+
+Property adaptors and dialogs register listeners on long-lived models. When a dialog is disposed, its bindings must be invalidated or detached. A hidden dialog is not necessarily a dead listener. This matters for repeated configuration editing, where duplicate listeners can cause extra callbacks, stale controls, memory retention, or surprising writes to an old object.
+
+The simulation configuration dialog uses temporary or backed-up configuration state so cancel can restore settings. The existing result is not a reason to deep-copy every trajectory array during a small settings edit. The fork's configuration-dialog work addresses this boundary together with listener cleanup. When adding a new option, check both Apply/OK behavior and Cancel behavior, including whether existing result references and extension settings remain consistent.
+
+\section{Configuring and running a simulation}
+The simulation configuration dialog groups launch/environment settings, numerical options, FC configuration, warnings, plotting, and export around one simulation. Values should be validated before launching a worker, but runtime checks still protect the engine against invalid programmatic input or files from other versions.
+
+\class{SimulationWorker} executes the run off the event-dispatch thread. It supplies progress/cancellation listeners, reports completion or failure back to the GUI, and keeps the Swing event loop responsive. Cancellation is observed through simulation callbacks and an exception path; it is not implemented by allowing Swing to mutate a live \class{SimulationStatus}. Ensemble and motor-batch coordinators add their own worker management below the GUI boundary.
+
+Completed data feeds the simulation table, warnings, plots, export, and playback. Failures carry diagnostic context rather than a fabricated successful result. A GUI action that starts a run, an engine event that changes physical state, and an FC state transition are three separate event systems. Their names can be similar, but their ownership, threads, and timing are different.
+
+\sourceline{\source{swing/src/main/java/info/openrocket/swing/gui/simulation/SimulationConfigDialog.java}{SimulationConfigDialog}; \source{swing/src/main/java/info/openrocket/swing/gui/simulation/SimulationWorker.java}{SimulationWorker}; \source{swing/src/main/java/info/openrocket/swing/gui/main/FlightConfigurationPanel.java}{FlightConfigurationPanel}.}
+
+\section{Design rendering: geometry for the user}
+The two-dimensional rocket figure uses component-specific shape providers to draw side or back views, selection outlines, dimensions, and related visual information. The three-dimensional design view uses JOGL and component renderers to construct visible geometry, apply appearances, and handle camera interaction. These are visual consumers of the component model; neither is the aerodynamic calculator.
+
+The MIT changes include triangular fin-edge representation and more faithful rendering of fin tabs. The fin profile helpers and tab-visibility logic distinguish the fin outline, exposed control-tab geometry, internal or mounting geometry, cross sections, and actual depth. Side-view handedness and the geometry frame matter: a visually plausible extrusion can still have the wrong face visibility or rotation sign if it uses the simulation body's axes directly.
+
+The source snapshot includes drawing fixes beyond the published v6.4 tag. These correct the displayed geometry and interaction with views. They should not be described as a new validated aerodynamic model: the corresponding force model still lives in the component calculators described in Chapter~\ref{ch:aero}. If a new component is added, it may require both a physical calculator and one or more independent renderers.
+
+\input{sections/gui-baseline}
+
+\section{Flight-computer editing}
+The FC UI adds board selection, design-library management, sensor and timing settings, controller blocks, Java code editing, actuator mappings, recovery-channel mappings, logging, and diagnostics. The editor builds a configuration that the core FC runtime can resolve at simulation start. Component UUIDs, board/code identity, and semantic fingerprints connect the UI to the copied simulation rocket and recorded provenance.
+
+Java source editing has distinct operations: changing text, checking or compiling it, applying or saving it to a design, and approving the exact source hash for local execution. Completion and syntax feedback are conveniences for the author; they are not substitutes for the execution-time contract. External edits can change the code being inspected and must update the relevant status. Chapter~\ref{ch:fc} describes the program API and per-run class loading.
+
+Mapping controls should show unavailable, conflicting, or missing targets clearly. A named controller can reserve an actuator even when inactive in the current FC state, and an FC-enabled recovery device has no automatic fallback merely because a channel was left unassigned. Those are core runtime rules that the GUI needs to communicate, not silently repair by inventing another control path.

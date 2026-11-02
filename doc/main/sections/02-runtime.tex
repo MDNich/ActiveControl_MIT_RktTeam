@@ -1,0 +1,49 @@
+\chapter{Modules, startup, and application services}\label{ch:runtime}
+\section{Build modules and runtime boundaries}
+The Gradle application has a root project, \code{core}, and \code{swing}. The Swing project depends on core; the root application depends on both and supplies the complete distribution. Module declarations describe exported packages and dependencies. The assembled shadow JAR also provides a practical desktop distribution, so the module boundary should be understood as an architectural boundary as well as a build declaration.
+
+Core includes some Java desktop-related dependencies and shared presentation metadata, but the numerical engine does not require a visible Swing window. Headless runners can construct a document and call \class{Simulation.simulate()}. They must still initialize the services used by that code, including preferences, translations, and motor resolution. Calling arbitrary constructors before application bootstrap is not equivalent to launching a complete environment.
+
+\section{Startup sequence}
+\class{info.openrocket.swing.startup.OpenRocket} is the packaged entry point. Its bootstrap arrangements lead to \class{SwingStartup}. Startup prepares logging and exception handling, initializes desktop integration and the dependency injector, starts resource loaders, restores user preferences, and opens requested files or a new document. Swing UI construction is dispatched onto the event-dispatch thread.
+
+\class{GuiModule} and \class{PluginModule} supply dependencies through Guice. \class{Application} exposes access to application services used throughout core and Swing. This is an important practical dependency: many apparently small domain classes resolve translations or preferences through \class{Application}. Tests use common setup classes to provide a consistent environment.
+
+\diagram{fig:startup}{Startup establishes shared services before ordinary editing or simulation begins. Background resource loading and UI dispatch have distinct responsibilities.}{%
+\begin{tikzpicture}
+\simple{entry}{0,0}{OpenRocket launcher}{4.3cm}
+\simple{start}{6,0}{SwingStartup}{4.3cm}
+\simple{services}{12,0}{Guice + Application\\preferences, translator, plugins}{5cm}
+\simple{load}{12,-2.3}{Motor and component\\database loaders}{5cm}
+\simple{frame}{6,-2.3}{BasicFrame\\document window}{4.3cm}
+\simple{work}{0,-2.3}{Editing and simulation\\actions}{4.3cm}
+\draw[use] (entry) -- (start);
+\draw[use] (start) -- (services);
+\draw[use] (services) -- (load);
+\draw[use] (start) -- (frame);
+\draw[use] (load) -- (frame);
+\draw[use] (frame) -- (work);
+\end{tikzpicture}}
+
+The MIT startup path adds its memory policy and repository-specific update routing. Those services are application maintenance concerns. They do not advance simulated time, choose controller outputs, or change the aerodynamic equations.
+
+\section{Preferences, units, and localization}
+\class{ApplicationPreferences} defines core-facing settings, while \class{SwingPreferences} supplies desktop persistence and UI preferences. Defaults for new simulations are distinct from the options saved with an existing simulation. Changing a global preference must not be assumed to rewrite every scenario already loaded.
+
+The \code{unit} package separates storage/physics values from displayed units. Most physical values use SI internally: metres, kilograms, seconds, pascals, kelvin, and radians. \class{UnitGroup} collects compatible display choices; \class{Unit} performs conversion and formatting. Important exceptions and boundaries include degree-valued launch latitude/longitude, degree-valued FC commands, hPa/Celsius sensor adapters, and file fields whose saver/loader deliberately converts angles to degrees.
+
+The \code{l10n} package supplies translations from resource bundles. UI labels are not stable identifiers. Persistence, component UUID mappings, controller source IDs, and event types should remain meaningful when the language or display name changes.
+
+\section{Databases and presets}
+Motor database services supply \class{ThrustCurveMotor} records and search/filter metadata. Loaders handle bundled motor resources and user-supplied thrust curves; the \code{thrustcurve} package contains online search/download support. A saved motor reference must resolve to an actual motor definition before flight calculations can use its curve and mass properties.
+
+Component presets are catalog data used to populate components. \class{ComponentPreset}, typed property maps, XML DTOs, and database loaders manage dimensions, materials, and identifying metadata. Once instantiated, the rocket component is the editable design object. It is not a live remote catalog record. Property setters can clear preset associations when the component no longer matches its original preset.
+
+Materials have different dimensional meanings: bulk density for volumes, surface density for sheets/canopies, and line density for cords. Treating all density fields as kilograms per cubic metre would produce incorrect masses. The selected component determines which material category and formula apply.
+
+\section{Threading and service boundaries}
+The Swing event-dispatch thread owns interactive widget updates. Simulations and long file/analysis operations use workers so the desktop remains responsive. Core objects such as \class{Simulation} and \class{RocketComponent} use safety checks, but those checks do not turn one shared mutable rocket into a concurrent simulation workspace. Batch and ensemble implementations create isolated copies for their workers.
+
+Cancellation is cooperative: workers and listeners check interruption, then close their outputs. Result installation belongs to the coordinating workflow. In particular, an ensemble publishes a new result only after all required members complete successfully. This avoids relabeling a previous successful result as a partially completed new experiment.
+
+\sourceline{\source{swing/src/main/java/info/openrocket/swing/startup/OpenRocket.java}{OpenRocket}; \source{swing/src/main/java/info/openrocket/swing/startup/SwingStartup.java}{SwingStartup}; \source{core/src/main/java/info/openrocket/core/startup/Application.java}{Application}; \source{core/src/main/java/info/openrocket/core/preferences/ApplicationPreferences.java}{ApplicationPreferences}; \source{core/src/main/java/info/openrocket/core/preset/ComponentPreset.java}{ComponentPreset}; \source{core/src/main/java/info/openrocket/core/database/MotorDatabaseLoader.java}{MotorDatabaseLoader}.}

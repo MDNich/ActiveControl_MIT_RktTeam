@@ -1,0 +1,58 @@
+\chapter{Extension points and cross-cutting contracts}\label{ch:extensions}
+\section{Plugins and dependency injection}
+Application startup creates shared services through Guice modules. The plugin mechanism discovers types marked with \code{@Plugin}, identifies plugin interfaces, and binds matching implementations into injectable sets. Consumers request the relevant service set rather than hard-coding every implementation in the window that uses it. This supports families such as extension providers and optimization services.
+
+Discovery and execution are different stages. Discovering an extension provider allows the UI to offer a capability. An individual simulation still owns its selected extension and configuration. A plugin JAR is application code with access to the process; it is not isolated merely because it was discovered dynamically.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/plugin/Plugin.java}{Plugin}; \source{core/src/main/java/info/openrocket/core/plugin/PluginModule.java}{PluginModule}; \source{core/src/main/java/info/openrocket/core/plugin/AnnotationFinderImpl.java}{AnnotationFinderImpl}.}
+
+\section{Simulation extensions versus listeners}
+A \class{SimulationExtension} is the persistent, configurable feature attached to a simulation. It supplies identity and metadata, stores configuration, can declare result types, participates in document loading, and initializes runtime behavior. A \class{SimulationListener} is the callback object that actually observes or modifies an execution. One extension can create several collaborating runtime objects.
+
+\class{AbstractSimulationExtension} copies its \class{Config} on cloning and on configuration access. This protects the configuration map from accidental sharing. It does not automatically deep-copy arbitrary subclass fields, open files, static variables, or external library state. An extension intended for repeated or parallel execution must explicitly define what is shared, what is immutable, and what is freshly created.
+
+The FC extension follows this pattern: saved settings describe the computer, while initialization creates a listener that owns the per-flight runtime, sensor adapter, control bridges, and logs. The run's copied rocket prevents actuator outputs from rewriting the editor's design. Extension configuration, the FC library artifact, and transient firmware state are three different lifetimes.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/extension/SimulationExtension.java}{SimulationExtension}; \source{core/src/main/java/info/openrocket/core/simulation/extension/AbstractSimulationExtension.java}{AbstractSimulationExtension}; \source{core/src/main/java/info/openrocket/core/simulation/extension/impl/ZephyrusFlightComputer.java}{ZephyrusFlightComputer}.}
+
+\section{Callback families and numerical consequences}
+\begin{tabularx}{\linewidth}{@{}L{4cm}YY@{}}\toprule
+Interface & Typical role & Important boundary\\\midrule
+\class{SimulationListener} & Run start/end and before/after-step behavior & A completed step differs from an internal derivative evaluation\\
+\class{SimulationEventListener} & Event notifications and permitted event decisions & A listener may influence whether a queued event is accepted\\
+\class{SimulationComputationListener} & Observe or replace atmospheric, mass, aerodynamic, thrust, or acceleration calculations & Calculations may occur several times within one RK step\\
+\class{AbstractSimulationListener} & Default implementations across the callback families & Defaults and return sentinels are part of the API\\\bottomrule
+\end{tabularx}
+
+The listener helper invokes callbacks and interprets their return values. Depending on the callback, a boolean controls continuation or acceptance, a non-null object replaces a computed value, or a non-NaN scalar supplies an override. A new listener should follow the exact method contract rather than assuming all callbacks have the same convention.
+
+Ordering matters when two listeners modify the same quantity. A random perturbation listener, an actuator listener, and a logging listener can otherwise observe different stages of the computation. Time-varying inputs should be functions of physical time and stable run identity where possible. Drawing a fresh random value every time the RK solver asks for acceleration makes the answer depend on the solver's internal evaluation count.
+
+The FC's acquisition contract is more restrictive than a generic acceleration callback: it captures the appropriate first derivative state, associates it with the start of an accepted interval, and publishes coherent measurements after acceptance. Its virtual scheduler and deadline limiter then coordinate task completion with the engine. A generic \code{postStep} callback by itself does not reproduce that timing model.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/listeners/SimulationListener.java}{SimulationListener}; \source{core/src/main/java/info/openrocket/core/simulation/listeners/SimulationEventListener.java}{SimulationEventListener}; \source{core/src/main/java/info/openrocket/core/simulation/listeners/SimulationComputationListener.java}{SimulationComputationListener}; \source{core/src/main/java/info/openrocket/core/simulation/listeners/SimulationListenerHelper.java}{SimulationListenerHelper}.}
+
+\section{Scripts, Java boards, and legacy controllers}
+The inherited scripting extension evaluates a configured script through an available script engine and exposes listener callbacks. On document load it disables enabled scripts that are not locally trusted. The language must be supported by the runtime and provide the required invocable interface. A script is therefore both a persistence concern and a runtime dependency.
+
+MIT Java-board programs use the FC's own API, compilation, source-hash approval, measurement context, and task scheduler. They are not interchangeable with arbitrary OpenRocket simulation listeners. A board sees the FC context and submits commands through controlled bridges; a general simulation listener operates at the engine callback boundary. Both run in-process, but their intended APIs and scheduling contracts differ.
+
+The source also retains older controller/listener paths, including \class{NewControlStepListener} and \class{AirbrakesControllerListener}. Their names and presence do not mean every FC run uses them as its controller implementation. Follow the actual registration and execution path from \class{Simulation} and the selected extensions. The current default RK6 selection and legacy timestep settings are especially easy to overlook when reading upstream classes alone.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/extension/impl/ScriptingExtension.java}{ScriptingExtension}; \source{core/src/main/java/info/openrocket/core/simulation/listeners/NewControlStepListener.java}{NewControlStepListener}; \source{core/src/main/java/info/openrocket/core/simulation/listeners/AirbrakesControllerListener.java}{AirbrakesControllerListener}.}
+
+\input{sections/services-detail}
+
+\section{A maintenance checklist by boundary}
+When changing a component, check geometry and instance placement, mass and inertia, aerodynamic behavior, renderer geometry, copy/identity semantics, serialization, and editor units. When changing an engine path, check event ordering, accepted-step semantics, stage branches, recovery-stepper transitions, cancellation, and result timestamps. When changing an FC task, check input acquisition, completion visibility, state-transition behavior, actuator ownership, recovery deduplication, and logging.
+
+When adding a simulation option or channel, check old-file defaults, freshness signatures, ensemble behavior, CSV and ORK persistence, imported-data behavior, and plots. A new channel may need circular, held-state, or event semantics rather than ordinary scalar averaging. When adding concurrency, inspect mutable static state and external outputs in addition to object clones.
+
+These checks follow the application's ownership boundaries. They are more useful than assuming that a successful GUI demonstration proves persistence, parallel execution, or the timing of a numerical callback.
+
+\section{Practical investigation routes}
+For a surprising trajectory, inspect configuration and launch options, then events, warnings, active stages, mass, aerodynamic coefficients and the selected stepper. For FC behavior, compare physical truth, measurements, task completion, command publication and actuator latching separately.
+
+For differing runs, compare source/artifact identity, rocket/FC fingerprints, seeds, environment, configuration and extensions. For a save/reload mismatch, trace the relevant saver and loader fields before investigating a repaint.
+
+For a visual mismatch, identify whether the disputed value belongs to design geometry, a renderer or recorded playback data. A changed drawing does not automatically change aerodynamic forces or an already recorded flight.

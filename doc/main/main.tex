@@ -1,0 +1,54 @@
+\input{preamble}
+\begin{document}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\color{ink}
+{\sffamily\bfseries\Large OPENROCKET MIT\par}
+\vspace{1.2cm}
+{\sffamily\bfseries\Huge Application architecture\par}
+\vspace{0.2cm}
+{\sffamily\bfseries\Huge and developer guide\par}
+\vspace{0.7cm}
+{\Large From the component tree to flight dynamics, desktop workflows, and onboard control\par}
+\vspace{0.8cm}
+{\large Source edition 6.4\quad /\quad 27 October 2026\par}
+\vspace{0.6cm}\hrule height 1pt\vspace{0.5cm}
+This guide explains how the MIT fork of OpenRocket is organized, how its major objects and services interact, and where to change or investigate each behavior. It follows a design through editing, configuration, numerical simulation, recovery, control, persistence, and visualization.
+
+The flight-computer architecture report is incorporated as a complete chapter. Surrounding chapters explain the larger application that hosts it, including inherited OpenRocket capabilities and MIT-specific changes.
+\vspace{0.5cm}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}L{3.1cm}Y@{}}\toprule
+Source snapshot & \code{7f0b67ee1c755ec89f154b0f0d2f4e23c843aa87}\\
+Upstream basis & OpenRocket \code{release-24.12.RC.01}\\
+Published baseline & MIT v6.4, source \code{9f71a941}, published 13 October 2026\\
+Implementation & Java 17; Gradle root application, \code{core}, and \code{swing}\\
+Reading level & Functional reference, physical models, architecture, execution contracts, and source navigation\\\bottomrule
+\end{tabularx}
+\vfill
+{\small\color{muted}This is documentation of the inspected implementation, not a new numerical validation or hardware qualification. Current source and released packages differ despite sharing the 6.4 version label. Source links are pinned to the inspected commit.}\par
+\end{titlepage}
+\pagenumbering{roman}
+\hypersetup{pageanchor=true}
+{\small\setlength{\parskip}{0pt}\tableofcontents}
+\clearpage
+{\small\setlength{\parskip}{0pt}\listoffigures}
+\clearpage\pagenumbering{arabic}
+\input{sections/01-system-map}
+\input{sections/02-runtime}
+\input{sections/03-components}
+\input{sections/04-physical-models}
+\input{sections/05-aerodynamics}
+\input{sections/06-simulation-engine}
+\input{sections/07-recovery}
+\input{sections/08-flight-computer}
+\input{sections/09-simulation-workflows}
+\input{sections/10-gui}
+\input{sections/11-results}
+\input{sections/12-persistence}
+\input{sections/13-extensibility}
+\input{sections/14-build}
+\appendix
+\titleformat{\chapter}[display]{\sffamily\bfseries\color{ink}\raggedright\hyphenpenalty=10000\exhyphenpenalty=10000}{\large APPENDIX \thechapter}{8pt}{\Huge}
+\input{sections/15-source-map}
+\input{sections/16-package-atlas}
+\end{document}

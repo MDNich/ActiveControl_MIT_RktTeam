@@ -1,0 +1,65 @@
+\chapter{How the application fits together}\label{ch:map}
+OpenRocket is built around a persistent rocket model. The editor changes it; physical calculators derive its properties; an event-driven simulation advances it through flight; result objects preserve the output for analysis. The MIT edition adds active-control hardware, a virtual flight computer, repeated-run analysis, and corresponding desktop workflows.
+
+Distinguish \emph{design}, \emph{configuration}, \emph{execution}, and \emph{observation}. A fin's span belongs to the design; its installed motor to a configuration; current angular velocity to a running simulation; and recorded roll rate to a result. These owners and lifetimes prevent stale results, unintended edits, and incorrect state reuse.
+
+\section{The application-wide dependency map}
+\diagram{fig:application-map}{Major application layers. Arrows indicate use or data flow; the return path through results does not modify the design automatically.}{%
+\begin{tikzpicture}
+\simple{ui}{0,0}{Swing desktop\\editors, actions, dialogs}{5.4cm}
+\simple{doc}{7,0}{OpenRocketDocument\\rocket + simulations}{5.4cm}
+\simple{files}{14,0}{Files and libraries\\ORK, FC, motors, presets}{5.4cm}
+\simple{config}{7,-2.2}{FlightConfiguration\\SimulationOptions / Conditions}{5.4cm}
+\simple{calc}{0,-4.6}{Physical calculators\\mass, atmosphere, aerodynamics}{5.4cm}
+\simple{engine}{7,-4.6}{Event engine + stepper\\SimulationStatus}{5.4cm}
+\simple{fc}{14,-4.6}{FC extension and listeners\\sensors, control, recovery}{5.4cm}
+\simple{data}{7,-7}{FlightData + branches\\events, warnings, ensemble archive}{5.4cm}
+\simple{views}{0,-7}{Plots, 3D playback\\CSV and reports}{5.4cm}
+\draw[use] (ui) -- (doc);
+\draw[use] (files) -- (doc);
+\draw[use] (doc) -- (config);
+\draw[use] (config) -- (engine);
+\draw[use] (engine) -- (calc);
+\draw[use] (calc.south) -- ++(0,-.45) -| (engine.south west);
+\draw[use] (engine) -- (fc);
+\draw[use] (fc.south) -- ++(0,-.45) -| (engine.south east);
+\draw[use] (engine) -- (data);
+\draw[use] (data) -- (views);
+\draw[use] (data.east) -- (17,-7) |- (files.east);
+\end{tikzpicture}}
+
+There are two principal Java modules. \code{core} owns design objects, physical models, simulation, data, and file formats. \code{swing} owns windows, controls, drawing, interactive analysis, and platform startup. The root Gradle project assembles a complete executable application from both. The MIT firmware translation lives inside \code{core}, under \code{edu.mit.rocket_team}; it is not an external microcontroller process.
+
+\section{A complete design-to-result transaction}
+\begin{enumerate}
+\item A file loader constructs an \class{OpenRocketDocument}, its \class{Rocket} tree, flight configurations, simulations, attachments, and any saved results. A new-document action creates the same kind of object graph without loading a file.
+\item The GUI edits component properties through setters and adapter models. Component change events invalidate dependent calculations and update the views. Document undo records design changes.
+\item A \class{Simulation} selects a \class{FlightConfigurationId} and stores launch conditions, numerical options, extensions, and optional ensemble settings. Its options are converted into the model instances and values in \class{SimulationConditions}.
+\item Before execution, FC designs are resolved and frozen when enabled. The execution path prepares a simulation rocket/configuration and installs listeners. Worker isolation is explicit for motor batches and ensembles.
+\item The engine processes ignition, separation, recovery, apogee, and termination events. Between events, the chosen stepper asks the physical models for conditions, forces, mass, and acceleration, then advances the kinematic state.
+\item The FC listener consumes coherent physical acquisitions, advances virtual tasks, and applies completed control outputs at the appropriate deadlines. Recovery commands join the engine's event queue.
+\item Samples, events, and warnings accumulate in \class{FlightDataBranch} objects within \class{FlightData}. An ensemble additionally retains deviations, member metrics, and complete member histories.
+\item Plot and export code reads the recorded result. Saving a document can persist those results, but an external FC definition remains a separately managed artifact.
+\end{enumerate}
+
+\section{Ownership and lifetime}
+\begin{tabularx}{\linewidth}{@{}L{3cm}YY@{}}\toprule
+Owner & Typical contents & Lifetime / important boundary\\\midrule
+Application services & Preferences, translator, motor/preset databases, plugin discovery & Shared application services; not an individual flight's evolving state\\
+Document & Rocket, simulations, custom expressions, appearance attachments, undo, batch reports & Open design file or window\\
+Simulation definition & Configuration ID, options, extension settings, external FC reference & Editable scenario; existing results can outlive changed settings\\
+Run status & Time, pose, velocities, active stages, motor states, event queue & One flight branch; copied at defined branch/stepper boundaries\\
+FC run & Clock, instruments, controller history, Java programs, logs, bindings & Fresh per flight; retained across that flight's recovery-stepper switch\\
+Result & Sample arrays, event metadata, warnings, provenance & Completed or imported observation, independent of an open plot window\\\bottomrule
+\end{tabularx}
+
+\section{Inherited framework and MIT additions}
+Most component types, the Barrowman-based calculator, mass model, ordinary recovery rules, file import/export infrastructure, optimization, and Swing editing architecture are inherited. MIT additions extend these layers rather than replacing them wholesale. The major extensions are controlled fins and airbrakes; the modified event engine and RK6 path; the translated FC and graphical designer; controller/recovery bridges; ensembles and motor batches; diagnostic data and 3D flight playback; and MIT distribution/update behavior.
+
+Source at the documented commit is three commits beyond the published v6.4 baseline. In particular, vanilla export, expanded coefficient/wind uncertainty, parallel ensembles, and later fin-display corrections are newer than the October 13 packages. The source remains labeled 6.4. Reproducibility therefore requires the commit or artifact checksum in addition to the displayed version.
+
+\section{Reading this guide}
+Chapters~\ref{ch:components}--\ref{ch:aero} explain the complete native geometry and physical models; Chapters~\ref{ch:engine}--\ref{ch:fc} explain flight and control. The remaining chapters cover experiments, analysis, editing, results, files, services and distribution. Appendices~\ref{app:source} and~\ref{app:packages} provide source navigation and a complete runtime package inventory.
+
+This is a functional subsystem reference, including inherited OpenRocket behavior and MIT additions. The inventory maps all 1,282 main Java files; the prose explains capabilities and interactions rather than every method. Diagrams are curated architecture views, and equations describe the inspected implementation or explicitly labeled conceptual relationships.
+\sourceline{\source{core/src/main/java/info/openrocket/core/document/OpenRocketDocument.java}{OpenRocketDocument}; \source{core/src/main/java/info/openrocket/core/document/Simulation.java}{Simulation}; \source{core/src/main/java/module-info.java}{core/module-info.java}; \source{swing/src/main/java/module-info.java}{swing/module-info.java}.}

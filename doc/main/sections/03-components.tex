@@ -1,0 +1,64 @@
+\chapter{Documents, rocket components, and configurations}\label{ch:components}
+\section{The document is the editing aggregate}
+\class{OpenRocketDocument} groups a rocket with its simulations, custom expressions, storage options, appearance attachments, photo settings, undo history, and MIT motor-batch reports. The document is the natural unit for opening, saving, and presenting a design. A \class{Simulation} is a scenario owned by that document, not the document itself.
+
+Document events inform views that simulations or other document-level data changed. Component events originate in the rocket tree. These two event systems overlap in user-visible effects but serve different owners. A new motor-batch report can dirty the document without changing a fin; a fin edit can invalidate aerodynamic data and simulation freshness while retaining the previous result for inspection.
+
+\section{The component tree and class families}
+Every design starts with a \class{Rocket} root. \class{RocketComponent} provides parent/child structure, identity, placement, naming, change notification, appearance, overrides, and common copy operations. Compatibility rules restrict which children belong under which parents. Assemblies organize stages and pods; physical component subclasses supply geometry and physical properties.
+
+\begin{longtable}{@{}L{3cm}L{5.1cm}L{7cm}@{}}
+\toprule Family & Representative classes & Role in the model\\\midrule\endhead
+Assemblies & \class{Rocket}, \class{AxialStage}, \class{ParallelStage}, \class{PodSet} & Group children, define staging or repeated installations, and contribute instance transforms.\\
+Outer airframe & \class{NoseCone}, \class{BodyTube}, \class{Transition} & Define external profiles, shell volume, wetted/projected geometry, and aerodynamic calculator selection.\\
+Fin families & \class{TrapezoidFinSet}, \class{FreeformFinSet}, \class{EllipticalFinSet}, \class{TubeFinSet} & Describe outlines, count, placement, cant, thickness, and mass/aerodynamic geometry.\\
+MIT control surfaces & \class{TabControlledTrapezoidFinSet}, \class{AirbrakeSet} & Add live tab angle or exposed fraction, corresponding physical coefficients, saving/loading, and editing/rendering support.\\
+Internal/structural & \class{InnerTube}, \class{TubeCoupler}, \class{Bulkhead}, \class{CenteringRing}, \class{EngineBlock} & Model internal geometry, materials, mounting, and mass; internal parts need not create an external aerodynamic contribution.\\
+Mass and support & \class{MassComponent}, \class{ShockCord}, \class{LaunchLug}, \class{RailButton} & Represent explicit mass, line-like components, and launch-guide hardware with their own geometry/drag behavior.\\
+Recovery & \class{RecoveryDevice}, \class{Parachute}, \class{Streamer} & Store packed-component properties and deployment configuration; deployed drag is consumed by the recovery stepper.\\\bottomrule
+\end{longtable}
+
+A component can have a visible drawing without a separate aerodynamic contribution, and can have mass without being a surface exposed to the airflow. Conversely, turning off rendering visibility does not remove a component from simulation. These are deliberately different concerns.
+
+\section{Placement, instances, and identity}
+Axial placement uses an \class{AxialMethod} and offset relative to the parent/reference geometry. Radial and angular placement handle rings, fin sets, and off-axis assemblies. A tree node can represent several physical instances. \class{InstanceMap} and \class{InstanceContext} carry transformed occurrences so mass and aerodynamic calculations account for all installed copies.
+
+This distinction matters for clustered motors, parallel boosters, and repeated fins. Counting tree nodes is not sufficient to count physical hardware. An individual fin contribution must not be multiplied once in a component calculator and then accidentally multiplied again when the active instances are traversed.
+
+Components have UUIDs. Copies used to simulate or duplicate a scenario can preserve these IDs with \code{copyWithOriginalID()}, allowing saved mappings to resolve to the corresponding objects in the copied rocket. A new independently inserted component should have its own identity. Display names can change and are not a substitute for UUIDs. The FC block/recovery mappings use UUIDs; the Java named-output API deliberately uses exact unique names and checks for ambiguity.
+
+\diagram{fig:document-configuration}{A design can support several motor/stage configurations and simulation scenarios. Each running branch derives its active physical configuration from the selected scenario.}{%
+\begin{tikzpicture}
+\simple{doc}{6,0}{OpenRocketDocument}{5cm}
+\simple{rocket}{0,-2}{Rocket component tree\\geometry, UUIDs, materials}{5cm}
+\simple{sims}{12,-2}{Simulation definitions\\options + extensions + results}{5cm}
+\simple{fcfg}{0,-4.3}{FlightConfigurationId\\active stages + motor assignments}{5cm}
+\simple{run}{12,-4.3}{SimulationConditions\\SimulationStatus}{5cm}
+\draw[own] (doc) -- (rocket);
+\draw[own] (doc) -- (sims);
+\draw[use] (rocket) -- (fcfg);
+\draw[use] (sims.west) -- node[flowlabel,above]{selects ID} (fcfg.north east);
+\draw[use] (sims) -- (run);
+\draw[use] (fcfg) -- node[flowlabel,above]{active instances} (run);
+\end{tikzpicture}}
+
+\section{A flight configuration is not a simulation option set}
+\class{FlightConfiguration} associates a rocket with a configuration ID, stage activation, active components/instances, motor assignments, and reference dimensions. Flight-configurable component properties can vary by configuration: motors, ignition, stage separation, and recovery deployment settings are examples. \class{FlightConfigurableParameterSet} supplies the per-ID values and defaults.
+
+\class{SimulationOptions} instead holds launch site, atmosphere/wind choices, rod settings, numerical settings, initial spin, and ensemble options. A simulation references one flight configuration and owns its own options. Several simulations can therefore compare weather or launch angles using the same installed motor configuration without duplicating the entire rocket design.
+
+\section{Change propagation, overrides, and undo}
+Geometry setters validate values and send \class{ComponentChangeEvent}s. Event categories distinguish changes that affect mass, aerodynamics, the component tree, or display. Modification identifiers and calculator caches use these signals to determine when derived data must be rebuilt. Bypassing setters can leave stale geometry, mass, or results even if a field contains the intended number.
+
+Mass, CG, and drag overrides can apply to one component or a subtree. They are explicit modeling choices layered over calculated properties. A measured total mass override is not the same operation as changing every material density. Likewise, moving an overridden CG does not necessarily change the modeled shape or aerodynamic centre. The mass calculator and aerodynamic calculator interpret their own override flags.
+
+Document undo records snapshots of the rocket at explicit undo points. GUI operations that transform a fin into a controlled fin must preserve appropriate geometry, materials, fillets, mounting tabs, and placement while making an undoable change. Simulation-dialog cancellation has a different snapshot lifecycle for options/extensions and prior results; it should not be treated as ordinary rocket-tree undo.
+
+\section{Geometry and coordinate boundaries}
+Component geometry uses a longitudinal model axis along X, increasing from the front toward the rear. Numerical flight integration uses a body frame with longitudinal Z and a quaternion relating it to the world frame. The 2D/3D design renderers have their own view transforms. In the MIT tab-preview work, the side-view model convention treats positive model Z as away from the observer. These conventions must be converted at the boundary; the same variable name does not imply the same axis across all subsystems.
+
+Through-the-wall mounting tabs and aerodynamic roll-control tabs are separate features. Mounting tabs extend through the body to support the fin and affect structure/mass. Control tabs are deflected surfaces used by the MIT aerodynamic/control path. Adding a mounting tab does not create a controllable actuator.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/rocketcomponent/RocketComponent.java}{RocketComponent}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/FlightConfiguration.java}{FlightConfiguration}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/FlightConfigurableParameterSet.java}{FlightConfigurableParameterSet}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/InstanceMap.java}{InstanceMap}; \source{core/src/main/java/info/openrocket/core/document/OpenRocketDocument.java}{OpenRocketDocument}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/TabControlledTrapezoidFinSet.java}{TabControlledTrapezoidFinSet}.}
+
+\input{sections/component-catalogue}

@@ -1,0 +1,209 @@
+\chapter{Whole-codebase package atlas}\label{app:packages}
+
+This appendix accounts for every Java source under the application's two \code{src/main/java} trees at the documented snapshot. It groups related packages by function and links them to the explanatory chapters. Counts are source files, not public classes, methods, lines of code, or a measure of subsystem importance. Nested types remain within their source file. The two module descriptors are counted separately from named packages.
+
+The inventory contains \textbf{1,282 main Java files}: 826 in core and 456 in Swing, spanning 139 named packages plus the two module descriptors. The bundled expression parser and translated MIT firmware are included. \code{source-inventory.tsv}, beside the main document, lists every file, its package, subsystem, chapter label and source-relative path. It can be filtered to locate a package not printed in full below.
+
+\code{tools/build_source_inventory.py} regenerates both this table and the per-file inventory from the local source tree. It requires every file to match an explicit documented subsystem and rejects uncovered paths. This is a coverage/navigation check, not a claim that every method has been individually explained or numerically validated. The prose describes subsystem behavior and the important interactions, with deeper treatment of geometry, forces and flight/control timing.
+
+
+\section{Core module}
+
+Package paths below are relative to \code{core/src/main/java/}. Except where written in full, the prefix is \code{info/openrocket/core/}. Each row includes its descendant packages unless a more specific row is listed.
+
+\begin{longtable}{@{}L{4.6cm}L{0.8cm}L{10.2cm}@{}}\toprule Package family & Files & Function and guide location\\\midrule\endfirsthead
+
+\toprule Package family & Files & Function and guide location\\\midrule\endhead
+
+\code{module-info.java} & 1 & \textbf{Module declaration}. Exports and dependency requirements for the core module. Chapter~\ref{ch:runtime}.\\
+
+\code{de/congrace/exp4j} & 22 & \textbf{Expression parser}. Bundled arithmetic parser, tokens, functions, variables and expression evaluation. Chapter~\ref{ch:results}.\\
+
+\code{edu/mit/rocket_team} & 47 & \textbf{Translated flight computer}. AV/FC state, control and airbrake algorithms, instruments, per-run internals, telemetry, data and hardware abstractions. Chapter~\ref{ch:fc}.\\
+
+\code{aerodynamics} & 14 & \textbf{Aerodynamics}. Calculator contracts, conditions and coefficients; Barrowman assembly and specialized body, fin, tube, rail-button and airbrake calculators. Chapter~\ref{ch:aero}.\\
+
+\code{appearance} & 6 & \textbf{Appearance}. Colors, decals and default visual appearances, independent of physical surface finish. Chapter~\ref{ch:gui}.\\
+
+\code{arch} & 1 & \textbf{Platform information}. Operating-system/platform identification for application behavior and resource selection. Chapter~\ref{ch:runtime}.\\
+
+\code{communication} & 13 & \textbf{Application communication}. Connection abstraction, welcome/release retrieval, bug reports, upstream and MIT update metadata. Chapter~\ref{ch:build}.\\
+
+\code{componentanalysis} & 6 & \textbf{Static analysis}. Analysis parameters, sweep domains, per-component coefficient data and static parameter sweeps. Chapter~\ref{ch:workflows}.\\
+
+\code{database} & 11 & \textbf{Databases}. Async resource loading, catalog databases, motor lookup and grouped thrust-curve records. Chapter~\ref{ch:persistence}.\\
+
+\code{document} & 12 & \textbf{Documents}. Design/simulation ownership, storage options, undo, document events and attachment references. Chapter~\ref{ch:runtime}.\\
+
+\code{file/openrocket} & 87 & \textbf{Native ORK and vanilla export}. Document XML, component savers, import handlers, result/extension persistence and MIT-to-vanilla conversion. Chapter~\ref{ch:persistence}.\\
+
+\code{file/rocksim} & 50 & \textbf{RockSim conversion}. Format constants and mappings, XML import handlers, export DTOs and saver. Chapter~\ref{ch:persistence}.\\
+
+\code{file/rasaero} & 37 & \textbf{RASAero conversion}. Design, launch, recovery and simulation conversion through import handlers and export DTOs. Chapter~\ref{ch:persistence}.\\
+
+\code{file/wavefrontobj} & 31 & \textbf{OBJ mesh export}. Mesh tuples/faces/groups/materials, triangulation, component exporters and cylinder/tube/disk/polygon builders. Chapter~\ref{ch:persistence}.\\
+
+\code{file/svg} & 1 & \textbf{SVG utility}. Vector document/path construction used by fin-and-tab SVG export. Chapter~\ref{ch:persistence}.\\
+
+\code{file/simplesax} & 6 & \textbf{XML parser delegation}. Element handlers, reader pooling and warning-aware SAX delegation. Chapter~\ref{ch:persistence}.\\
+
+\code{file/motor} & 6 & \textbf{Motor-file loading}. RASP, RockSim and ZIP/general dispatch into thrust-curve records. Chapter~\ref{ch:persistence}.\\
+
+\code{file/iterator} & 3 & \textbf{File iteration}. Directory/JAR resource iteration used by loaders. Chapter~\ref{ch:persistence}.\\
+
+\code{file} & 17 & \textbf{General file services}. Format dispatch, load/save context, attachment handling, CSV export and shared file contracts. Chapter~\ref{ch:persistence}.\\
+
+\code{formatting} & 4 & \textbf{Descriptions}. Rocket/configuration descriptions and motor-configuration name substitutions. Chapter~\ref{ch:extensions}.\\
+
+\code{gui/util} & 1 & \textbf{Shared file filter}. File-filter adapter used by desktop and file-selection code. Chapter~\ref{ch:extensions}.\\
+
+\code{l10n} & 7 & \textbf{Localization}. Translator interfaces, contextual/debug/resource translators and locale helpers. Chapter~\ref{ch:runtime}.\\
+
+\code{logging} & 9 & \textbf{Structured diagnostics}. Warnings, errors, messages, priorities, abort information and message sets. Chapter~\ref{ch:extensions}.\\
+
+\code{masscalc} & 4 & \textbf{Mass and inertia}. Component/motor aggregation, rigid-body properties and per-component mass-analysis entries. Chapter~\ref{ch:models}.\\
+
+\code{material} & 3 & \textbf{Materials}. Bulk, sheet and line-density materials, groups and storage. Chapter~\ref{ch:models}.\\
+
+\code{models/atmosphere} & 4 & \textbf{Atmosphere}. Atmospheric conditions, extended ISA and interpolation/model interfaces. Chapter~\ref{ch:models}.\\
+
+\code{models/gravity} & 2 & \textbf{Gravity}. Gravity interface and WGS-based latitude/altitude model. Chapter~\ref{ch:models}.\\
+
+\code{models/wind} & 4 & \textbf{Wind}. Wind interfaces, average/pink-noise and multilevel wind models. Chapter~\ref{ch:models}.\\
+
+\code{motor} & 10 & \textbf{Propulsion}. Motor records, manufacturers/digests, installed configuration, ignition rules and runtime cluster state. Chapter~\ref{ch:models}.\\
+
+\code{optimization/general} & 13 & \textbf{Numerical search}. Function/point contracts, caches/controllers, golden-section and multidirectional search. Chapter~\ref{ch:workflows}.\\
+
+\code{optimization/rocketoptimization} & 24 & \textbf{Rocket optimization}. Physical objectives, goals, domains, modifiers and function adapter for trial designs. Chapter~\ref{ch:workflows}.\\
+
+\code{optimization/services} & 5 & \textbf{Optimization discovery}. Services exposing available objectives and modifiable design/configuration variables. Chapter~\ref{ch:workflows}.\\
+
+\code{plugin} & 6 & \textbf{Plugin discovery}. Annotations, class discovery and dependency-injection bindings. Chapter~\ref{ch:extensions}.\\
+
+\code{preferences} & 3 & \textbf{Preferences}. Core-facing application/document preference models and defaults. Chapter~\ref{ch:runtime}.\\
+
+\code{preset} & 53 & \textbf{Component catalogs}. Typed preset properties, material matching, CSV ingestion and XML DTOs/loaders. Chapter~\ref{ch:persistence}.\\
+
+\code{rocketcomponent} & 76 & \textbf{Vehicle model}. All native parts and assemblies, placement strategies, instances, configuration parameters and change propagation. Chapter~\ref{ch:components}.\\
+
+\code{rocketvisitors} & 4 & \textbf{Tree traversal}. Breadth/depth visitors and component/motor-mount listing. Chapter~\ref{ch:extensions}.\\
+
+\code{scripting} & 3 & \textbf{Script engines}. Engine discovery and GraalJS integration for scripting support. Chapter~\ref{ch:extensions}.\\
+
+\code{simulation/customexpression} & 5 & \textbf{Derived channels}. Expression definitions, ranges/functions and a result-writing listener. Chapter~\ref{ch:results}.\\
+
+\code{simulation/ensemble} & 9 & \textbf{Ensembles}. Settings, random draws, isolated execution, perturbations, aggregate statistics and member archives. Chapter~\ref{ch:workflows}.\\
+
+\code{simulation/exception} & 4 & \textbf{Run exceptions}. Calculation, listener/termination and other simulation exception contracts. Chapter~\ref{ch:engine}.\\
+
+\code{simulation/extension} & 27 & \textbf{Simulation features}. Persistent extension/provider contracts, implementations and inherited examples. Chapter~\ref{ch:extensions}.\\
+
+\code{simulation/flightcomputer} & 19 & \textbf{FC host integration}. Runtime listener, sensors, scheduler/control bridges, Java programs, design library, recovery and logs. Chapter~\ref{ch:fc}.\\
+
+\code{simulation/listeners} & 20 & \textbf{Simulation callbacks}. Computation/event/step interfaces, dispatch helpers, controllers, examples and system stopping/coast listeners. Chapter~\ref{ch:extensions}.\\
+
+\code{simulation/motorbatch} & 10 & \textbf{Motor comparisons}. Candidate selection, fit/clearance, isolated cases, metrics, report history, CSV and persistence. Chapter~\ref{ch:workflows}.\\
+
+\code{simulation} & 27 & \textbf{Flight execution and data}. Options/conditions/status, event engines, RK/Euler/mode steppers, events and typed flight histories. Chapter~\ref{ch:engine}.\\
+
+\code{startup} & 2 & \textbf{Core application services}. Shared application service access and exception handling. Chapter~\ref{ch:runtime}.\\
+
+\code{thrustcurve} & 12 & \textbf{Online motor data}. API request/response objects, XML parsing, curve decoding/downloads and serialization helpers. Chapter~\ref{ch:persistence}.\\
+
+\code{unit} & 16 & \textbf{Units}. Conversion, unit groups, values, comparison, fractional formatting and axis ticks. Chapter~\ref{ch:extensions}.\\
+
+\code{util} & 64 & \textbf{Shared utilities}. Coordinates/transforms, numerics, interpolation, noise, statistics, identity, listeners, mutability and resource helpers. Chapter~\ref{ch:extensions}.\\
+
+\code{utils} & 5 & \textbf{Developer utilities}. Localization generation/reporting, motor comparison and optimizer exercise programs. Chapter~\ref{ch:extensions}.\\
+
+\bottomrule\end{longtable}
+
+\section{Swing module}
+
+Package paths below are relative to \code{swing/src/main/java/}. Except where written in full, the prefix is \code{info/openrocket/swing/}. Each row includes its descendant packages unless a more specific row is listed.
+
+\begin{longtable}{@{}L{4.6cm}L{0.8cm}L{10.2cm}@{}}\toprule Package family & Files & Function and guide location\\\midrule\endfirsthead
+
+\toprule Package family & Files & Function and guide location\\\midrule\endhead
+
+\code{module-info.java} & 1 & \textbf{Module declaration}. Exports and dependencies for the desktop module. Chapter~\ref{ch:runtime}.\\
+
+\code{communication} & 1 & \textbf{Desktop communication}. Maps release assets to operating platforms and selects installer download links. Chapter~\ref{ch:build}.\\
+
+\code{file} & 5 & \textbf{Desktop file adapters}. Simulation-table CSV, motor-loading helper, Photo Studio settings adapters and OBJ option chooser. Chapter~\ref{ch:persistence}.\\
+
+\code{gui/adaptors} & 17 & \textbf{Property bindings}. Boolean/numeric/enum and related Swing models connected to core properties and units. Chapter~\ref{ch:gui}.\\
+
+\code{gui/components} & 29 & \textbf{Shared controls}. Reusable buttons, fields, selectors, tables and compass controls. Chapter~\ref{ch:gui}.\\
+
+\code{gui/configdialog} & 37 & \textbf{Component editors}. Specialized part dialogs plus appearance, placement, instances, material and override controls. Chapter~\ref{ch:gui}.\\
+
+\code{gui/customexpression} & 7 & \textbf{Expression editor}. Expression names, symbols, units, functions, editing and validation UI. Chapter~\ref{ch:results}.\\
+
+\code{gui/dialogs/componentanalysis} & 10 & \textbf{Analysis UI}. Component coefficients, selections, sweep configuration, plotting and export. Chapter~\ref{ch:workflows}.\\
+
+\code{gui/dialogs/flightconfiguration} & 6 & \textbf{Configuration dialogs}. Motor-mount, ignition, separation, deployment and naming controls. Chapter~\ref{ch:gui}.\\
+
+\code{gui/dialogs/motor} & 15 & \textbf{Motor selection}. Motor information/filtering and thrust-curve selection, comparison, plotting and download UI. Chapter~\ref{ch:gui}.\\
+
+\code{gui/dialogs/optimization} & 6 & \textbf{Optimization UI}. Variable/goal selection, background search, progress and plotted history. Chapter~\ref{ch:workflows}.\\
+
+\code{gui/dialogs/preferences} & 12 & \textbf{Preferences UI}. Application defaults, units, materials, launch, simulation, display and graphics choices. Chapter~\ref{ch:runtime}.\\
+
+\code{gui/dialogs/preset} & 5 & \textbf{Preset dialogs}. Catalog selection, editing and associated model/dialog helpers. Chapter~\ref{ch:persistence}.\\
+
+\code{gui/dialogs} & 18 & \textbf{Application dialogs}. Shared desktop dialogs including scaling, print setup, warnings and application interactions. Chapter~\ref{ch:gui}.\\
+
+\code{gui/figure3d/photo} & 16 & \textbf{Photo Studio}. Posed rocket scene, camera/light settings, exhaust rendering and sky/background implementations. Chapter~\ref{ch:gui}.\\
+
+\code{gui/figure3d} & 12 & \textbf{3D design renderer}. JOGL view/render orchestration and component geometry/material rendering. Chapter~\ref{ch:gui}.\\
+
+\code{gui/figureelements} & 5 & \textbf{Figure overlays}. Additional figure annotations and derived-property markers. Chapter~\ref{ch:gui}.\\
+
+\code{gui/flightcomputer} & 6 & \textbf{FC design editor}. Board/program/controller design, assignments, settings and diagnostics. Chapter~\ref{ch:fc}.\\
+
+\code{gui/help/tours} & 9 & \textbf{Guided help}. Tour data loading, panels and guided-help presentation. Chapter~\ref{ch:gui}.\\
+
+\code{gui/main} & 35 & \textbf{Document windows}. Main panels/actions, component tree, selection/drag operations and flight-configuration tables. Chapter~\ref{ch:gui}.\\
+
+\code{gui/plot} & 18 & \textbf{Results and playback}. Plot definitions/axes/events, simulation charts, trajectory adaptation and 3D playback. Chapter~\ref{ch:results}.\\
+
+\code{gui/preset} & 6 & \textbf{Preset widgets}. Catalog tables, sorting/filtering and preset result interactions. Chapter~\ref{ch:persistence}.\\
+
+\code{gui/print} & 36 & \textbf{Printing}. Reports/templates, paper/layout controls, selection tree and component visitor strategies. Chapter~\ref{ch:results}.\\
+
+\code{gui/rocketfigure} & 24 & \textbf{2D component shapes}. Side/back-view shape providers for supported components and fin-profile drawing. Chapter~\ref{ch:gui}.\\
+
+\code{gui/scalefigure} & 7 & \textbf{Scaled design view}. Zoomable figures, coordinate mapping, rulers and rocket-view integration. Chapter~\ref{ch:gui}.\\
+
+\code{gui/simulation} & 17 & \textbf{Simulation UI}. Run/configuration dialogs, workers, launch/wind settings and motor-batch workflows. Chapter~\ref{ch:workflows}.\\
+
+\code{gui/theme} & 2 & \textbf{Themes}. Application theme definitions and selection behavior. Chapter~\ref{ch:gui}.\\
+
+\code{gui/util} & 29 & \textbf{Desktop utilities}. Icons, platform/window/model helpers, validation, update installation and related shared operations. Chapter~\ref{ch:gui}.\\
+
+\code{gui/watcher} & 6 & \textbf{External-file watching}. Watch services, events and reactions for desktop files/assets. Chapter~\ref{ch:gui}.\\
+
+\code{gui/widgets} & 11 & \textbf{Additional widgets}. Reusable text/table/selection and presentation widgets. Chapter~\ref{ch:gui}.\\
+
+\code{gui} & 3 & \textbf{GUI service boundary}. Top-level desktop service/GUI support classes. Chapter~\ref{ch:gui}.\\
+
+\code{logging} & 13 & \textbf{Desktop logs}. Logging backend integration, buffers, filters and diagnostic display support. Chapter~\ref{ch:extensions}.\\
+
+\code{simulation/extension} & 7 & \textbf{Extension configuration UI}. Configurator contracts, examples and editors for core simulation extensions. Chapter~\ref{ch:extensions}.\\
+
+\code{startup} & 15 & \textbf{Desktop bootstrap}. Entry/startup classes, jar-in-jar loading and injected service providers. Chapter~\ref{ch:runtime}.\\
+
+\code{utils} & 10 & \textbf{Desktop/developer utilities}. Standalone application setup, preset tools/converters, scripting and small formatting/input helpers. Chapter~\ref{ch:extensions}.\\
+
+\bottomrule\end{longtable}
+
+\section{Resources, tests, and non-runtime source}
+The main resource trees contain 107 core files and 301 Swing files in this snapshot. Core resources include build metadata, translations and data catalogs, serialized thrust curves, catalog CSV inputs, and example ORK designs. Swing resources include service registrations, icons, fonts, themes, textures, sky/exhaust assets, a graphics shader, help content and the Windows update helper. These files can affect runtime behavior or presentation despite not appearing in the Java count.
+
+The test trees contain 169 core Java files and 34 Swing Java files, with 30 and 3 test-resource files respectively. They contain test cases and shared fixtures/helpers, not 203 independently counted test methods. The tests cover selected contracts across models, files, simulations and UI support; the mere existence of a test tree does not establish coverage of every formula or platform. Historical test results are identified separately in the FC and build chapters.
+
+The source-root build files, Gradle wrapper/configuration, module builds and documentation tasks select dependencies, compilation, testing and packaging. \code{tools/documentation} contains source-inventory/documentation tooling. \code{fileformat.txt}, \code{docs/}, \code{doc/}, example/test-writing designs, developer instructions and release material explain interfaces and workflows outside executable classes. The inherited \code{install4j/}, \code{snap/} and workflow files reflect upstream distribution arrangements; the parent repository's \code{packaging/} recipes implement the MIT packages described in Chapter~\ref{ch:build}.
+
+The parent repository also contains firmware-related work and development documentation outside the OpenRocket application checkout. Those are context and integration inputs; this guide's exhaustive Java inventory is specifically the OpenRocket core/Swing codebase plus the firmware translation embedded within core. Generated binaries, IDE metadata and crash logs are not additional application subsystems.

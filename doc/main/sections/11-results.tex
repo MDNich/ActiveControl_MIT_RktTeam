@@ -1,0 +1,55 @@
+\chapter{Results, telemetry, plots, and reports}\label{ch:results}
+\section{The result data model}
+\class{FlightData} is the result container for one simulation. Its branches hold time histories, events, and branch-specific information; the enclosing object provides summary quantities, warnings, and MIT metadata such as ensemble results and FC provenance. A \class{FlightDataBranch} extends the generic typed-data infrastructure: samples are organized by \class{FlightDataType}, with one value per recorded point for each available channel.
+
+A data type carries a stable identity or symbol and unit-group information as well as a human-readable name. This lets the same SI-valued channel be displayed in different units, serialized, selected in a plot, or used by a custom expression. A translated display label is not a reliable persistence key. Unavailable values use missing-data semantics rather than pretending that a sensor, orientation, or force was zero.
+
+Branches are not merely alternate plot colors. They can represent physically separated stages with different active components and event histories. They must preserve enough identity for consumers to associate samples and events with the correct vehicle. During execution, the engine appends and updates the current sample. After completion, immutability guards prevent ordinary result consumers from rewriting the history. Display code should derive its own view rather than altering recorded data to suit a chart.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/FlightData.java}{FlightData}; \source{core/src/main/java/info/openrocket/core/simulation/FlightDataBranch.java}{FlightDataBranch}; \source{core/src/main/java/info/openrocket/core/simulation/FlightDataType.java}{FlightDataType}.}
+
+\section{Events, warnings, and custom expressions}
+Flight events preserve discontinuities and milestones: ignition, launch, burnout, separation, apogee, deployment, ground hit, and abort. They are recorded observations of the engine's decisions. The event queue used to schedule future work is a separate runtime structure. A plotting cursor moving past a recorded deployment does not schedule another deployment.
+
+Warnings carry information that cannot be inferred safely from a smooth curve, such as a deployment under inappropriate conditions, invalid model assumptions, or a failed simulation. The UI and exports should retain this context when comparing runs. A numerical endpoint without the reason the run stopped can be misleading.
+
+Custom expressions add derived data types to the document. Their listener evaluates formulas after a step and writes the computed value into the current branch. Expressions depend on the types and symbols available in the run; they are not a new force-model interface. A formula that uses an FC-only channel remains dependent on that channel even when another expression refers to its result. The vanilla exporter follows these dependencies transitively when removing unsupported expressions.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/FlightEvent.java}{FlightEvent}; \source{core/src/main/java/info/openrocket/core/simulation/customexpression/CustomExpression.java}{CustomExpression}; \source{core/src/main/java/info/openrocket/core/simulation/customexpression/CustomExpressionSimulationListener.java}{CustomExpressionSimulationListener}.}
+
+\section{Physical truth, measured data, and telemetry}
+The fork records several different observations of the same flight. Physical channels describe the numerical model's accepted state. FC sensor channels describe sampled, transformed, quantized, and optionally noisy measurements. Controller channels describe internal decisions and command state. Telemetry channels describe encoded packets and their delivery. These must remain distinguishable when debugging a controller or interpreting a log.
+
+The FC's telemetry encoder produces the ground-station-compatible packet representation. CSV fields derived from packets are decoded from the transmitted bytes so scaling and quantization agree with the wire format. A received-telemetry view additionally reflects simulated loss and delay. Dropping a radio packet does not erase the physical flight sample and does not inherently change the onboard control input. Similarly, a sensor acquisition, a controller completion, a PWM latch, and a plot sample need not share the same timestamp.
+
+The FC chapter details the 128-byte packet, checksum, 43-column CSV schema, structured diagnostics, and boot-time convention. In particular, the telemetry \code{flight_time} is boot-relative milliseconds, while ordinary trajectory time is simulation time. Aligning datasets requires accounting for the virtual warmup and any transport delay instead of simply overlaying equal numeric timestamps.
+
+\class{FlightComputerLogReader} imports supported saved logs into the result model. Imported data is observational: opening a log does not execute embedded Java source or recreate a controller run. Older or reduced logs may lack full position or attitude channels. Readers and visualizers must preserve that limitation rather than manufacture a complete trajectory from a partial record.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/flightcomputer/FlightComputerLogReader.java}{FlightComputerLogReader}; \source{core/src/main/java/info/openrocket/core/simulation/flightcomputer/FlightComputerData.java}{FlightComputerData}.}
+
+\section{Plots and numerical export}
+Plot configurations select data types, axes, units, and events. The plot layer reads the chosen branch and presents it through chart objects; it does not run the simulation again merely to redraw an axis. Continuous quantities, held digital states, and discrete events need appropriate interpolation and labeling. Smoothing an FC state or a recovery command as if it were altitude creates values with no meaning in the state machine.
+
+An ensemble adds mean curves, deviation bands, and selectable individual members. The aggregate result's common time interval and per-member scalar metrics have different meanings, as explained in Chapter~\ref{ch:workflows}. The GUI should preserve the settings that produced a stored ensemble rather than assuming that newly edited options describe an old band.
+
+CSV export is useful for independent analysis, but the selected channels, units, delimiter, time basis, and event metadata determine what can be reconstructed later. A numeric table without provenance is not enough to distinguish two binaries both labeled 6.4. FC outputs, ordinary simulation exports, and motor-comparison reports are related but distinct formats; their columns should not be treated as interchangeable merely because all can be opened in a spreadsheet.
+
+\sourceline{\source{swing/src/main/java/info/openrocket/swing/gui/plot/SimulationPlot.java}{SimulationPlot}; \source{swing/src/main/java/info/openrocket/swing/gui/plot/SimulationPlotConfiguration.java}{SimulationPlotConfiguration}; \source{core/src/main/java/info/openrocket/core/simulation/motorbatch/MotorBatchCSV.java}{MotorBatchCSV}.}
+
+\section{Three-dimensional flight playback}
+Flight playback is separate from the 3D design editor. \class{TrajectoryData} adapts recorded branches and events into playback samples. \class{Trajectory3DPanel} displays these through a JOGL view with a playback clock and camera. Advancing this clock interpolates existing data; it does not advance the numerical engine or virtual FC.
+
+Positions come from recorded trajectory coordinates. Orientation comes from recorded quaternions when available, using shortest-arc spherical interpolation between usable samples. A vehicle's pointing direction is not generally its velocity direction, so a velocity-derived orientation would conceal angle of attack and roll. Missing or undersampled orientation is handled explicitly. The view also recognizes the held-attitude descent behavior of the underlying stepper instead of presenting it as a newly simulated canopy rotation.
+
+Burn and deployment events drive visual cues such as exhaust and recovery state. These cues represent recorded model events; they are not a fluid or fabric simulation. Equal spatial scaling matters for judging trajectory geometry, and playback speed is independent of physical flight time. An ensemble mean attitude is a display summary, while an individual archived member provides a concrete simulated history.
+
+\sourceline{\source{swing/src/main/java/info/openrocket/swing/gui/plot/TrajectoryData.java}{TrajectoryData}; \source{swing/src/main/java/info/openrocket/swing/gui/plot/Trajectory3DPanel.java}{Trajectory3DPanel}.}
+
+\section{Printable design and engineering reports}
+The inherited printing subsystem produces design-oriented output such as component templates, fin layouts, centering rings, and reports. A print controller and component-specific strategies convert design geometry into printable shapes and paginate them. Physical scale is part of the output contract: a template used for fabrication must not silently inherit arbitrary screen zoom.
+
+Printing a design, exporting numeric trajectories, exporting a motor-comparison table, and saving an ORK file serve different consumers. Keep their responsibilities separate. A print report can summarize a design without being a reloadable design file, and a reloadable design file may omit ordinary simulation samples depending on storage options.
+\sourceline{\source{swing/src/main/java/info/openrocket/swing/gui/print/PrintController.java}{PrintController}; \source{swing/src/main/java/info/openrocket/swing/gui/print/visitor/FinSetPrintStrategy.java}{FinSetPrintStrategy}.}
+
+\input{sections/results-detail}

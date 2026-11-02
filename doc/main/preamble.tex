@@ -1,0 +1,86 @@
+\documentclass[10pt,letterpaper,oneside]{report}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=0.78in,headheight=14pt]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{enumitem}
+\usepackage{xcolor,tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,shapes.geometric}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\PassOptionsToPackage{obeyspaces}{url}
+\usepackage{xurl}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue!45!black,urlcolor=blue!45!black,
+ pdftitle={OpenRocket MIT: Application architecture and developer guide},
+ pdfauthor={OpenRocket MIT development documentation},bookmarksnumbered=true}
+\definecolor{ink}{HTML}{17334A}
+\definecolor{accent}{HTML}{007B91}
+\definecolor{pale}{HTML}{EEF5F9}
+\definecolor{muted}{HTML}{526779}
+\definecolor{warm}{HTML}{FFF6DD}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\sffamily\color{muted}OPENROCKET MIT / ARCHITECTURE}
+\fancyhead[R]{\small\sffamily\color{muted}Source edition 6.4}
+\fancyfoot[L]{\small\sffamily Architecture and implementation contracts}
+\fancyfoot[R]{\small\sffamily\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\widowpenalty=10000
+\clubpenalty=10000
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{2em}
+\setlist{nosep,leftmargin=1.4em,topsep=4pt}
+\renewcommand{\arraystretch}{1.18}
+\captionsetup{font=small,labelfont={bf,color=ink},skip=8pt}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\AddToHook{env/tabularx/begin}{\small}
+\AddToHook{env/longtable/begin}{\small}
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\newcommand{\class}[1]{\nolinkurl{#1}}
+\newcommand{\us}{\ensuremath{\,\mu\mathrm{s}}}
+\newcommand{\ms}{\ensuremath{\,\mathrm{ms}}}
+\newcommand{\api}[2]{\href{../improvements/javadoc/#1.html}{\texttt{#2}}}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,
+ keepspaces=true,frame=single,rulecolor=\color{accent!35},backgroundcolor=\color{pale},
+ xleftmargin=6pt,xrightmargin=6pt,aboveskip=8pt,belowskip=8pt,showstringspaces=false}
+\tikzset{
+ box/.style={draw=ink!75,fill=pale,rounded corners=2pt,align=left,
+ inner sep=6pt,font=\fontsize{8}{10}\selectfont,minimum height=0.85cm},
+ group/.style={draw=accent!45,dashed,rounded corners=3pt,inner sep=8pt},
+ use/.style={-{Latex[length=5pt]},draw=ink!80,line width=0.55pt},
+ inherit/.style={-{Triangle[open,length=7pt,width=6pt]},draw=ink!80,line width=0.6pt},
+ own/.style={{Diamond[fill=ink,length=6pt,width=4pt]}-,draw=ink!80,line width=0.6pt},
+ flowlabel/.style={font=\fontsize{7.5}{9}\selectfont,fill=white,inner sep=2pt,align=center},
+ note/.style={draw=accent!30,fill=warm,rounded corners=2pt,align=left,inner sep=6pt,
+ font=\fontsize{8}{10}\selectfont},
+ lifeline/.style={draw=muted!65,densely dashed},
+ participant/.style={box,align=center,minimum height=1cm,font=\fontsize{8}{10}\selectfont}
+}
+\newcommand{\uml}[5]{\node[box,text width=#5] (#1) at (#2)
+ {\centering\bfseries\ttfamily #3\par\vspace{2pt}\hrule\vspace{3pt}
+ \raggedright\normalfont\ttfamily #4};}
+\newcommand{\simple}[4]{\node[box,text width=#4,align=center] (#1) at (#2)
+ {\bfseries\ttfamily #3};}
+\newcommand{\diagram}[3]{\begin{figure}[htbp]\centering
+\resizebox{\linewidth}{!}{#3}\caption{#2}\label{#1}\end{figure}}
+
+\usepackage{titlesec}
+\usepackage{needspace}
+\titleformat{\chapter}[display]{\sffamily\bfseries\color{ink}\raggedright\hyphenpenalty=10000\exhyphenpenalty=10000}{\large CHAPTER \thechapter}{8pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{18pt}
+\titleformat{\section}{\Large\sffamily\bfseries\color{ink}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\sffamily\bfseries\color{ink}}{\thesubsection}{0.7em}{}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[L]{\small\sffamily Architecture and implementation contracts}\fancyfoot[R]{\small\sffamily\thepage}\renewcommand{\headrulewidth}{0pt}}
+\newcommand{\source}[2]{\href{https://github.com/MDNich/ActiveControl_MIT_RktTeam/blob/7f0b67ee1c755ec89f154b0f0d2f4e23c843aa87/clone/openrocket-release-24.12.RC.01/#1}{\nolinkurl{#2}}}
+\newcommand{\reposource}[2]{\href{https://github.com/MDNich/ActiveControl_MIT_RktTeam/blob/7f0b67ee1c755ec89f154b0f0d2f4e23c843aa87/#1}{\nolinkurl{#2}}}
+\newcommand{\sourceline}[1]{\par\smallskip{\small\color{muted}\textbf{Source entry points.} #1}\par}
+\newenvironment{contract}{\begin{quote}\small\color{ink}\textbf{Implementation boundary.} }{\end{quote}}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}

@@ -26,8 +26,19 @@ public final class LauncherSmokeAgent {
                                 System.out.println(
                                         "LAUNCHER_JAVA_HOME=" + System.getProperty("java.home"));
                                 AtomicReference<String> title = new AtomicReference<>();
-                                for (int attempt = 0; attempt < 60; attempt++) {
+                                int waitSeconds = Integer.getInteger(
+                                        "openrocket.verification.launchTimeoutSeconds", 60);
+                                if (waitSeconds <= 0)
+                                    throw new AssertionError("Launch timeout must be positive");
+                                for (int attempt = 0; attempt < waitSeconds; attempt++) {
                                     Thread.sleep(1000);
+                                    // Do not create Swing's first event thread from this agent.
+                                    // OpenRocket sets up its own context class loader first;
+                                    // initializing AWT earlier can break startup on slow hosts.
+                                    if (Thread.getAllStackTraces().keySet().stream()
+                                            .noneMatch(thread -> thread.getName()
+                                                    .startsWith("AWT-EventQueue-")))
+                                        continue;
                                     SwingUtilities.invokeAndWait(
                                             () -> {
                                                 for (Frame frame : Frame.getFrames()) {
@@ -45,9 +56,11 @@ public final class LauncherSmokeAgent {
                                         System.exit(0);
                                     }
                                 }
-                                throw new AssertionError("No main application window appeared");
+                                throw new AssertionError("No main application window appeared after "
+                                        + waitSeconds + " observation attempts");
                             } catch (Throwable error) {
-                                error.printStackTrace();
+                                // The application redirects stderr into its logger during startup.
+                                error.printStackTrace(System.out);
                                 System.exit(1);
                             }
                         },

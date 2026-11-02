@@ -1,0 +1,83 @@
+\chapter{Simulation configurations and batch workflows}\label{ch:workflows}
+\section{Three different meanings of configuration}
+An OpenRocket design can carry multiple motor and staging arrangements, multiple experiments on those arrangements, and multiple random realizations of an experiment. Keeping these levels separate is essential when extending the application.
+
+\begin{tabularx}{\linewidth}{@{}L{3.5cm}YY@{}}\toprule
+Object & What it selects & What it does not own\\\midrule
+\class{FlightConfiguration} & A configuration ID, active stages, installed motors, and configuration-dependent component parameters & Weather, integrator settings, or recorded trajectories\\
+\class{Simulation} and \class{SimulationOptions} & One selected flight configuration plus launch conditions, models, timing, extensions, and ensemble settings & A separate editable copy of the entire design for every saved simulation\\
+\class{SimulationConditions} & Runtime calculators, listeners, configuration, and environment prepared for one execution & The GUI's editable settings model\\
+\class{EnsembleRunParameters} & The particular environmental and coefficient draws, motor seed, and wind bearing for one member & A second independent ensemble nested inside the member\\\bottomrule
+\end{tabularx}
+
+The saved simulation is the experiment's durable handle. It links the design and settings to its latest result. A run translates editable options into runtime conditions and creates mutable execution state. The numerical engine described in Chapter~\ref{ch:engine} consumes this prepared state; it does not reach into Swing controls to obtain values.
+
+Changing design geometry, flight configuration, relevant options, or extension configuration can make a result stale. The fork also tracks flight-computer design provenance and fingerprints. A historical result remains evidence of the settings that produced it, even when the current editor shows different settings. Imported external data has its own status and must not be mistaken for a newly executed simulation.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/document/Simulation.java}{Simulation}; \source{core/src/main/java/info/openrocket/core/simulation/SimulationOptions.java}{SimulationOptions}; \source{core/src/main/java/info/openrocket/core/simulation/SimulationConditions.java}{SimulationConditions}.}
+
+\input{sections/workflow-baseline}
+
+\section{Ensemble execution and ownership}
+An ensemble repeats an experiment with controlled variation. \class{EnsembleSettings} contains the count, seed, worker limit, and distributions; \class{EnsembleRunner} coordinates members; \class{EnsembleRunListener} applies the member's runtime perturbations; \class{EnsembleAccumulator} produces aggregate statistics; and \class{EnsembleRunArchive} retains compressed individual flights.
+
+\diagram{fig:ensemble}{An ensemble isolates member execution, consumes members in a deterministic order, and publishes a complete result.}{
+\begin{tikzpicture}
+\simple{parent}{0,0}{Parent simulation\\settings + frozen FC design}{4cm}
+\simple{draw}{6,0}{Coordinator\\ordered parameter draws}{4cm}
+\simple{members}{6,-2.2}{Bounded worker pool\\isolated rocket and simulation}{4cm}
+\simple{acc}{0,-2.2}{Ordered consumption\\streaming statistics}{4cm}
+\simple{archive}{0,-4.4}{Compressed archive\\complete member histories}{4cm}
+\simple{publish}{6,-4.4}{Final FlightData\\mean + deviations + metrics}{4cm}
+\draw[use] (parent)--(draw); \draw[use] (draw)--(members);
+\draw[use] (members)--(acc); \draw[use] (acc)--(archive);
+\draw[use] (acc)--(publish); \draw[use] (archive)--(publish);
+\end{tikzpicture}}
+
+Each member receives a copied rocket with component IDs preserved, a separate document and simulation, its chosen flight configuration, its own random seed, and cloned listeners. The child has ensemble execution disabled. Preserving IDs lets recovery and actuator assignments resolve against the copied geometry; preserving IDs does not imply sharing the component instances.
+
+The coordinator makes random draws in member order before handing work to the pool. Wind/atmosphere/motor choices, coefficient perturbations, and wind-bearing perturbations use the intended random streams so adding a new category need not silently scramble unrelated draws. Results are consumed in member order even if workers finish out of order. This makes aggregate arithmetic reproducible across worker counts and bounds the number of live, uncompressed histories by the worker window. Compressed archives still grow with the amount of retained data.
+
+The default worker count is four; validated settings can select another count, capped at 256 and reduced to the number of runs. Parallel execution rejects simulation extensions other than the specifically supported flight-computer extension. This is a concrete compatibility rule: cloning an arbitrary extension is not proof that its static state or external resources are thread safe. The selected external FC design is frozen for the ensemble so a file edit midway through the run cannot change later members.
+
+Cancellation interrupts workers and closes the executor and archive-building work. The parent publishes an ensemble only after the requested members have produced a valid complete result. A failed, aborted, or structurally inconsistent member is not silently omitted from the denominator.
+
+\section{What an ensemble varies}
+Member parameters include launch temperature and pressure, east/north wind components, wind bearing, a motor-noise seed, and multiplicative mass, drag, roll-force, and roll-damping factors. A coefficient draw has the form $m=1+\sigma Z$, with $Z$ a standard normal variate. Factors that must be positive are validated; invalid realizations are rejected rather than clipped into an artificial point mass at zero. Disabled variations reduce to the nominal values and unit multipliers.
+
+The mass and aerodynamic perturbations are applied through simulation callbacks. They express uncertainty in the evaluated model; they are not a permanent edit to the user's component tree. A coefficient multiplier is also a different hypothesis from changing a geometric dimension and recomputing all dependent properties. The settings report should preserve which hypothesis was selected.
+
+\class{GaussianThrustNoise} is evaluated from seeded knots indexed by physical time and motor identity. It is not a new random number on every Runge--Kutta derivative call. Adjacent normal samples are interpolated and divided by $\sqrt{(1-f)^2+f^2}$, where $f$ is the interpolation fraction, preserving marginal variance during interpolation. The resulting process is time-correlated, with its behavior set by the knot spacing. During the burn, noisy thrust is clamped to a nonnegative value. During thrusting, the ensemble limiter caps a step at one quarter of the configured noise interval. Internal RK evaluations and worker scheduling do not advance a mutable random stream differently.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/ensemble/EnsembleSettings.java}{EnsembleSettings}; \source{core/src/main/java/info/openrocket/core/simulation/ensemble/EnsembleRunner.java}{EnsembleRunner}; \source{core/src/main/java/info/openrocket/core/simulation/ensemble/EnsembleRunListener.java}{EnsembleRunListener}; \source{core/src/main/java/info/openrocket/core/simulation/ensemble/GaussianThrustNoise.java}{GaussianThrustNoise}.}
+
+\section{Statistics, alignment, and interpretation}
+Member timesteps need not coincide. The accumulator starts with the first member's time grid and restricts output to the physical-time interval common to all members, including their ground-hit limits. It aligns subsequent channels onto that grid and tracks streaming moments. Continuous scalar channels use their corresponding interpolated values; discrete and special channels require their own treatment. A missing value is not substituted with zero.
+
+Ordinary scalar bands describe the sample standard deviation, with the $n-1$ denominator, around the ensemble mean. Wrapped angles use circular treatment. Quaternion samples are aligned to a common hemisphere to avoid cancellation between $q$ and $-q$; the playback reader normalizes the component mean before using it as an orientation. A mixed FC state is marked mixed, not presented as an intermediate state-machine state. Recovery channels can express the fraction of members deployed at a particular physical time. These summaries answer different questions and should not be plotted as if they all had ordinary continuous semantics.
+
+Only matching events present in all members enter the mean event series, at their average time, and only inside the common output interval. Scalar metrics such as each member's apogee are collected from individual full flights. Thus the average of member apogees is not generally the peak of the mean altitude curve. Individual archived histories remain available beyond the common interval, so a shorter member does not destroy the longer member's descent record.
+
+\begin{contract}
+An ensemble is a model-based sensitivity experiment. Its bands reflect the selected distributions and shared model assumptions. They are not automatically calibrated confidence intervals for a real vehicle, and a mean trajectory is not a trajectory flown by a particular member.
+\end{contract}
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/ensemble/EnsembleAccumulator.java}{EnsembleAccumulator}; \source{core/src/main/java/info/openrocket/core/simulation/ensemble/EnsembleResult.java}{EnsembleResult}; \source{core/src/main/java/info/openrocket/core/simulation/ensemble/EnsembleRunArchive.java}{EnsembleRunArchive}.}
+
+\section{Motor comparison batches}
+Motor comparison asks how a fixed design behaves with different candidate motors. It is a separate workflow from random variation of one motor. The GUI gathers a baseline simulation, motor mount, candidate filters, constraints, and delay policy into a snapshot. \class{MotorCandidateSelector} filters the motor database; \class{MotorClearance} checks fit and intersections; \class{MotorBatchRunner} executes isolated cases; metric and report classes retain the outcome of each case.
+
+Filters cover dimensions and motor characteristics such as manufacturer, impulse, thrust, burn duration, and certification information. Diameter fit and geometric intersections are distinct checks. An overlength motor can be represented as an advisory case rather than categorically excluded; an intersecting installation requires the workflow's explicit override and retains its warning. This distinction allows intentional motor protrusion without hiding collisions with other components.
+
+The runner uses a bounded pool, copies the baseline for individual cases, applies the chosen motor and delay, and records failures alongside successful results. The listed-delay search evaluates candidate delays and ranks eligible outcomes using deployment metrics. A batch report is not the same object as an ensemble mean: it is a comparison table whose rows keep their motor identities, warnings, constraints, and outcomes. Selected results can become ordinary simulations for further inspection. CSV exports and saved report history support reviewing the comparison after the worker has finished.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/motorbatch/MotorBatchSnapshot.java}{MotorBatchSnapshot}; \source{core/src/main/java/info/openrocket/core/simulation/motorbatch/MotorCandidateSelector.java}{MotorCandidateSelector}; \source{core/src/main/java/info/openrocket/core/simulation/motorbatch/MotorClearance.java}{MotorClearance}; \source{core/src/main/java/info/openrocket/core/simulation/motorbatch/MotorBatchRunner.java}{MotorBatchRunner}; \source{swing/src/main/java/info/openrocket/swing/gui/simulation/MotorBatchDialog.java}{MotorBatchDialog}.}
+
+\section{Design optimization}
+The inherited optimization framework changes selected design variables to improve an objective. \class{SimulationModifier} implementations define the variables and their ranges. An \class{OptimizableParameter} extracts a quantity from the trial design or simulated result, while an \class{OptimizationGoal} converts it into a minimization objective. Domain constraints penalize unacceptable trial designs. The numerical search layer supplies algorithms independently of the rocket-specific objective adapter.
+
+\class{RocketOptimizationFunction} duplicates the rocket and simulation for an evaluation, applies the trial modifiers, checks the domain, and evaluates the requested quantity. The GUI's optimization worker coordinates progress and plots. A one-variable search and a multidimensional search can use different algorithms without teaching the flight engine how optimization works.
+
+These workflows can share design and result types, but their semantics differ: an ordinary simulation predicts one configured flight; an ensemble summarizes randomized members; a motor batch compares named alternatives; an optimizer searches a variable space. New UI or export code should retain that distinction rather than flattening all four into an undifferentiated list of trajectories.
+\sourceline{\source{core/src/main/java/info/openrocket/core/optimization/rocketoptimization/RocketOptimizationFunction.java}{RocketOptimizationFunction}; \source{core/src/main/java/info/openrocket/core/optimization/services/OptimizationServiceHelper.java}{OptimizationServiceHelper}; \source{swing/src/main/java/info/openrocket/swing/gui/dialogs/optimization/GeneralOptimizationDialog.java}{GeneralOptimizationDialog}.}
+
+\input{sections/optimization-detail}

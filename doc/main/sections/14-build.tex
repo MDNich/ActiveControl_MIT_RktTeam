@@ -1,0 +1,75 @@
+\chapter{Builds, releases, verification, and documentation}\label{ch:build}
+\section{Repository and build structure}
+The parent repository contains the application checkout, documentation, firmware-related material, and platform packaging recipes. The convenient \code{clone/openrocket} path resolves to \code{clone/openrocket-release-24.12.RC.01} in this workspace. Run application Gradle commands from that source root. The root Gradle project assembles \code{core} and \code{swing}; its main entry point is \class{info.openrocket.swing.startup.OpenRocket}.
+
+The build targets Java 17. \code{build.properties} distinguishes the upstream version from the MIT edition and version. The inspected source says upstream \code{24.12.RC.01} and MIT \code{6.4}. The executable artifact is a shadow JAR containing application classes and dependencies. The root thin JAR has a separate \code{plain} classifier so it cannot accidentally replace the executable launcher target.
+
+\begin{lstlisting}[language=bash]
+# From clone/openrocket, with JDK 17 selected:
+./gradlew shadowJar
+
+# Application verification, when changing application code:
+./gradlew :core:test :swing:test
+
+# MIT method documentation, API reference, and curated UML:
+./gradlew verifyMitJavadoc rocketTeamJavadoc rocketTeamUml
+\end{lstlisting}
+
+These are build entry points, not a claim that the application tests were rerun while authoring this guide. Offline builds require the relevant dependencies and packaging downloads to be cached already. Platform graphics tests may require the appropriate native libraries and a display environment.
+
+For edition 6.4, \code{shadowJar} produces \code{OpenRocket-MIT-v6.4.jar}. Finalizer tasks publish the compatibility alias \code{OpenRocket-24.12.RC.01.jar} atomically and generate the versioned JAR's \code{.sha256} companion. This keeps older desktop launchers working while allowing MIT-specific release naming. A filename alone is not proof of the commit that produced the bytes.
+
+\sourceline{\source{settings.gradle}{settings.gradle}; \source{build.gradle}{build.gradle}; \source{core/src/main/resources/build.properties}{build.properties}; \source{gradle/mit-documentation.gradle}{mit-documentation.gradle}.}
+
+\section{How the application is distributed}
+The reviewed GitHub releases publish binary assets directly on the parent repository's release pages. The v6.4 release contains a universal macOS DMG and ZIP, a Windows x64 installer and checksum, the standalone/update JAR and checksum, and a combined checksum manifest. The full packages bundle Java; the standalone JAR requires a suitable local Java runtime.
+
+The macOS recipe builds one application with a universal native launcher, one application JAR, and separate arm64 and x86\_64 Java runtimes. The launcher chooses the matching runtime instead of combining architecture-specific JVM files. The recipe produces an app bundle, DMG, and ZIP. The documented bundle uses ad-hoc signing rather than Developer ID signing and notarization.
+
+Windows preparation builds the JAR and stages pinned runtime/tool inputs with checksums and provenance. Packaging runs on Windows through \code{jpackage} and WiX to produce a per-user x64 installer. The MIT installation has its own identity and includes the launcher compatibility needed by updates. The documented installer is unsigned. The packaging READMEs contain some version-specific historical examples; current version selection comes from the build properties and scripts.
+
+The repository root does not contain a GitHub Actions publishing workflow for this process. An inherited workflow inside the nested OpenRocket source belongs to the upstream source layout and targets its own build/release assumptions. Its presence is not evidence that the parent repository automatically builds and publishes MIT installers. The concrete publication evidence is the release assets and the local packaging recipes.
+
+\sourceline{\reposource{packaging/macos/package-macos.py}{package-macos.py}; \reposource{packaging/macos/launcher.c}{macOS launcher.c}; \reposource{packaging/windows/prepare-windows.py}{prepare-windows.py}; \reposource{packaging/windows/package-windows.ps1}{package-windows.ps1}; \href{https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases/tag/v6.4}{published v6.4 release}.}
+
+\section{Release evolution and the documented snapshot}
+\begin{tabularx}{\linewidth}{@{}L{2.8cm}L{2.7cm}Y@{}}\toprule
+Release & Published & Main milestone in the release notes\\\midrule
+\code{v0.0.1} & 31 Aug 2025 & Controlled trapezoidal fins and native persistence\\
+\code{functional_tab_ctrl} & 14 Sep 2025 & Functional customizable tab control\\
+\code{v5} & 18 Nov 2025 & Airbrake component support; simulation work still announced as forthcoming\\
+\code{v6} & 23 Jun 2026 & Triangular leading-edge support\\
+\code{v6.1} & 4 Jul 2026 & MIT updates and reversible tab conversion preserving fin settings\\
+\code{v6.2} & 21 Sep 2026 & Integrated FC simulation, 3D flight plots, Windows installer\\
+\code{v6.3} & 26 Sep 2026 & Fin/tab previews, Windows update reliability, MIT release routing\\
+\code{v6.4} & 13 Oct 2026 & Parallel motor comparisons, ensembles, and broader FC/control functionality\\\bottomrule
+\end{tabularx}
+
+The v6.4 tag resolves to \code{9f71a94196a6284ae2b574639aafbb2bf1bc175a}. This guide describes \code{7f0b67ee1c755ec89f154b0f0d2f4e23c843aa87}, three commits later. Subsequent changes include vanilla export, ensemble coefficient and wind-direction variation, parallel ensemble work, and fin-display corrections. Both snapshots carry the 6.4 edition label. Release-note claims describe the corresponding release and should not be projected backward onto every earlier package.
+
+GitHub marks the reviewed v6.4 entry as a normal release, while the notes can still describe individual FC capabilities as beta. Repository release status and subsystem maturity are separate facts. For reproducible comparisons record the source commit, built JAR checksum, selected design/FC fingerprints, simulation options, seed, and runtime/platform context.
+
+\sourceline{\href{https://github.com/MDNich/ActiveControl_MIT_RktTeam/releases}{MIT release history}; \href{https://github.com/MDNich/ActiveControl_MIT_RktTeam/compare/v6.4...7f0b67ee1c755ec89f154b0f0d2f4e23c843aa87}{source changes after v6.4}.}
+
+\section{Automatic updates}
+The MIT update retriever uses the MIT release feed and compares normalized numeric versions. It accepts an update only when the release version is greater than the running edition. It locates the versioned JAR and its digest, supplied by release metadata or a checksum asset. Consequently, a later commit with the same 6.4 label is not automatically distinguishable as an upgrade.
+
+The installer downloads and verifies the JAR before replacement. Platform-specific handoff code waits for the running application to close, preserves a backup, replaces the target, and restarts the application. Windows has a dedicated helper for the packaged layout and writable per-user installations. Unsaved document handling belongs to the GUI path before installation proceeds.
+
+This is a JAR update mechanism. It does not replace the bundled Java runtimes, native launcher, or installer metadata. Changes to those parts require a full package. A successful checksum check establishes integrity against the chosen release digest; it does not identify an unrecorded local source modification or make two same-version builds identical.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/communication/MitUpdateInfoRetriever.java}{MitUpdateInfoRetriever}; \source{swing/src/main/java/info/openrocket/swing/gui/util/MitUpdateInstaller.java}{MitUpdateInstaller}; \source{swing/src/main/java/info/openrocket/swing/gui/util/WindowsUpdateHelper.java}{WindowsUpdateHelper}.}
+
+\section{Verification layers}
+Core tests can check component formulas, transforms, event timing, persistence round trips, ensemble determinism, controller state, and telemetry encoding without a full installer. FC replay and timing tests check scheduling and byte-level behavior against their fixtures. Swing tests check model adapters, configuration workflows, drawing helpers, and result interpretation. Packaged-runtime probes exercise the actual launcher, bundled JVM, native graphics libraries, and installer/update layout.
+
+These layers answer different questions. A passing unit test does not demonstrate an Intel-native launch if the package was tested under Rosetta. A Windows x64 build tested under ARM64 emulation is useful evidence with a stated scope. Historical packaging reports and the incorporated FC chapter record their own test dates and counts. They are retained as historical evidence, not relabeled as verification of this documentation's later source snapshot.
+
+This guide's creation checks the LaTeX build, cross-references, source-path references, unchanged reference copies, and rendered layout. It does not modify or requalify the application. Future code changes should choose tests according to the affected boundary, with special care for solver timing, GUI cancellation, persistence, and parallel execution.
+
+\section{Maintaining this document}
+\code{doc/main/main.tex} is the entry point. \code{preamble.tex} owns shared layout and diagram styles. Each numbered file in \code{sections/} owns one chapter. The FC chapter incorporates the full substantive body of the earlier report, adapting its scope and build notes and clarifying current engine/deadline behavior. The exact original TeX and PDF are retained in \code{reference/} for comparison.
+
+From \code{doc/main}, run \code{./build.sh} to compile into \code{.build/} and copy the final PDF to \code{main.pdf}. The folder can also be opened as a LaTeX project with \code{main.tex} selected as its main file. The document uses standard TeX packages and vector TikZ diagrams; it has no external image-download or shell-escape requirement.
+
+When changing the source edition, update the title page, commit-pinned link macros, release comparison, and any affected behavioral descriptions. Keep observations about current implementation separate from proposed designs in older reports. Update diagrams when ownership or order changes, and rebuild the table of contents, labels, and PDF bookmarks before reviewing the rendered pages.

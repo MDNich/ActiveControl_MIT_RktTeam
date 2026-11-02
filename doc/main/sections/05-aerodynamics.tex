@@ -1,0 +1,65 @@
+\chapter{Aerodynamics: bodies, fins, drag, and control surfaces}\label{ch:aero}
+\section{Calculator boundary}
+\class{AerodynamicCalculator} separates force modeling from integration. It consumes a \class{FlightConfiguration} and \class{FlightConditions}, and produces \class{AerodynamicForces}, optionally with warnings and per-component analyses. The normal calculator is \class{BarrowmanCalculator}, an extended engineering model with component-specific calculations and empirical corrections across its supported regimes.
+
+\class{FlightConditions} packages relative speed, Mach number, angle of attack, lateral flow direction, rotation rates, atmospheric properties, and reference geometry. \class{AerodynamicForces} packages nondimensional coefficients, CP, and force/moment-related quantities. A calculator does not directly move the rocket; the stepper converts these coefficients into dimensional accelerations.
+
+\diagram{fig:aerodynamics}{The aerodynamic path separates flight conditions, component calculations, and integration. Cached geometry and live actuator values have different update requirements.}{%
+\begin{tikzpicture}
+\simple{status}{0,0}{SimulationStatus\\pose, velocity, rates}{5cm}
+\simple{conditions}{6.4,0}{FlightConditions\\Mach, AOA, atmosphere}{5cm}
+\simple{calc}{12.8,0}{BarrowmanCalculator}{5cm}
+\simple{geometry}{0,-2.6}{Active component instances\\shape + live actuator state}{5cm}
+\simple{parts}{6.4,-2.6}{Component calculators\\FinSetCalc, body, airbrakes}{5cm}
+\simple{forces}{12.8,-2.6}{AerodynamicForces\\coefficients + CP + warnings}{5cm}
+\draw[use] (status) -- (conditions);
+\draw[use] (conditions) -- (calc);
+\draw[use] (calc) -- (parts);
+\draw[use] (geometry) -- (parts);
+\draw[use] (parts) -- (forces);
+\draw[use] (forces.east) -- ++(.7,0) |- (status.north);
+\end{tikzpicture}}
+
+\section{Component decomposition and caching}
+The calculator maintains a mapping from components to classes in \code{aerodynamics.barrowman}, generally using the component type and a \code{Calc} suffix. Body shapes, fin sets, tube fins, rail buttons, launch lugs, and airbrakes have different geometric contributions. Active-instance transforms ensure repeated/off-axis installations participate in the assembled result.
+
+Geometry such as fin planform, mean aerodynamic chord, span, and wetted surface can be cached. The calculator checks modification IDs to invalidate those caches after design changes. Live actuator state is different: the MIT \class{FinSetCalc} reads tab deflection and fin cant on each force calculation, including when the geometric cache survives a PWM update. A cached constructor-time angle would disconnect a controller from the physics despite apparently correct servo logs.
+
+Drag is assembled from the model's friction, pressure, base, and override contributions. Surface finish, dimensions, Reynolds/Mach-dependent relationships, and fin cross section influence relevant terms. CP and normal-force derivatives come from the assembled component calculations. A renderer's outline is not the aerodynamic model: making a rounded edge visually smooth does not itself alter these coefficients.
+
+\section{Force and moment normalization}
+Using dynamic pressure \(q=\tfrac12\rho V^2\), reference area \(S\), and reference length \(L\), a typical dimensional coefficient relationship is
+\begin{equation}
+ F=qSC_F,\qquad M=qSLC_M.
+\end{equation}
+The stepper applies the implementation's axial/lateral signs and frame rotations. Pitch/yaw moments are shifted from the model reference origin to the current mass centre using the associated force coefficients. A change in CG can therefore change angular response even when geometry and aerodynamic coefficients remain unchanged.
+
+Fin cant supplies roll forcing, while roll-rate-dependent terms supply damping. The net roll coefficient is forcing minus damping. This separation is preserved by the MIT ensemble coefficient variations so uncertainty in forcing does not accidentally become uncertainty in the opposing term as well.
+
+\input{sections/aerodynamics-detail}
+
+\section{Roll-control tabs}
+\class{TabControlledTrapezoidFinSet} extends trapezoidal fins with control-tab geometry, lift slope, and deflection. The MIT addition in \class{FinSetCalc} uses a linear tab lift-slope contribution with tab angle in radians, tab area, and a moment arm. Schematically, for the contribution evaluated for a fin instance,
+\begin{equation}
+ \Delta C_{\mathrm{roll,force}}=
+ \frac{C_{N\alpha,\mathrm{tab}}\,\delta\,A_{\mathrm{tab}}\,r}{SL}.
+\end{equation}
+\class{FinSetCalc} also writes a local axial term involving \(\delta\sin\delta\), but the final \class{BarrowmanCalculator} assembly replaces axial CD with its AOA-adjusted total drag budget. That local write therefore must not be described as an independently retained final-vehicle tab-drag increment in the normal force path. Instance traversal determines the installed roll contribution. Zero area or zero lift slope gives zero authority even when the commanded angle changes.
+
+FC commands are expressed in degrees and converted at the actuator boundary to the component's radian-valued setter. Java named outputs can command several fin cans independently; generic blocks use UUID mappings. The baseline linkage is ideal, and the physical model does not add servo travel time, backlash, or compliance.
+
+\section{Airbrake drag}
+\class{AirbrakeSet} stores the physical geometry and exposed fraction. \class{AirbrakeSetCalc} reads the current exposed area and adds pressure drag using
+\begin{equation}
+ C_{D,\mathrm{airbrake}}=
+ \frac{A_{\mathrm{exposed}}}{S}
+ \left(C_{D,\perp}\cos^2\alpha+C_{D,\parallel}\sin^2\alpha\right)k_D,
+\end{equation}
+where \(k_D\) is the component's local multiplier. Exposed fraction changes area through the component API. The FC's servo pulse is mapped to an ideal fraction before this formula is evaluated. The scalar exposed-area model is not a detailed simulation of hinge aerodynamics or measured linkage kinematics.
+
+\section{Fin profiles and limits}
+The MIT triangular leading-edge category has corresponding aerodynamic handling as well as editor/rendering support. Later rounded/airfoil preview refinements illustrate cross-section categories and true thickness; they do not establish a named measured airfoil polar. Fillets, mounting tabs, and control-tab cutouts also cross several code paths: geometry, mass, saving/loading, 2D rendering, and 3D rendering.
+
+Barrowman-derived relationships, stall handling, and empirical transonic/supersonic treatments have defined assumptions. A software regression showing the correct torque sign at a large control deflection verifies routing and implementation behavior; it does not validate the linear tab approximation at that angle. General high-angle separated flow, arbitrary asymmetric side-force behavior, and aeroelastic response should not be inferred from the presence of a 3D trajectory.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/aerodynamics/AerodynamicCalculator.java}{AerodynamicCalculator}; \source{core/src/main/java/info/openrocket/core/aerodynamics/BarrowmanCalculator.java}{BarrowmanCalculator}; \source{core/src/main/java/info/openrocket/core/aerodynamics/FlightConditions.java}{FlightConditions}; \source{core/src/main/java/info/openrocket/core/aerodynamics/barrowman/FinSetCalc.java}{FinSetCalc}; \source{core/src/main/java/info/openrocket/core/aerodynamics/barrowman/AirbrakeSetCalc.java}{AirbrakeSetCalc}.}

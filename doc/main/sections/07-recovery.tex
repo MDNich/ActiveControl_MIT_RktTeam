@@ -1,0 +1,48 @@
+\chapter{Parachutes, recovery systems, and stage separation}\label{ch:recovery}
+Recovery spans three layers: a component describes the device; a deployment rule or FC command decides when deployment is requested; the engine changes the actual flight state. A logical firing pulse, queued event, accepted deployment, and changed descent drag are distinct observations.
+
+\section{Device geometry and mass}
+\class{RecoveryDevice} is the common abstraction for parachutes and streamers. It supplies projected area, drag coefficient behavior, material-derived mass, and per-flight deployment configuration. \class{Parachute} derives canopy area from diameter and includes line mass from line count, length, and line material. \class{Streamer} derives area from its dimensions. Packed position and dimensions support placement and mass modeling inside the rocket.
+
+The canopy shown during flight playback is a visual indicator of actual deployment. It is not the mesh used to calculate drag. Likewise, a shock cord component contributes modeled properties but does not create a dynamic tether constraint, elasticity, or opening-shock calculation between separated bodies.
+
+\section{Ordinary OpenRocket deployment rules}
+\class{DeploymentConfiguration} is indexed by flight configuration. Its event choices include launch, same-stage motor ejection, apogee, a descending altitude crossing, lower-stage separation, and never. A configured delay is added after the activating event. The engine checks active stages and dispatches the resulting \class{FlightEvent.Type.RECOVERY_DEVICE_DEPLOYMENT} through the listener system.
+
+Altitude deployment detects a crossing using the previous/current altitude pair, not a statement that the rocket is simply below a threshold at any time. Ejection matching is stage-aware. Stage-separation-triggered recovery uses the relevant neighboring-stage relationship. These details prevent rules from being interpreted as interchangeable generic timers.
+
+\input{sections/recovery-detail}
+
+\section{Exclusive FC recovery mode}
+When FC simulation is enabled, both event engines suppress ordinary automatic deployment scheduling. Only events owned by the FC recovery bridge are accepted as FC-authorized recovery events. Saved ordinary deployment settings remain in the rocket and resume when FC simulation is disabled. There is no automatic fallback for an unassigned parachute.
+
+The simulation's FC configuration maps shared logical channels 0--5 to recovery-device UUIDs and per-device delays. One channel can command several devices; several channels can provide redundant commands for one device. The bridge schedules only the first accepted request for each device, so repeated pulses cannot restart its delay.
+
+\begin{equation}
+ t_{\mathrm{deploy}}=t_{\mathrm{accepted\ command,boot}}-t_{\mathrm{warmup}}+\Delta t_{\mathrm{device}}.
+\end{equation}
+The command timestamp is the completion time of the relevant FC/Java action, retained at microsecond precision. A pyro pulse's duration is not a deployment delay. Warm-up commands before physical time zero are discarded physically, and commands after landing cannot deploy a device. Recovery timing does not wait for PWM or telemetry reception.
+
+\section{Actual deployment and descent}
+When handling a deployment event, the engine checks that the stage is active. It retains the existing under-thrust abort behavior, launch-rod warning, and high-speed-deployment warning. Listeners can veto events or deployment. A successful deployment adds the device to the status's deployed set, records the event, acknowledges FC provenance when applicable, and switches to the landing stepper if still airborne.
+
+The landing stepper sums effective drag areas for deployed instances:
+\begin{equation}
+ C_{D,\mathrm{landing}}=\sum_{j\in\mathrm{deployed}}
+ n_j C_{D,j}\frac{A_j}{S_{\mathrm{ref}}}.
+\end{equation}
+It then uses the descent integration path with atmospheric conditions, mass, gravity, and wind. The sum is the recovery-stepper drag model; it should not be assumed to be a complete addition of every ascent-airframe aerodynamic term. Ensemble drag scaling is explicitly applied to this descent coefficient too.
+
+Drogue deployment does not end the FC. The same per-flight runtime continues while the landing stepper advances time, allowing a later main event. The bridge records actual device name/ID, origin channel, due time, deployment time, and lateness. Those events survive ORK storage and supported log import and drive the 3D canopy display.
+
+\section{Stage separation and branch identity}
+An ordinary staged simulation can split into multiple branches. At separation, the engine copies status, creates a booster result branch, clears the appropriate active-stage subsets in booster and continuing configurations, removes unattached pending events, and queues the detached branch for simulation. Each branch uses its remaining hardware and motor/recovery state.
+
+The FC path currently requires exactly one active stage at startup and does not support arbitrary multistage FC ownership or mid-flight checkpoint boot. The general engine's ability to branch should not be mistaken for support for an independent FC on every resulting stage.
+
+\section{Model boundaries and debugging order}
+Opening inflation, reefing/cutaway, tether tension, separation impulses, electrical firing energy, and detailed canopy attitude dynamics are outside the current recovery model. Continuity/status bits are logical firmware observations, not evidence of a successful physical canopy deployment.
+
+To investigate a missed deployment, follow the chain in order: logical output present; arming/accepted command; channel mapping; device active; warm-up/landing eligibility; scheduled event; listener acceptance; engine abort conditions; actual deployment record; descent drag. This identifies whether the problem is firmware decision logic, mapping, event authority, or physical integration without conflating those layers.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/rocketcomponent/RecoveryDevice.java}{RecoveryDevice}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/Parachute.java}{Parachute}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/DeploymentConfiguration.java}{DeploymentConfiguration}; \source{core/src/main/java/info/openrocket/core/simulation/BasicLandingStepper.java}{BasicLandingStepper}; \source{core/src/main/java/info/openrocket/core/simulation/flightcomputer/FlightComputerRecoveryBridge.java}{FlightComputerRecoveryBridge}; \source{core/src/main/java/info/openrocket/core/simulation/ModifiedEventSimulationEngine.java}{ModifiedEventSimulationEngine}.}

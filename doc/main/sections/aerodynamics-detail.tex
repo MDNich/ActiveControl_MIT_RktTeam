@@ -1,0 +1,154 @@
+\section{How the inherited drag budget is assembled}\label{sec:drag-budget}
+The normal calculation evaluates nonaxial component forces, then computes four drag terms:
+\begin{equation}
+C_D=C_{D,\mathrm{friction}}+C_{D,\mathrm{pressure}}+
+C_{D,\mathrm{base}}+C_{D,\mathrm{override}}.
+\end{equation}
+Friction is viscous drag along wetted surfaces. Pressure drag includes nose/transition profiles, fin edges, exposed steps, and hardware-specific losses. Base drag accounts for exposed rear-facing body area. An override substitutes a specified contribution for the calculated drag of the selected component or subtree. Contributions are normalized to the same rocket reference area and multiplied by the appropriate physical instance counts.
+
+This budget is not an arbitrary mesh surface integration. Each supported class selects a calculator with a particular approximation. An exposed body shoulder is handled differently from a fin leading edge, a hollow launch lug, or a deployed parachute. Internal centering rings and payload masses do not enter this budget as independent external surfaces. Aerodynamic area, structural material area, and drawing area must therefore remain separate concepts.
+
+\section{Skin friction, Reynolds number, and surface finish}
+The whole-vehicle Reynolds number used for the baseline skin-friction coefficient is
+\begin{equation}
+Re=\frac{V\ell_{\rm aero}}{\nu},
+\end{equation}
+where $\ell_{\rm aero}$ is the active aerodynamic length and $\nu$ is kinematic viscosity. The standard fully turbulent branch uses $C_f=0.0148$ below $Re=10^4$ and
+\begin{equation}
+C_f=\frac{1}{(1.50\ln Re-5.6)^2}
+\end{equation}
+above it, before compressibility and roughness corrections. The logarithm in this expression is natural. This is not a per-fin Reynolds-number calculation based on each fin's chord.
+
+The rocket's perfect-finish option enables a partly laminar model: $C_f=0.0133$ at very low Reynolds number, $1.328/\sqrt{Re}$ from $10^4$ to $5.39\times10^5$, and the turbulent expression minus $1700/Re$ above that threshold. Mach corrections use different subsonic and supersonic formulas and interpolate across Mach 0.9--1.1. In the ordinary turbulent branch, the low-Mach factor is $1-0.1M^2$ and the high-Mach factor is $(1+0.15M^2)^{-0.58}$.
+
+Each external component's finish supplies a roughness height $k$. A second estimate is
+\begin{equation}
+C_{f,\mathrm{rough}}=0.032\left(\frac{k}{\ell_{\rm aero}}\right)^{0.2}R(M),
+\end{equation}
+where $R$ is the source's Mach-dependent roughness correction. The ordinary branch takes the maximum of smooth/turbulent and roughness-limited estimates. Perfect finish only permits the roughness limit to dominate above $Re=10^6$. Thus a smoother-looking appearance texture does not reduce drag; the physical finish setting does.
+
+\begin{tabularx}{\linewidth}{@{}L{4cm}L{2.2cm}Y@{}}\toprule
+Finish category & $k$ in $\mu$m & Interpretation\\\midrule
+Rough / rough unfinished & 500 / 250 & Large surface roughness\\
+Unfinished / regular paint & 150 / 60 & Ordinary unfinished and painted surfaces\\
+Smooth / optimum paint & 20 / 5 & Smaller prescribed roughness\\
+Aircraft sheet metal & 2 & Internal enum name \code{POLISHED} retained for compatibility\\
+Polished / mirror & 0.5 / 0 & \code{FINISHPOLISHED} and \code{MIRROR}; mirror still has the smooth-wall friction term\\\bottomrule
+\end{tabularx}
+
+Symmetric bodies contribute $C_f A_{\rm wet}/S$. The assembly applies an additional body slenderness factor $1+1/(2f_B)$, with the implementation's $f_B$ based on the active body's axial extent divided by its maximum radius. Fins instead use their own thickness correction. The two factors should not be applied twice when recreating a component breakdown outside the application.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/aerodynamics/BarrowmanCalculator.java}{calculateFrictionCD / calculateFrictionCoefficient}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/ExternalComponent.java}{Finish}.}
+
+\section{Nose-cone and expanding-transition pressure drag}
+\class{SymmetricComponentCalc} uses the geometry's end radii, length, full external volume, planform, wetted area, and shape parameter. It normalizes the nose/transition pressure coefficient by
+\begin{equation}
+\frac{A_{\rm frontal}}{S}=\frac{\pi|r_{\rm aft}^2-r_{\rm fore}^2|}{S}.
+\end{equation}
+An equal-radius body segment has no profile pressure-drag term in this method. A segment shorter than 1 mm uses a blunt-step approximation. For a longer expanding profile, the calculator builds and caches a Mach-to-pressure-coefficient interpolator.
+
+Conical and ogive profiles use analytical/empirical relations. The conical path is the zero-ogive-parameter case. Between Mach 1 and 1.3, a polynomial joins endpoint values and derivatives. Above Mach 1.3, the constructed table uses
+\begin{equation}
+C_{D,p}^{*}=\bigl[0.72(p-0.5)^2+0.82\bigr]
+\left(2.1\sin^2\phi+\frac{0.5\sin\phi}{\sqrt{M^2-1}}\right),
+\end{equation}
+where $p$ is the ogive parameter and $\sin\phi$ is derived from the aft profile slope. The star denotes the local coefficient before frontal-area normalization. The code builds this table through approximately Mach 4; its interpolator behavior outside tabulated ranges is not a new high-Mach validation.
+
+Ellipsoid, power-series, parabolic, and Haack profiles use embedded experimental coefficient tables for fineness ratio 3. Parameterized profiles interpolate between bounding shape tables: power-series examples include exponents $1/4$, $1/2$, and $3/4$; parabolic examples include half, three-quarter, and full parabola; Haack uses von K\'arm\'an and LV-Haack tables. The source identifies the historical data origin in its comments. The application does not call an external aerodynamic database during flight.
+
+For these tables, other fineness ratios $f=\ell/(2|r_{\rm aft}-r_{\rm fore}|)$ are represented by the empirical rescaling
+\begin{equation}
+C_{D,p}^{*}(M,f)=C_{D,\rm stag}(M)
+\left[\frac{C_{D,p}^{*}(M,3)}{C_{D,\rm stag}(M)}\right]^{\ln(f+1)/\ln4}.
+\end{equation}
+If needed, a subsonic power-law continuation joins the first nonzero table point using a zero-Mach value $0.8\sin^2\phi$ and the joining slope. This is why two supported nose shapes can have different transonic behavior even when their length and base radius match. Their friction and mass can differ independently because their surface and volume integrals differ.
+
+\section{Boattails, body junctions, and base drag}
+A contracting transition uses a separate boattail rule. With the same fineness definition, its local drag is full base coefficient times frontal-area ratio for $f\leq1$, decreases linearly by $(3-f)/2$ for $1<f<3$, and is zero for $f\geq3$. Zero here means zero \emph{boattail pressure contribution}; the component can still have skin friction, normal force, and an exposed rear base.
+
+The reference base coefficient is
+\begin{equation}
+C_{D,\rm base}^{*}=\begin{cases}0.12+0.13M^2,&M\leq1,\\0.25/M,&M>1.\end{cases}
+\end{equation}
+For each active symmetric body, the assembly compares its aft radius with the next active symmetric component's fore radius. A smaller following radius exposes the annulus $\pi(r_{\rm aft}^2-r_{\rm next}^2)$; a missing next component exposes the full aft disk. This area multiplies the base coefficient. An analogous forward comparison adds stagnation drag for an exposed increasing-radius step.
+
+The source's stagnation coefficient is $0.85$ times a piecewise pressure approximation: $1+M^2/4+M^4/40$ through Mach 1, and $1.84-0.76/M^2+0.166/M^4+0.035/M^6$ above it. Geometry neighbor searches and stage activity therefore determine which areas are exposed. The calculation does not solve exhaust-plume/base-pressure interaction or automatically subtract a motor nozzle opening from every aft disk.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/aerodynamics/barrowman/SymmetricComponentCalc.java}{SymmetricComponentCalc}; \source{core/src/main/java/info/openrocket/core/aerodynamics/BarrowmanCalculator.java}{pressure steps, base drag, and stagnation coefficient}.}
+
+\section{Body normal force, body lift, and center of pressure}
+For a changing-radius body with fore/aft areas $A_0,A_1$, full external volume $\mathcal V$, and local length $\ell$, the area-change contribution is
+\begin{equation}
+C_{N\alpha}=\frac{2(A_1-A_0)}{S}\frac{\sin\alpha}{\alpha},
+\qquad x_{CP}=\frac{\ell A_1-\mathcal V}{A_1-A_0}.
+\end{equation}
+The $\sin\alpha/\alpha$ limit is handled at zero angle. A cone gives the familiar $2\ell/3$ local CP when only this term is considered. A contracting transition has a negative area-change contribution. Equal-radius tubes bypass the singular area-difference expression and use body lift alone.
+
+The Galejs-style body-lift addition uses planform area $A_p$, planform centroid, and factor 1.1. Its contribution to the normal-force coefficient is $1.1(A_p/S)\sin^2\alpha$, with the associated CP weighting expressed as that quantity divided by $\alpha$. At Mach below 0.05 and angle above $45^\circ$, the source attenuates this term by $(M/0.05)^2$ to reduce unrealistic apogee-turn behavior. This is an implementation accommodation, not a separate measured high-angle body model.
+
+Component CPs are transformed into assembly coordinates and combined using their normal-force-slope weights. Near cancellation, a CP location can become ill-conditioned or uninformative. The symmetric-body code assumes the same normal-force/CP relations at supersonic speed and emits a supersonic warning. The presence of a supersonic pressure-drag relation does not remove this limitation on the normal-force model.
+
+\section{Planar-fin geometry reduction and lift}
+Trapezoidal, elliptical, and freeform fins enter \class{FinSetCalc} through their point outlines. The calculator divides span into 48 stations and obtains leading/trailing chord positions, chord lengths, area, mean aerodynamic chord (MAC), MAC location, sweep averages, aspect ratio, and a radial moment integral for roll damping. Its aspect-ratio convention is $AR=2s^2/A_f$, using one fin's span $s$ and planform $A_f$. Mounting-root geometry is included where needed; jagged contours and unusually thick fins generate warnings.
+
+For Mach $M\leq0.9$, the uncorrected one-fin normal-force slope is
+\begin{equation}
+C_{N\alpha,1}=\frac{2\pi s^2/S}{1+\sqrt{1+(1-M^2)[s^2/(A_f\cos\Gamma)]^2}},
+\end{equation}
+where $\Gamma$ is the reduced midchord sweep angle. At Mach $\geq1.5$, a polynomial in limited angle of attack uses tabulated supersonic $K_1,K_2,K_3$ functions; between 0.9 and 1.5 a polynomial interpolates the two regimes. These are finite-wing engineering relationships, not sectional airfoil polars.
+
+Each physical fin instance receives an orientation factor $\sin^2(\theta-\psi)$, where $\theta$ is the transverse flow direction and $\psi$ the installed rotation. Body-fin interference multiplies by $1+r_b/(s+r_b)$. Overlapping fin sets on the same parent contribute to an interference count: up to four fins retain unit efficiency; five, six, seven, and eight use 0.948, 0.913, 0.854, and 0.81; larger counts use 0.75 and a warning. Repetition is accounted for by the instance traversal, not by multiplying every intermediate formula by fin count again.
+
+Fin CP is at quarter MAC through Mach 0.5, moves through a fifth-order interpolation to Mach 2, and above Mach 2 uses the fraction $(AR\beta-0.67)/(2AR\beta-1)$ with $\beta=\sqrt{M^2-1}$. The local CP is MAC leading-edge location plus this fraction times MAC length. The normal-force calculation caps its angle at $20^\circ$; the model is not a post-stall polar.
+
+\section{Fin skin friction and leading/trailing-edge drag}\label{sec:fin-drag}
+For \emph{one fin instance}, inherited skin friction is
+\begin{equation}
+C_{D,f}=C_f\left(1+\frac{2t}{\bar c}\right)\frac{2A_f}{S},
+\end{equation}
+where $t$ is thickness and $\bar c$ is MAC length. The factor two counts the two broad faces. Zero area or zero MAC produces zero contribution. The calculator then evaluates edge pressure drag independently:
+\begin{equation}
+C_{D,p}=\left(C_{D,LE}^{*}\cos^2\Gamma_{LE}+C_{D,TE}^{*}\right)\frac{st}{S}.
+\end{equation}
+Leading-edge sweep reduces the forward term; span times thickness is the edge reference area. The source does not use the broad planform area for this edge term.
+
+\begin{tabularx}{\linewidth}{@{}L{3cm}YY@{}}\toprule
+Cross section & Leading edge & Trailing edge\\\midrule
+Square & Stagnation coefficient & Full base coefficient\\
+Rounded & Rounded-edge Mach relation & Half base coefficient\\
+Airfoil & Same rounded-edge Mach relation & Zero base coefficient assumed\\
+Triangular (MIT) & Swept-edge wedge/shock approximation with its own low-Mach handling & Full base coefficient\\\bottomrule
+\end{tabularx}
+
+For rounded and airfoil leading edges, the local relation is
+\begin{equation}
+C_{D,LE}^{*}=\begin{cases}
+(1-M^2)^{-0.417}-1,&M<0.9,\\
+1-1.785(M-0.9),&0.9\leq M<1,\\
+1.214-0.502/M^2+0.1095/M^4,&M\geq1.
+\end{cases}
+\end{equation}
+Consequently, changing a fin from square to airfoil changes edge pressure/base assumptions and material volume without introducing a new measured lift polar. Increasing thickness raises both the skin-friction correction and edge area. Changing the planform alters area, MAC, sweep, CP, and roll integrals. These are separate mechanisms even when one editor operation changes them together.
+
+\section{Fin cant, roll damping, and lateral-force limits}
+Ordinary fixed fin cant produces roll forcing proportional to cant angle, one-fin lift slope, the body-interference factor, and the MAC's radial lever arm. It is a baseline capability independent of the MIT tab controller. Above $20^\circ$ AOA the forcing tapers to zero over a further $10^\circ$. Damping depends on roll rate and the spanwise integral of chord times radius squared, with subsonic, supersonic, and interpolated transonic branches. At large local rotational incidence the code integrates strips with a $15^\circ$ incidence limit. Rates below 0.1 rad/s are assigned zero roll damping in this implementation.
+
+The resulting net roll coefficient is forcing minus damping. The ordinary fin calculator sets explicit side-force and yaw coefficients to zero; comments explain that the more general asymmetric path is disabled. Orientation-dependent normal force still exists, but one or two fins should not be interpreted as a fully validated asymmetric six-component aerodynamic model. Assembly pitch/yaw damping uses empirical body/fin lever-arm terms, including a factor-three adjustment and clipping against calculated moments.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/aerodynamics/barrowman/FinSetCalc.java}{FinSetCalc: geometry, lift, CP, drag, and roll}; \source{core/src/main/java/info/openrocket/core/aerodynamics/BarrowmanCalculator.java}{assembly damping}.}
+
+\section{Tube fins, launch lugs, and rail buttons}
+\class{TubeCalc} models flow through a hollow tube using diameter-based Reynolds number, a Swamee--Jain friction factor, and Darcy--Weisbach pressure loss. In source notation, $f=0.25/\log_{10}^2[k/(3.7d)+5.74/Re_d^{0.9}]$ and $\Delta p=f\ell\rho V^2/(2d)$. The interior pressure-loss coefficient times inner area is combined with $0.7(C_{D,\rm stag}^{*}+C_{D,\rm base}^{*})$ times the tube-wall frontal annulus, all divided by $S$. A zero bore skips the interior-flow term.
+
+\class{LaunchLugCalc} uses this pressure calculation, neglecting its own separate wetted-area friction and nonaxial forces. \class{TubeFinSetCalc} adds interstice drag for the gap between the tube fin and body, subtracts the body area masked by the tube when calculating external friction, and avoids counting internal wall friction twice. Its normal-force constant follows a ring-airfoil approximation; CP follows a Mach-dependent chord fraction; roll damping is supported, while cant is fixed to zero. The class explicitly describes its model as preliminary.
+
+\class{RailButtonCalc} uses projected button area minus the notch area, an empirical circular-cylinder drag table, and approximate shielding by the body boundary layer. It estimates boundary-layer thickness as $0.37x/Re_x^{0.2}$ at each button, averages the local flow speed over button height, and converts the local coefficient back to free-stream normalization. The returned value is averaged over button instances because the outer calculator applies the instance count. Separate rail-button skin friction and nonaxial forces are zero in this model.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/aerodynamics/barrowman/TubeCalc.java}{TubeCalc}; \source{core/src/main/java/info/openrocket/core/aerodynamics/barrowman/TubeFinSetCalc.java}{TubeFinSetCalc}; \source{core/src/main/java/info/openrocket/core/aerodynamics/barrowman/LaunchLugCalc.java}{LaunchLugCalc}; \source{core/src/main/java/info/openrocket/core/aerodynamics/barrowman/RailButtonCalc.java}{RailButtonCalc}.}
+
+\section{Axial drag, overrides, and what the model does not sum}
+After the drag budget is assembled, \class{BarrowmanCalculator} derives axial drag using an AOA-dependent multiplier. It equals one at zero AOA, rises smoothly to 1.3 at $17^\circ$, and falls to zero at $90^\circ$. Angles beyond $90^\circ$ are mirrored and reverse the axial sign. This empirical construction is not simply $C_D\cos\alpha$ and is distinct from the fin normal-force saturation at $20^\circ$ and the calculator's $17.5^\circ$ stall-margin indicator.
+
+CD overrides skip calculated friction/pressure/base terms for the affected component or overridden subtree and add the selected coefficient once at its owning level, with instance count. They do not automatically override CP, normal-force slope, or mass. Because coefficients use the rocket reference area, an override's numeric value needs that convention recorded with it.
+
+The baseline model contains no general CFD interference solver, imported airfoil polar, arbitrary external mesh solver, or explicit flexible-fin flutter model. The drag budget also has no separately exposed textbook $C_L^2/(\pi eAR)$ induced-drag term. Instead it uses the implemented component drag, finite-angle normal forces, and axial adjustment. These limitations are relevant to inherited OpenRocket features as well as to active control.

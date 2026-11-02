@@ -1,0 +1,35 @@
+\section{Configuring an ordinary flight}
+Before any batch or control feature is involved, a simulation specifies a vehicle configuration and a launch experiment. The flight-configuration ID selects the motor installations and configuration-specific ignition, separation, and deployment settings in the component tree. The simulation options then provide the launch site, guide, environment, and numerical controls. Two simulations can select the same motors and differ only in weather; two configurations can install different motors while using otherwise identical launch conditions.
+
+\begin{tabularx}{\linewidth}{@{}L{3.1cm}YY@{}}\toprule
+Setting family & What it controls & Consequence in the execution path\\\midrule
+Launch site & Latitude, longitude, altitude and geodetic method & Initial world position, gravity, atmospheric altitude, coordinate propagation, and optional Coriolis terms\\
+Launch guide & Length, inclination and bearing & Initial attitude and constrained travel before rod clearance\\
+Atmosphere & Standard atmosphere or launch temperature/pressure & Density, speed of sound and viscosity evaluated along the flight\\
+Wind & Average/turbulent or altitude-dependent wind settings and seed & Air-relative velocity, angle of attack and drift; the wind is not simply added to ground speed after integration\\
+Numerics & Maximum timestep, angular-step limits and maximum simulation duration & Resolution, event handling and run termination; a smaller maximum step is not itself a new physical model\\
+Extensions & Selected features and their saved settings & Runtime listener initialization and extra data channels\\\bottomrule
+\end{tabularx}
+
+Defaults for a newly created simulation come from application preferences. Once a scenario has its own options, those are the inputs to its next run. The status displayed beside a simulation distinguishes an unrun case, usable stored data, stale data, imported data, and execution problems. Reusing a result is therefore a decision about the saved definition and its provenance, not merely whether an array of samples exists.
+
+Motor selection also includes ejection delay and ignition policy. A curve's manufacturer/designation describes the motor record, while the installation associates that record with a mount and flight configuration. A clustered mount can produce several motor instances from one configuration entry. The motor chooser, configuration tables, and simulation options edit these different owners rather than merging them into one global motor selection.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/simulation/SimulationOptions.java}{ordinary simulation options}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/FlightConfiguration.java}{flight configuration}; \source{core/src/main/java/info/openrocket/core/motor/MotorConfiguration.java}{motor installation}.}
+
+\section{Static component analysis and parameter sweeps}\label{sec:static-analysis}
+The inherited component-analysis tools explain why the current design has a particular mass, CP, drag coefficient, or roll contribution. They ask the same mass and aerodynamic calculators used elsewhere for a decomposition by component. This is useful before running a trajectory: a large pressure contribution can be traced to a shape or exposed junction, while an unexpected CG can be traced to a material, motor, instance count, or override.
+
+\class{CAParameters} holds the analysis conditions. \class{CAParameterSweep} copies those conditions, varies Mach number, angle of attack, lateral wind/flow angle, or roll rate, constructs \class{FlightConditions}, and asks the aerodynamic calculator for force analysis at every point. \class{CADataBranch} stores the domain values and per-component channels; \class{CADataType} and \class{CADomainDataType} describe the quantities and units. The Swing analysis dialog supplies component selection, tables, plots, and export.
+
+These are controlled static evaluations. Sweeping Mach at fixed angle of attack does not integrate a trajectory through increasing speed, burn propellant, or fly the vehicle through a wind profile. The sweep constructs flight conditions from the selected rocket configuration and analysis parameters; it does not automatically reproduce every atmospheric setting of an arbitrary saved simulation. A comparison with a flight-history sample must align the relevant conditions explicitly.
+
+CP and normal-force slope are related: the combined CP is weighted by component normal-force contributions. A negligible total weighting makes a CP undefined, rather than establishing a meaningful CP at the origin. Static stability is conventionally the axial separation $x_{\rm CP}-x_{\rm CG}$; dividing by reference diameter expresses it in calibers. Motor loading, reference diameter, flow angle, and Mach can change the result. A positive static margin is not a complete prediction of dynamic stability throughout a flight.
+
+Drag analysis distinguishes pressure, base, and friction terms and the distinction between a component's per-instance value and the installed total. A single tree entry can represent several fins, lugs, or repeated assemblies. The mass-analysis map similarly retains contributions and override information rather than treating every row as an unrelated lump.
+
+\begin{contract}
+In this snapshot, \class{CAParameterSweep} forms its channel named \code{TOTAL_ROLL_COEFFICIENT} by adding the forcing and damping values. The flight engine's net roll term subtracts damping from forcing. Therefore that analysis channel must not be identified with the engine's net torque coefficient without checking the sign convention. The separate forcing and damping channels are the unambiguous comparison points.
+\end{contract}
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/componentanalysis/CAParameterSweep.java}{CAParameterSweep}; \source{core/src/main/java/info/openrocket/core/componentanalysis/CADataBranch.java}{CADataBranch}; \source{swing/src/main/java/info/openrocket/swing/gui/dialogs/componentanalysis/ComponentAnalysisDialog.java}{component-analysis dialog}; \source{core/src/main/java/info/openrocket/core/masscalc/CMAnalysisEntry.java}{mass-analysis entries}.}

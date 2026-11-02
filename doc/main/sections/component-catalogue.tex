@@ -1,0 +1,76 @@
+\section{The complete native component vocabulary}\label{sec:catalogue}
+The component tree is a parametric vehicle description. It supports the families below through concrete classes and shared placement/geometry interfaces. A mesh imported from a drawing program does not become an arbitrary new aerodynamic component. Freeform fins provide a custom two-dimensional planform; bodies remain members of the supported axisymmetric shape families. Assemblies combine these primitives into more complicated vehicles.
+
+\subsection{Nose cones and all six body-profile families}
+\class{NoseCone} specializes \class{Transition}: one end closes to the nose and the other joins the body. It supports flipping the orientation, an automatic or explicit base radius, length, shell thickness or solid fill, and a shoulder with its own dimensions and cap. The visible external contour, hidden shoulder, material volume, and aerodynamic reference volume have different roles.
+
+The profile definitions live in \class{Transition.Shape}. For an untruncated nose, let $u=x/\ell$, where $x$ runs from tip to base, $\ell$ is length, $R$ is base radius, and $p$ is the shape parameter where present. These are geometry formulas; their aerodynamic treatments are discussed separately in Chapter~\ref{ch:aero}.
+
+\begin{tabularx}{\linewidth}{@{}L{2.2cm}L{5.8cm}Y@{}}\toprule
+Profile & Radius or construction & Parameter and interpretation\\\midrule
+Conical & $r=Ru$ & Straight-sided cone or conical transition. No shape parameter.\\
+Ogive & A circular-arc segment computed from length, radius, and $p$ & $p=1$ gives a tangent ogive; $0<p<1$ gives a secant ogive; the limit near zero becomes conical. Very short shapes use the source's scaling fallback.\\
+Ellipsoid & $r=R\sqrt{2u-u^2}$ & Half-ellipse profile. Length and base radius set its axes; no shape parameter.\\
+Power series & $r=Ru^p$ & $0\leq p\leq1$, default $1/2$. One gives a cone; values approaching zero become blunt, with a special numerical tip case.\\
+Parabolic series & $r=R(2u-pu^2)/(2-p)$ & $p=0$ is conical, $p=1/2$ half-parabolic, $p=3/4$ three-quarter-parabolic, and $p=1$ full parabolic, tangent at the base.\\
+Haack series & $r=R\sqrt{[\theta-\tfrac12\sin(2\theta)+p\sin^3\theta]/\pi}$, $\theta=\cos^{-1}(1-2u)$ & The exposed parameter range is $0$ to $1/3$. Zero is LD-Haack/von K\'arm\'an; $1/3$ is LV-Haack. These shape names do not establish minimum drag for every installed transition or flight condition.\\\bottomrule
+\end{tabularx}
+
+\diagram{fig:body-profile-path}{One radius function supplies several independent products. Material properties and aerodynamic shape properties must not be conflated.}{
+\begin{tikzpicture}
+\simple{shape}{0,0}{Transition.Shape + dimensions\\radius at axial coordinate}{5cm}
+\simple{outer}{7,0}{Outer profile integration\\full volume / planform / wet area}{5cm}
+\simple{mass}{0,-2.2}{Shell or filled material\\mass / CG / inertia + shoulders}{5cm}
+\simple{aero}{7,-2.2}{SymmetricComponentCalc\\normal force / body lift / drag}{5cm}
+\simple{draw}{0,-4.4}{2D / 3D / OBJ geometry\\appearance and tessellation}{5cm}
+\draw[use] (shape)--(outer); \draw[use] (shape)--(mass);
+\draw[use] (outer)--(aero); \draw[use] (shape.west) -- ++(-.8,0) |- (draw.west);
+\end{tikzpicture}}
+
+\subsection{Transitions, boattails, and shoulders}
+A \class{Transition} joins independently specified fore and aft radii. Increasing radius gives an expanding transition; decreasing radius gives a boattail. The same shape family can be applied in the reversed axial direction. For clippable families, a clipped transition selects a segment of a longer parent shape so its front has the requested nonzero radius. An unclipped transition offsets/scales the profile between its two radii. This changes the actual contour, so it can change material volume, wetted area, pressure drag, and CP.
+
+Fore and aft shoulders are insertion geometry used for fit and mass. Their radius, length, thickness, and optional caps contribute through the component's structural calculations. They are not automatically treated as separate exposed nose cones by the aerodynamic calculator. Neighbor searches support automatic radii and identify adjoining exterior bodies. An incorrect axial gap, overlap, or radius discontinuity can therefore affect both warnings and exposed-area drag.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/rocketcomponent/NoseCone.java}{NoseCone}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/Transition.java}{Transition and Shape}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/SymmetricComponent.java}{SymmetricComponent}.}
+
+\subsection{Body tubes and internal cylindrical parts}
+\class{BodyTube} is an exposed constant-radius shell with length, outer radius, thickness/inner radius, material, finish, appearance, and motor-mount capability. A cylindrical tube has no area-change Barrowman normal-force term, but it still contributes skin friction, finite-angle body lift, and exposed-end drag. An internal void changes structural mass; it is not a simulated duct through the main rocket body.
+
+\class{InnerTube} is an internal tube that can be a motor mount and can be repeated in a cluster. \class{TubeCoupler} represents an internal joining sleeve. \class{CenteringRing} and \class{Bulkhead} represent annular and solid supporting plates; \class{EngineBlock} represents an internal stop ring. Shared ring bases distinguish specifying radii directly from specifying wall thickness, and some automatic dimensions fit the parent tube or enclosed motor-mount geometry. These parts contribute mass and inertia but are not independently exposed surfaces in the normal ascent aerodynamic calculation.
+
+The \class{Tube}, \class{Coaxial}, \class{RadialParent}, and positioning interfaces express geometry capabilities used by multiple classes. Their existence does not mean that a user can insert the interface itself as a new part. Likewise, \class{BodyComponent}, \class{StructuralComponent}, and \class{InternalComponent} are shared implementation layers.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/rocketcomponent/BodyTube.java}{BodyTube}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/InnerTube.java}{InnerTube}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/TubeCoupler.java}{TubeCoupler}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/CenteringRing.java}{CenteringRing}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/Bulkhead.java}{Bulkhead}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/EngineBlock.java}{EngineBlock}.}
+
+\subsection{Trapezoidal, elliptical, and freeform fins}
+\class{TrapezoidFinSet} describes root chord, tip chord, span, and sweep. Choosing equal chords and zero sweep gives a rectangular planform; setting a zero tip chord gives a triangular planform. These are parameter choices within one component family. \class{EllipticalFinSet} defines an elliptical outline using root chord and span. \class{FreeformFinSet} stores an editable sequence of outline points, with validation and point-editing operations. The point sequence is a planar fin contour, not a general 3D airfoil definition.
+
+All inherit \class{FinSet}'s count, angular orientation, axial placement, thickness, material, cross section, cant, mounting tab, and fillet properties. Their geometry is ultimately exposed as fin/root points and planform measures for calculators and renderers. Root geometry can follow the supporting body. A fin with more elaborate outline points still enters the same strip-based aerodynamic approximation; unsupported concavities or jagged edges can generate warnings.
+
+The native cross-section categories are square, rounded, and airfoil; this fork adds triangular leading edges. They select specific geometric-volume factors and pressure-drag treatments. In the source, the baseline volume factors are 1.00, 0.99, and 0.85 respectively. ``Airfoil'' is a generic category, not an imported NACA profile or a Reynolds-dependent polar table. The triangular category has its own bevel/volume handling in the MIT implementation.
+
+Through-the-wall tabs and fillets supply structural geometry. Fin material mass, tab mass, and fillet material mass are accumulated with their centroids. The ordinary tab below the body surface is distinct from an exposed control tab. A fillet can alter mass and the rendered root without implying a dedicated CFD-derived fillet/interference drag model. Cant changes the installed incidence and roll forcing; moving a fin axially changes the CP lever arm even if its planform is unchanged.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/rocketcomponent/TrapezoidFinSet.java}{TrapezoidFinSet}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/EllipticalFinSet.java}{EllipticalFinSet}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/FreeformFinSet.java}{FreeformFinSet}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/FinSet.java}{FinSet}.}
+
+\subsection{Tube fins and launch hardware}
+\class{TubeFinSet} repeats cylindrical ring fins around a parent body. Length, radius, wall thickness, count, and angular position define both the tubes and the gaps between them. The aerodynamic model assumes zero tube cant and uses ring-airfoil and tube-flow approximations. Separated, overlapping, or isolated tubes are specifically diagnosed; they are not all equivalent to a conventional planar fin set.
+
+\class{LaunchLug} is a small external guide tube, with tube geometry, placement, and repetition. Its calculator includes internal-flow and end-pressure drag, while neglecting separate skin friction and nonaxial forces. \class{RailButton} has flange/body dimensions, height, placement, and repeated instances; its drag model accounts approximately for the local boundary layer. The launch-status calculation uses launch-lug positions to establish effective guide travel; the inspected correction does not include rail buttons. Neither component models contact stress or guide friction dynamically.
+
+\subsection{Mass objects, cords, and recovery devices}
+\class{MassComponent} represents payload, electronics, ballast, or another explicitly specified mass with placement and a display envelope. Its type can affect its label or drawing without adding a new physical subsystem. It is useful when detailed construction is unnecessary, but a mass lump does not become an external aerodynamic shape merely by resembling one visually.
+
+\class{ShockCord} uses line density and cord length for mass, with packed placement in the rocket. \class{Parachute} and \class{Streamer} use sheet-area and, for parachutes, suspension-line properties. Their packed envelopes serve design placement; their deployed areas and coefficients belong to recovery simulation. The recovery rules and descent force laws are explained in Chapter~\ref{ch:recovery}.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/rocketcomponent/TubeFinSet.java}{TubeFinSet}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/LaunchLug.java}{LaunchLug}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/RailButton.java}{RailButton}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/MassComponent.java}{MassComponent}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/ShockCord.java}{ShockCord}.}
+
+\section{Assemblies, clusters, and reference dimensions}
+\class{Rocket} is the root aggregate. \class{AxialStage} groups components that belong to one axial stage. \class{ParallelStage} represents repeated detachable side stages, and \class{PodSet} groups offset components without making every pod a separate powered flight stage. The assembly itself is primarily an organizational and transformation object; its descendants supply geometry and physical properties. An assembly can nevertheless carry aggregate overrides.
+
+Ring/line instances specify repeated positions and orientations. \class{ClusterConfiguration} defines motor-tube patterns, with cluster scale and rotation supplied by the tube. Parent and child instance transforms compose, so a multi-motor mount repeated on several boosters yields more physical motors than the number of tree nodes suggests. Stage activity affects the active instance map used for reference area, mass, aerodynamics, motor state, and result branches.
+
+Reference dimensions are selected by \class{ReferenceType}. The nose-based option uses the first qualifying nonzero symmetric-body diameter; the maximum option uses the largest active symmetric-body end diameter; the custom option uses the rocket's explicitly chosen reference length. The reference area is circular, $S=\pi D_{\rm ref}^2/4$. This is the normalization for coefficients and caliber stability, not necessarily the largest arbitrary mesh projection. A reference change can alter a coefficient's numeric value without an equivalent change in the dimensional force.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/rocketcomponent/ParallelStage.java}{ParallelStage}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/PodSet.java}{PodSet}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/ClusterConfiguration.java}{ClusterConfiguration}; \source{core/src/main/java/info/openrocket/core/rocketcomponent/ReferenceType.java}{ReferenceType}.}

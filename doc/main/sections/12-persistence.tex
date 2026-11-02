@@ -1,0 +1,67 @@
+\chapter{Persistence, libraries, and interoperability}\label{ch:persistence}
+\section{Loading a document}
+\class{GeneralRocketLoader} is the format-dispatch boundary. It inspects the stream and selects handling for supported OpenRocket, RockSim, or RASAero content, including compressed/container forms. The format-specific loader builds the component tree, configurations, simulations, appearance references, and optional results. Helpers provide motor lookup, attachment resolution, and warnings.
+
+Loading is a reconstruction operation, not a sequence of simulated user clicks. Loaders control event emission while assembling the object graph, restore IDs and references, validate what they can, and leave a coherent document for the editor. Unsupported data or missing motors should produce meaningful diagnostics. A document can be structurally loadable while containing unresolved external FC references or results that are stale for its current settings.
+
+The inherited import packages have their own mappings from other tools' concepts to OpenRocket types. Similar names in two formats do not guarantee identical geometry conventions, motor records, or simulation capabilities. Import warnings and converted fields are part of the result, not cosmetic messages to discard.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/file/GeneralRocketLoader.java}{GeneralRocketLoader}; \source{core/src/main/java/info/openrocket/core/file/openrocket/importt/OpenRocketLoader.java}{OpenRocketLoader}; \source{core/src/main/java/info/openrocket/core/file/rocksim/importt/RockSimLoader.java}{RockSimLoader}; \source{core/src/main/java/info/openrocket/core/file/rasaero/importt/RASAeroLoader.java}{RASAeroLoader}.}
+
+\section{The native ORK save path}
+\class{GeneralRocketSaver} owns the outer save operation and attachment handling. Native ORK output uses a ZIP container with the XML design entry \code{rocket.ork} and any referenced appearance assets. \class{OpenRocketSaver} writes document structure and delegates component-specific details to component savers. The matching import handlers reconstruct those details on load.
+
+The document includes the rocket hierarchy and identities; flight configurations and motor assignments; simulation options and extension configurations; custom expressions; and, when retained, flight data. MIT additions extend this with controlled-component fields, FC references and provenance, ensemble settings and individual-run archives, and motor-batch history. Motor-batch report content is serialized through its report/IO model rather than reconstructed from the visible table cells.
+
+\class{StorageOptions} governs ordinary simulation-data retention. Imported external histories have a different role from recomputable ordinary simulation output and are preserved accordingly. Large ensemble archives also deserve explicit attention when estimating file size: streaming aggregation limits live memory but does not make retained member histories free to store.
+
+\diagram{fig:persistence}{Persistence separates native document structure, appearance attachments, and external libraries.}{
+\begin{tikzpicture}
+\simple{doc}{0,0}{OpenRocketDocument\\design + experiments + results}{4.7cm}
+\simple{save}{6.5,0}{GeneralRocketSaver\\OpenRocketSaver + component savers}{4.7cm}
+\simple{ork}{6.5,-2.4}{ORK ZIP\\rocket.ork + attachments}{4.7cm}
+\simple{load}{0,-2.4}{GeneralRocketLoader\\format handlers + resolution}{4.7cm}
+\simple{libs}{0,-4.8}{External resources\\FC designs / motors / presets}{4.7cm}
+\draw[use] (doc)--(save); \draw[use] (save)--(ork);
+\draw[use] (ork)--(load); \draw[use] (load)--(doc);
+\draw[use] (libs)--(load);
+\end{tikzpicture}}
+
+For a new property, a successful UI edit and simulation run are only part of implementation. The saver must write it, the loader must restore it with an appropriate old-file default, copies must preserve it where intended, and freshness/provenance logic must recognize its effect. Round-trip coverage is especially useful for fields whose default value could hide an omitted serializer.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/file/GeneralRocketSaver.java}{GeneralRocketSaver}; \source{core/src/main/java/info/openrocket/core/file/openrocket/OpenRocketSaver.java}{OpenRocketSaver}; \source{core/src/main/java/info/openrocket/core/document/StorageOptions.java}{StorageOptions}; \source{core/src/main/java/info/openrocket/core/simulation/motorbatch/MotorBatchIO.java}{MotorBatchIO}.}
+
+\section{External FC designs and provenance}
+An FC design is an external JSON library artifact, with board definitions, controller structure, source text, settings, and design metadata. Importing a design into the library creates a managed copy. The simulation's ORK state records the selected reference, component assignments, and provenance; it should not be mistaken for a self-contained reconstruction of every external design revision.
+
+At run start, the selected design is resolved and frozen. Exact source/file hashes identify the content that was seen; semantic fingerprints distinguish behavior-changing edits from changes such as layout or naming that do not affect execution. A library file that later changes can make a result stale without changing the rocket geometry. Conversely, a result's recorded fingerprint is evidence of the run and should not be silently rewritten to match the current library.
+
+Trust approval is local execution state, separate from the mere presence of a Java source string in an imported design. A shareable design cannot authorize arbitrary source execution simply by claiming it was approved on another machine. Chapter~\ref{ch:fc} gives the current schema, program compilation, and ownership details.
+
+\section{Motor data, presets, materials, and appearances}
+Motor loaders normalize supported thrust-curve formats into motor records. The installed motor configuration identifies which record, mount, ignition rule, and delay are in use. A database record is shared input data; propellant depletion and ignition time belong to a motor's runtime state. When resolving a saved design, motor identity and the available database both matter.
+
+Component presets supply reusable catalog dimensions and material choices. Applying a preset populates component properties, but subsequent edits can make the object a custom design. Material density and surface properties feed the calculators; material names and user-defined material preferences help organize that data. Appearance textures and colors feed renderers and save attachments. A missing texture should not be confused with missing physical geometry.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/file/motor/GeneralMotorLoader.java}{GeneralMotorLoader}; \source{core/src/main/java/info/openrocket/core/file/motor/RASPMotorLoader.java}{RASPMotorLoader}; \source{core/src/main/java/info/openrocket/core/file/motor/RockSimMotorLoader.java}{RockSimMotorLoader}.}
+
+\input{sections/persistence-detail}
+
+\section{Exporting to vanilla OpenRocket}
+The current source adds a separate, deliberately lossy export targeting official OpenRocket 24.12. \class{VanillaOpenRocketExporter} writes a different file, prevents overwriting the source through equivalent paths or file identities, and first writes a complete temporary ZIP beside the destination. It streams the design without changing the open MIT document or copying all of its result histories.
+
+\begin{tabularx}{\linewidth}{@{}L{4.2cm}Y@{}}\toprule
+MIT feature & Vanilla representation or omission\\\midrule
+Controlled trapezoidal fins & Ordinary fixed trapezoidal fins; control tabs removed\\
+Triangular fin cross section & Rounded cross section; outline, thickness, and fillets retained\\
+Large fin cant & Limited to the vanilla $\pm15^\circ$ range\\
+Airbrake assembly & Ballast preserving mass and axial CG; deployment, drag, and detailed inertia lost\\
+FC and other simulation extensions & Removed; ordinary saved recovery settings remain and need review\\
+Results and telemetry & Omitted; simulations become unrun baselines\\
+Ensembles, initial roll rate, motor-batch history & Ensemble/history data omitted and initial roll reset to zero\\
+Custom expressions & Retained only if they and their transitive dependencies use supported channels\\\bottomrule
+\end{tabularx}
+
+The exporter reports the conversions. A vanilla rerun of this output is a different experiment, particularly when the MIT simulation used FC-only recovery or active aerodynamics. Matching mass and axial CG cannot preserve airbrake forces or detailed inertia. This path supports interoperability and baseline comparison, not equivalence of predicted flight behavior.
+
+\sourceline{\source{core/src/main/java/info/openrocket/core/file/openrocket/VanillaOpenRocketExporter.java}{VanillaOpenRocketExporter}; \source{core/src/main/java/info/openrocket/core/file/openrocket/VanillaComponentSaver.java}{VanillaComponentSaver}.}

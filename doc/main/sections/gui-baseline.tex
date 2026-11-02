@@ -1,0 +1,40 @@
+\section{The inherited design editor in detail}
+The component tree is the main structural editor. Its model presents parent/child relationships, stage groupings, names, selection, and permitted placement. Component actions add compatible parts, copy/cut/paste selections, delete parts, move them in the hierarchy, and invoke specialized configuration dialogs. The operation must preserve the model's parenting rules and create appropriate document undo boundaries; moving a row is a physical design change when its parent or axial reference changes.
+
+The figure supplies a second route to selection and inspection. Two-dimensional component shape classes derive side/back-view outlines from core geometry. The scale-figure layer handles coordinate conversion, zoom, rulers and interactive overlays. Extra figure elements display derived information such as CG and CP markers. The three-dimensional design view constructs surfaces and materials for viewing the same tree. None of these drawing coordinates should be used directly as flight-state coordinates without the defined transform.
+
+\begin{tabularx}{\linewidth}{@{}L{3.2cm}Y@{}}\toprule
+Editor family & Functional responsibilities\\\midrule
+Body and nose dialogs & Shape family and parameter, dimensions, automatic radii, thickness/fill, shoulders, finish and material\\
+Fin dialogs & Planform dimensions or freeform points, count, cant, position, cross section, thickness, tabs and fillets\\
+Internal parts and mass & Tube/ring dimensions, fitting relationships, motor-mount settings, material or explicit mass, placement\\
+Recovery dialogs & Canopy/streamer/cord dimensions and materials, drag behavior, configuration-dependent deployment\\
+Placement and instances & Axial/radial/angular placement, repeated copies, clusters and assembly positions\\
+Appearance editor & Color, shine and decal placement/scale/rotation for rendering\\
+Override controls & Explicit mass, CG or drag choices, including the relevant subtree scope\\\bottomrule
+\end{tabularx}
+
+Freeform fins store points in the core; the editor manipulates those points and validates the contour. Conversion from a parameterized fin to freeform creates a representation of its outline while preserving applicable component properties. It does not retain a hidden live dependency on the old trapezoid dimensions. The freeform editor can import an image outline through \class{CustomFinImporter} and export its point table as CSV. Imported points still become the same planar freeform-fin model and need appropriate sizing. Scaling a design uses component-specific scalers, including choices about offsets and explicit mass values. Dimensions and mass overrides have different scaling rules, so scaling is more than multiplying every numeric field by the same factor.
+
+\sourceline{\source{swing/src/main/java/info/openrocket/swing/gui/main/RocketActions.java}{RocketActions}; \source{swing/src/main/java/info/openrocket/swing/gui/configdialog/FinSetConfig.java}{shared fin editor}; \source{swing/src/main/java/info/openrocket/swing/gui/dialogs/ScaleDialog.java}{component-aware scaling}; \source{swing/src/main/java/info/openrocket/swing/gui/configdialog/AppearancePanel.java}{appearance editor}.}
+
+\section{Motor, ignition, separation, and recovery tables}
+The flight-configuration panel is organized around configuration IDs. Motor tables associate mounts with chosen motor records and delays. Ignition, stage separation, and recovery tables edit the corresponding per-configuration parameter sets. The selection dialogs expose event choices and delays described in Chapters~\ref{ch:models} and~\ref{ch:recovery}. A value inherited from a default parameter set and a value explicitly overridden for one configuration can look similar while having different behavior when the defaults are later changed.
+
+The motor chooser searches and filters available curves, presents motor metadata and dimensions, and offers thrust-curve comparison. Several records can share a familiar motor designation while differing in data source or measured curve. Choosing a motor therefore identifies actual data as well as a label. Importing another curve adds a candidate to the database; it does not automatically replace the motor selected in every existing configuration.
+
+\section{Photo Studio and appearance assets}
+Photo Studio is an inherited presentation renderer for a posed design. Its settings control rocket orientation and position, camera direction/distance/field of view, light direction and color, ambient light, sky/background, opacity, and visual exhaust effects. Sky implementations include different textured backgrounds; flame, smoke, sparks and motion blur are scene effects. Photo Studio settings can be stored through their persistence adapter, and rendered images can be saved.
+
+This is distinct from flight playback: a posed rocket with exhaust in Photo Studio does not require a simulated motor ignition or a trajectory. Conversely, playback uses recorded position, attitude and events. Both can use the same component geometry and appearances while serving different purposes.
+
+An \class{Appearance} describes visible color, shine and decal information. Default appearance services choose conventional appearances; a decal refers to an attachment that can be packaged with a document. Texture edits, missing-image dialogs and file watchers support the desktop asset workflow. Surface finish used in skin friction is a physical property with its own role; changing a paint texture does not infer a new numerical roughness.
+
+\sourceline{\source{swing/src/main/java/info/openrocket/swing/gui/figure3d/photo/PhotoSettings.java}{PhotoSettings}; \source{swing/src/main/java/info/openrocket/swing/gui/figure3d/photo/PhotoPanel.java}{PhotoPanel}; \source{core/src/main/java/info/openrocket/core/appearance/Appearance.java}{Appearance}; \source{swing/src/main/java/info/openrocket/swing/file/photo/PhotoStudioSetter.java}{photo settings persistence adapter}.}
+
+\section{Preferences, help, and reusable UI infrastructure}
+Preference dialogs cover units, default design and launch settings, simulation behavior, materials, appearance/display options, graphics, and other application settings. Themes and icon resources provide consistent visual styling. Help-tour classes load and display guided explanatory content; they are separate from the model and engine. Application exceptions and logs are presented through dedicated dialogs so diagnostic text does not have to be embedded in every editor.
+
+Shared GUI components provide unit selectors, spinners, tables, buttons, searchable controls and compass-style selectors. Adaptors translate domain values and change events into Swing models. Utility classes handle icons, window behavior, platform integration and common validation. These packages contain substantial application behavior even though they do not calculate flight forces. Their role is to make the same model edit consistently across many dialogs.
+
+Long-lived views need to release listeners and graphical resources when disposed. JOGL rendering has graphics-context requirements, workers have completion/cancellation requirements, and document bindings have model-lifetime requirements. A reusable widget should follow those contracts instead of assuming that closing its enclosing window ends all of its activity.

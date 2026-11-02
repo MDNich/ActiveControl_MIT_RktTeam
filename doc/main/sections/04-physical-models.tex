@@ -1,0 +1,54 @@
+\chapter{Mass, propulsion, atmosphere, and reference frames}\label{ch:models}
+The flight engine does not calculate every physical property itself. It asks separate model objects for mass, motor thrust, atmosphere, wind, gravity, and aerodynamic coefficients. \class{SimulationConditions} brings these services together for one scenario. \class{AbstractSimulationStepper} provides common evaluation methods and the pre/post listener hooks around them.
+
+\section{Mass properties and rigid-body aggregation}
+Component classes calculate local mass and centre of mass from geometry and materials. \class{MassCalculation} traverses the active configuration and its instances, translates local centres into assembly coordinates, respects applicable overrides, and aggregates the contributions. \class{MassCalculator} exposes convenient entry points for structure, launch, burnout, and time-dependent motor mass. \class{RigidBody} carries the resulting mass, centre, and inertias.
+
+For ordinary contributions, the conceptual aggregation is
+\begin{equation}
+ m=\sum_i m_i,\qquad \boldsymbol r_{CG}=\frac{\sum_i m_i\boldsymbol r_i}{m},
+ \qquad I=\sum_i\left(I_i+m_i d_i^2\right),
+\end{equation}
+with the appropriate axis and transformed instance positions. Overrides alter which contributions are included and how they are represented; they must be inspected before applying this expression to a particular design. The implementation distinguishes inertia about the longitudinal spin axis from transverse/pitch inertia. The flight stepper uses these effective inertias rather than a general deformable-body model.
+
+Structure and motor contributions are evaluated separately. The structure normally remains constant within an unchanging active-stage configuration, while motor mass/CG follow motor time and stage activity. Staging changes the active set. A simulation actuator can also trigger component changes through the normal model API. Caches and change identifiers must therefore be consistent with both static design edits and supported live actuator properties.
+
+\section{Motor data, installation, and ignition state}
+\class{Motor} describes a motor model. \class{ThrustCurveMotor} supplies sampled thrust, mass/CG information, dimensions, manufacturer/designation metadata, and supported delays. It interpolates time-series values from the stored curve. The numerical integrator can evaluate a curve at intermediate Runge--Kutta stages; the motor is not advanced by incrementing a mutable sample index.
+
+\class{MotorConfiguration} describes installation in a mount for a flight configuration, including ignition behavior and ejection delay. \class{MotorClusterState} is the per-run state for that installation: armed, thrusting, delaying, or spent, with actual ignition/cutoff/ejection times. Motor time is measured relative to ignition. Cluster count comes from the mount's physical instances and scales thrust appropriately.
+
+The engine schedules ignition, burnout, and ejection events. An ejection charge is an event source that can activate ordinary recovery rules; it is not itself a deployed parachute. Plugged motors do not create the same ejection path. The MIT engine also schedules thrust-curve sample boundaries; FC-aware timing uses ignition-relative offsets so delayed ignition does not shift the curve into the wrong clock frame.
+
+RASP \code{.eng} and RockSim motor loaders populate the motor database separately from rocket geometry. Unresolved references can generate loading warnings. Reproducibility requires curve identity/data and delay, not just a motor display label.
+
+\section{Atmosphere and gravity}
+\class{AtmosphericModel} returns \class{AtmosphericConditions} at altitude. The standard implementation, \class{ExtendedISAModel}, supports a layered ISA-derived atmosphere anchored either to standard conditions or custom launch pressure and temperature. It inherits interpolation support from \class{InterpolatingAtmosphericModel}. Atmospheric conditions supply density, sound speed, and viscosity-related quantities used by the aerodynamic path.
+
+Pressure is in pascals and temperature in kelvin in the physical atmosphere. The FC adapter deliberately converts those values to hPa and Celsius. Launch altitude is mean-sea-level altitude; trajectory height above the pad is a different quantity. A pressure-derived barometric height zeroed during preflight is different again. These distinctions matter when comparing recorded telemetry with simulator truth.
+
+\class{GravityModel} supplies gravity at a world location; \class{WGSGravityModel} is the normal implementation. \class{GeodeticComputationStrategy} converts local displacements to world coordinates and supplies the appropriate Coriolis term for the selected strategy. Flat, spherical, and other provided strategies are model choices, not display-only options.
+
+\section{Wind and stochastic inputs}
+\class{WindModel} is queried by time and altitude and can use MSL or AGL altitude references. \class{PinkNoiseWindModel} represents a baseline wind with correlated turbulence. \class{MultiLevelPinkNoiseWindModel} supports altitude-dependent profiles. Seeds are part of reproducibility: changing unrelated evaluation order should not casually introduce new random draws into a physical model.
+
+The stepper constructs its relative-airflow vector using the wind model's convention. In the inspected code this calculation is \code{rocketVelocity.add(windVelocity)}, followed by rotation into the body frame. An external wind-vector source must be adapted to this convention rather than substituted under an assumed textbook sign. Bearing is clockwise from north; world horizontal axes are east and north.
+
+Ensemble wind variation is layered onto these models: a per-flight bearing rotation and east/north offsets modify the existing profile while the baseline turbulence seed remains fixed across members. This is distinct from FC sensor noise, which perturbs the observations of the resulting flight.
+
+\section{Coordinate and unit contracts}
+\begin{tabularx}{\linewidth}{@{}L{3.3cm}YY@{}}\toprule
+Boundary & Convention & Consequence\\\midrule
+Component geometry & Longitudinal model X; placement relative to parent/assembly & CP and CG axial coordinates are model positions, not world altitude.\\
+Flight world & X east, Y north, Z upward & Trajectory translation and world angular vectors use this frame.\\
+Flight body & Longitudinal Z; quaternion maps body to world & Thrust, rotational rates, and sensor adapters require explicit transforms.\\
+FC sensor mounting & Baseline X = body Z, Y = body X, Z = body Y & Longitudinal acceleration feeds sensor X; roll integration uses negative sensor X rate.\\
+Display and persistence & Unit-group conversions; some file angles stored in degrees & Never copy displayed values directly into radian-valued setters.\\\bottomrule
+\end{tabularx}
+
+\begin{contract}
+These are rigid-body engineering models, without fluid-structure, combustion, flexible-body, or complete electronics dynamics. A replacement submodel must preserve units, frames, timing, and listener contracts.
+\end{contract}
+\sourceline{\source{core/src/main/java/info/openrocket/core/masscalc/MassCalculation.java}{MassCalculation}; \source{core/src/main/java/info/openrocket/core/masscalc/RigidBody.java}{RigidBody}; \source{core/src/main/java/info/openrocket/core/motor/ThrustCurveMotor.java}{ThrustCurveMotor}; \source{core/src/main/java/info/openrocket/core/simulation/MotorClusterState.java}{MotorClusterState}; \source{core/src/main/java/info/openrocket/core/models/atmosphere/ExtendedISAModel.java}{ExtendedISAModel}; \source{core/src/main/java/info/openrocket/core/util/GeodeticComputationStrategy.java}{GeodeticComputationStrategy}.}
+
+\input{sections/physical-models-detail}
