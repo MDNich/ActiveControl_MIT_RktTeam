@@ -138,6 +138,10 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					options.setLaunchLongitude(d);
 				}
 			}
+			case "supersoniccpmodel" -> {
+				if ("datcom-v1".equals(content)) options.setImprovedSupersonicCP(true);
+				else warnings.add("Unknown supersonic CP model: " + content);
+			}
 			case "supersonicfinmodel" -> {
                 if ("finitewing-v1".equals(content)) options.setFiniteWingFins(true);
                 else warnings.add("Unknown supersonic fin model: " + content);

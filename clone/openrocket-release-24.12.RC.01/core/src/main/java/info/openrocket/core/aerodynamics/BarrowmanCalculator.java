@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.aerodynamics.barrowman.FinSetCalc;
+import info.openrocket.core.aerodynamics.barrowman.SupersonicBody;
+import info.openrocket.core.aerodynamics.barrowman.SymmetricComponentCalc;
 import info.openrocket.core.aerodynamics.barrowman.RocketComponentCalc;
 import info.openrocket.core.rocketcomponent.position.AxialMethod;
 import info.openrocket.core.rocketcomponent.ComponentAssembly;
@@ -60,20 +62,25 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private final double stallAngle = 17.5 * Math.PI / 180;
 	private double stallMargin;
 	
-	private final boolean finiteWingFins;
+	private final SupersonicModel supersonicModel;
+	private boolean[] activeStages;
 
     public BarrowmanCalculator() {
         this(false);
     }
 
     public BarrowmanCalculator(boolean finiteWingFins) {
-        this.finiteWingFins = finiteWingFins;
+        this(finiteWingFins ? SupersonicModel.FINITE_WING : SupersonicModel.EXTENDED_BARROWMAN);
+    }
+
+    public BarrowmanCalculator(SupersonicModel model) {
+        supersonicModel = java.util.Objects.requireNonNull(model);
     }
 	
 	
 	@Override
 	public BarrowmanCalculator newInstance() {
-		return new BarrowmanCalculator(finiteWingFins);
+		return new BarrowmanCalculator(supersonicModel);
 	}
 
 	/**
@@ -96,7 +103,6 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	@Override
 	public Coordinate getCP(FlightConfiguration configuration, FlightConditions conditions,
 			WarningSet warnings) {
-		checkCache(configuration);
 		AerodynamicForces forces = calculateNonAxialForces(configuration, conditions, warnings);
 		return forces.getCP();
 	}
@@ -107,6 +113,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	public Map<RocketComponent, AerodynamicForces> getForceAnalysis(FlightConfiguration configuration,
 			FlightConditions conditions,
 			WarningSet warnings) {
+		checkCalculationCache(configuration);
 		if (calcMap == null) {
 			buildCalcMap(configuration);
 		}
@@ -224,7 +231,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	@Override
 	public AerodynamicForces getAerodynamicForces(FlightConfiguration configuration,
 			FlightConditions conditions, WarningSet warnings) {
-		checkCache(configuration);
+		checkCalculationCache(configuration);
 		
 		if (warnings == null)
 			warnings = ignoreWarningSet;
@@ -288,7 +295,7 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private AerodynamicForces calculateNonAxialForces(FlightConfiguration configuration, FlightConditions conditions,
 			WarningSet warnings) {
 
-		checkCache(configuration);
+		checkCalculationCache(configuration);
 
 		if (warnings == null)
 			warnings = ignoreWarningSet;
@@ -1076,7 +1083,27 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	}
 	
 	
+	private void checkCalculationCache(FlightConfiguration configuration) {
+		checkCache(configuration);
+		if (supersonicModel != SupersonicModel.IMPROVED_CP) return;
+		// A taper can become the exposed tail when a stage separates without a rocket tree edit.
+		int count = configuration.getRocket().getStageCount();
+		if (activeStages == null || activeStages.length != count) {
+			activeStages = new boolean[count];
+			voidAerodynamicCache();
+		}
+		for (int i = 0; i < count; i++) {
+			boolean active = configuration.isStageActive(i);
+			if (active != activeStages[i]) {
+				activeStages[i] = active;
+				voidAerodynamicCache();
+			}
+		}
+	}
+
 	private void buildCalcMap(FlightConfiguration configuration) {
+		Map<RocketComponent, SupersonicBody> bodies = supersonicModel == SupersonicModel.IMPROVED_CP
+				? SupersonicBody.forConfiguration(configuration) : Map.of();
 		calcMap = new HashMap<>();
 
 		for (RocketComponent comp : configuration.getAllComponents()) {
@@ -1085,8 +1112,10 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 			}
 
 			RocketComponentCalc calcObj;
-            if (finiteWingFins && comp instanceof TrapezoidFinSet fins) {
-                calcObj = new FinSetCalc(fins, true);
+            if (supersonicModel != SupersonicModel.EXTENDED_BARROWMAN && comp instanceof TrapezoidFinSet fins) {
+                calcObj = new FinSetCalc(fins, supersonicModel);
+            } else if (bodies.containsKey(comp)) {
+                calcObj = new SymmetricComponentCalc(comp, bodies.get(comp));
             } else {
                 calcObj = (RocketComponentCalc) Reflection.construct(BARROWMAN_PACKAGE, comp, BARROWMAN_SUFFIX, comp);
             }

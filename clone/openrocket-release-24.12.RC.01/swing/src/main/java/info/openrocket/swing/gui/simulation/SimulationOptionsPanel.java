@@ -117,6 +117,11 @@ class SimulationOptionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		subsub.add(label, "growx, span 3, wrap");
 		
+		JCheckBox improvedCP = new JCheckBox(new BooleanModel(conditions, "ImprovedSupersonicCP"));
+		improvedCP.setText(trans.get("simedtdlg.improvedSupersonicCP"));
+		improvedCP.setToolTipText(trans.get("simedtdlg.improvedSupersonicCP.tip"));
+		subsub.add(improvedCP, "span 4, wrap");
+
 		JCheckBox finiteWing = new JCheckBox(new BooleanModel(conditions, "FiniteWingFins"));
         finiteWing.setText(trans.get("simedtdlg.finiteWingFins"));
         finiteWing.setToolTipText(trans.get("simedtdlg.finiteWingFins.tip"));

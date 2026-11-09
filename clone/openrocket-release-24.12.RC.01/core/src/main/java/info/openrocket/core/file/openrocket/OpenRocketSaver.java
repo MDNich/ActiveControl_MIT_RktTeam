@@ -398,7 +398,13 @@ public class OpenRocketSaver extends RocketSaver {
 		writeElement("launchaltitude", cond.getLaunchAltitude());
 		writeElement("launchlatitude", cond.getLaunchLatitude());
 		writeElement("launchlongitude", cond.getLaunchLongitude());
-		if (cond.isFiniteWingFins()) writeElement("supersonicfinmodel", "finitewing-v1");
+		if (!vanilla24) {
+			if (cond.isImprovedSupersonicCP()) {
+				writeElement("supersoniccpmodel", "datcom-v1");
+			} else if (cond.isFiniteWingFins()) {
+				writeElement("supersonicfinmodel", "finitewing-v1");
+			}
+		}
 		writeElement("geodeticmethod", cond.getGeodeticComputation().name().toLowerCase(Locale.ENGLISH));
 		
 		if (cond.isISAAtmosphere()) {

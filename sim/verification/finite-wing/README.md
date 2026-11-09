@@ -42,3 +42,10 @@ mkdir -p "$out/classes"
 ```
 
 FiniteWingPressureTest checks the analytic finite rectangular-panel force and moment, the wide-panel limit, and the incidence, tip-cone and leading-edge envelopes. The benchmark sweeps each vehicle and model at 0.001 Mach from 0.75 through 5.001 and rejects nonfinite loads or large adjacent jumps. The per-point reference output is in [benchmark-results.csv](benchmark-results.csv).
+
+
+## Improved supersonic CP option
+
+In **Edit simulation → Simulation options**, select **Use improved supersonic CP calcs (beta)** to use the calibrated MIT model for that simulation. Selecting the earlier fin-only experiment switches to that calculation. Clearing both selects standard Extended Barrowman. MIT .ork files preserve the selection, including the original finite-wing mode on older files.
+
+The beta blends the finite-wing result with the DATCOM fin slope, applies nose/cylinder charts using the continuous length of touching equal-diameter tubes, and models the force and load station of an exposed conical contracting boattail. The full chart weight applies at Mach 1.5–4.65 and up to 3° incidence, with smooth handovers to the standard calculation. Flares, internal diameter steps and body crossflow retain their standard treatment. The preferred 0.50-inch Iris had 3.24 calibers of stability at sustainer burnout with this model and 2.65 in RASAero II. The [component study, native exports and wind-tunnel comparisons](https://github.com/MDNich/MIT-RT-26_27-Work/tree/d36b7b0c4d064e7cf905d6e745551a0e81ba7927/design_work/openrocket_CP) give the supported geometries and measured limits.

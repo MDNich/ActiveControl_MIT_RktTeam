@@ -72,7 +72,7 @@ public final class FiniteWingPressure {
                 * smooth((Math.toRadians(8) - Math.abs(incidence)) / Math.toRadians(5));
     }
 
-    private static double smooth(double value) {
+    static double smooth(double value) {
         double t = Math.max(0, Math.min(1, value));
         return t * t * (3 - 2 * t);
     }

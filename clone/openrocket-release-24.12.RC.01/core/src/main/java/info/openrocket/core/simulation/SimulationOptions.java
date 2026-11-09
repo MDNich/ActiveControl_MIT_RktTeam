@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import info.openrocket.core.aerodynamics.BarrowmanCalculator;
+import info.openrocket.core.aerodynamics.SupersonicModel;
 import info.openrocket.core.masscalc.MassCalculator;
 import info.openrocket.core.models.atmosphere.AtmosphericModel;
 import info.openrocket.core.models.atmosphere.ExtendedISAModel;
@@ -69,7 +70,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double launchAltitude = preferences.getLaunchAltitude();
 	private double launchLatitude = preferences.getLaunchLatitude();
 	private double launchLongitude = preferences.getLaunchLongitude();
-	private boolean finiteWingFins;
+	private SupersonicModel supersonicModel = SupersonicModel.EXTENDED_BARROWMAN;
 
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
@@ -292,11 +293,25 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		fireChangeEvent();
 	}
 
-	public boolean isFiniteWingFins() { return finiteWingFins; }
+	public boolean isFiniteWingFins() {
+		return supersonicModel == SupersonicModel.FINITE_WING;
+	}
 
 	public void setFiniteWingFins(boolean enabled) {
-		if (finiteWingFins != enabled) {
-			finiteWingFins = enabled;
+		selectSupersonicModel(SupersonicModel.FINITE_WING, enabled);
+	}
+
+	public boolean isImprovedSupersonicCP() {
+		return supersonicModel == SupersonicModel.IMPROVED_CP;
+	}
+
+	public void setImprovedSupersonicCP(boolean enabled) {
+		selectSupersonicModel(SupersonicModel.IMPROVED_CP, enabled);
+	}
+
+	private void selectSupersonicModel(SupersonicModel model, boolean enabled) {
+		if (enabled != (model == supersonicModel)) {
+			supersonicModel = enabled ? model : SupersonicModel.EXTENDED_BARROWMAN;
 			fireChangeEvent();
 		}
 	}
@@ -526,9 +541,9 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.maxSimulationTime = src.maxSimulationTime;
 		}
-		if (finiteWingFins != src.finiteWingFins) {
+		if (supersonicModel != src.supersonicModel) {
 			isChanged = true;
-			finiteWingFins = src.finiteWingFins;
+			supersonicModel = src.supersonicModel;
 		}
 		if (this.geodeticComputation != src.geodeticComputation) {
 			isChanged = true;
@@ -553,7 +568,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (!(other instanceof SimulationOptions))
 			return false;
 		SimulationOptions o = (SimulationOptions) other;
-		return finiteWingFins == o.finiteWingFins && ensembleSettings.equals(o.ensembleSettings) && (MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
+		return supersonicModel == o.supersonicModel && ensembleSettings.equals(o.ensembleSettings) && (MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchLongitude, o.launchLongitude) &&
 				MathUtil.equals(this.launchPressure, o.launchPressure) &&
@@ -623,7 +638,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		GravityModel gravityModel = new WGSGravityModel();
 		conditions.setGravityModel(gravityModel);
 
-		conditions.setAerodynamicCalculator(new BarrowmanCalculator(finiteWingFins));
+		conditions.setAerodynamicCalculator(new BarrowmanCalculator(supersonicModel));
 		conditions.setMassCalculator(new MassCalculator());
 
 		conditions.setTimeStep(getTimeStep());

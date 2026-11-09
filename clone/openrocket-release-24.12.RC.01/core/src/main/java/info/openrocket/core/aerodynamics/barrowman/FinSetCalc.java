@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import info.openrocket.core.aerodynamics.AerodynamicForces;
 import info.openrocket.core.aerodynamics.FlightConditions;
+import info.openrocket.core.aerodynamics.SupersonicModel;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FinSet;
@@ -63,6 +64,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	private final FinSet.CrossSection crossSection;
 	private final double leadingEdgeAngle;
 	private final FiniteWingPressure finiteWing;
+	private final boolean useDatcomFin;
 
 
 	/**
@@ -74,8 +76,12 @@ public class FinSetCalc extends RocketComponentCalc {
     }
 
     public FinSetCalc(FinSet component, boolean finiteWingEnabled) {
+        this(component, finiteWingEnabled ? SupersonicModel.FINITE_WING : SupersonicModel.EXTENDED_BARROWMAN);
+    }
+
+    public FinSetCalc(FinSet component, SupersonicModel model) {
         super(component);
-        if (finiteWingEnabled && component instanceof TrapezoidFinSet trapezoid
+        if (model != SupersonicModel.EXTENDED_BARROWMAN && component instanceof TrapezoidFinSet trapezoid
                 && trapezoid.getRootChord() > MathUtil.EPSILON && trapezoid.getSpan() > MathUtil.EPSILON) {
             finiteWing = new FiniteWingPressure(trapezoid.getRootChord(), trapezoid.getTipChord(),
                     trapezoid.getSpan(), trapezoid.getSweep());
@@ -83,6 +89,9 @@ public class FinSetCalc extends RocketComponentCalc {
             finiteWing = null;
         }
 
+
+        useDatcomFin = model == SupersonicModel.IMPROVED_CP && finiteWing != null
+                && component instanceof TrapezoidFinSet fins && fins.getSweep() >= 0 && fins.getTipChord() <= fins.getRootChord();
 
         if (component instanceof TabControlledTrapezoidFinSet) {
             this.hasTabs = true;
@@ -139,6 +148,8 @@ public class FinSetCalc extends RocketComponentCalc {
 		// One fin without interference (both sub- and supersonic):
 		double cna1 = calculateFinCNa1(conditions);
         double x = macLead + calculateCPPos(conditions) * macLength;
+        double baselineSlope = cna1;
+        double baselineCP = x;
         if (finiteWing != null) {
             double weight = finiteWing.weight(conditions.getMach(), conditions.getAOA());
             if (weight > 0) {
@@ -153,6 +164,21 @@ public class FinSetCalc extends RocketComponentCalc {
             }
         }
 			
+		if (useDatcomFin && Double.isFinite(baselineCP)) {
+			double weight = DatcomCharts.envelope(conditions);
+			if (weight > 0) {
+				TrapezoidFinSet fin = (TrapezoidFinSet) liveFinSet;
+				double chart = datcomFinSlope(fin, conditions.getBeta()) * finArea / conditions.getRefArea();
+				double chartLoad = .32 * ((1 - weight) * baselineSlope + weight * chart);
+				double retainedLoad = .68 * cna1;
+				double total = retainedLoad + chartLoad;
+				if (total > 0) {
+					x = (retainedLoad * x + chartLoad * baselineCP) / total;
+					cna1 = total;
+				}
+			}
+		}
+
 		// Multiple fins with fin-fin interference
 		double cna;
 		double theta = conditions.getTheta();
@@ -609,6 +635,22 @@ public class FinSetCalc extends RocketComponentCalc {
 		return val;
 	}
 	
+	/** Normal-force slope per radian for a single panel on its planform area. */
+	private static double datcomFinSlope(TrapezoidFinSet fin, double beta) {
+		double aspectRatio = 4 * fin.getSpan() / (fin.getRootChord() + fin.getTipChord());
+		double betaAspect = beta * aspectRatio;
+		double rectangular = betaAspect > 1 ? (4 - 2 / betaAspect) / beta
+				: aspectRatio * DatcomCharts.RECTANGULAR_FIN.at(betaAspect);
+		double tanSweep = fin.getSweep() / fin.getSpan();
+		if (tanSweep == 0) return rectangular;
+		double sweepRatio = beta / tanSweep;
+		double sweepAspect = tanSweep * aspectRatio;
+		double swept = DatcomCharts.SWEPT_FIN.at(sweepRatio, sweepAspect, fin.getTipChord() / fin.getRootChord())
+				/ (sweepRatio >= 1 ? beta : tanSweep);
+		// Approach the rectangular solution below the first tabulated swept planform.
+		return rectangular + (swept - rectangular) * FiniteWingPressure.smooth(sweepAspect / .25);
+	}
+
 	/**
 	 * Calculate CP position interpolation polynomial coefficients from the
 	 * fin geometry.  This is a fifth order polynomial that satisfies

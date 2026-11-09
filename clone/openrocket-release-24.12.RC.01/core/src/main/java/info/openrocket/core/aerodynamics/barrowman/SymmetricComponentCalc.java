@@ -25,10 +25,8 @@ import org.slf4j.LoggerFactory;
  * Calculates the aerodynamic properties of a <code>SymmetricComponent</code>.
  * <p>
  * CP and CNa are calculated by the Barrowman method extended to account for
- * body lift
- * by the method presented by Galejs. Supersonic CNa and CP are assumed to be
- * the
- * same as the subsonic values.
+ * body lift by the method presented by Galejs. The optional supersonic model
+ * corrects the potential force and moment for eligible forebodies and boattails.
  * 
  * 
  * @author Sampo Niskanen <sampo.niskanen@iki.fi>
@@ -50,8 +48,15 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	private final double wetArea;
 	private final double sinphi;
 
+	private final SupersonicBody supersonicBody;
+
 	public SymmetricComponentCalc(RocketComponent c) {
+		this(c, null);
+	}
+
+	public SymmetricComponentCalc(RocketComponent c, SupersonicBody supersonicBody) {
 		super(c);
+		this.supersonicBody = supersonicBody;
 		if (!(c instanceof SymmetricComponent)) {
 			throw new IllegalArgumentException("Illegal component type " + c);
 		}
@@ -97,14 +102,13 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 	private double cpCache = Double.NaN;
 
 	/**
-	 * Calculates the non-axial forces produced by the fins (normal and side forces,
+	 * Calculates the non-axial forces produced by the body (normal and side forces,
 	 * pitch, yaw and roll moments, CP position, CNa).
 	 * <p>
 	 * This method uses the Barrowman method for CP and CNa calculation and the
 	 * extension presented by Galejs for the effect of body lift.
 	 * <p>
-	 * The CP and CNa at supersonic speeds are assumed to be the same as those at
-	 * subsonic speeds.
+	 * The optional DATCOM correction is applied before combining with body lift.
 	 */
 	@Override
 	public void calculateNonaxialForces(FlightConditions conditions, Transformation transform,
@@ -136,8 +140,9 @@ public class SymmetricComponentCalc extends RocketComponentCalc {
 		if (isTube) {
 			cp = getLiftCP(conditions, warnings);
 		} else {
-			cp = new Coordinate(cpCache, 0, 0, cnaCache * conditions.getSincAOA() /
-					conditions.getRefArea()).average(getLiftCP(conditions, warnings));
+			Coordinate potential = new Coordinate(cpCache, 0, 0, cnaCache * conditions.getSincAOA() / conditions.getRefArea());
+			if (supersonicBody != null) potential = supersonicBody.potential(conditions, potential);
+			cp = potential.average(getLiftCP(conditions, warnings));
 		}
 
 		forces.setCP(cp);

@@ -68,6 +68,9 @@ public final class VanillaOpenRocketExporter {
                         + " review deployment settings before rerunning.");
             if (document.getSimulations().stream().anyMatch(s -> s.getOptions().getEnsembleSettings().enabled()))
                 changes.add("Ensemble settings and individual runs omitted; nominal motor and atmosphere retained.");
+            if (document.getSimulations().stream().anyMatch(s ->
+                    s.getOptions().isImprovedSupersonicCP() || s.getOptions().isFiniteWingFins()))
+                changes.add("Supersonic aerodynamic options reset to the standard OpenRocket calculation.");
             if (document.getSimulations().stream().anyMatch(s -> s.getOptions().getInitialRollRate() != 0))
                 changes.add("Initial roll rate reset to zero (unsupported by vanilla).");
         }
