@@ -15,6 +15,7 @@ import info.openrocket.core.rocketcomponent.ComponentAssembly;
 import info.openrocket.core.rocketcomponent.ExternalComponent;
 import info.openrocket.core.rocketcomponent.ExternalComponent.Finish;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.rocketcomponent.FlightConfiguration;
 import info.openrocket.core.rocketcomponent.InstanceContext;
 import info.openrocket.core.rocketcomponent.InstanceMap;
@@ -59,14 +60,20 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 	private final double stallAngle = 17.5 * Math.PI / 180;
 	private double stallMargin;
 	
-	public BarrowmanCalculator() {
-		
-	}
+	private final boolean finiteWingFins;
+
+    public BarrowmanCalculator() {
+        this(false);
+    }
+
+    public BarrowmanCalculator(boolean finiteWingFins) {
+        this.finiteWingFins = finiteWingFins;
+    }
 	
 	
 	@Override
 	public BarrowmanCalculator newInstance() {
-		return new BarrowmanCalculator();
+		return new BarrowmanCalculator(finiteWingFins);
 	}
 
 	/**
@@ -1077,8 +1084,12 @@ public class BarrowmanCalculator extends AbstractAerodynamicCalculator {
 				continue;
 			}
 
-			RocketComponentCalc calcObj = (RocketComponentCalc) Reflection.construct(BARROWMAN_PACKAGE, comp,
-					BARROWMAN_SUFFIX, comp);
+			RocketComponentCalc calcObj;
+            if (finiteWingFins && comp instanceof TrapezoidFinSet fins) {
+                calcObj = new FinSetCalc(fins, true);
+            } else {
+                calcObj = (RocketComponentCalc) Reflection.construct(BARROWMAN_PACKAGE, comp, BARROWMAN_SUFFIX, comp);
+            }
             //System.out.println("Got calc object: " + calcObj);
 			calcMap.put(comp, calcObj);
 		}

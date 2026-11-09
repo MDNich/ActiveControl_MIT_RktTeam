@@ -69,6 +69,8 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 	private double launchAltitude = preferences.getLaunchAltitude();
 	private double launchLatitude = preferences.getLaunchLatitude();
 	private double launchLongitude = preferences.getLaunchLongitude();
+	private boolean finiteWingFins;
+
 	private GeodeticComputationStrategy geodeticComputation = GeodeticComputationStrategy.SPHERICAL;
 	
 	private boolean useISA = preferences.isISAAtmosphere();
@@ -288,6 +290,15 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			return;
 		this.launchLongitude = launchLongitude;
 		fireChangeEvent();
+	}
+
+	public boolean isFiniteWingFins() { return finiteWingFins; }
+
+	public void setFiniteWingFins(boolean enabled) {
+		if (finiteWingFins != enabled) {
+			finiteWingFins = enabled;
+			fireChangeEvent();
+		}
 	}
 
 	public GeodeticComputationStrategy getGeodeticComputation() {
@@ -515,6 +526,10 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 			isChanged = true;
 			this.maxSimulationTime = src.maxSimulationTime;
 		}
+		if (finiteWingFins != src.finiteWingFins) {
+			isChanged = true;
+			finiteWingFins = src.finiteWingFins;
+		}
 		if (this.geodeticComputation != src.geodeticComputation) {
 			isChanged = true;
 			this.geodeticComputation = src.geodeticComputation;
@@ -538,7 +553,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		if (!(other instanceof SimulationOptions))
 			return false;
 		SimulationOptions o = (SimulationOptions) other;
-		return ensembleSettings.equals(o.ensembleSettings) && (MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
+		return finiteWingFins == o.finiteWingFins && ensembleSettings.equals(o.ensembleSettings) && (MathUtil.equals(this.launchAltitude, o.launchAltitude) &&
 				MathUtil.equals(this.launchLatitude, o.launchLatitude) &&
 				MathUtil.equals(this.launchLongitude, o.launchLongitude) &&
 				MathUtil.equals(this.launchPressure, o.launchPressure) &&
@@ -608,7 +623,7 @@ public class SimulationOptions implements ChangeSource, Cloneable, SimulationOpt
 		GravityModel gravityModel = new WGSGravityModel();
 		conditions.setGravityModel(gravityModel);
 
-		conditions.setAerodynamicCalculator(new BarrowmanCalculator());
+		conditions.setAerodynamicCalculator(new BarrowmanCalculator(finiteWingFins));
 		conditions.setMassCalculator(new MassCalculator());
 
 		conditions.setTimeStep(getTimeStep());

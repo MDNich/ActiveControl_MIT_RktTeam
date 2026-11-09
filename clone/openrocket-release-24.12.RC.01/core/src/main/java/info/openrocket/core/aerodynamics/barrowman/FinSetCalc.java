@@ -10,6 +10,7 @@ import info.openrocket.core.aerodynamics.FlightConditions;
 import info.openrocket.core.logging.Warning;
 import info.openrocket.core.logging.WarningSet;
 import info.openrocket.core.rocketcomponent.FinSet;
+import info.openrocket.core.rocketcomponent.TrapezoidFinSet;
 import info.openrocket.core.rocketcomponent.RocketComponent;
 import info.openrocket.core.rocketcomponent.TabControlledTrapezoidFinSet;
 import info.openrocket.core.util.BugException;
@@ -61,6 +62,7 @@ public class FinSetCalc extends RocketComponentCalc {
 	private final FinSet liveFinSet;
 	private final FinSet.CrossSection crossSection;
 	private final double leadingEdgeAngle;
+	private final FiniteWingPressure finiteWing;
 
 
 	/**
@@ -68,7 +70,18 @@ public class FinSetCalc extends RocketComponentCalc {
 	 * @param component		The fin in consideration
 	 */
 	public FinSetCalc(FinSet component) {
-		super(component);
+        this(component, false);
+    }
+
+    public FinSetCalc(FinSet component, boolean finiteWingEnabled) {
+        super(component);
+        if (finiteWingEnabled && component instanceof TrapezoidFinSet trapezoid
+                && trapezoid.getRootChord() > MathUtil.EPSILON && trapezoid.getSpan() > MathUtil.EPSILON) {
+            finiteWing = new FiniteWingPressure(trapezoid.getRootChord(), trapezoid.getTipChord(),
+                    trapezoid.getSpan(), trapezoid.getSweep());
+        } else {
+            finiteWing = null;
+        }
 
 
         if (component instanceof TabControlledTrapezoidFinSet) {
@@ -125,6 +138,20 @@ public class FinSetCalc extends RocketComponentCalc {
 		
 		// One fin without interference (both sub- and supersonic):
 		double cna1 = calculateFinCNa1(conditions);
+        double x = macLead + calculateCPPos(conditions) * macLength;
+        if (finiteWing != null) {
+            double weight = finiteWing.weight(conditions.getMach(), conditions.getAOA());
+            if (weight > 0) {
+                var pressure = finiteWing.at(conditions.getMach());
+                double candidate = pressure.force() / conditions.getRefArea();
+                double legacyLoad = (1 - weight) * cna1;
+                double blended = legacyLoad + weight * candidate;
+                // Blend force and first moment about the same origin.
+                double legacyMoment = legacyLoad == 0 ? 0 : legacyLoad * x;
+                x = (legacyMoment + weight * pressure.moment() / conditions.getRefArea()) / blended;
+                cna1 = blended;
+            }
+        }
 			
 		// Multiple fins with fin-fin interference
 		double cna;
@@ -183,8 +210,7 @@ public class FinSetCalc extends RocketComponentCalc {
 		// (Barrowman thesis pdf-page 40)
 		
 		// TODO: LOW: fin-fin mach cone effect, MIL-HDBK page 5-25
-		// Calculate CP position
-		double x = macLead + calculateCPPos(conditions) * macLength;
+
 		
 		
 		// Calculate roll forces, reduce forcing above stall angle

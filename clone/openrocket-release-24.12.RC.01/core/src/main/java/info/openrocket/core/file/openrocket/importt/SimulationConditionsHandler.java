@@ -138,7 +138,11 @@ class SimulationConditionsHandler extends AbstractElementHandler {
 					options.setLaunchLongitude(d);
 				}
 			}
-			case "geodeticmethod" -> {
+			case "supersonicfinmodel" -> {
+                if ("finitewing-v1".equals(content)) options.setFiniteWingFins(true);
+                else warnings.add("Unknown supersonic fin model: " + content);
+            }
+            case "geodeticmethod" -> {
 				GeodeticComputationStrategy gcs = (GeodeticComputationStrategy) DocumentConfig.findEnum(content,
 						GeodeticComputationStrategy.class);
 				if (gcs != null) {

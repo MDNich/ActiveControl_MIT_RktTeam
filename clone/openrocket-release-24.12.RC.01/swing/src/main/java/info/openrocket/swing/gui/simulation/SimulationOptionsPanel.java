@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -39,6 +40,7 @@ import info.openrocket.core.util.GeodeticComputationStrategy;
 import net.miginfocom.swing.MigLayout;
 import info.openrocket.swing.gui.SpinnerEditor;
 import info.openrocket.swing.gui.adaptors.DoubleModel;
+import info.openrocket.swing.gui.adaptors.BooleanModel;
 import info.openrocket.swing.gui.adaptors.EnumModel;
 import info.openrocket.swing.gui.components.BasicSlider;
 import info.openrocket.swing.gui.components.DescriptionArea;
@@ -115,7 +117,12 @@ class SimulationOptionsPanel extends JPanel {
 		label.setToolTipText(tip);
 		subsub.add(label, "growx, span 3, wrap");
 		
-		// Simulation method
+		JCheckBox finiteWing = new JCheckBox(new BooleanModel(conditions, "FiniteWingFins"));
+        finiteWing.setText(trans.get("simedtdlg.finiteWingFins"));
+        finiteWing.setToolTipText(trans.get("simedtdlg.finiteWingFins.tip"));
+        subsub.add(finiteWing, "span 4, wrap");
+
+        // Simulation method
 		tip = trans.get("simedtdlg.lbl.ttip.Simmethod1")
 				+ trans.get("simedtdlg.lbl.ttip.Simmethod2");
 		label = new JLabel(trans.get("simedtdlg.lbl.Simmethod"));
